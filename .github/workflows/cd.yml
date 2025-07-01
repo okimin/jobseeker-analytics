@@ -48,11 +48,12 @@ jobs:
 
         # Extract connection details
         MASTER_USERNAME=$(echo $DB_INFO | jq -r '.relationalDatabase.masterUsername')
+        MASTER_DATABASE_NAME=$(echo $DB_INFO | jq -r '.relationalDatabase.masterDatabaseName')
         ENDPOINT_ADDRESS=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.address')
         ENDPOINT_PORT=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.port')
 
         # Set as outputs for use in subsequent steps
-        echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/jobseeker_analytics" >> $GITHUB_OUTPUT
+        echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}" >> $GITHUB_OUTPUT
 
     - name: Build and push Docker image
       env:
