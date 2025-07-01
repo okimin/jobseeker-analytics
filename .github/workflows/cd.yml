@@ -29,7 +29,6 @@ jobs:
         curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
         chmod +x /usr/local/bin/lightsailctl
 
-
     - name: Query database connection info from Lightsail
       id: get_db_info
       env:
@@ -54,6 +53,12 @@ jobs:
 
         # Set as outputs for use in subsequent steps
         echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Stage Google credentials.json
+      run: |
+        cat << 'EOF' > backend/credentials.json
+        ${{ secrets.GOOGLE_CREDENTIALS_FILE_CONTENT }}
+        EOF
 
     - name: Build and push Docker image
       env:
