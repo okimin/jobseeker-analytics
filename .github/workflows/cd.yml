@@ -29,6 +29,31 @@ jobs:
         curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
         chmod +x /usr/local/bin/lightsailctl
 
+
+    - name: Query database connection info from Lightsail
+      id: get_db_info
+      env:
+        LS_DATABASE_NAME: ${{ secrets.LS_DATABASE_NAME }}
+      run: |
+        # Query the master password from Lightsail database
+        MASTER_PASSWORD=$(aws lightsail get-relational-database-master-user-password \
+          --relational-database-name ${LS_DATABASE_NAME} \
+          --password-version CURRENT \
+          --query 'masterUserPassword' \
+          --output text)
+
+        # Query database details for connection info
+        DB_INFO=$(aws lightsail get-relational-database \
+          --relational-database-name ${LS_DATABASE_NAME})
+
+        # Extract connection details
+        MASTER_USERNAME=$(echo $DB_INFO | jq -r '.relationalDatabase.masterUsername')
+        ENDPOINT_ADDRESS=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.address')
+        ENDPOINT_PORT=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.port')
+
+        # Set as outputs for use in subsequent steps
+        echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/jobseeker_analytics" >> $GITHUB_OUTPUT
+
     - name: Build and push Docker image
       env:
         LIGHTSAIL_SERVICE_NAME: just-a-job-app
@@ -36,7 +61,7 @@ jobs:
       run: |
         # Build Docker image
         docker build -t ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} --platform=linux/amd64 ./backend
-        
+
         # Push to Lightsail
         aws lightsail push-container-image \
           --service-name ${LIGHTSAIL_SERVICE_NAME} \
@@ -47,7 +72,9 @@ jobs:
       env:
         CONTAINER_PORT: 8000
         PUBLIC_PORT: 80
-      run: |
+        DATABASE_URL: ${{ steps.get_db_info.outputs.database_url }}
+      run: |2
+
         # Create deployment JSON
         cat > lc.json << EOF
         {
@@ -62,7 +89,8 @@ jobs:
                 "GOOGLE_API_KEY": "...",
                 "COOKIE_SECRET": "...",
                 "APP_URL": "http://localhost:3000",
-                "ENV": "staging"
+                "ENV": "staging",
+                "DATABASE_URL": "${DATABASE_URL}"
               },
               "ports": {
                 "${CONTAINER_PORT}": "HTTP"
@@ -83,7 +111,7 @@ jobs:
           }
         }
         EOF
-        
+
         # Deploy to Lightsail
         aws lightsail create-container-service-deployment \
           --cli-input-json file://lc.json
