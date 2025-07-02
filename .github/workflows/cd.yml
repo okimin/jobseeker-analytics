@@ -26,3 +26,4 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         google-credentials-file-content: ${{ secrets.GOOGLE_CREDENTIALS_FILE_CONTENT }}
         ls-database-name: ${{ secrets.LS_DATABASE_NAME }}
+        redirect-uri: ${{ secrets.REDIRECT_URI }}
