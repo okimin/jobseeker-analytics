@@ -104,7 +104,6 @@ runs:
             "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
             "environment": {
               "REDIRECT_URI": "${REDIRECT_URI}",
-              "GOOGLE_CLIENT_ID": "...",
               "GOOGLE_API_KEY": "...",
               "COOKIE_SECRET": "...",
               "APP_URL": "http://localhost:3000",
