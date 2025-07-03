@@ -44,24 +44,13 @@ app.include_router(start_date_routes.router)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter  # Ensure limiter is assigned
 
-# Configure CORS
-if settings.is_publicly_deployed:
-    # Production CORS settings
-    origins = ["https://www.justajobapp.com", "https://www.api.justajobapp.com"]
-else:
-    # Development CORS settings
-    origins = [
-        "http://localhost:3000",  # Assuming frontend runs on port 3000
-        "http://127.0.0.1:3000",
-    ]
-
 # Add SlowAPI middleware for rate limiting
 app.add_middleware(SlowAPIMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allow frontend origins
+    allow_origins=[settings.APP_URL],  # Allow frontend origins
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
