@@ -81,3 +81,4 @@ def add_user(user, request, db_session, start_date=None) -> Users:
     else:
         logger.info(f"User {user.user_id} already exists in the database.")
         return existing_user
+        
