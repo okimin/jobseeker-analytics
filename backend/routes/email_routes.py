@@ -17,9 +17,11 @@ from google.oauth2.credentials import Credentials
 import json
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
-from datetime import datetime
+from datetime import datetime, timedelta
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+import threading
+import asyncio
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -30,13 +32,18 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 APP_URL = settings.APP_URL
 
+SECONDS_BETWEEN_FETCHING_EMAILS = 1 * 60 * 60  # 1 hour
 
 # FastAPI router for email routes
 router = APIRouter()
 
+# Global dictionary to track running fetch tasks per user
+fetch_email_tasks = {}
+fetch_email_tasks_lock = threading.Lock()
+
 @router.get("/processing", response_class=HTMLResponse)
 async def processing(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
-    #logging.info("user_id:%s processing", user_id)
+    logging.info("user_id:%s processing", user_id)
     if not user_id:
         logger.info("user_id: not found, redirecting to login")
         return RedirectResponse("/logout", status_code=303)
@@ -126,36 +133,52 @@ async def delete_email(request: Request, db_session: database.DBSession, email_i
         
 
 @router.post("/fetch-emails")
-@limiter.limit("1/day")
+@limiter.limit("5/minute")
 async def start_fetch_emails(
     request: Request, background_tasks: BackgroundTasks, user_id: str = Depends(validate_session)
 ):
     """Starts the background task for fetching and processing emails."""
-    
     if not user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
     logger.info(f"user_id:{user_id} start_fetch_emails")
-    # Retrieve stored credentials
     creds_json = request.session.get("creds")
     if not creds_json:
         logger.error(f"Missing credentials for user_id: {user_id}")
         return HTMLResponse(content="User not authenticated. Please log in again.", status_code=401)
-
     try:
-        # Convert JSON string back to Credentials object
         creds_dict = json.loads(creds_json)
-        creds = Credentials.from_authorized_user_info(creds_dict)  # Convert dict to Credentials
+        creds = Credentials.from_authorized_user_info(creds_dict)
         user = AuthenticatedUser(creds)
-
         logger.info(f"Starting email fetching process for user_id: {user_id}")
-
-        # Start email fetching in the background
-        background_tasks.add_task(fetch_emails_to_db, user, request, user_id=user_id)
-
+        # Start email fetching in the background and track the task
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, user_id=user_id))
+        with fetch_email_tasks_lock:
+            fetch_email_tasks[user_id] = task
+        def cleanup_task(fut):
+            with fetch_email_tasks_lock:
+                fetch_email_tasks.pop(user_id, None)
+        task.add_done_callback(cleanup_task)
         return JSONResponse(content={"message": "Email fetching started"}, status_code=200)
     except Exception as e:
         logger.error(f"Error reconstructing credentials: {e}")
         raise HTTPException(status_code=500, detail="Failed to authenticate user")
+
+
+@router.post("/stop-fetch-emails")
+async def stop_fetch_emails(request: Request, user_id: str = Depends(validate_session)):
+    """
+    Stops the background email fetching task for the authenticated user.
+    """
+    with fetch_email_tasks_lock:
+        task = fetch_email_tasks.get(user_id)
+    if not task:
+        logger.warning(f"No running fetch-emails task for user_id {user_id}")
+        return JSONResponse(content={"message": "No running fetch-emails task to stop."}, status_code=404)
+    # Attempt to cancel the task
+    cancelled = task.cancel()
+    logger.info(f"Cancelled fetch-emails task for user_id {user_id}: {cancelled}")
+    return JSONResponse(content={"message": "Fetch-emails task cancelled."}, status_code=200)
 
 
 def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: Optional[datetime] = None, *, user_id: str) -> None:
@@ -163,17 +186,19 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
     with Session(database.engine) as db_session:
         # we track starting and finishing fetching of emails for each user
-        process_task_run = db_session.exec(
-            select(task_models.TaskRuns).filter_by(user_id=user_id)
-        ).one_or_none()
+        process_task_run = (
+            db_session.query(task_models.TaskRuns).filter_by(user_id=user_id).one_or_none()
+        )
         if process_task_run is None:
             # if this is the first time running the task for the user, create a record
             process_task_run = task_models.TaskRuns(user_id=user_id)
             db_session.add(process_task_run)
-        elif process_task_run.processed_emails >= settings.batch_size_by_env:
+        elif datetime.now() - process_task_run.updated < timedelta(
+            seconds=SECONDS_BETWEEN_FETCHING_EMAILS
+        ):
             # limit how frequently emails can be fetched by a specific user
             logger.warning(
-                "Already fetched the maximum number (%s) of emails for this user for today", settings.batch_size_by_env,
+                "Less than an hour since last fetch of emails for user",
                 extra={"user_id": user_id},
             )
             return
@@ -244,7 +269,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
             if msg:
                 try:
-                    result = process_email(msg["text_content"], user_id)
+                    result = process_email(msg["text_content"])
                     # if values are empty strings or null, set them to "unknown"
                     for key in result.keys():
                         if not result[key]:
@@ -297,7 +322,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
 @router.delete("/delete-emails")
 @limiter.limit("1/minute")
-async def delete_all_emails(request: Request, db_session: Session = Depends(database.get_session), user_id: str = Depends(validate_session)):
+async def delete_all_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     """
     Deletes all email records for the authenticated user.
     """
@@ -309,7 +334,7 @@ async def delete_all_emails(request: Request, db_session: Session = Depends(data
 
         if not email_records:
             logger.warning(f"No emails found for user_id {user_id}")
-            return JSONResponse(content={"message": "No emails to delete"}, status_code=200)
+            return JSONResponse(content={"message": "No emails to delete"}, status_code=404)
 
         # Delete all email records
         for record in email_records:
@@ -324,7 +349,7 @@ async def delete_all_emails(request: Request, db_session: Session = Depends(data
         raise HTTPException(status_code=500, detail=f"Failed to delete emails: {str(e)}")
 
 @router.delete("/delete-emails-before-start-date")
-async def delete_emails_before_start_date(request: Request, db_session: Session = Depends(database.get_session), user_id: str = Depends(validate_session)):
+async def delete_emails_before_start_date(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     """
     Deletes all email records for the authenticated user that were received before the user's start date.
     """
@@ -362,22 +387,3 @@ async def delete_emails_before_start_date(request: Request, db_session: Session 
     except Exception as e:
         logger.error(f"Error deleting emails before start date for user_id {user_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to delete emails: {str(e)}")
-
-@router.post("/stop-fetch-emails")
-async def stop_fetch_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
-    """
-    Marks the user's background email fetching task as stopped/cancelled.
-    """
-    try:
-        process_task_run = db_session.get(task_models.TaskRuns, user_id)
-        if not process_task_run:
-            logger.warning(f"No processing task found for user_id {user_id}")
-            return JSONResponse(content={"message": "No processing task found"}, status_code=404)
-        # Set a status or flag to indicate cancellation
-        process_task_run.status = getattr(task_models, "CANCELLED", "CANCELLED")
-        db_session.commit()
-        logger.info(f"Processing task for user_id {user_id} marked as cancelled/stopped")
-        return JSONResponse(content={"message": "Processing stopped"}, status_code=200)
-    except Exception as e:
-        logger.error(f"Error stopping processing for user_id {user_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to stop processing: {str(e)}")
