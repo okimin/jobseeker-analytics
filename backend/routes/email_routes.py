@@ -43,7 +43,7 @@ fetch_email_tasks_lock = threading.Lock()
 
 @router.get("/processing", response_class=HTMLResponse)
 async def processing(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
-    logging.info("user_id:%s processing", user_id)
+    #logging.info("user_id:%s processing", user_id)
     if not user_id:
         logger.info("user_id: not found, redirecting to login")
         return RedirectResponse("/logout", status_code=303)
@@ -322,7 +322,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
 @router.delete("/delete-emails")
 @limiter.limit("1/minute")
-async def delete_all_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
+async def delete_all_emails(request: Request, db_session: Session = Depends(database.get_session), user_id: str = Depends(validate_session)):
     """
     Deletes all email records for the authenticated user.
     """
@@ -349,7 +349,7 @@ async def delete_all_emails(request: Request, db_session: database.DBSession, us
         raise HTTPException(status_code=500, detail=f"Failed to delete emails: {str(e)}")
 
 @router.delete("/delete-emails-before-start-date")
-async def delete_emails_before_start_date(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
+async def delete_emails_before_start_date(request: Request, db_session: Session = Depends(database.get_session), user_id: str = Depends(validate_session)):
     """
     Deletes all email records for the authenticated user that were received before the user's start date.
     """
@@ -387,3 +387,22 @@ async def delete_emails_before_start_date(request: Request, db_session: database
     except Exception as e:
         logger.error(f"Error deleting emails before start date for user_id {user_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to delete emails: {str(e)}")
+
+@router.post("/stop-fetch-emails")
+async def stop_fetch_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
+    """
+    Marks the user's background email fetching task as stopped/cancelled.
+    """
+    try:
+        process_task_run = db_session.get(task_models.TaskRuns, user_id)
+        if not process_task_run:
+            logger.warning(f"No processing task found for user_id {user_id}")
+            return JSONResponse(content={"message": "No processing task found"}, status_code=404)
+        # Set a status or flag to indicate cancellation
+        process_task_run.status = getattr(task_models, "CANCELLED", "CANCELLED")
+        db_session.commit()
+        logger.info(f"Processing task for user_id {user_id} marked as cancelled/stopped")
+        return JSONResponse(content={"message": "Processing stopped"}, status_code=200)
+    except Exception as e:
+        logger.error(f"Error stopping processing for user_id {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to stop processing: {str(e)}")
