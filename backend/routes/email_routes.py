@@ -309,7 +309,7 @@ async def delete_all_emails(request: Request, db_session: Session = Depends(data
 
         if not email_records:
             logger.warning(f"No emails found for user_id {user_id}")
-            return JSONResponse(content={"message": "No emails to delete"}, status_code=404)
+            return JSONResponse(content={"message": "No emails to delete"}, status_code=200)
 
         # Delete all email records
         for record in email_records:
