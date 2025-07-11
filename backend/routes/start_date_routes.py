@@ -87,7 +87,7 @@ async def get_session_data(request: Request, user_id: str = Depends(validate_ses
 
     return JSONResponse(content=session_data)
 
-@router.post("/change-start-date")
+@router.put("/change-start-date")
 @limiter.limit("1/minute")
 async def change_start_date(request: Request, new_start_date: str = Form(...), user_id: str = Depends(validate_session)):
     """Changes the user's job search start date in the database."""
