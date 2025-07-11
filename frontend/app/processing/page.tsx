@@ -1,7 +1,18 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { addToast, Button, DatePicker, Progress, Modal, ModalBody,  ModalContent, ModalFooter, ModalHeader, CalendarDate} from "@heroui/react";
+import {
+	addToast,
+	Button,
+	DatePicker,
+	Progress,
+	Modal,
+	ModalBody,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	CalendarDate
+} from "@heroui/react";
 
 import Spinner from "../../components/spinner";
 
@@ -56,7 +67,7 @@ const ProcessingPage = () => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router]);
 
 	async function resetDate() {
@@ -151,7 +162,10 @@ const ProcessingPage = () => {
 					Eating rejections for dinner. You will be redirected to your dashboard soon.
 				</p>
 				<p className="text-sm text-gray-500 mt-2">
-					Taking too long? <a onClick={() => setShowModal(true)}><u>Reset the date</u></a>
+					Taking too long?{" "}
+					<a onClick={() => setShowModal(true)}>
+						<u>Reset the date</u>
+					</a>
 				</p>
 			</div>
 		</div>
