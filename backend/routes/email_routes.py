@@ -43,7 +43,7 @@ fetch_email_tasks_lock = threading.Lock()
 
 @router.get("/processing", response_class=HTMLResponse)
 async def processing(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
-    #logging.info("user_id:%s processing", user_id)
+    logging.info("user_id:%s processing", user_id)
     if not user_id:
         logger.info("user_id: not found, redirecting to login")
         return RedirectResponse("/logout", status_code=303)
