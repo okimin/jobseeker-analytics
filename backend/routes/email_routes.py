@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 APP_URL = settings.APP_URL
 
-SECONDS_BETWEEN_FETCHING_EMAILS = 1 * 60 * 60  # 1 hour
 
 # FastAPI router for email routes
 router = APIRouter()
@@ -186,9 +185,9 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
     with Session(database.engine) as db_session:
         # we track starting and finishing fetching of emails for each user
-        process_task_run = (
-            db_session.query(task_models.TaskRuns).filter_by(user_id=user_id).one_or_none()
-        )
+        process_task_run = db_session.exec(
+            select(task_models.TaskRuns).filter_by(user_id=user_id)
+        ).one_or_none()
         if process_task_run is None:
             # if this is the first time running the task for the user, create a record
             process_task_run = task_models.TaskRuns(user_id=user_id)
@@ -269,7 +268,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
             if msg:
                 try:
-                    result = process_email(msg["text_content"])
+                    result = process_email(msg["text_content"], user_id)
                     # if values are empty strings or null, set them to "unknown"
                     for key in result.keys():
                         if not result[key]:
