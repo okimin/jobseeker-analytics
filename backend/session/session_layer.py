@@ -4,14 +4,20 @@ import secrets
 from datetime import datetime
 from fastapi import Request
 from utils.config_utils import get_settings
+import database
+from db.users import Users
+from sqlmodel import select
 
 settings = get_settings()
 
 def create_random_session_string() -> str:
     return secrets.token_urlsafe(32)  # Generates a random URL-safe string
 
-
-def validate_session(request: Request) -> str:
+def clear_session(request: Request, user_id: str) -> None:
+    logging.info("user_id: %s clear_session" % user_id)
+    request.cookies.clear()
+    
+def validate_session(request: Request, db_session: database.DBSession) -> str:
     """Retrieves Authorization, session_id, access_token and token_expiry
     from request cookies and validates them.
     Session ID should match the stored session.
@@ -40,6 +46,14 @@ def validate_session(request: Request) -> str:
     if is_token_expired(token_exp):
         logging.info("Access_token is expired, redirecting to login")
         return ""
+
+    if user_id:
+        # check that user actually exists in database first
+        user = db_session.exec(select(Users).where(Users.user_id == user_id))
+        if not user:
+            clear_session(request, user_id)
+            logging.info("user_id: %s deleted, redirecting to login" % user_id)
+            return ""
 
     logging.info("Valid Session, Access granted.")
     return user_id
