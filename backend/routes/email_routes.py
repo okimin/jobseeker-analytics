@@ -57,6 +57,11 @@ async def processing(request: Request, db_session: database.DBSession, user_id: 
         task_models.TaskRuns, user_id
     )
 
+    if not process_task_run:
+        raise HTTPException(
+            status_code=404, detail="Processing has not started."
+        )
+
     if process_task_run.status == task_models.FINISHED:
         logger.info("user_id: %s processing complete", user_id)
         return JSONResponse(
