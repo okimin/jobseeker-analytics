@@ -14,10 +14,12 @@ settings = get_settings()
 def create_random_session_string() -> str:
     return secrets.token_urlsafe(32)  # Generates a random URL-safe string
 
+
 def clear_session(request: Request, user_id: str) -> None:
     logging.info("user_id: %s clear_session" % user_id)
     request.cookies.clear()
-    
+
+
 def validate_session(request: Request, db_session: database.DBSession) -> str:
     """Retrieves Authorization, session_id, access_token and token_expiry
     from request cookies and validates them.
