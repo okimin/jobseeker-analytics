@@ -8,7 +8,6 @@ from db.processing_tasks import TaskRuns, FINISHED, STARTED
 from routes.email_routes import fetch_emails_to_db
 
 
-
 def test_processing(logged_in_client, started_task):
     # make request to check on processing status
     resp = logged_in_client.get("/processing", follow_redirects=False)
@@ -20,6 +19,7 @@ def test_processing(logged_in_client, started_task):
 def test_processing_404(logged_in_client):
     resp = logged_in_client.get("/processing", follow_redirects=False)
     assert resp.status_code == 404
+
 
 def test_processing_redirect(incognito_client):
     resp = incognito_client.get("/processing", follow_redirects=False)
@@ -38,8 +38,12 @@ def test_fetch_emails_to_db(logged_in_user, db_session):
         assert task_run.status == FINISHED
 
 
-def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(logged_in_user, rate_limited_task, db_session):
-    with mock.patch("routes.email_routes.get_email_ids", return_value=[]) as mock_get_email_ids:
+def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
+    logged_in_user, rate_limited_task, db_session
+):
+    with mock.patch(
+        "routes.email_routes.get_email_ids", return_value=[]
+    ) as mock_get_email_ids:
         fetch_emails_to_db(
             auth_utils.AuthenticatedUser(Credentials("abc")),
             Request({"type": "http", "session": {}}),
