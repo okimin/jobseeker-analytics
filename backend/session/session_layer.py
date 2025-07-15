@@ -6,11 +6,7 @@ from fastapi import Request
 from utils.config_utils import get_settings
 import database
 from db.users import Users
-from sqlmodel import select, Session
-from database import engine
-import logging
-
-logger = logging.getLogger(__name__)
+from sqlmodel import select
 
 settings = get_settings()
 
@@ -18,12 +14,10 @@ settings = get_settings()
 def create_random_session_string() -> str:
     return secrets.token_urlsafe(32)  # Generates a random URL-safe string
 
-
 def clear_session(request: Request, user_id: str) -> None:
     logging.info("user_id: %s clear_session" % user_id)
     request.cookies.clear()
-
-
+    
 def validate_session(request: Request, db_session: database.DBSession) -> str:
     """Retrieves Authorization, session_id, access_token and token_expiry
     from request cookies and validates them.
@@ -56,13 +50,10 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
 
     if user_id:
         # check that user actually exists in database first
-        logger.info("validate_session found user_id: %s", user_id)
-        db_session.expire_all()  # Clear any cached data
-        db_session.commit()  # Commit pending changes to ensure the database is in latest state
         user = db_session.exec(select(Users).where(Users.user_id == user_id))
         if not user:
             clear_session(request, user_id)
-            logging.info("validate_session deleting user_id: %s", user_id)
+            logging.info("user_id: %s deleted, redirecting to login" % user_id)
             return ""
 
     logging.info("Valid Session, Access granted.")
