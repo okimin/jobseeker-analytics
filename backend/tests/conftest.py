@@ -13,7 +13,7 @@ os.chdir("./backend")
 
 import database  # noqa: E402
 
-# Use SQLite for tests
+# Use SQLite for GitHub CI pipeline
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 @pytest.fixture(scope="session")

@@ -1,12 +1,9 @@
 from utils import auth_utils
 from unittest import mock
-from datetime import datetime
 
 from fastapi import Request
-from sqlalchemy.orm import Session
 from google.oauth2.credentials import Credentials
 
-from db.users import Users
 from db.processing_tasks import TaskRuns, FINISHED, STARTED
 from routes.email_routes import fetch_emails_to_db
 
@@ -29,33 +26,20 @@ def test_processing_redirect(incognito_client):
     assert resp.status_code == 303
 
 
-def test_fetch_emails_to_db(db_session: Session):
-    test_user_id = "123"
-
-    db_session.add(
-        Users(
-            user_id=test_user_id,
-            user_email="user123@example.com",
-            start_date=datetime(2000, 1, 1),
-        )
-    )
-    db_session.commit()
-
-    with mock.patch("routes.email_routes.get_email_ids"):
+def test_fetch_emails_to_db(logged_in_user, db_session):
+    with mock.patch("routes.email_routes.get_email_ids", return_value=[]):
         fetch_emails_to_db(
             auth_utils.AuthenticatedUser(Credentials("abc")),
             Request({"type": "http", "session": {}}),
-            user_id=test_user_id,
+            user_id=logged_in_user.user_id,
         )
 
-    task_run = db_session.get(TaskRuns, test_user_id)
-    assert task_run.status == FINISHED
+        task_run = db_session.get(TaskRuns, logged_in_user.user_id)
+        assert task_run.status == FINISHED
 
 
 def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(logged_in_user, rate_limited_task, db_session):
-
-    
-    with mock.patch("routes.email_routes.get_email_ids") as mock_get_email_ids:
+    with mock.patch("routes.email_routes.get_email_ids", return_value=[]) as mock_get_email_ids:
         fetch_emails_to_db(
             auth_utils.AuthenticatedUser(Credentials("abc")),
             Request({"type": "http", "session": {}}),
