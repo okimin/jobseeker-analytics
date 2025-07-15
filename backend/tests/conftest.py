@@ -21,7 +21,7 @@ from db.processing_tasks import STARTED, FINISHED, TaskRuns
 from db.users import Users
 import database  # noqa: E402
 
-# Use SQLite for tests
+# Use SQLite for GitHub CI pipeline
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 @pytest.fixture(scope="session")

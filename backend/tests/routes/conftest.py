@@ -14,7 +14,7 @@ def task_factory(db_session, logged_in_user):
     def _create_task(status=STARTED, processed_emails=0):
         task = TaskRuns(user=logged_in_user, status=status, processed_emails=processed_emails)
         db_session.add(task)
-        db_session.flush()
+        db_session.commit()
         return task
     return _create_task
 
@@ -23,7 +23,7 @@ def user_factory(db_session):
     def _create_user(user_id="123", user_email="user@example.com", start_date=datetime(2000, 1, 1)):
         user = Users(user_id=user_id, user_email=user_email, start_date=start_date)
         db_session.add(user)
-        db_session.flush()
+        db_session.commit()
         return user
     return _create_user
 
