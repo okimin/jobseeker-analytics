@@ -1,6 +1,6 @@
 [![Run python unit tests](https://github.com/macro1/jobseeker-analytics/actions/workflows/pytest.yml/badge.svg)](https://github.com/macro1/jobseeker-analytics/actions/workflows/pytest.yml)
 
-## **About Just A Job App (JAJA)**
+## **About Just A Job App**
 
 **JAJA tracks your job applications automatically, no spreadsheet required.** 
 
@@ -8,7 +8,8 @@ Isn't tracking companies you've applied to exhausting? The emotional toll burned
 
 Track your job applications — automatically, straight from your inbox.
 
-<img width="1080" height="1080" alt="sneak peek3" src="https://github.com/user-attachments/assets/7b56f88a-ca3a-464b-a338-19825165674b" />
+<img width="1080" height="1080" alt="star" src="https://github.com/user-attachments/assets/5493fdd9-63aa-4951-86c7-95195cef1431" />
+
 
 🎥 [Watch a demo](https://youtube.com/shorts/YT7qzTh2Q7A?feature=share)
 
