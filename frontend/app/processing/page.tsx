@@ -40,29 +40,29 @@ const ProcessingPage = () => {
 			return;
 		}
 
-		intervalRef.current = setInterval(async () => {
-			try {
-				const res = await fetch(`${apiUrl}/processing`, {
-					method: "GET",
-					credentials: "include"
-				});
-				const result = await res.json();
-				const total = Number(result.total_emails);
+			const interval = setInterval(async () => {
+				try {
+					const res = await fetch(`${apiUrl}/processing`, {
+						method: "GET",
+						credentials: "include"
+					});
+
+					const result = await res.json();
+					const total = Number(result.total_emails);
 					const processed = Number(result.processed_emails);
 					if (!total || isNaN(total)) {
-					setProgress(100);
-				} else {
-					setProgress(100 * (processed / total));
+						setProgress(100);
+					} else {
+						setProgress(100 * (processed / total));
+					}
+					if (result.message === "Processing complete") {
+						clearInterval(interval);
+						router.push("/dashboard");
+					}
+				} catch {
+					router.push("/logout");
 				}
-				if (result.message === "Processing complete") {
-					if (intervalRef.current) clearInterval(intervalRef.current);
-					router.push("/dashboard");
-				}
-			} catch {
-				router.push("/logout");
-			}
-		}, 3000);
-	};
+			}, 3000);
 
 	useEffect(() => {
 		startProcessing();
