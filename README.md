@@ -6,11 +6,9 @@ Built by jobseekers, for jobseekers. Free forever.
 
 Tired of abandoned spreadsheets and forgotten Notion tables?
 
-Just a Job App tracks your job applications — automatically, straight from your inbox.
+Track your job applications — automatically, straight from your inbox.
 
-No manual tracking. No extra tabs. Just a simpler job search.
-
-![sneakpeek](https://github.com/user-attachments/assets/ccfac1bd-ce57-4f62-894c-c55682ff2fb4)
+<img width="1080" height="1080" alt="sneak peek3" src="https://github.com/user-attachments/assets/7b56f88a-ca3a-464b-a338-19825165674b" />
 
 🎥 [Watch a demo](https://youtube.com/shorts/YT7qzTh2Q7A?feature=share)
 
