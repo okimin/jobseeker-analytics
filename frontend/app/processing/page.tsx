@@ -40,12 +40,12 @@ const ProcessingPage = () => {
 			return;
 		}
 
-			const interval = setInterval(async () => {
-				try {
-					const res = await fetch(`${apiUrl}/processing`, {
-						method: "GET",
-						credentials: "include"
-					});
+		const interval = setInterval(async () => {
+			try {
+				const res = await fetch(`${apiUrl}/processing`, {
+					method: "GET",
+					credentials: "include"
+				});
 
 					const result = await res.json();
 					const total = Number(result.total_emails);
@@ -63,7 +63,8 @@ const ProcessingPage = () => {
 					router.push("/logout");
 				}
 			}, 3000);
-	};
+		};
+
 	useEffect(() => {
 		startProcessing();
 		return () => {
@@ -75,7 +76,7 @@ const ProcessingPage = () => {
 	async function resetDate() {
 		if (!selectedDate) return alert("Please select a start date");
 
-		console.log("Resetting date to:", selectedDate);
+		//console.log("Resetting date to:", selectedDate);
 		setIsSaving(true);
 		// Stop the current email fetching process
 		try {
