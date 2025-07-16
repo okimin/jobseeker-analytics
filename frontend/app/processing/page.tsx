@@ -63,7 +63,7 @@ const ProcessingPage = () => {
 					router.push("/logout");
 				}
 			}, 3000);
-
+	};
 	useEffect(() => {
 		startProcessing();
 		return () => {
