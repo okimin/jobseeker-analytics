@@ -35,7 +35,6 @@ class Settings(BaseSettings):
 
     @property
     def is_publicly_deployed(self) -> bool:
-        return False
         return self.ENV in ["prod", "staging"]
     
     @property
