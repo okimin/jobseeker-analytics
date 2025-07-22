@@ -1,5 +1,5 @@
 import logging
-
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse 
 from fastapi.staticfiles import StaticFiles
@@ -81,6 +81,16 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
         status_code=429,
         detail="Too many requests. Please try again later.",
     )
+
+
+@app.get("/heartbeat")
+@limiter.limit("4/hour")
+async def heartbeat(request: Request):
+    """
+    Lightweight endpoint to check if the backend is alive.
+    No rate limiting applied to prevent blocking health checks.
+    """
+    return {"status": "alive", "timestamp": datetime.now().isoformat()}
 
 
 @app.post("/api/add-user")
