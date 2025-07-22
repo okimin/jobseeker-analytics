@@ -12,6 +12,8 @@ env:
 
 jobs:
   deploy-to-staging:
+    permissions:
+      contents: read
     runs-on: ubuntu-24.04
     environment: staging
 
