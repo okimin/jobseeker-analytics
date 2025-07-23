@@ -17,6 +17,9 @@ from google.oauth2.credentials import Credentials
 import json
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
+
+# Constants
+SECONDS_BETWEEN_FETCHING_EMAILS = 3600  # 1 hour
 from datetime import datetime, timedelta
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -268,20 +271,6 @@ async def stop_fetch_emails(request: Request, db_session: database.DBSession, us
     logger.info(f"Cancelled fetch-emails task and reset status for user_id {user_id}: {cancelled}")
     return JSONResponse(content={"message": "Fetch-emails task cancelled and status reset."}, status_code=200)
 
-@router.post("/stop-fetch-emails")
-async def stop_fetch_emails(request: Request, user_id: str = Depends(validate_session)):
-    """
-    Stops the background email fetching task for the authenticated user.
-    """
-    with fetch_email_tasks_lock:
-        task = fetch_email_tasks.get(user_id)
-    if not task:
-        logger.warning(f"No running fetch-emails task for user_id {user_id}")
-        return JSONResponse(content={"message": "No running fetch-emails task to stop."}, status_code=404)
-    # Attempt to cancel the task
-    cancelled = task.cancel()
-    logger.info(f"Cancelled fetch-emails task for user_id {user_id}: {cancelled}")
-    return JSONResponse(content={"message": "Fetch-emails task cancelled."}, status_code=200)
 
 
 def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: Optional[datetime] = None, *, user_id: str) -> None:
@@ -374,6 +363,16 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
         email_records = []  # list to collect email records
 
         for idx, message in enumerate(messages):
+            # Check for cancellation before processing each email
+            with cancellation_flags_lock:
+                if user_cancellation_flags.get(user_id, False):
+                    logger.info(f"Processing cancelled for user_id {user_id} at email {idx + 1}")
+                    process_task_run.status = task_models.CANCELLED
+                    db_session.commit()
+                    # Clean up the cancellation flag
+                    user_cancellation_flags.pop(user_id, None)
+                    return
+            
             message_data = {}
             # (email_subject, email_from, email_domain, company_name, email_dt)
             msg_id = message["id"]
@@ -387,11 +386,20 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
             if msg:
                 try:
-                    result = process_email(msg["text_content"])
+                    result = process_email(msg["text_content"], user_id)
+                    # Check for cancellation after LLM processing
+                    with cancellation_flags_lock:
+                        if user_cancellation_flags.get(user_id, False):
+                            logger.info(f"Processing cancelled for user_id {user_id} after processing email {idx + 1}")
+                            process_task_run.status = task_models.CANCELLED
+                            db_session.commit()
+                            return
+                    
                     # if values are empty strings or null, set them to "unknown"
-                    for key in result.keys():
-                        if not result[key]:
-                            result[key] = "unknown"
+                    if result:
+                        for key in result.keys():
+                            if not result[key]:
+                                result[key] = "unknown"
                 except Exception as e:
                     logger.error(
                         f"user_id:{user_id} Error processing email {idx + 1} of {len(messages)} with id {msg_id}: {e}"
