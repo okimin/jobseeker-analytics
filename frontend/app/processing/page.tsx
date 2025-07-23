@@ -50,6 +50,7 @@ const ProcessingPage = () => {
 					const result = await res.json();
 					const total = Number(result.total_emails);
 					const processed = Number(result.processed_emails);
+					console.log("Processing result:", result);
 					if (!total || isNaN(total)) {
 						setProgress(100);
 					} else {
@@ -76,32 +77,40 @@ const ProcessingPage = () => {
 	async function resetDate() {
 		if (!selectedDate) return alert("Please select a start date");
 
-		//console.log("Resetting date to:", selectedDate);
 		setIsSaving(true);
-		// Stop the current email fetching process
 		try {
-			const res = await fetch(`${apiUrl}/stop-fetch-emails`, {
+			// 1. Stop current processing (both fetch and email processing)
+			const stopRes = await fetch(`${apiUrl}/stop-fetch-emails`, {
 				method: "POST",
 				credentials: "include"
 			});
-			if (!res.ok) {
-				throw new Error("Failed to stop email fetching");
+			
+			if (!stopRes.ok) {
+				console.warn("Stop request failed, continuing with reset...");
 			}
-			// Change the start date
+			
+			// 2. Wait for tasks to fully stop
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			
+			// 3. Change start date
 			await changeStartDate(selectedDate);
-			// Delete all emails for the user
-			const delRes = await fetch(`${apiUrl}/delete-emails`, {
+			
+			// 4. Delete old emails before new start date
+			await fetch(`${apiUrl}/delete-emails-before-start-date`, {
 				method: "DELETE",
 				credentials: "include"
 			});
-			if (!delRes.ok) {
-				throw new Error("Failed to delete emails");
-			}
-			// Restart the process
-			if (intervalRef.current) clearInterval(intervalRef.current);
+			
+			// 5. Restart with clean state
+			await fetch(`${apiUrl}/restart-processing`, {
+				method: "POST",
+				credentials: "include"
+			});
+			
+			// 6. Reset UI state
 			setShowModal(false);
 			setProgress(0);
-			await startProcessing();
+			
 		} catch (error) {
 			addToast({
 				title: "Error resetting process",
@@ -133,6 +142,18 @@ const ProcessingPage = () => {
 		});
 		setSelectedDate(null); // Clear the selected date after saving
 	}
+
+	const startFetchEmailsBackgroundTask = async () => {
+		// Example background task: Start fetching emails
+		const response = await fetch(`${apiUrl}/fetch-emails`, {
+			method: "POST", // or GET, depending on your API
+			credentials: "include"
+		});
+
+		if (!response.ok) {
+			return;
+		}
+	};
 
 	return (
 		<div className="flex flex-col items-center justify-center h-full">

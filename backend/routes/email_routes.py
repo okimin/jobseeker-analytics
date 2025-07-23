@@ -17,6 +17,9 @@ from google.oauth2.credentials import Credentials
 import json
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
+
+# Constants
+SECONDS_BETWEEN_FETCHING_EMAILS = 3600  # 1 hour
 from datetime import datetime, timedelta
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -40,6 +43,10 @@ router = APIRouter()
 fetch_email_tasks = {}
 fetch_email_tasks_lock = threading.Lock()
 
+# Global dictionary to track cancellation flags for users
+user_cancellation_flags = {}
+cancellation_flags_lock = threading.Lock()
+
 @router.get("/processing", response_class=HTMLResponse)
 async def processing(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     logging.info("user_id:%s processing", user_id)
@@ -61,6 +68,16 @@ async def processing(request: Request, db_session: database.DBSession, user_id: 
                 "message": "Processing complete",
                 "processed_emails": process_task_run.processed_emails,
                 "total_emails": process_task_run.total_emails,
+            }
+        )
+    elif process_task_run.status in [task_models.CANCELLED, task_models.STOPPED]:
+        logger.info("user_id: %s processing was cancelled/stopped", user_id)
+        return JSONResponse(
+            content={
+                "message": "Processing stopped",
+                "processed_emails": 0,
+                "total_emails": 0,
+                "status": "stopped"
             }
         )
     else:
@@ -155,6 +172,8 @@ async def start_fetch_emails(
         with fetch_email_tasks_lock:
             fetch_email_tasks[user_id] = task
         def cleanup_task(fut):
+            """Cleanup task to remove the user from fetch_email_tasks after completion."""
+            logger.info(f"Cleaning up fetch_emails task for user_id: {user_id}")
             with fetch_email_tasks_lock:
                 fetch_email_tasks.pop(user_id, None)
         task.add_done_callback(cleanup_task)
@@ -163,25 +182,92 @@ async def start_fetch_emails(
         logger.error(f"Error reconstructing credentials: {e}")
         raise HTTPException(status_code=500, detail="Failed to authenticate user")
 
+@router.post("/restart-processing")
+async def restart_processing(
+    request: Request, 
+    background_tasks: BackgroundTasks, 
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session)
+):
+    """
+    Restarts the email processing after a date change.
+    """
+    # Clear cancellation flag for fresh start
+    with cancellation_flags_lock:
+        user_cancellation_flags.pop(user_id, None)
+    
+    # First ensure any existing task is stopped
+    with fetch_email_tasks_lock:
+        existing_task = fetch_email_tasks.get(user_id)
+        if existing_task:
+            existing_task.cancel()
+    
+    # Wait a moment for cleanup
+    await asyncio.sleep(0.5)
+    
+    # Reset or create new task run
+    process_task_run = db_session.get(task_models.TaskRuns, user_id)
+    if not process_task_run:
+        process_task_run = task_models.TaskRuns(
+            user_id=user_id,
+            status=task_models.STARTED,
+            processed_emails=0,
+            total_emails=0
+        )
+    else:
+        process_task_run.status = task_models.STARTED
+        process_task_run.processed_emails = 0
+        process_task_run.total_emails = 0
+    
+    db_session.add(process_task_run)
+    db_session.commit()
+
+    logger.info(f"Restarting processing for user_id {user_id}")
+    # Start new background task
+    return await start_fetch_emails(request, background_tasks, user_id)
 
 @router.post("/stop-fetch-emails")
-async def stop_fetch_emails(request: Request, user_id: str = Depends(validate_session)):
+async def stop_fetch_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     """
-    Stops the background email fetching task for the authenticated user.
+    Stops the background email fetching task and resets processing status.
     """
+    # Set cancellation flag for the user
+    with cancellation_flags_lock:
+        user_cancellation_flags[user_id] = True
+    
     with fetch_email_tasks_lock:
         task = fetch_email_tasks.get(user_id)
+    
     if not task:
         logger.warning(f"No running fetch-emails task for user_id {user_id}")
         return JSONResponse(content={"message": "No running fetch-emails task to stop."}, status_code=404)
-    # Attempt to cancel the task
+    
+    # Cancel the task
     cancelled = task.cancel()
-    logger.info(f"Cancelled fetch-emails task for user_id {user_id}: {cancelled}")
-    return JSONResponse(content={"message": "Fetch-emails task cancelled."}, status_code=200)
+    
+    # Give the task a moment to recognize cancellation
+    await asyncio.sleep(1.0)
+    
+    # Reset the task status in database
+    process_task_run = db_session.get(task_models.TaskRuns, user_id)
+    if process_task_run:
+        process_task_run.status = task_models.CANCELLED
+        process_task_run.processed_emails = 0
+        process_task_run.total_emails = 0
+        db_session.add(process_task_run)
+        db_session.commit()
+    
+    logger.info(f"Cancelled fetch-emails task and reset status for user_id {user_id}: {cancelled}")
+    return JSONResponse(content={"message": "Fetch-emails task cancelled and status reset."}, status_code=200)
+
 
 
 def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: Optional[datetime] = None, *, user_id: str) -> None:
     logger.info(f"Fetching emails to db for user_id: {user_id}")
+    
+    # Clear any existing cancellation flag for this user
+    with cancellation_flags_lock:
+        user_cancellation_flags.pop(user_id, None)
 
     with Session(database.engine) as db_session:
         # we track starting and finishing fetching of emails for each user
@@ -255,6 +341,16 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
         email_records = []  # list to collect email records
 
         for idx, message in enumerate(messages):
+            # Check for cancellation before processing each email
+            with cancellation_flags_lock:
+                if user_cancellation_flags.get(user_id, False):
+                    logger.info(f"Processing cancelled for user_id {user_id} at email {idx + 1}")
+                    process_task_run.status = task_models.CANCELLED
+                    db_session.commit()
+                    # Clean up the cancellation flag
+                    user_cancellation_flags.pop(user_id, None)
+                    return
+            
             message_data = {}
             # (email_subject, email_from, email_domain, company_name, email_dt)
             msg_id = message["id"]
@@ -269,10 +365,19 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
             if msg:
                 try:
                     result = process_email(msg["text_content"], user_id)
+                    # Check for cancellation after LLM processing
+                    with cancellation_flags_lock:
+                        if user_cancellation_flags.get(user_id, False):
+                            logger.info(f"Processing cancelled for user_id {user_id} after processing email {idx + 1}")
+                            process_task_run.status = task_models.CANCELLED
+                            db_session.commit()
+                            return
+                    
                     # if values are empty strings or null, set them to "unknown"
-                    for key in result.keys():
-                        if not result[key]:
-                            result[key] = "unknown"
+                    if result:
+                        for key in result.keys():
+                            if not result[key]:
+                                result[key] = "unknown"
                 except Exception as e:
                     logger.error(
                         f"user_id:{user_id} Error processing email {idx + 1} of {len(messages)} with id {msg_id}: {e}"
