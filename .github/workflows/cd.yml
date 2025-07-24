@@ -30,3 +30,4 @@ jobs:
         ls-database-name: ${{ secrets.LS_DATABASE_NAME }}
         redirect-uri: ${{ secrets.REDIRECT_URI }}
         cookie-secret: ${{ secrets.COOKIE_SECRET }}
+        google-api-key: ${{ secrets.GOOGLE_API_KEY }}

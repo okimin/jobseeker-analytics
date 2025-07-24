@@ -23,6 +23,9 @@ inputs:
   cookie-secret:
     description: Cookie secret
     required: true
+  google-api-key:
+    description: Google API Key
+    required: true
 
 runs:
   using: composite
@@ -95,6 +98,7 @@ runs:
       DATABASE_URL: ${{ steps.get_db_info.outputs.database_url }}
       REDIRECT_URI: ${{ inputs.redirect-uri }}
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
+      GOOGLE_API_KEY: ${{ inputs.google-api-key }}
       GOOGLE_CLIENT_SECRETS_JSON: ${{ inputs.google-credentials-file-content }}
     shell: bash
     run: |
