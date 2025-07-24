@@ -7,7 +7,7 @@ on:
     - lianna/lightsail # remove before merge
 
 env:
-  LIGHTSAIL_SERVICE_NAME: just-a-job-app
+  LIGHTSAIL_SERVICE_NAME: jaja-backend
   CONTAINER_NAME: backend
 
 jobs:
