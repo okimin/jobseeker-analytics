@@ -90,6 +90,7 @@ runs:
       echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}" >> $GITHUB_OUTPUT
 
   - name: Mask database URL
+    shell: bash
     run: echo "::add-mask::${{ steps.get_db_info.outputs.database_url }}"
 
   - name: Stage Google credentials.json
