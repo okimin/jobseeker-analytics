@@ -34,7 +34,12 @@ async def login(request: Request, background_tasks: BackgroundTasks):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
     client_secrets_json = os.getenv("GOOGLE_CLIENT_SECRETS_JSON")
-    client_config = json.loads(client_secrets_json) if client_secrets_json else None
+    if client_secrets_json:
+        import base64
+        client_secrets_json = base64.b64decode(client_secrets_json).decode("utf-8")
+        client_config = json.loads(client_secrets_json)
+    else:
+        client_config = None
     flow = Flow.from_client_config(
         client_config,
         settings.GOOGLE_SCOPES,
