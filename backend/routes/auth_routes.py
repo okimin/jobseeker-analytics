@@ -12,6 +12,8 @@ from utils.cookie_utils import set_conditional_cookie
 from routes.email_routes import fetch_emails_to_db
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+import os
+import json
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -31,8 +33,10 @@ APP_URL = settings.APP_URL
 async def login(request: Request, background_tasks: BackgroundTasks):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
-    flow = Flow.from_client_secrets_file(
-        settings.CLIENT_SECRETS_FILE,
+    client_secrets_json = os.getenv("GOOGLE_CLIENT_SECRETS_JSON")
+    client_config = json.loads(client_secrets_json) if client_secrets_json else None
+    flow = Flow.from_client_config(
+        client_config,
         settings.GOOGLE_SCOPES,
         redirect_uri=settings.REDIRECT_URI,
     )

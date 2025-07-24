@@ -95,6 +95,7 @@ runs:
       DATABASE_URL: ${{ steps.get_db_info.outputs.database_url }}
       REDIRECT_URI: ${{ inputs.redirect-uri }}
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
+      GOOGLE_CLIENT_SECRETS_JSON: ${{ inputs.google-credentials-file-content }}
     shell: bash
     run: |
 
@@ -111,7 +112,8 @@ runs:
               "COOKIE_SECRET": "${COOKIE_SECRET}",
               "APP_URL": "http://localhost:3000",
               "ENV": "staging",
-              "DATABASE_URL": "${DATABASE_URL}"
+              "DATABASE_URL": "${DATABASE_URL}",
+              "GOOGLE_CLIENT_SECRETS_JSON": "${GOOGLE_CLIENT_SECRETS_JSON}"
             },
             "ports": {
               "${CONTAINER_PORT}": "HTTP"
