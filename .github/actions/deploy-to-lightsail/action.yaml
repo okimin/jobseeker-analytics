@@ -1,17 +1,28 @@
 name: Deploy to AWS Lightsail
 description: Deploy application to a specific environment
 
+inputs:
+  aws-access-key-id:
+    required: true
+    description: 'AWS Access Key ID'
+  aws-secret-access-key:
+    required: true
+    description: 'AWS Secret Access Key'
+  aws-region:
+    required: true
+    description: 'AWS Region'
+
 runs:
   using: composite
-
   steps:
-  - name: Set up AWS CLI
-    uses: aws-actions/configure-aws-credentials@v1
-    with:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      aws-region: ${{ secrets.AWS_REGION }}
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
 
-  - name: Test AWS access
-    run: |
-      aws lightsail get-container-services
+    - name: Test AWS access
+      shell: bash
+      run: |
+        aws lightsail get-container-services
