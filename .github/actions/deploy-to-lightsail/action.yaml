@@ -67,9 +67,6 @@ runs:
         --query 'masterUserPassword' \
         --output text)
 
-      # Mask the master password
-      echo "::add-mask::${MASTER_PASSWORD}"
-
       # Query database details for connection info
       DB_INFO=$(aws lightsail get-relational-database \
         --relational-database-name ${LS_DATABASE_NAME})
@@ -82,9 +79,15 @@ runs:
 
       # Mask sensitive DB info
       echo "::add-mask::${MASTER_USERNAME}"
+      echo "::add-mask::${MASTER_PASSWORD}"
       echo "::add-mask::${MASTER_DATABASE_NAME}"
       echo "::add-mask::${ENDPOINT_ADDRESS}"
       echo "::add-mask::${ENDPOINT_PORT}"
+      # Also mask the full connection string parts for better coverage
+      echo "::add-mask::postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}"
+      echo "::add-mask::postgresql://${MASTER_USERNAME}:***@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}"
+      echo "::add-mask::${MASTER_USERNAME}:${MASTER_PASSWORD}"
+      
 
       # Set as outputs for use in subsequent steps
       echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}" >> $GITHUB_OUTPUT
