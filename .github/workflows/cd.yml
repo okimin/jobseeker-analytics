@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - main
-    - lightsail # remove before merge
+    - lianna/lightsail # remove before merge
 
 env:
   LIGHTSAIL_SERVICE_NAME: just-a-job-app
