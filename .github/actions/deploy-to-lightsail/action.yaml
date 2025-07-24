@@ -96,9 +96,7 @@ runs:
   - name: Stage Google credentials.json
     shell: bash
     run: |
-      cat << 'EOF' > backend/credentials.json
-      ${{ inputs.google-credentials-file-content }}
-      EOF
+      echo "${{ inputs.google-credentials-file-content }}" | base64 --decode > backend/credentials.json
 
   - name: Build and push Docker image
     env:
