@@ -30,6 +30,17 @@ inputs:
 runs:
   using: composite
   steps:
+  - name: Mask sensitive inputs
+    shell: bash
+    run: |
+      echo "::add-mask::${{ inputs.aws-access-key-id }}"
+      echo "::add-mask::${{ inputs.aws-secret-access-key }}"
+      echo "::add-mask::${{ inputs.google-credentials-file-content }}"
+      echo "::add-mask::${{ inputs.cookie-secret }}"
+      echo "::add-mask::${{ inputs.google-api-key }}"
+      echo "::add-mask::${{ inputs.redirect-uri }}"
+      echo "::add-mask::${{ inputs.ls-database-name }}"
+
   - name: Set up AWS CLI
     uses: aws-actions/configure-aws-credentials@v1
     with:
@@ -56,6 +67,9 @@ runs:
         --query 'masterUserPassword' \
         --output text)
 
+      # Mask the master password
+      echo "::add-mask::${MASTER_PASSWORD}"
+
       # Query database details for connection info
       DB_INFO=$(aws lightsail get-relational-database \
         --relational-database-name ${LS_DATABASE_NAME})
@@ -66,8 +80,17 @@ runs:
       ENDPOINT_ADDRESS=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.address')
       ENDPOINT_PORT=$(echo $DB_INFO | jq -r '.relationalDatabase.masterEndpoint.port')
 
+      # Mask sensitive DB info
+      echo "::add-mask::${MASTER_USERNAME}"
+      echo "::add-mask::${MASTER_DATABASE_NAME}"
+      echo "::add-mask::${ENDPOINT_ADDRESS}"
+      echo "::add-mask::${ENDPOINT_PORT}"
+
       # Set as outputs for use in subsequent steps
       echo "database_url=postgresql://${MASTER_USERNAME}:${MASTER_PASSWORD}@${ENDPOINT_ADDRESS}:${ENDPOINT_PORT}/${MASTER_DATABASE_NAME}" >> $GITHUB_OUTPUT
+
+  - name: Mask database URL
+    run: echo "::add-mask::${{ steps.get_db_info.outputs.database_url }}"
 
   - name: Stage Google credentials.json
     shell: bash
@@ -102,6 +125,12 @@ runs:
       GOOGLE_CLIENT_SECRETS_JSON: ${{ inputs.google-credentials-file-content }}
     shell: bash
     run: |
+      # Mask env vars before use
+      echo "::add-mask::${COOKIE_SECRET}"
+      echo "::add-mask::${GOOGLE_API_KEY}"
+      echo "::add-mask::${GOOGLE_CLIENT_SECRETS_JSON}"
+      echo "::add-mask::${DATABASE_URL}"
+      echo "::add-mask::${REDIRECT_URI}"
 
       # Create deployment JSON
       cat > lc.json << EOF
@@ -112,7 +141,7 @@ runs:
             "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
             "environment": {
               "REDIRECT_URI": "${REDIRECT_URI}",
-              "GOOGLE_API_KEY": "...",
+              "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
               "COOKIE_SECRET": "${COOKIE_SECRET}",
               "APP_URL": "http://localhost:3000",
               "ENV": "staging",
