@@ -89,6 +89,34 @@ runs:
       echo "::add-mask::${GH_PRIVATE_KEY}"
       echo "::add-mask::${GH_INSTALLATION_ID}"
       
+      # Escape environment variables for JSON (using printf if jq not available)
+      if command -v jq &> /dev/null; then
+        ESCAPED_API_URL=$(echo "${API_URL}" | jq -R .)
+        ESCAPED_APP_URL=$(echo "${APP_URL}" | jq -R .)
+        ESCAPED_GH_APP_ID=$(echo "${GH_APP_ID}" | jq -R .)
+        ESCAPED_GH_PRIVATE_KEY=$(echo "${GH_PRIVATE_KEY}" | jq -R .)
+        ESCAPED_GH_INSTALLATION_ID=$(echo "${GH_INSTALLATION_ID}" | jq -R .)
+      else
+        # Fallback: use printf to escape quotes and backslashes
+        ESCAPED_API_URL=$(printf '%s' "${API_URL}" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        ESCAPED_APP_URL=$(printf '%s' "${APP_URL}" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        ESCAPED_GH_APP_ID=$(printf '%s' "${GH_APP_ID}" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        ESCAPED_GH_PRIVATE_KEY=$(printf '%s' "${GH_PRIVATE_KEY}" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        ESCAPED_GH_INSTALLATION_ID=$(printf '%s' "${GH_INSTALLATION_ID}" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        # Wrap in quotes for JSON
+        ESCAPED_API_URL="\"${ESCAPED_API_URL}\""
+        ESCAPED_APP_URL="\"${ESCAPED_APP_URL}\""
+        ESCAPED_GH_APP_ID="\"${ESCAPED_GH_APP_ID}\""
+        ESCAPED_GH_PRIVATE_KEY="\"${ESCAPED_GH_PRIVATE_KEY}\""
+        ESCAPED_GH_INSTALLATION_ID="\"${ESCAPED_GH_INSTALLATION_ID}\""
+      fi
+
+      echo "::add-mask::${ESCAPED_API_URL}"
+      echo "::add-mask::${ESCAPED_APP_URL}"
+      echo "::add-mask::${ESCAPED_GH_APP_ID}"
+      echo "::add-mask::${ESCAPED_GH_PRIVATE_KEY}"
+      echo "::add-mask::${ESCAPED_GH_INSTALLATION_ID}"
+      
       # Create deployment JSON
       cat > lc.json << EOF
       {
@@ -98,11 +126,11 @@ runs:
             "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
             "environment": {
               "NODE_ENV": "production",
-              "NEXT_PUBLIC_API_URL": "${API_URL}",
-              "APP_URL": "${APP_URL}",
-              "GH_APP_ID": "${GH_APP_ID}",
-              "GH_PRIVATE_KEY": "${GH_PRIVATE_KEY}",
-              "GH_INSTALLATION_ID": "${GH_INSTALLATION_ID}"
+              "NEXT_PUBLIC_API_URL": ${ESCAPED_API_URL},
+              "APP_URL": ${ESCAPED_APP_URL},
+              "GH_APP_ID": ${ESCAPED_GH_APP_ID},
+              "GH_PRIVATE_KEY": ${ESCAPED_GH_PRIVATE_KEY},
+              "GH_INSTALLATION_ID": ${ESCAPED_GH_INSTALLATION_ID}
             },
             "ports": {
               "${CONTAINER_PORT}": "HTTP"
