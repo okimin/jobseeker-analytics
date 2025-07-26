@@ -115,7 +115,7 @@ runs:
       echo "::add-mask::${ESCAPED_APP_URL}"
       echo "::add-mask::${ESCAPED_GH_APP_ID}"
 
-      # Create deployment JSON
+      # Create deployment JSON using escaped variables
       cat > lc.json << EOF
       {
         "serviceName": "${LIGHTSAIL_SERVICE_NAME}",
@@ -124,11 +124,11 @@ runs:
             "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
             "environment": {
               "NODE_ENV": "production",
-              "NEXT_PUBLIC_API_URL": "${API_URL}",
-              "APP_URL": "${APP_URL}",
-              "GH_APP_ID": "${GH_APP_ID}",
-              "GH_PRIVATE_KEY": "${GH_PRIVATE_KEY}",
-              "GH_INSTALLATION_ID": "${GH_INSTALLATION_ID}"
+              "NEXT_PUBLIC_API_URL": ${ESCAPED_API_URL},
+              "APP_URL": ${ESCAPED_APP_URL},
+              "GH_APP_ID": ${ESCAPED_GH_APP_ID},
+              "GH_PRIVATE_KEY": ${ESCAPED_GH_PRIVATE_KEY},
+              "GH_INSTALLATION_ID": ${ESCAPED_GH_INSTALLATION_ID}
             },
             "ports": {
               "${CONTAINER_PORT}": "HTTP"
@@ -149,6 +149,22 @@ runs:
         }
       }
       EOF
+      
+      # Debug: Validate JSON and show structure (without sensitive data)
+      echo "Validating JSON..."
+      if command -v jq &> /dev/null; then
+        if jq empty lc.json; then
+          echo "✅ JSON is valid"
+          echo "JSON structure (without sensitive data):"
+          jq 'del(.containers.frontend.environment.GH_PRIVATE_KEY)' lc.json
+        else
+          echo "❌ JSON is invalid"
+          exit 1
+        fi
+      else
+        echo "JSON validation check:"
+        python3 -m json.tool lc.json > /dev/null && echo "✅ JSON is valid" || echo "❌ JSON is invalid"
+      fi
       
       # Deploy to Lightsail
       aws lightsail create-container-service-deployment \
