@@ -11,7 +11,8 @@ env:
   CONTAINER_NAME: backend
 
 jobs:
-  deploy-to-staging:
+  deploy-backend:
+    name: Deploy Backend
     permissions:
       contents: read
     runs-on: ubuntu-24.04
@@ -31,5 +32,24 @@ jobs:
         redirect-uri: ${{ secrets.REDIRECT_URI }}
         cookie-secret: ${{ secrets.COOKIE_SECRET }}
         google-api-key: ${{ secrets.GOOGLE_API_KEY }}
+        app-url: ${{ secrets.APP_URL }}
+        api-url: ${{ secrets.API_URL }}
+
+  deploy-frontend:
+    name: Deploy Frontend
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    environment: staging
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy Frontend to Lightsail
+      uses: ./.github/actions/deploy-frontend-to-lightsail
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
         app-url: ${{ secrets.APP_URL }}
         api-url: ${{ secrets.API_URL }}
