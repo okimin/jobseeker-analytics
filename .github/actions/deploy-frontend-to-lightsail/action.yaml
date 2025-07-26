@@ -141,46 +141,51 @@ runs:
         ESCAPED_GH_PRIVATE_KEY=$(printf '%s' "${GH_PRIVATE_KEY}" | sed 's/\\/\\\\/g; s/"/\\"/g')
         ESCAPED_GH_INSTALLATION_ID=$(printf '%s' "${GH_INSTALLATION_ID}" | sed 's/\\/\\\\/g; s/"/\\"/g')
         
-        cat > lc.json << EOF
-        {
-          "serviceName": "${LIGHTSAIL_SERVICE_NAME}",
-          "containers": {
-            "${CONTAINER_NAME}": {
-              "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
-              "environment": {
-                "NODE_ENV": "production",
-                "NEXT_PUBLIC_API_URL": "${ESCAPED_API_URL}",
-                "APP_URL": "${ESCAPED_APP_URL}",
-                "GH_APP_ID": "${ESCAPED_GH_APP_ID}",
-                "GH_PRIVATE_KEY": "${ESCAPED_GH_PRIVATE_KEY}",
-                "GH_INSTALLATION_ID": "${ESCAPED_GH_INSTALLATION_ID}"
-              },
-              "ports": {
-                "${CONTAINER_PORT}": "HTTP"
-              }
-            }
-          },
-          "publicEndpoint": {
-            "containerName": "${CONTAINER_NAME}",
-            "containerPort": ${CONTAINER_PORT},
-            "healthCheck": {
-              "healthyThreshold": 2,
-              "unhealthyThreshold": 2,
-              "timeoutSeconds": 5,
-              "intervalSeconds": 10,
-              "path": "/",
-              "successCodes": "200-499"
-            }
-          }
-        }
-        EOF
-      fi
+                cat > lc.json << EOF
+{
+  "serviceName": "${LIGHTSAIL_SERVICE_NAME}",
+  "containers": {
+    "${CONTAINER_NAME}": {
+      "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
+      "environment": {
+        "NODE_ENV": "production",
+        "NEXT_PUBLIC_API_URL": "${ESCAPED_API_URL}",
+        "APP_URL": "${ESCAPED_APP_URL}",
+        "GH_APP_ID": "${ESCAPED_GH_APP_ID}",
+        "GH_PRIVATE_KEY": "${ESCAPED_GH_PRIVATE_KEY}",
+        "GH_INSTALLATION_ID": "${ESCAPED_GH_INSTALLATION_ID}"
+      },
+      "ports": {
+        "${CONTAINER_PORT}": "HTTP"
+      }
+    }
+  },
+  "publicEndpoint": {
+    "containerName": "${CONTAINER_NAME}",
+    "containerPort": ${CONTAINER_PORT},
+    "healthCheck": {
+      "healthyThreshold": 2,
+      "unhealthyThreshold": 2,
+      "timeoutSeconds": 5,
+      "intervalSeconds": 10,
+      "path": "/",
+      "successCodes": "200-499"
+    }
+  }
+}
+EOF
+            fi
 
-      echo "::add-mask::${API_URL}"
-      echo "::add-mask::${APP_URL}"
-      echo "::add-mask::${GH_APP_ID}"
-      echo "::add-mask::${GH_PRIVATE_KEY}"
-      echo "::add-mask::${GH_INSTALLATION_ID}"
+            echo "::add-mask::${API_URL}"
+            echo "::add-mask::${APP_URL}"
+            echo "::add-mask::${GH_APP_ID}"
+            echo "::add-mask::${GH_PRIVATE_KEY}"
+            echo "::add-mask::${GH_INSTALLATION_ID}"
+            echo "::add-mask::${ESCAPED_API_URL}"
+            echo "::add-mask::${ESCAPED_APP_URL}"
+            echo "::add-mask::${ESCAPED_GH_APP_ID}"
+            echo "::add-mask::${ESCAPED_GH_PRIVATE_KEY}"
+            echo "::add-mask::${ESCAPED_GH_INSTALLATION_ID}"
       
       # Debug: Validate JSON and show structure (without sensitive data)
       echo "Validating JSON..."
