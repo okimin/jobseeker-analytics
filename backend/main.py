@@ -50,7 +50,7 @@ app.add_middleware(SlowAPIMiddleware)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.APP_URL],  # Allow frontend origins
+    allow_origins=[settings.APP_URL, settings.API_URL],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers

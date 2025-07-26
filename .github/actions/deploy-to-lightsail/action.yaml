@@ -125,6 +125,8 @@ runs:
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
       GOOGLE_API_KEY: ${{ inputs.google-api-key }}
       GOOGLE_CLIENT_SECRETS_JSON: ${{ inputs.google-credentials-file-content }}
+      APP_URL: ${{ inputs.app-url }}
+      API_URL: ${{ inputs.api-url }}
     shell: bash
     run: |
       # Mask env vars before use
@@ -133,6 +135,8 @@ runs:
       echo "::add-mask::${GOOGLE_CLIENT_SECRETS_JSON}"
       echo "::add-mask::${DATABASE_URL}"
       echo "::add-mask::${REDIRECT_URI}"
+      echo "::add-mask::${APP_URL}"
+      echo "::add-mask::${API_URL}"
 
       # Create deployment JSON
       cat > lc.json << EOF
@@ -145,7 +149,8 @@ runs:
               "REDIRECT_URI": "${REDIRECT_URI}",
               "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
               "COOKIE_SECRET": "${COOKIE_SECRET}",
-              "APP_URL": "http://localhost:3000",
+              "APP_URL": "${APP_URL}",
+              "API_URL": "${API_URL}",
               "ENV": "staging",
               "DATABASE_URL": "${DATABASE_URL}",
               "GOOGLE_CLIENT_SECRETS_JSON": "${GOOGLE_CLIENT_SECRETS_JSON}"
