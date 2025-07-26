@@ -6,10 +6,6 @@ on:
     - main
     - lianna/lightsail # remove before merge
 
-env:
-  LIGHTSAIL_SERVICE_NAME: jaja-backend
-  CONTAINER_NAME: backend
-
 jobs:
   deploy-backend:
     name: Deploy Backend
