@@ -151,8 +151,45 @@ runs:
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
 
-      # Deploy to Lightsail using individual parameters
+      # Create deployment JSON
+      cat > lc.json << EOF
+      {
+        "serviceName": "${LIGHTSAIL_SERVICE_NAME}",
+        "containers": {
+          "${CONTAINER_NAME}": {
+            "image": ":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest",
+            "environment": {
+              "REDIRECT_URI": "${REDIRECT_URI}",
+              "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
+              "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+              "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+              "GOOGLE_CLIENT_REDIRECT_URIS": "${GOOGLE_CLIENT_REDIRECT_URIS}",
+              "COOKIE_SECRET": "${COOKIE_SECRET}",
+              "APP_URL": "${APP_URL}",
+              "API_URL": "${API_URL}",
+              "ENV": "staging",
+              "DATABASE_URL": "${DATABASE_URL}"
+            },
+            "ports": {
+              "${CONTAINER_PORT}": "HTTP"
+            }
+          }
+        },
+        "publicEndpoint": {
+          "containerName": "${CONTAINER_NAME}",
+          "containerPort": ${CONTAINER_PORT},
+          "healthCheck": {
+            "healthyThreshold": 2,
+            "unhealthyThreshold": 2,
+            "timeoutSeconds": 5,
+            "intervalSeconds": 10,
+            "path": "/",
+            "successCodes": "200-499"
+          }
+        }
+      }
+      EOF
+
+      # Deploy to Lightsail
       aws lightsail create-container-service-deployment \
-        --service-name "${LIGHTSAIL_SERVICE_NAME}" \
-        --containers "${CONTAINER_NAME}=image=:${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest,environment={REDIRECT_URI=${REDIRECT_URI},GOOGLE_API_KEY=${GOOGLE_API_KEY},GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID},GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET},GOOGLE_CLIENT_REDIRECT_URIS=${GOOGLE_CLIENT_REDIRECT_URIS},COOKIE_SECRET=${COOKIE_SECRET},APP_URL=${APP_URL},API_URL=${API_URL},ENV=staging,DATABASE_URL=${DATABASE_URL}},ports=${CONTAINER_PORT}=HTTP" \
-        --public-endpoint containerName="${CONTAINER_NAME}",containerPort=${CONTAINER_PORT},healthCheck=healthyThreshold=2,unhealthyThreshold=2,timeoutSeconds=5,intervalSeconds=10,path=/,successCodes=200-499
+        --cli-input-json file://lc.json
