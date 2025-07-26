@@ -69,7 +69,7 @@ runs:
         --label ${CONTAINER_NAME} \
         --image ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }}
 
-    - name: Deploy to Lightsail
+  - name: Deploy to Lightsail
     env:
       LIGHTSAIL_SERVICE_NAME: jaja-frontend
       CONTAINER_NAME: frontend
@@ -126,4 +126,4 @@ runs:
       
       # Deploy to Lightsail
       aws lightsail create-container-service-deployment \
-        --cli-input-json file://lc.json 
+        --cli-input-json file://lc.json
