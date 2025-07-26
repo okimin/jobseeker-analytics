@@ -53,3 +53,6 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
         app-url: ${{ secrets.APP_URL }}
         api-url: ${{ secrets.API_URL }}
+        gh-app-id: ${{ secrets.GH_APP_ID }}
+        gh-private-key: ${{ secrets.GH_PRIVATE_KEY }}
+        gh-installation-id: ${{ secrets.GH_INSTALLATION_ID }}

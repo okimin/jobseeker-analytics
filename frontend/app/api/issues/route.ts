@@ -6,9 +6,9 @@ import { createAppAuth } from "@octokit/auth-app";
 const appOctokit = new Octokit({
 	authStrategy: createAppAuth,
 	auth: {
-		appId: process.env.GITHUB_APP_ID,
-		privateKey: process.env.GITHUB_PRIVATE_KEY,
-		installationId: process.env.GITHUB_INSTALLATION_ID
+		appId: process.env.GH_APP_ID,
+		privateKey: process.env.GH_PRIVATE_KEY,
+		installationId: process.env.GH_INSTALLATION_ID
 	}
 });
 
