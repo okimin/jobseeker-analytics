@@ -89,6 +89,10 @@ runs:
       echo "::add-mask::${GH_PRIVATE_KEY}"
       echo "::add-mask::${GH_INSTALLATION_ID}"
       
+      # Escape environment variables for JSON
+      ESCAPED_GH_PRIVATE_KEY=$(printf '%s' "${GH_PRIVATE_KEY}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr '\n' ' ' | sed 's/\r//g')
+      echo "::add-mask::${ESCAPED_GH_PRIVATE_KEY}"
+      
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
         --region ${{ inputs.aws-region }} \
@@ -102,7 +106,7 @@ runs:
               \"NEXT_PUBLIC_API_URL\": \"${API_URL}\",
               \"APP_URL\": \"${APP_URL}\",
               \"GH_APP_ID\": \"${GH_APP_ID}\",
-              \"GH_PRIVATE_KEY\": \"${GH_PRIVATE_KEY}\",
+              \"GH_PRIVATE_KEY\": \"${ESCAPED_GH_PRIVATE_KEY}\",
               \"GH_INSTALLATION_ID\": \"${GH_INSTALLATION_ID}\"
             },
             \"ports\": {
