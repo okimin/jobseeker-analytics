@@ -38,7 +38,7 @@ if settings.is_publicly_deployed:
         secret_key=settings.COOKIE_SECRET,
         session_cookie="session",
         max_age=3600,
-        same_site="none",
+        same_site="lax",
         https_only=True,
         domain=settings.ORIGIN
     )

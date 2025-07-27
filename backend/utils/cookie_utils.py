@@ -65,11 +65,11 @@ def set_conditional_cookie(
 
     # Add environment-specific parameters
     if settings.is_publicly_deployed:
-        # Production: Cross-subdomain setup requires SameSite=None
+        # Production: Cross-subdomain setup requires SameSite=None?! 
         cookie_params.update({
             "domain": settings.ORIGIN,
             "secure": True,
-            "samesite": "None"
+            "samesite": "Lax"
         })
     else:
         # Development: Lax is sufficient for localhost
