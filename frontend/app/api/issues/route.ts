@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { createGitHubIssue } from "../../../utils/github";
 
 export async function POST(request: Request) {
