@@ -344,7 +344,6 @@ export default function Dashboard() {
 						>
 							<Tooltip
 								content={({ active, payload }) => {
-									console.log("test ", payload);
 									if (active && payload && payload.length) {
 										const { sourceNode, targetNode, value } = payload[0].payload;
 										return (
