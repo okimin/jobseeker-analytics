@@ -41,7 +41,6 @@ jobs:
           envkey_REDIRECT_URI: http://localhost:8000/login
           envkey_ENV: dev
           envkey_DATABASE_URL: postgresql://postgres:postgres@db:5432/jobseeker_analytics
-          envkey_CLIENT_SECRETS_FILE: "credentials.json"
           envkey_APP_URL: http://localhost:3000
           directory: backend
 

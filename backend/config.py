@@ -10,14 +10,16 @@ logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
-    GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
     REDIRECT_URI: str
     GOOGLE_API_KEY: str
     COOKIE_SECRET: str
-    CLIENT_SECRETS_FILE: str = "credentials.json"
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
-    API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev  
+    API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
+    GOOGLE_CLIENT_REDIRECT_URIS: Annotated[List[str], NoDecode] = '["http://localhost:3000/login"]'
+    GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
     DATABASE_URL_LOCAL_VIRTUAL_ENV: str = (
@@ -32,6 +34,12 @@ class Settings(BaseSettings):
     @classmethod
     def decode_scopes(cls, v: str) -> List[str]:
         logger.info("Decoded scopes from string: %s", json.loads(v.strip("'\"")))
+        return json.loads(v.strip("'\""))
+    
+    @field_validator("GOOGLE_CLIENT_REDIRECT_URIS", mode="before")
+    @classmethod
+    def decode_redirect_uris(cls, v: str) -> List[str]:
+        logger.info("Decoded redirect URIs from string: %s", json.loads(v.strip("'\"")))
         return json.loads(v.strip("'\""))
 
     @property
