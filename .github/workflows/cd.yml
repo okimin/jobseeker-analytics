@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - lianna/lightsail # remove before merge
 
 jobs:
   deploy-backend:

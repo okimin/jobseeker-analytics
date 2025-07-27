@@ -2,7 +2,6 @@ from fastapi import Response
 from utils.config_utils import get_settings
 import logging
 import re
-import secrets
 
 # Logger setup
 logger = logging.getLogger(__name__)
