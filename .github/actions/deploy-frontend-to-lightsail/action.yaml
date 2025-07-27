@@ -82,6 +82,10 @@ runs:
       GH_INSTALLATION_ID: ${{ inputs.gh-installation-id }}
     shell: bash
     run: |
+      # Debug environment variables (before masking)
+      echo "API_URL is set to: ${API_URL}"
+      echo "APP_URL is set to: ${APP_URL}"
+      
       # Mask env vars before use
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
