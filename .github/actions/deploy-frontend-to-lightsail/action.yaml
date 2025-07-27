@@ -107,6 +107,7 @@ runs:
             \"image\": \":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest\",
             \"environment\": {
               \"NODE_ENV\": \"production\",
+              \"NEXT_PUBLIC_APP_URL\": \"${APP_URL}\",
               \"NEXT_PUBLIC_API_URL\": \"${API_URL}\",
               \"APP_URL\": \"${APP_URL}\",
               \"GH_APP_ID\": \"${GH_APP_ID}\",
