@@ -40,11 +40,11 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
     user_id = request.session.get("user_id")
 
     # Debug logging
-    logging.debug(f"Cookie value: {session_authorization}")
-    logging.debug(f"Session ID: {session_id}")
-    logging.debug(f"User ID from session: {user_id}")
-    logging.debug(f"Available cookies: {list(request.cookies.keys())}")
-    logging.debug(f"is_publicly_deployed: {settings.is_publicly_deployed}")
+    logging.info(f"Cookie value: {session_authorization}")
+    logging.info(f"Session ID: {session_id}")
+    logging.info(f"User ID from session: {user_id}")
+    logging.info(f"Available cookies: {list(request.cookies.keys())}")
+    logging.info(f"is_publicly_deployed: {settings.is_publicly_deployed}")
 
     if not session_authorization and not session_access_token:
         logging.info(
