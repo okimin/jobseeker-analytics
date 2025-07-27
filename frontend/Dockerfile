@@ -14,8 +14,9 @@ RUN npm install
 COPY . .
 
 # Accept build arguments for Next.js environment variables
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_APP_URL
+# In production / non-local environments, ARGS are overwritten in action.yaml from GitHub secrets
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Set build-time environment variables
 ENV NODE_ENV=production
