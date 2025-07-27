@@ -32,6 +32,9 @@ inputs:
   google-api-key:
     description: Google API Key
     required: true
+  origin:
+    description: Origin
+    required: true
 
 runs:
   using: composite
@@ -49,6 +52,7 @@ runs:
       echo "::add-mask::${{ inputs.google-client-redirect-uris }}"
       echo "::add-mask::${{ inputs.redirect-uri }}"
       echo "::add-mask::${{ inputs.ls-database-name }}"
+      echo "::add-mask::${{ inputs.origin }}"
 
   - name: Set up AWS CLI
     uses: aws-actions/configure-aws-credentials@v1
@@ -140,6 +144,7 @@ runs:
       GOOGLE_CLIENT_REDIRECT_URIS: ${{ inputs.google-client-redirect-uris }}
       APP_URL: ${{ inputs.app-url }}
       API_URL: ${{ inputs.api-url }}
+      ORIGIN: ${{ inputs.origin }}
     shell: bash
     run: |
       # Mask env vars before use
