@@ -97,10 +97,6 @@ async def add_user_endpoint(user_data: UserData, request: Request, user_id: str 
         return {"error": "An error occurred while adding the user."}
 
 
-@app.get("/")
-async def root(request: Request, response_class=HTMLResponse):
-    return templates.TemplateResponse("homepage.html", {"request": request})
-
 # Run the app using Uvicorn
 if __name__ == "__main__":
     import uvicorn
