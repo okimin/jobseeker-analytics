@@ -13,8 +13,15 @@ RUN npm install
 # Copy source files
 COPY . .
 
-# Ensure we're building in production mode
+# Accept build arguments for Next.js environment variables
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
+
+# Set build-time environment variables
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 RUN npm run build
 
 # Production image

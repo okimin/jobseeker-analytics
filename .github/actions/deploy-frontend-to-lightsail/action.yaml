@@ -60,8 +60,13 @@ runs:
       CONTAINER_NAME: frontend
     shell: bash
     run: |
-      # Build Docker image
-      docker build -t ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} --platform=linux/amd64 ./frontend
+      # Build Docker image with build-time environment variables
+      docker build \
+        --build-arg NEXT_PUBLIC_API_URL="${{ inputs.api-url }}" \
+        --build-arg NEXT_PUBLIC_APP_URL="${{ inputs.app-url }}" \
+        -t ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} \
+        --platform=linux/amd64 \
+        ./frontend
 
       # Push to Lightsail
       aws lightsail push-container-image \
