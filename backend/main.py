@@ -70,6 +70,9 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
         detail="Too many requests. Please try again later.",
     )
 
+@app.get("/")
+async def root():
+    return {"message": "success"}
 
 @app.get("/heartbeat")
 @limiter.limit("4/hour")
