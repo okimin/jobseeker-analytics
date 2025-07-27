@@ -30,7 +30,20 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 settings = get_settings()
 APP_URL = settings.APP_URL
-app.add_middleware(SessionMiddleware, secret_key=settings.COOKIE_SECRET)
+
+# Configure session middleware with proper settings for production
+if settings.is_publicly_deployed:
+    app.add_middleware(
+        SessionMiddleware, 
+        secret_key=settings.COOKIE_SECRET,
+        session_cookie="session",
+        max_age=3600,
+        same_site="none",
+        https_only=True,
+        domain=settings.ORIGIN
+    )
+else:
+    app.add_middleware(SessionMiddleware, secret_key=settings.COOKIE_SECRET)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Register routes
