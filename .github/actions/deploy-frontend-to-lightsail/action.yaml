@@ -74,6 +74,9 @@ runs:
         --label ${CONTAINER_NAME} \
         --image ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }}
 
+      # Clean up local Docker image to free space and remove sensitive data
+      docker rmi ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} || true
+
   - name: Deploy to Lightsail
     env:
       LIGHTSAIL_SERVICE_NAME: jaja-frontend
@@ -136,3 +139,54 @@ runs:
             \"successCodes\": \"200-499\"
           }
         }"
+
+      # Clean up environment variables after deployment
+      unset APP_URL API_URL GH_APP_ID GH_PRIVATE_KEY GH_INSTALLATION_ID ESCAPED_GH_PRIVATE_KEY
+
+  - name: Cleanup sensitive files and data
+    if: always()
+    shell: bash
+    run: |
+      # Clear shell history
+      history -c
+      rm -f ~/.bash_history ~/.zsh_history 2>/dev/null || true
+      
+      # Clear environment variables that might contain secrets
+      unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN || true
+      unset GH_APP_ID GH_PRIVATE_KEY GH_INSTALLATION_ID || true
+      unset APP_URL API_URL || true
+      
+      # Clear any temporary files that might contain secrets
+      find /tmp -name "*credentials*" -delete 2>/dev/null || true
+      find /tmp -name "*secret*" -delete 2>/dev/null || true
+      find /tmp -name "*private*" -delete 2>/dev/null || true
+      
+      # Clear Docker build cache to remove any cached secrets
+      docker builder prune -f || true
+      
+      # Clear any AWS CLI cache
+      rm -rf ~/.aws/credentials ~/.aws/config 2>/dev/null || true
+      
+      echo "Cleanup completed successfully"
+
+  - name: Verify cleanup
+    if: always()
+    shell: bash
+    run: |
+      # Verify environment variables are cleared
+      if [ -n "${GH_APP_ID:-}" ]; then
+        echo "::error::GH_APP_ID environment variable still set after cleanup"
+        exit 1
+      fi
+      
+      if [ -n "${GH_PRIVATE_KEY:-}" ]; then
+        echo "::error::GH_PRIVATE_KEY environment variable still set after cleanup"
+        exit 1
+      fi
+      
+      if [ -n "${GH_INSTALLATION_ID:-}" ]; then
+        echo "::error::GH_INSTALLATION_ID environment variable still set after cleanup"
+        exit 1
+      fi
+      
+      echo "Cleanup verification passed"
