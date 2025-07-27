@@ -90,20 +90,5 @@ def set_conditional_cookie(
         elif is_secure:
             cookie_params["key"] = f"__Secure-{cookie_params['key']}"
 
-    # Security: Create safe logging parameters (excluding sensitive data)
-    safe_params = {
-        "key": cookie_params["key"],
-        "max_age": cookie_params["max_age"], 
-        "path": cookie_params["path"],
-        "httponly": cookie_params["httponly"],
-        "secure": cookie_params.get("secure", False),
-        "samesite": cookie_params.get("samesite"),
-        "domain": cookie_params.get("domain"),
-        "value_hash": f"sha256:{secrets.token_hex(8)}"  # Random hash for correlation
-    }
-    
-    logger.info(f"Setting cookie with parameters: {safe_params}")
-    logger.info(f"Environment: {'production' if settings.is_publicly_deployed else 'development'}")
-
     response.set_cookie(**cookie_params)
     return response
