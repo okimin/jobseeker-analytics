@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
 import { createAppAuth } from "@octokit/auth-app";
 
-
 export async function POST(request: Request) {
 	try {
 		const { title, description } = await request.json();
@@ -35,11 +34,9 @@ export async function POST(request: Request) {
 				body: description,
 				labels: ["📣 user feedback"]
 			});
-	
+
 			return NextResponse.json({ success: true, issueNumber: response.data.number }, { status: 201 });
 		}
-
-		
 	} catch (error) {
 		console.error("Error creating issue:", error);
 		return NextResponse.json({ error: "Failed to submit issue" }, { status: 500 });
