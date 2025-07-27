@@ -29,13 +29,22 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
     """
     if settings.is_publicly_deployed:
         session_authorization = request.cookies.get("__Secure-Authorization")
+        logging.info("Looking for __Secure-Authorization cookie")
     else:
         session_authorization = request.cookies.get("Authorization")
+        logging.info("Looking for Authorization cookie")
 
     session_id = request.session.get("session_id")
     session_access_token = request.session.get("access_token")
     token_exp = request.session.get("token_expiry")
     user_id = request.session.get("user_id")
+
+    # Debug logging
+    logging.debug(f"Cookie value: {session_authorization}")
+    logging.debug(f"Session ID: {session_id}")
+    logging.debug(f"User ID from session: {user_id}")
+    logging.debug(f"Available cookies: {list(request.cookies.keys())}")
+    logging.debug(f"is_publicly_deployed: {settings.is_publicly_deployed}")
 
     if not session_authorization and not session_access_token:
         logging.info(
