@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    REDIRECT_URI: str
+    GOOGLE_CLIENT_ID: str = "default-for-local"
+    GOOGLE_CLIENT_SECRET: str = "default-for-local"
+    REDIRECT_URI: str = "http://localhost:3000/login"
     GOOGLE_API_KEY: str
     COOKIE_SECRET: str
     ENV: str = "dev"
