@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     COOKIE_SECRET: str
     CLIENT_SECRETS_FILE: str = "credentials.json"
     ENV: str = "dev"
-    APP_URL: str = "https://www.justajob.app"  # Frontend URL
-    API_URL: str = "https://www.api.justajob.app"  # Backend API URL
-    ORIGIN: str = ".justajob.app"  # Updated domain
+    APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
+    API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev  
+    ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
     DATABASE_URL_LOCAL_VIRTUAL_ENV: str = (
         "postgresql://postgres:postgres@localhost:5433/jobseeker_analytics"
