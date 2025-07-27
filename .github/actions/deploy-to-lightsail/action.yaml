@@ -153,6 +153,10 @@ runs:
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
 
+      # Escape environment variables for JSON
+      ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS=$(printf '%s' "${GOOGLE_CLIENT_REDIRECT_URIS}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr -d '\n\r')
+      echo "::add-mask::${ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS}"
+
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
         --region ${{ inputs.aws-region }} \
@@ -166,7 +170,7 @@ runs:
               \"GOOGLE_API_KEY\": \"${GOOGLE_API_KEY}\",
               \"GOOGLE_CLIENT_ID\": \"${GOOGLE_CLIENT_ID}\",
               \"GOOGLE_CLIENT_SECRET\": \"${GOOGLE_CLIENT_SECRET}\",
-              \"GOOGLE_CLIENT_REDIRECT_URIS\": \"${GOOGLE_CLIENT_REDIRECT_URIS}\",
+              \"GOOGLE_CLIENT_REDIRECT_URIS\": \"${ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS}\",
               \"COOKIE_SECRET\": \"${COOKIE_SECRET}\",
               \"APP_URL\": \"${APP_URL}\",
               \"API_URL\": \"${API_URL}\",
