@@ -1,5 +1,6 @@
 import datetime
 import logging
+import json
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
@@ -13,7 +14,6 @@ from routes.email_routes import fetch_emails_to_db
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 import os
-import ast
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -37,7 +37,7 @@ async def login(request: Request, background_tasks: BackgroundTasks):
         "web": {
             "client_id": os.getenv("GOOGLE_CLIENT_ID"),
             "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-            "redirect_uris": ast.literal_eval(os.getenv("GOOGLE_CLIENT_REDIRECT_URIS")),
+            "redirect_uris": json.loads(os.getenv("GOOGLE_CLIENT_REDIRECT_URIS")),
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token"
         }
