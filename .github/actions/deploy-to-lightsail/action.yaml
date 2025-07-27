@@ -17,7 +17,7 @@ inputs:
   google-client-secret:
     description: Google Client Secret
     required: true
-  google-client-redirect-uris:
+  google-client-redirect-uri:
     description: Google Client Redirect URIs
     required: true
   ls-database-name:
@@ -147,7 +147,7 @@ runs:
       GOOGLE_API_KEY: ${{ inputs.google-api-key }}
       GOOGLE_CLIENT_ID: ${{ inputs.google-client-id }}
       GOOGLE_CLIENT_SECRET: ${{ inputs.google-client-secret }}
-      GOOGLE_CLIENT_REDIRECT_URIS: ${{ inputs.google-client-redirect-uris }}
+      GOOGLE_CLIENT_REDIRECT_URI: ${{ inputs.google-client-redirect-uri }}
       APP_URL: ${{ inputs.app-url }}
       API_URL: ${{ inputs.api-url }}
       ORIGIN: ${{ inputs.origin }}
@@ -158,15 +158,15 @@ runs:
       echo "::add-mask::${GOOGLE_API_KEY}"
       echo "::add-mask::${GOOGLE_CLIENT_ID}"
       echo "::add-mask::${GOOGLE_CLIENT_SECRET}"
-      echo "::add-mask::${GOOGLE_CLIENT_REDIRECT_URIS}"
+      echo "::add-mask::${GOOGLE_CLIENT_REDIRECT_URI}"
       echo "::add-mask::${DATABASE_URL}"
       echo "::add-mask::${REDIRECT_URI}"
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
 
       # Escape environment variables for JSON
-      ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS=$(printf '%s' "${GOOGLE_CLIENT_REDIRECT_URIS}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr -d '\n\r')
-      echo "::add-mask::${ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS}"
+      ESCAPED_GOOGLE_CLIENT_REDIRECT_URI=$(printf '%s' "${GOOGLE_CLIENT_REDIRECT_URI}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr -d '\n\r')
+      echo "::add-mask::${ESCAPED_GOOGLE_CLIENT_REDIRECT_URI}"
 
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
@@ -181,7 +181,7 @@ runs:
               \"GOOGLE_API_KEY\": \"${GOOGLE_API_KEY}\",
               \"GOOGLE_CLIENT_ID\": \"${GOOGLE_CLIENT_ID}\",
               \"GOOGLE_CLIENT_SECRET\": \"${GOOGLE_CLIENT_SECRET}\",
-              \"GOOGLE_CLIENT_REDIRECT_URIS\": \"${ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS}\",
+              \"GOOGLE_CLIENT_REDIRECT_URI\": \"${ESCAPED_GOOGLE_CLIENT_REDIRECT_URI}\",
               \"COOKIE_SECRET\": \"${COOKIE_SECRET}\",
               \"APP_URL\": \"${APP_URL}\",
               \"API_URL\": \"${API_URL}\",
@@ -208,7 +208,7 @@ runs:
         }"
 
       # Clean up environment variables after deployment
-      unset DATABASE_URL REDIRECT_URI COOKIE_SECRET GOOGLE_API_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_CLIENT_REDIRECT_URIS APP_URL API_URL ORIGIN ESCAPED_GOOGLE_CLIENT_REDIRECT_URIS
+    unset DATABASE_URL REDIRECT_URI COOKIE_SECRET GOOGLE_API_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_CLIENT_REDIRECT_URI APP_URL API_URL ORIGIN ESCAPED_GOOGLE_CLIENT_REDIRECT_URI
 
   - name: Cleanup sensitive files and data
     if: always()

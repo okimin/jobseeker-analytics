@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
-    GOOGLE_CLIENT_REDIRECT_URIS: Annotated[List[str], NoDecode] = '["http://localhost:3000/login"]'
+    GOOGLE_CLIENT_REDIRECT_URI: Annotated[List[str], NoDecode] = '["http://localhost:8000/login"]'
     GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
@@ -36,9 +36,9 @@ class Settings(BaseSettings):
         logger.info("Decoded scopes from string: %s", json.loads(v.strip("'\"")))
         return json.loads(v.strip("'\""))
     
-    @field_validator("GOOGLE_CLIENT_REDIRECT_URIS", mode="before")
+    @field_validator("GOOGLE_CLIENT_REDIRECT_URI", mode="before")
     @classmethod
-    def decode_redirect_uris(cls, v: str) -> List[str]:
+    def decode_redirect_uri(cls, v: str) -> List[str]:
         logger.info("Decoded redirect URIs from string: %s", json.loads(v.strip("'\"")))
         return json.loads(v.strip("'\""))
 

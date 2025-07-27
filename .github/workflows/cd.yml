@@ -31,7 +31,7 @@ jobs:
         api-url: ${{ secrets.API_URL }}
         google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
         google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        google-client-redirect-uris: ${{ secrets.GOOGLE_CLIENT_REDIRECT_URIS }}
+        google-client-redirect-uri: ${{ secrets.GOOGLE_CLIENT_REDIRECT_URI }}
         origin: ${{ secrets.ORIGIN }}
 
   deploy-frontend:
