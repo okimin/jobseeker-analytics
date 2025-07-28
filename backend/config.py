@@ -32,15 +32,15 @@ class Settings(BaseSettings):
 
     @field_validator("GOOGLE_SCOPES", mode="before")
     @classmethod
-    def decode_scopes(cls, v: List) -> List[str]:
-        logger.info("Decoded scopes from list: %s", json.loads(v))
+    def decode_scopes(cls, v: str) -> List[str]:
+        logger.info("Decoded scopes from string: %s", json.loads(v.strip("'\"")))
         return json.loads(v)
     
     @field_validator("GOOGLE_CLIENT_REDIRECT_URI", mode="before")
     @classmethod
-    def decode_redirect_uri(cls, v: str) -> List[str]:
-        logger.info("Decoded redirect URIs from string: %s", json.loads(v.strip("'\"")))
-        return json.loads(v.strip("'\""))
+    def decode_redirect_uri(cls, v: List[str]) -> List[str]:
+        logger.info("Decoded redirect URIs from list: %s", json.loads(v))
+        return json.loads(v)
 
     @property
     def is_publicly_deployed(self) -> bool:
