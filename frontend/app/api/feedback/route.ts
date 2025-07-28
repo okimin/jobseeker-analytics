@@ -21,7 +21,6 @@ export async function POST(request: Request) {
 
 		return NextResponse.json({ success: true, issueNumber: result.issueNumber }, { status: 201 });
 	} catch (error) {
-		console.error("Error creating feedback issue:", error);
 		return NextResponse.json({ error: "Failed to submit feedback" }, { status: 500 });
 	}
 }

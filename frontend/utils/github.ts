@@ -58,7 +58,6 @@ export async function createGitHubIssue(params: CreateIssueParams): Promise<GitH
 
 		return { success: true, issueNumber: response.data.number };
 	} catch (error) {
-		console.error("Error creating GitHub issue:", error);
 		return { success: false, error: "Failed to create issue" };
 	}
 }
