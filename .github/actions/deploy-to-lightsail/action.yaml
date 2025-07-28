@@ -132,9 +132,6 @@ runs:
         --label ${CONTAINER_NAME} \
         --image ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }}
 
-      # Clean up local Docker image to free space and remove sensitive data
-      docker rmi ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} || true
-
   - name: Deploy to Lightsail
     env:
       LIGHTSAIL_SERVICE_NAME: jaja-backend
@@ -206,58 +203,3 @@ runs:
             \"successCodes\": \"200-499\"
           }
         }"
-
-      # Clean up environment variables after deployment
-      unset DATABASE_URL REDIRECT_URI COOKIE_SECRET GOOGLE_API_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_CLIENT_REDIRECT_URI APP_URL API_URL ORIGIN GOOGLE_CLIENT_REDIRECT_URI
-      unset ESCAPED_GOOGLE_CLIENT_REDIRECT_URI
-
-  - name: Cleanup sensitive files and data
-    if: always()
-    shell: bash
-    run: |
-      # Remove Google credentials file
-      rm -f backend/credentials.json
-      
-      # Clear shell history
-      history -c
-      rm -f ~/.bash_history ~/.zsh_history 2>/dev/null || true
-      
-      # Clear environment variables that might contain secrets
-      unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN || true
-      unset GH_APP_ID GH_PRIVATE_KEY GH_INSTALLATION_ID || true
-      
-      # Clear any temporary files that might contain secrets
-      find /tmp -name "*credentials*" -delete 2>/dev/null || true
-      find /tmp -name "*secret*" -delete 2>/dev/null || true
-      find /tmp -name "*password*" -delete 2>/dev/null || true
-      
-      # Clear Docker build cache to remove any cached secrets
-      docker builder prune -f || true
-      
-      # Clear any AWS CLI cache
-      rm -rf ~/.aws/credentials ~/.aws/config 2>/dev/null || true
-      
-      echo "Cleanup completed successfully"
-
-  - name: Verify cleanup
-    if: always()
-    shell: bash
-    run: |
-      # Verify sensitive files are removed
-      if [ -f "backend/credentials.json" ]; then
-        echo "::error::Google credentials file still exists after cleanup"
-        exit 1
-      fi
-      
-      # Verify environment variables are cleared
-      if [ -n "${DATABASE_URL:-}" ]; then
-        echo "::error::DATABASE_URL environment variable still set after cleanup"
-        exit 1
-      fi
-      
-      if [ -n "${COOKIE_SECRET:-}" ]; then
-        echo "::error::COOKIE_SECRET environment variable still set after cleanup"
-        exit 1
-      fi
-      
-      echo "Cleanup verification passed"
