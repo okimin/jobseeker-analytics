@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
-    GOOGLE_CLIENT_REDIRECT_URI: Annotated[List[str], NoDecode] = ["http://localhost:8000/login"]
+    GOOGLE_CLIENT_REDIRECT_URI: List[str] = ["http://localhost:8000/login"]
     GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
@@ -34,13 +34,7 @@ class Settings(BaseSettings):
     @classmethod
     def decode_scopes(cls, v: str) -> List[str]:
         logger.info("Decoded scopes from string: %s", json.loads(v.strip("'\"")))
-        return json.loads(v)
-    
-    @field_validator("GOOGLE_CLIENT_REDIRECT_URI", mode="before")
-    @classmethod
-    def decode_redirect_uri(cls, v: List[str]) -> List[str]:
-        logger.info("Decoded redirect URIs from list: %s", json.loads(v))
-        return json.loads(v)
+        return json.loads(v.strip("'\""))
 
     @property
     def is_publicly_deployed(self) -> bool:
