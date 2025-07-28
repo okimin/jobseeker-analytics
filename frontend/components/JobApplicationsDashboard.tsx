@@ -45,6 +45,10 @@ interface JobApplicationsDashboardProps {
 	sankeyChart?: React.ReactNode;
 	searchTerm?: string;
 	onSearchChange?: (term: string) => void;
+	statusFilter?: string;
+	onStatusFilterChange?: (status: string) => void;
+	companyFilter?: string;
+	onCompanyFilterChange?: (company: string) => void;
 	onNextPage: () => void;
 	onPrevPage: () => void;
 	currentPage: number;
@@ -102,6 +106,10 @@ export default function JobApplicationsDashboard({
 	sankeyChart,
 	searchTerm = "",
 	onSearchChange,
+	statusFilter = "",
+	onStatusFilterChange,
+	companyFilter = "",
+	onCompanyFilterChange,
 	...props
 }: JobApplicationsDashboardProps) {
 	const [sortedData, setSortedData] = useState<Application[]>([]);
@@ -117,6 +125,17 @@ export default function JobApplicationsDashboard({
 
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
+
+	// Get unique statuses and companies for filter dropdowns
+	const uniqueStatuses = React.useMemo(() => {
+		const statuses = new Set(data.map(item => item.application_status).filter(Boolean));
+		return Array.from(statuses).sort();
+	}, [data]);
+
+	const uniqueCompanies = React.useMemo(() => {
+		const companies = new Set(data.map(item => item.company_name).filter(Boolean));
+		return Array.from(companies).sort();
+	}, [data]);
 
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
 
@@ -292,15 +311,102 @@ export default function JobApplicationsDashboard({
 			{responseRate}
 			{sankeyChart && <div className="mb-6">{sankeyChart}</div>}
 			<div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-				{/* Search Input */}
-				<div className="flex-1 max-w-md">
-					<input
-						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-						placeholder="Search by company name..."
-						type="text"
-						value={searchTerm}
-						onChange={(e) => onSearchChange?.(e.target.value)}
-					/>
+				{/* Search and Filter Controls */}
+				<div className="flex flex-wrap items-center gap-4 flex-1">
+					{/* Search Input */}
+					<div className="flex-1 max-w-md">
+						<input
+							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+							placeholder="Search by company name..."
+							type="text"
+							value={searchTerm}
+							onChange={(e) => onSearchChange?.(e.target.value)}
+						/>
+					</div>
+
+					{/* Status Filter */}
+					<Dropdown>
+						<DropdownTrigger>
+							<Button
+								className="pl-3"
+								color={statusFilter ? "success" : "primary"}
+								variant="bordered"
+								isDisabled={!data || data.length === 0}
+								startContent={
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+										<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+									</svg>
+								}
+							>
+								{statusFilter || "All Statuses"}
+								{statusFilter && (
+									<span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-success text-white rounded-full">
+										+
+									</span>
+								)}
+							</Button>
+						</DropdownTrigger>
+						<DropdownMenu
+							disallowEmptySelection
+							aria-label="Status filter"
+							selectedKeys={statusFilter ? new Set([statusFilter]) : new Set()}
+							selectionMode="single"
+							variant="flat"
+							onSelectionChange={(keys) => {
+								const selectedStatus = Array.from(keys)[0] as string;
+								onStatusFilterChange?.(selectedStatus || "");
+							}}
+						>
+							<>
+								<DropdownItem key="">All Statuses</DropdownItem>
+								{uniqueStatuses.map((status: string) => (
+									<DropdownItem key={status}>{status}</DropdownItem>
+								))}
+							</>
+						</DropdownMenu>
+					</Dropdown>
+
+					{/* Company Filter */}
+					<Dropdown>
+						<DropdownTrigger>
+							<Button
+								className="pl-3"
+								color={companyFilter ? "success" : "primary"}
+								variant="bordered"
+								isDisabled={!data || data.length === 0}
+								startContent={
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+										<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+									</svg>
+								}
+							>
+								{companyFilter || "All Companies"}
+								{companyFilter && (
+									<span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-success text-white rounded-full">
+										+
+									</span>
+								)}
+							</Button>
+						</DropdownTrigger>
+						<DropdownMenu
+							disallowEmptySelection
+							aria-label="Company filter"
+							selectedKeys={companyFilter ? new Set([companyFilter]) : new Set()}
+							selectionMode="single"
+							variant="flat"
+							onSelectionChange={(keys) => {
+								const selectedCompany = Array.from(keys)[0] as string;
+								onCompanyFilterChange?.(selectedCompany || "");
+							}}
+						>
+							<>
+								<DropdownItem key="">All Companies</DropdownItem>
+								{uniqueCompanies.map((company: string) => (
+									<DropdownItem key={company}>{company}</DropdownItem>
+								))}
+							</>
+						</DropdownMenu>
+					</Dropdown>
 				</div>
 
 				{/* Sort and Download Controls */}

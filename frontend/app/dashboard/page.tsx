@@ -25,6 +25,8 @@ export default function Dashboard() {
 	const [totalPages, setTotalPages] = useState(1);
 	const [sankeyData, setSankeyData] = useState<SankeyData | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [statusFilter, setStatusFilter] = useState("");
+	const [companyFilter, setCompanyFilter] = useState("");
 	const [filteredData, setFilteredData] = useState<Application[]>([]);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -89,15 +91,33 @@ export default function Dashboard() {
 		fetchSankey();
 	}, [apiUrl, router, currentPage]);
 
-	// Filter data based on search term
+	// Filter data based on search term, status, and company
 	useEffect(() => {
-		if (searchTerm.trim() === "") {
-			setFilteredData(data);
-		} else {
-			const filtered = data.filter((item) => item.company_name.toLowerCase().includes(searchTerm.toLowerCase()));
-			setFilteredData(filtered);
+		let filtered = data;
+
+		// Apply search filter
+		if (searchTerm.trim() !== "") {
+			filtered = filtered.filter((item) => 
+				item.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+			);
 		}
-	}, [data, searchTerm]);
+
+		// Apply status filter
+		if (statusFilter.trim() !== "") {
+			filtered = filtered.filter((item) => 
+				item.application_status === statusFilter
+			);
+		}
+
+		// Apply company filter
+		if (companyFilter.trim() !== "") {
+			filtered = filtered.filter((item) => 
+				item.company_name === companyFilter
+			);
+		}
+
+		setFilteredData(filtered);
+	}, [data, searchTerm, statusFilter, companyFilter]);
 
 	const nextPage = () => {
 		if (currentPage < totalPages) {
@@ -408,6 +428,8 @@ export default function Dashboard() {
 			responseRate={responseRateContent}
 			sankeyChart={sankeyChartContent}
 			searchTerm={searchTerm}
+			statusFilter={statusFilter}
+			companyFilter={companyFilter}
 			totalPages={totalPages}
 			onDownloadCsv={downloadCsv}
 			onDownloadSankey={downloadSankey}
@@ -415,6 +437,8 @@ export default function Dashboard() {
 			onPrevPage={prevPage}
 			onRemoveItem={handleRemoveItem}
 			onSearchChange={setSearchTerm}
+			onStatusFilterChange={setStatusFilter}
+			onCompanyFilterChange={setCompanyFilter}
 		/>
 	);
 }
