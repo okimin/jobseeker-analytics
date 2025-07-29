@@ -16,8 +16,7 @@ This directory is for custom profile images that contributors want to use instea
      "github": "your-github-username",
      "avatar": "/contributors/your-image.jpg",
      "message": "Your Name was here! 🚀",
-     "contribution": "First contribution - Wall of Fame",
-     "date": "2025-01-27"
+     "date": "2024-05-23"
    }
    ```
 
