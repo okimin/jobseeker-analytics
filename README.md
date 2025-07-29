@@ -44,7 +44,7 @@ Curious what kind of tasks are available for volunteers? Take a look [here](http
 🎯 **Beginner or experienced developer new to the project?** Start with our [Contributor Onboarding Guide](CONTRIBUTOR_ONBOARDING.md) to complete your first contribution and join our Wall of Fame!
 
 
-## Contributors Hall of Fame
+## Contributors Wall of Fame
 
 <a href="https://github.com/just-a-job-app/jobseeker-analytics/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />
