@@ -41,8 +41,10 @@ Don't forget to subscribe to our events page: https://lu.ma/justajobapp
 
 Curious what kind of tasks are available for volunteers? Take a look [here](https://github.com/just-a-job-app/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee).
 
+🎯 **Beginner or experienced developer new to the project?** Start with our [Contributor Onboarding Guide](CONTRIBUTOR_ONBOARDING.md) to complete your first contribution and join our Wall of Fame!
+
+
 ## Contributors Hall of Fame
-Want to join the hall of fame? [Volunteer](https://app.formbricks.com/s/tq4y6lav6f3qdb4mkoiyslpn). 
 
 <a href="https://github.com/just-a-job-app/jobseeker-analytics/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />

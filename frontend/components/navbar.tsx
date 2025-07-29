@@ -64,6 +64,14 @@ export const Navbar = () => {
 			</NavbarContent>
 
 			<NavbarContent className="hidden md:flex basis-1/5 sm:basis-full" justify="end">
+				<NavbarItem>
+					<Link
+						className="text-sm font-normal text-default-600 hover:text-default-900"
+						href="/contributors"
+					>
+						Contributors
+					</Link>
+				</NavbarItem>
 				<NavbarItem className="flex gap-2">
 					<Link isExternal aria-label="Github" href={siteConfig.links.github}>
 						<GithubIcon className="text-default-500" />
@@ -153,6 +161,14 @@ export const Navbar = () => {
 			</NavbarContent>
 
 			<NavbarMenu className="flex flex-col items-center gap-3">
+				<NavbarMenuItem>
+					<Link
+						className="w-auto flex items-center justify-center gap-2 text-sm font-medium text-default-600 hover:text-default-900 bg-default-100 px-4 py-2 rounded-md transition"
+						href="/contributors"
+					>
+						🏆 Contributors
+					</Link>
+				</NavbarMenuItem>
 				<NavbarMenuItem>
 					<Link
 						isExternal
