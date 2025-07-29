@@ -100,7 +100,6 @@ Before starting, make sure you have:
      "github": "your-github-username",
      "avatar": "https://github.com/your-github-username.png",
      "message": "Your Name was here! 🚀",
-     "contribution": "First contribution - Wall of Fame",
      "date": "2025-01-27"
    }
    ```
