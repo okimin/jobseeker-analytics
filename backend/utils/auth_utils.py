@@ -6,7 +6,7 @@ from utils.file_utils import get_user_filepath
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
-
+from googleapiclient.discovery import build
 from utils.config_utils import get_settings
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ class AuthenticatedUser:
         self.user_id, self.user_email = self.get_user_id_and_email()
         self.filepath = get_user_filepath(self.user_id)
         self.start_date = start_date
+        self.service = build("gmail", "v1", credentials=self.creds)
 
     def get_user_id_and_email(self) -> tuple:
         """
