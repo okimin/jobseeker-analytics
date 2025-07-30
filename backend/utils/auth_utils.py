@@ -6,7 +6,7 @@ from utils.file_utils import get_user_filepath
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
-
+from googleapiclient.discovery import build
 from utils.config_utils import get_settings
 
 logger = logging.getLogger(__name__)
@@ -22,11 +22,23 @@ class AuthenticatedUser:
     successfully authenticated with Google.
     """
 
-    def __init__(self, creds: Credentials, start_date=None):
+    def __init__(
+        self,
+        creds: Credentials,
+        start_date=None,
+        _user_id=None,
+        _user_email=None,
+        _service=None,
+    ):
         self.creds = creds
-        self.user_id, self.user_email = self.get_user_id_and_email()
+        self.user_id, self.user_email = (
+            (_user_id, _user_email)
+            if _user_id and _user_email
+            else self.get_user_id_and_email()
+        )
         self.filepath = get_user_filepath(self.user_id)
         self.start_date = start_date
+        self.service = _service if _service else build("gmail", "v1", credentials=creds)
 
     def get_user_id_and_email(self) -> tuple:
         """
