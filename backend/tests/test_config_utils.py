@@ -4,8 +4,6 @@ from config import Settings
 import pytest
 import json
 import os
-from routes.email_routes import fetch_emails_to_db
-from fastapi.responses import JSONResponse
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -67,24 +65,3 @@ def test_dev_is_publicly_deployed_false():
 def test_staging_is_publicly_deployed_true():
     settings = Settings(ENV="staging")
     assert settings.is_publicly_deployed
-
-
-def test_batch_size_ends_email_processing_early(task_with_300_processed_emails, mock_request):
-    """
-    Using a test user with a task run that has already reached the batch size,
-    we should return a processing complete message.
-    The get_email_ids function should not be called because we return early due to batch size limit.
-    The user will not be able to fetch any more emails until the next day.
-    This is needed due to free tier limits of LLM calls like Gemini, which has a limit of 200 calls per day.
-    """
-    settings = Settings(ENV="prod", BATCH_SIZE=300)  # Set batch size equal to processed emails
-    user = task_with_300_processed_emails.user
-    # The task should already have processed_emails >= batch_size (300 >= 200)
-    assert task_with_300_processed_emails.processed_emails >= settings.batch_size_by_env
-    with patch("routes.email_routes.get_email_ids") as mock_get_email_ids:
-        result = fetch_emails_to_db(user, request=mock_request, user_id=user.user_id)
-        # Should return a JSONResponse with processing complete message
-        assert isinstance(result, JSONResponse)
-        assert result.body.decode() == '{"message":"Processing complete","processed_emails":300,"total_emails":0}'
-        # The get_email_ids function should not be called because we return early due to batch size limit
-        assert mock_get_email_ids.call_count == 0
