@@ -39,7 +39,7 @@ def test_fetch_emails_to_db(logged_in_user, db_session):
 
 
 def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
-    logged_in_user, rate_limited_task, db_session
+    logged_in_user, task_with_300_processed_emails, db_session
 ):
     with mock.patch(
         "routes.email_routes.get_email_ids", return_value=[]
