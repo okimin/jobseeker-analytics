@@ -286,13 +286,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 "Less than an hour since last fetch of emails for user",
                 extra={"user_id": user_id},
             )
-            return JSONResponse(
-                content={
-                    "message": "Processing complete",
-                    "processed_emails": process_task_run.processed_emails,
-                    "total_emails": process_task_run.total_emails,
-                }
-            )
+            return
 
         # this is helpful if the user applies for a new job and wants to rerun the analysis during the same session
         process_task_run.processed_emails = 0
@@ -325,8 +319,10 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)"
             )
 
+        service = build("gmail", "v1", credentials=user.creds)
+
         messages = get_email_ids(
-            query=query, gmail_instance=user.service
+            query=query, gmail_instance=service
         )
         # Update session to remove "new user" status
         request.session["is_new_user"] = False
