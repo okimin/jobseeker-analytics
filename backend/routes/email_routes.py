@@ -296,22 +296,31 @@ def fetch_emails_to_db(
             # if this is the first time running the task for the user, create a record
             process_task_run = task_models.TaskRuns(user_id=user_id)
             db_session.add(process_task_run)
-        elif datetime.now() - process_task_run.updated < timedelta(
-            seconds=SECONDS_BETWEEN_FETCHING_EMAILS
-        ):
-            # limit how frequently emails can be fetched by a specific user
-            logger.warning(
-                "Already fetched the maximum number (%s) of emails for this user for today",
-                settings.batch_size_by_env,
-                extra={"user_id": user_id},
-            )
-            return JSONResponse(
-                content={
-                    "message": "Processing complete",
-                    "processed_emails": process_task_run.processed_emails,
-                    "total_emails": process_task_run.total_emails,
-                }
-            )
+        else:
+            # Check if the task was completed on a different day
+            from datetime import datetime, timezone
+            today = datetime.now(timezone.utc).date()
+            task_date = process_task_run.updated.date() if process_task_run.updated else None
+            
+            # If the task was completed on a different day, reset the processed emails count
+            if task_date and task_date < today:
+                logger.info(f"Task was completed on {task_date}, resetting processed emails count for today")
+                process_task_run.processed_emails = 0
+                process_task_run.total_emails = 0
+            elif process_task_run.processed_emails >= settings.batch_size_by_env:
+                # limit how frequently emails can be fetched by a specific user (only if same day)
+                logger.warning(
+                    "Already fetched the maximum number (%s) of emails for this user for today",
+                    settings.batch_size_by_env,
+                    extra={"user_id": user_id},
+                )
+                return JSONResponse(
+                    content={
+                        "message": "Processing complete",
+                        "processed_emails": process_task_run.processed_emails,
+                        "total_emails": process_task_run.total_emails,
+                    }
+                )
 
         # this is helpful if the user applies for a new job and wants to rerun the analysis during the same session
         process_task_run.processed_emails = 0
