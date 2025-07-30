@@ -18,28 +18,40 @@ def parse_email_date(date_str: str) -> datetime:
     return dt
 
 
-def check_email_exists(user_id: str, email_id: str) -> bool:
+def check_email_exists(user_id: str, email_id: str, db_session=None) -> bool:
     """
     Checks if an email with the given emailId and userId exists in the database.
     """
-    with Session(engine) as session:
+    if db_session:
+        # Use provided session
         statement = select(UserEmails).where(
             (UserEmails.user_id == user_id) & (UserEmails.id == email_id)
         )
-        result = session.exec(statement).first()
+        result = db_session.exec(statement).first()
         return result is not None
+    else:
+        # Fallback to creating new session
+        with Session(engine) as session:
+            statement = select(UserEmails).where(
+                (UserEmails.user_id == user_id) & (UserEmails.id == email_id)
+            )
+            result = session.exec(statement).first()
+            return result is not None
 
 
-def create_user_email(user, message_data: dict) -> UserEmails:
+def create_user_email(user, message_data: dict, db_session=None) -> UserEmails:
     """
     Creates a UserEmail record instance from the provided data.
     """
     try:
         received_at_str = message_data["received_at"]
         received_at = parse_email_date(received_at_str)  # parse_email_date function was created as different date formats were being pulled from the data
-        if check_email_exists(user.user_id, message_data["id"]):
+        
+        # Check if email already exists
+        if check_email_exists(user.user_id, message_data["id"], db_session):
             logger.info(f"Email with ID {message_data['id']} already exists in the database.")
             return None
+                
         return UserEmails(
             id=message_data["id"],
             user_id=user.user_id,

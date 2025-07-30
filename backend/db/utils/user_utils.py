@@ -33,17 +33,15 @@ def user_exists(user) -> Tuple[bool, Optional[datetime]]:
             last_fetched_date = get_last_email_date(user.user_id)
             return True, last_fetched_date
 
-def add_user(user, request, start_date=None) -> Users:
+def add_user(user, request, start_date=None, db_session=None) -> Users:
     """
     Writes user data to the users model and session storage
-
     """
-    with Session(engine) as session:
-        # Check if the user already exists in the database
-        existing_user = session.exec(select(Users).where(Users.user_id == user.user_id)).first()
+    if db_session:
+        # Use provided session
+        existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
 
         if not existing_user:
-
             start_date = getattr(user, "start_date", None) or (datetime.now(timezone.utc) - timedelta(days=90))
 
             if isinstance(start_date, datetime):
@@ -56,9 +54,9 @@ def add_user(user, request, start_date=None) -> Users:
                 start_date=start_date
             )
 
-            session.add(new_user)
-            session.commit()
-            session.refresh(new_user)
+            db_session.add(new_user)
+            db_session.commit()
+            db_session.refresh(new_user)
             logger.info(f"Created new user record for user_id: {user.user_id}")
 
             # Write start date to session storage
@@ -71,6 +69,41 @@ def add_user(user, request, start_date=None) -> Users:
         else:
             logger.info(f"User {user.user_id} already exists in the database.")
             return existing_user
+    else:
+        # Fallback to creating new session
+        from database import engine
+        with Session(engine) as session:
+            # Check if the user already exists in the database
+            existing_user = session.exec(select(Users).where(Users.user_id == user.user_id)).first()
+
+            if not existing_user:
+                start_date = getattr(user, "start_date", None) or (datetime.now(timezone.utc) - timedelta(days=90))
+
+                if isinstance(start_date, datetime):
+                    start_date = start_date.strftime("%Y-%m-%d")
+
+                # add a new user record
+                new_user = Users(
+                    user_id=user.user_id,
+                    user_email=user.user_email,
+                    start_date=start_date
+                )
+
+                session.add(new_user)
+                session.commit()
+                session.refresh(new_user)
+                logger.info(f"Created new user record for user_id: {user.user_id}")
+
+                # Write start date to session storage
+                if isinstance(start_date, str):
+                    request.session["start_date"] = start_date  # Already a string, no need to convert
+                else:
+                    request.session["start_date"] = start_date.isoformat()  # Convert only if it's a datetime object
+
+                return new_user
+            else:
+                logger.info(f"User {user.user_id} already exists in the database.")
+                return existing_user
         
 def update_user_start_date(user_id: str, new_start_date: str) -> bool:
     """

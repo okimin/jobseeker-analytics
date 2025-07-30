@@ -432,16 +432,23 @@ def fetch_emails_to_db(
                     "job_title": result.get("job_title", "unknown"),
                     "from": msg.get("from", "unknown"),
                 }
-                email_record = create_user_email(user, message_data)
+                email_record = create_user_email(user, message_data, db_session)
                 if email_record:
                     email_records.append(email_record)
+                    logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
+                else:
+                    logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
 
         # batch insert all records at once
         if email_records:
+            logger.info(f"About to add {len(email_records)} email records to database for user {user_id}")
             db_session.add_all(email_records)
+            db_session.commit()  # Commit immediately after adding records
             logger.info(
-                f"Added {len(email_records)} email records for user {user_id}"
+                f"Successfully committed {len(email_records)} email records for user {user_id}"
             )
+        else:
+            logger.warning(f"No email records to add for user {user_id}")
 
         process_task_run.status = task_models.FINISHED
         db_session.commit()

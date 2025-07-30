@@ -97,20 +97,6 @@ async def heartbeat(request: Request):
     return {"status": "alive", "timestamp": datetime.now().isoformat()}
 
 
-@app.post("/api/add-user")
-@limiter.limit("3/minute")
-async def add_user_endpoint(user_data: UserData, request: Request, user_id: str = Depends(validate_session)):
-    """
-    This endpoint adds a user to the database and session storage
-    """
-    try:
-        add_user(user_data, request)
-        return {"message": "User added successfully"}
-    except Exception as e:
-        # Log the error for debugging purposes
-        logger.error(f"An error occurred while adding user: {e}")
-        return {"error": "An error occurred while adding the user."}
-
 
 # Run the app using Uvicorn
 if __name__ == "__main__":
