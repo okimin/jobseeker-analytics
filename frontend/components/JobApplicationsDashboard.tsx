@@ -49,6 +49,10 @@ interface JobApplicationsDashboardProps {
 	onStatusFilterChange?: (status: string) => void;
 	companyFilter?: string;
 	onCompanyFilterChange?: (company: string) => void;
+	hideRejections?: boolean;
+	onHideRejectionsChange?: (hide: boolean) => void;
+	hideApplicationConfirmations?: boolean;
+	onHideApplicationConfirmationsChange?: (hide: boolean) => void;
 	onNextPage: () => void;
 	onPrevPage: () => void;
 	currentPage: number;
@@ -110,6 +114,10 @@ export default function JobApplicationsDashboard({
 	onStatusFilterChange,
 	companyFilter = "",
 	onCompanyFilterChange,
+	hideRejections = true,
+	onHideRejectionsChange,
+	hideApplicationConfirmations = true,
+	onHideApplicationConfirmationsChange,
 	...props
 }: JobApplicationsDashboardProps) {
 	const [sortedData, setSortedData] = useState<Application[]>([]);
@@ -317,7 +325,7 @@ export default function JobApplicationsDashboard({
 					<div className="flex-1 max-w-md">
 						<input
 							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-							placeholder="Search by company name..."
+							placeholder="Company"
 							type="text"
 							value={searchTerm}
 							onChange={(e) => onSearchChange?.(e.target.value)}
@@ -407,6 +415,34 @@ export default function JobApplicationsDashboard({
 							</>
 						</DropdownMenu>
 					</Dropdown>
+
+					{/* Hide Rejections Checkbox */}
+					<div className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							id="hide-rejections"
+							checked={hideRejections}
+							onChange={(e) => onHideRejectionsChange?.(e.target.checked)}
+							className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+						/>
+						<label htmlFor="hide-rejections" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+							Hide Rejections
+						</label>
+					</div>
+
+					{/* Hide Application Confirmations Checkbox */}
+					<div className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							id="hide-application-confirmations"
+							checked={hideApplicationConfirmations}
+							onChange={(e) => onHideApplicationConfirmationsChange?.(e.target.checked)}
+							className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+						/>
+						<label htmlFor="hide-application-confirmations" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+							Hide Application Confirmations
+						</label>
+					</div>
 				</div>
 
 				{/* Sort and Download Controls */}

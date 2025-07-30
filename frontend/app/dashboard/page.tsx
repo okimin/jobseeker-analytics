@@ -27,6 +27,8 @@ export default function Dashboard() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
 	const [companyFilter, setCompanyFilter] = useState("");
+	const [hideRejections, setHideRejections] = useState<boolean>(true);
+	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(true);
 	const [filteredData, setFilteredData] = useState<Application[]>([]);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -72,6 +74,8 @@ export default function Dashboard() {
 		fetchData();
 	}, [apiUrl, router, currentPage]);
 
+
+
 	useEffect(() => {
 		// Fetch Sankey data
 		const fetchSankey = async () => {
@@ -91,9 +95,22 @@ export default function Dashboard() {
 		fetchSankey();
 	}, [apiUrl, router, currentPage]);
 
-	// Filter data based on search term, status, and company
+	// Filter data based on search term, status, company, and hide options
 	useEffect(() => {
 		let filtered = data;
+
+		// Apply hide filters first
+		if (hideRejections) {
+			filtered = filtered.filter((item) => 
+				item.application_status.toLowerCase() !== "rejection"
+			);
+		}
+
+		if (hideApplicationConfirmations) {
+			filtered = filtered.filter((item) => 
+				item.application_status.toLowerCase() !== "application confirmation"
+			);
+		}
 
 		// Apply search filter
 		if (searchTerm.trim() !== "") {
@@ -117,7 +134,7 @@ export default function Dashboard() {
 		}
 
 		setFilteredData(filtered);
-	}, [data, searchTerm, statusFilter, companyFilter]);
+	}, [data, searchTerm, statusFilter, companyFilter, hideRejections, hideApplicationConfirmations]);
 
 	const nextPage = () => {
 		if (currentPage < totalPages) {
@@ -430,6 +447,8 @@ export default function Dashboard() {
 			searchTerm={searchTerm}
 			statusFilter={statusFilter}
 			companyFilter={companyFilter}
+			hideRejections={hideRejections}
+			hideApplicationConfirmations={hideApplicationConfirmations}
 			totalPages={totalPages}
 			onDownloadCsv={downloadCsv}
 			onDownloadSankey={downloadSankey}
@@ -439,6 +458,8 @@ export default function Dashboard() {
 			onSearchChange={setSearchTerm}
 			onStatusFilterChange={setStatusFilter}
 			onCompanyFilterChange={setCompanyFilter}
+			onHideRejectionsChange={setHideRejections}
+			onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
 		/>
 	);
 }
