@@ -28,6 +28,7 @@ DBSession = Annotated[Session, fastapi.Depends(request_session)]
 
 settings = get_settings()
 IS_DOCKER_CONTAINER = os.environ.get("IS_DOCKER_CONTAINER", 0)
+logger.info("IS_DOCKER_CONTAINER: %s", IS_DOCKER_CONTAINER)
 if IS_DOCKER_CONTAINER and not settings.is_publicly_deployed:
     logger.info("Using DATABASE_URL_DOCKER for locally deployed environment")
     DATABASE_URL = settings.DATABASE_URL_DOCKER
