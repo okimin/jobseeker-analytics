@@ -16,7 +16,6 @@ def get_last_email_date(user_id: str, db_session) -> Optional[datetime]:
     result = db_session.bind.url
     logger.info("get_last_email_date Connected to database: %s, user: %s, host: %s",
                 result.database, result.username, result.host)
-    db_session.expire_all()  # Clear any cached data
     row = db_session.exec(
         select(func.max(UserEmails.received_at))
         .where(UserEmails.user_id == user_id)
