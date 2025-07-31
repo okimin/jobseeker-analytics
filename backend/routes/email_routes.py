@@ -113,6 +113,7 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         logger.info("query_emails Connected to database: %s, user: %s, host: %s", 
                    result.database, result.username, result.host)
         # Query emails sorted by date (newest first)
+        db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         statement = select(UserEmails).where(UserEmails.user_id == user_id).order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()

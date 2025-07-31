@@ -99,6 +99,7 @@ def response_rate_by_job_title(request: Request, db_session: database.DBSession,
 def calculate_response_rate(
     request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)
 ) -> dict:
+    db_session.expire_all()  # Clear any cached data
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
     user_emails = db_session.exec(
         select(UserEmails).where(UserEmails.user_id == user_id)

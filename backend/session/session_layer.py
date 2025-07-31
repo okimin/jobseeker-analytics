@@ -59,6 +59,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         result = db_session.bind.url
         logger.info("validate_session Connected to database: %s, user: %s, host: %s",
                    result.database, result.username, result.host)
+        db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         user = db_session.exec(select(Users).where(Users.user_id == user_id))
         if not user:

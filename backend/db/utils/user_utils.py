@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Tuple
 from db.user_emails import UserEmails
-from sqlmodel import Session, select, func
+from sqlmodel import select, func
 from db.users import Users 
 from datetime import datetime, timedelta, timezone 
 from database import engine
@@ -16,7 +16,7 @@ def get_last_email_date(user_id: str, db_session) -> Optional[datetime]:
     result = db_session.bind.url
     logger.info("get_last_email_date Connected to database: %s, user: %s, host: %s",
                 result.database, result.username, result.host)
-    db_session.commit()  # Commit pending changes to ensure the database is in latest state
+    db_session.expire_all()  # Clear any cached data
     row = db_session.exec(
         select(func.max(UserEmails.received_at))
         .where(UserEmails.user_id == user_id)
@@ -31,13 +31,20 @@ def user_exists(user, db_session) -> Tuple[bool, Optional[datetime]]:
     result = db_session.bind.url
     logger.info("user_exists Connected to database: %s, user: %s, host: %s",
                 result.database, result.username, result.host)
+    logger.info("user_exists Looking for user_id: %s", user.user_id)
+    
+    # Force a fresh query by expiring any cached data
+    db_session.expire_all()
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
+    
     existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
+    logger.info("user_exists Query result: %s", existing_user)
+    
     if not existing_user:
         logger.info("user_exists: user does not exist in the database")
         return False, None
     else:
-        logger.info("user_exists: user exists in the database")
+        logger.info("user_exists: user exists in the database with user_id: %s", existing_user.user_id)
         last_fetched_date = get_last_email_date(user.user_id, db_session)
         return True, last_fetched_date
 
@@ -49,6 +56,7 @@ def add_user(user, request, db_session, start_date=None) -> Users:
     logger.info("add_user Connected to database: %s, user: %s, host: %s",
                 result.database, result.username, result.host)
     # Use provided session
+    db_session.expire_all()
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
     existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
 
