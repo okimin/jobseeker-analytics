@@ -180,7 +180,7 @@ def get_email_ids(query: tuple = None, gmail_instance=None, user_id: str = None)
                 )
                 .execute()
             )
-        logger.info(f"user_id:{user_id} response.resultSizeEstimate: {response["resultSizeEstimate"]}")
+        logger.info(f"""user_id:{user_id} response.resultSizeEstimate: {response["resultSizeEstimate"]}""")
         if "messages" in response:
             email_ids.extend(response["messages"])
 
