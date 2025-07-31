@@ -4,7 +4,6 @@ from db.user_emails import UserEmails
 from sqlmodel import select, func
 from db.users import Users 
 from datetime import datetime, timedelta, timezone 
-from database import engine
 
 logger = logging.getLogger(__name__)
 
