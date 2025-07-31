@@ -298,7 +298,7 @@ def fetch_emails_to_db(
     ).one_or_none()
     if process_task_run is None:
         # if this is the first time running the task for the user, create a record
-        process_task_run = task_models.TaskRuns(user_id=user_id)
+        process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
         db_session.add(process_task_run)
         db_session.commit()
     else:
