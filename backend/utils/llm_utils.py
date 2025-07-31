@@ -27,7 +27,7 @@ def _generate_content_sync(prompt):
     """Synchronous wrapper for LLM call to be used with ThreadPoolExecutor"""
     return model.generate_content(prompt)
 
-def process_email(email_text: str, user_id: str):
+def process_email(email_text: str, user_id: str, db_session):
     # Import here to avoid circular imports
     from routes.email_routes import user_cancellation_flags, cancellation_flags_lock
     
@@ -154,7 +154,7 @@ def process_email(email_text: str, user_id: str):
                     continue  # Retry
                     
         except Exception as e:
-            daily_batch_exceeded = processed_emails_exceeds_rate_limit(user_id)
+            daily_batch_exceeded = processed_emails_exceeds_rate_limit(user_id, db_session)
             if "429" in str(e) and not daily_batch_exceeded:
                 logger.warning(
                     f"Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."

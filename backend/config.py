@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
-    GOOGLE_CLIENT_REDIRECT_URI: List[str] = ["http://localhost:8000/login"]
+    GOOGLE_CLIENT_REDIRECT_URI: str = '["http://localhost:8000/login"]'
     GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     DATABASE_URL_DOCKER: str = (
         "postgresql://postgres:postgres@db:5432/jobseeker_analytics"
     )
-    BATCH_SIZE: int = 40  # corresponds to Gemini API rate limit per day (200) / number of est. Daily Active Users on 1 free tier API key ~5
+    BATCH_SIZE: int = 10000
 
     @field_validator("GOOGLE_SCOPES", mode="before")
     @classmethod

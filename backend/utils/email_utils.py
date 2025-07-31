@@ -163,7 +163,7 @@ def get_email(message_id: str, gmail_instance=None, user_email: str = None):
     return {}
 
 
-def get_email_ids(query: tuple = None, gmail_instance=None):
+def get_email_ids(query: tuple = None, gmail_instance=None, user_id: str = None):
     email_ids = []
     page_token = None
 
@@ -176,12 +176,11 @@ def get_email_ids(query: tuple = None, gmail_instance=None):
                     userId="me",
                     q=query,
                     includeSpamTrash=True,
-                    pageToken=page_token,
-                    maxResults=settings.batch_size_by_env,
+                    pageToken=page_token
                 )
                 .execute()
             )
-
+        logger.info(f"user_id:{user_id} response.resultSizeEstimate: {response["resultSizeEstimate"]}")
         if "messages" in response:
             email_ids.extend(response["messages"])
 

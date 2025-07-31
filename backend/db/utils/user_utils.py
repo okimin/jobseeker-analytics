@@ -13,9 +13,7 @@ def get_last_email_date(user_id: str, db_session) -> Optional[datetime]:
     Checks date of user's most recent email 
 
     """
-    result = db_session.bind.url
-    logger.info("get_last_email_date Connected to database: %s, user: %s, host: %s",
-                result.database, result.username, result.host)
+    logger.info("get_last_email_date Looking for user_id: %s", user_id)
     row = db_session.exec(
         select(func.max(UserEmails.received_at))
         .where(UserEmails.user_id == user_id)
@@ -27,9 +25,6 @@ def user_exists(user, db_session) -> Tuple[bool, Optional[datetime]]:
     Checks if user is already in the database
     """
     # Use provided session for fresh data
-    result = db_session.bind.url
-    logger.info("user_exists Connected to database: %s, user: %s, host: %s",
-                result.database, result.username, result.host)
     logger.info("user_exists Looking for user_id: %s", user.user_id)
     
     # Force a fresh query by expiring any cached data
@@ -51,9 +46,7 @@ def add_user(user, request, db_session, start_date=None) -> Users:
     """
     Writes user data to the users model and session storage
     """
-    result = db_session.bind.url
-    logger.info("add_user Connected to database: %s, user: %s, host: %s",
-                result.database, result.username, result.host)
+    logger.info("add_user for user_id: %s", user.user_id)
     # Use provided session
     db_session.expire_all()
     db_session.commit()  # Commit pending changes to ensure the database is in latest state

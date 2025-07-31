@@ -42,7 +42,7 @@ async def set_start_date(request: Request, db_session: database.DBSession, start
         user = AuthenticatedUser(creds, start_date)  # Corrected: Now passing Credentials object
 
         # Save start date in DB
-        add_user(user, request, start_date, db_session)
+        add_user(user, request, db_session, start_date)
 
         # Update session to remove "new user" status
         request.session["is_new_user"] = False

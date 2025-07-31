@@ -56,15 +56,13 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
 
     if user_id:
         # check that user actually exists in database first
-        result = db_session.bind.url
-        logger.info("validate_session Connected to database: %s, user: %s, host: %s",
-                   result.database, result.username, result.host)
+        logger.info("validate_session found user_id: %s", user_id)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         user = db_session.exec(select(Users).where(Users.user_id == user_id))
         if not user:
             clear_session(request, user_id)
-            logging.info("user_id: %s deleted, redirecting to login" % user_id)
+            logging.info("validate_session deleting user_id: %s", user_id)
             return ""
 
     logging.info("Valid Session, Access granted.")

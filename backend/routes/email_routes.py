@@ -2,13 +2,14 @@ import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
-from sqlmodel import Session, select, desc
+from sqlmodel import select, desc
 from db.user_emails import UserEmails
 from db import processing_tasks as task_models
 from db.utils.user_email_utils import create_user_email
 from utils.auth_utils import AuthenticatedUser
 from utils.email_utils import get_email_ids, get_email
 from utils.llm_utils import process_email
+from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
 from session.session_layer import validate_session
 import database
@@ -108,10 +109,7 @@ async def processing(
 @limiter.limit("5/minute")
 def query_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)) -> None:
     try:
-        logger.info(f"Fetching emails for user_id: {user_id}")
-        result = db_session.bind.url
-        logger.info("query_emails Connected to database: %s, user: %s, host: %s", 
-                   result.database, result.username, result.host)
+        logger.info(f"query_emails for user_id: {user_id}")
         # Query emails sorted by date (newest first)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
@@ -328,9 +326,6 @@ def fetch_emails_to_db(
                 }
             )
 
-    # this is helpful if the user applies for a new job and wants to rerun the analysis during the same session
-    process_task_run.processed_emails = 0
-    process_task_run.total_emails = 0
     process_task_run.status = task_models.STARTED
 
     db_session.commit()  # sync with the database so calls in the future reflect the task is already started
@@ -355,11 +350,9 @@ def fetch_emails_to_db(
             logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
     else:
         logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
-        logger.info(
-            f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)"
-        )
 
-    messages = get_email_ids(query=query, gmail_instance=gmail_instance)
+
+    messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
     # Update session to remove "new user" status
     request.session["is_new_user"] = False
 
@@ -404,7 +397,7 @@ def fetch_emails_to_db(
 
             if msg:
                 try:
-                    result = process_email(msg["text_content"], user_id)
+                    result = process_email(msg["text_content"], user_id, db_session)
                     # Check for cancellation after LLM processing
                     with cancellation_flags_lock:
                         if user_cancellation_flags.get(user_id, False):
@@ -450,6 +443,10 @@ def fetch_emails_to_db(
             email_record = create_user_email(user, message_data, db_session)
             if email_record:
                 email_records.append(email_record)
+                # check rate limit against total daily count
+                if exceeds_rate_limit(process_task_run.processed_emails):
+                    logger.warning(f"Rate limit exceeded for user {user_id} at {process_task_run.processed_emails} emails")
+                    break
                 logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
             else:
                 logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
