@@ -47,24 +47,24 @@ const ProcessingPage = () => {
 					credentials: "include"
 				});
 
-					const result = await res.json();
-					const total = Number(result.total_emails);
-					const processed = Number(result.processed_emails);
-					console.log("Processing result:", result);
-					if (!total || isNaN(total)) {
-						setProgress(100);
-					} else {
-						setProgress(100 * (processed / total));
-					}
-					if (result.message === "Processing complete") {
-						clearInterval(interval);
-						router.push("/dashboard");
-					}
-				} catch {
-					router.push("/logout");
+				const result = await res.json();
+				const total = Number(result.total_emails);
+				const processed = Number(result.processed_emails);
+				console.log("Processing result:", result);
+				if (!total || isNaN(total)) {
+					setProgress(100);
+				} else {
+					setProgress(100 * (processed / total));
 				}
-			}, 3000);
-		};
+				if (result.message === "Processing complete") {
+					clearInterval(interval);
+					router.push("/dashboard");
+				}
+			} catch {
+				router.push("/logout");
+			}
+		}, 3000);
+	};
 
 	useEffect(() => {
 		startProcessing();
@@ -84,33 +84,32 @@ const ProcessingPage = () => {
 				method: "POST",
 				credentials: "include"
 			});
-			
+
 			if (!stopRes.ok) {
 				console.warn("Stop request failed, continuing with reset...");
 			}
-			
+
 			// 2. Wait for tasks to fully stop
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			// 3. Change start date
 			await changeStartDate(selectedDate);
-			
+
 			// 4. Delete old emails before new start date
 			await fetch(`${apiUrl}/delete-emails-before-start-date`, {
 				method: "DELETE",
 				credentials: "include"
 			});
-			
+
 			// 5. Restart with clean state
 			await fetch(`${apiUrl}/restart-processing`, {
 				method: "POST",
 				credentials: "include"
 			});
-			
+
 			// 6. Reset UI state
 			setShowModal(false);
 			setProgress(0);
-			
 		} catch (error) {
 			addToast({
 				title: "Error resetting process",

@@ -25,9 +25,9 @@ def clear_local_database():
     logger.info("Clearing local database tables...")
     with Session(engine) as session:
         # Delete all records from each table
-        # session.exec(delete(UserEmails)) # Uncomment if you want to clear UserEmails
+        session.exec(delete(UserEmails)) # Uncomment if you want to clear UserEmails
         session.exec(delete(TaskRuns))
-        # session.exec(delete(Users))
+        session.exec(delete(Users))
         session.exec(delete(Companies))
         session.commit()
     logger.info("Local database cleared successfully.")

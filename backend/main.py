@@ -24,7 +24,7 @@ from routes import email_routes, auth_routes, file_routes, users_routes, start_d
 async def lifespan(app: FastAPI):
     create_db_and_tables()
     # Clear database in local development
-    # clear_local_database()  # uncomment to clear database in local development
+    clear_local_database()  # uncomment to clear database in local development
     yield
 
 app = FastAPI(lifespan=lifespan)

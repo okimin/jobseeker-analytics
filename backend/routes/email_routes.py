@@ -213,8 +213,8 @@ async def restart_processing(
         if existing_task:
             existing_task.cancel()
     
-    # Wait a moment for cleanup
-    await asyncio.sleep(0.5)
+    # Wait longer for cleanup to ensure old task is fully stopped
+    await asyncio.sleep(2.0)
     
     # Reset or create new task run
     process_task_run = db_session.get(task_models.TaskRuns, user_id)
