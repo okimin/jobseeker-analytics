@@ -288,6 +288,10 @@ def fetch_emails_to_db(
         user_cancellation_flags.pop(user_id, None)
 
     with Session(database.engine) as db_session:
+        logger.info("dir(db_session): %s", dir(db_session))
+        result = db_session.bind.url
+        logger.info("Connected to database: %s, user: %s, host: %s", 
+                   result.database, result.username, result.host)
         # we track starting and finishing fetching of emails for each user
         process_task_run = db_session.exec(
             select(task_models.TaskRuns).filter_by(user_id=user_id)
