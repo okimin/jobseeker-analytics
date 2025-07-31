@@ -11,6 +11,7 @@ from session.session_layer import create_random_session_string, validate_session
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
 from routes.email_routes import fetch_emails_to_db
+import database
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 import os
@@ -30,7 +31,7 @@ APP_URL = settings.APP_URL
 
 @router.get("/login")
 @limiter.limit("10/minute")
-async def login(request: Request, background_tasks: BackgroundTasks):
+async def login(request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
     client_config = {
@@ -93,7 +94,7 @@ async def login(request: Request, background_tasks: BackgroundTasks):
         request.session["access_token"] = creds.token
 
         # NOTE: change redirection once dashboard is completed
-        exists, last_fetched_date = user_exists(user)
+        exists, last_fetched_date = user_exists(user, db_session)
         if exists:
             logger.info("User already exists in the database.")
             response = RedirectResponse(

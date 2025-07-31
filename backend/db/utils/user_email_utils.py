@@ -2,8 +2,7 @@ from db.user_emails import UserEmails
 from datetime import datetime, timezone
 import email.utils
 import logging
-from database import engine
-from sqlmodel import Session, select
+from sqlmodel import select
 
 logger = logging.getLogger(__name__)
 
@@ -18,28 +17,19 @@ def parse_email_date(date_str: str) -> datetime:
     return dt
 
 
-def check_email_exists(user_id: str, email_id: str, db_session=None) -> bool:
+def check_email_exists(user_id: str, email_id: str, db_session) -> bool:
     """
     Checks if an email with the given emailId and userId exists in the database.
     """
-    if db_session:
-        # Use provided session
-        statement = select(UserEmails).where(
-            (UserEmails.user_id == user_id) & (UserEmails.id == email_id)
-        )
-        result = db_session.exec(statement).first()
-        return result is not None
-    else:
-        # Fallback to creating new session
-        with Session(engine) as session:
-            statement = select(UserEmails).where(
-                (UserEmails.user_id == user_id) & (UserEmails.id == email_id)
-            )
-            result = session.exec(statement).first()
-            return result is not None
+    db_session.commit()  # Commit pending changes to ensure the database is in latest state
+    statement = select(UserEmails).where(
+        (UserEmails.user_id == user_id) & (UserEmails.id == email_id)
+    )
+    result = db_session.exec(statement).first()
+    return result is not None
 
 
-def create_user_email(user, message_data: dict, db_session=None) -> UserEmails:
+def create_user_email(user, message_data: dict, db_session) -> UserEmails:
     """
     Creates a UserEmail record instance from the provided data.
     """
