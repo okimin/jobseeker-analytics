@@ -70,7 +70,7 @@ def test_staging_is_publicly_deployed_true():
 
 
 def test_batch_size_ends_email_processing_early(
-    task_with_300_processed_emails, mock_request, mock_authenticated_user
+    task_with_300_processed_emails, mock_request, mock_authenticated_user, db_session
 ):
     """
     Using a test user with a task run that has already reached the batch size,
@@ -87,7 +87,7 @@ def test_batch_size_ends_email_processing_early(
     assert task_with_300_processed_emails.processed_emails >= settings.batch_size_by_env
     with patch("routes.email_routes.get_email_ids") as mock_get_email_ids:
         result = fetch_emails_to_db(
-            mock_authenticated_user, request=mock_request, user_id=user.user_id
+            mock_authenticated_user, request=mock_request, user_id=user.user_id, db_session=db_session
         )
         # Should return a JSONResponse with processing complete message
         assert isinstance(result, JSONResponse)

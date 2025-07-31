@@ -151,7 +151,7 @@ async def delete_email(request: Request, db_session: database.DBSession, email_i
 
         # Delete the email record
         db_session.delete(email_record)
-        db_session.flush()
+        db_session.commit()
 
         logger.info(f"Email with id {email_id} deleted successfully for user_id {user_id}")
         return {"message": "Item deleted successfully"}
@@ -166,7 +166,7 @@ async def delete_email(request: Request, db_session: database.DBSession, email_i
 @router.post("/fetch-emails")
 @limiter.limit("5/minute")
 async def start_fetch_emails(
-    request: Request, background_tasks: BackgroundTasks, user_id: str = Depends(validate_session)
+    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession, user_id: str = Depends(validate_session)
 ):
     """Starts the background task for fetching and processing emails."""
     if not user_id:
@@ -183,7 +183,7 @@ async def start_fetch_emails(
         logger.info(f"Starting email fetching process for user_id: {user_id}")
         # Start email fetching in the background and track the task
         loop = asyncio.get_event_loop()
-        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, user_id=user_id))
+        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, user_id=user_id, db_session= db_session))
         with fetch_email_tasks_lock:
             fetch_email_tasks[user_id] = task
         def cleanup_task(fut):
@@ -281,99 +281,96 @@ def fetch_emails_to_db(
     last_updated: Optional[datetime] = None,
     *,
     user_id: str,
+    db_session: database.DBSession,
 ) -> None:
     logger.info(f"Fetching emails to db for user_id: {user_id}")
     gmail_instance = user.service
-    
+
     # Clear any existing cancellation flag for this user
     with cancellation_flags_lock:
         user_cancellation_flags.pop(user_id, None)
 
-    with Session(database.engine) as db_session:
-        result = db_session.bind.url
-        logger.info("fetch_emails_to_db Connected to database: %s, user: %s, host: %s", 
-                   result.database, result.username, result.host)
-        # we track starting and finishing fetching of emails for each user
-        process_task_run = db_session.exec(
-            select(task_models.TaskRuns).filter_by(user_id=user_id)
-        ).one_or_none()
-        if process_task_run is None:
-            # if this is the first time running the task for the user, create a record
-            process_task_run = task_models.TaskRuns(user_id=user_id)
-            db_session.add(process_task_run)
-        else:
-            # Check if the task was completed on a different day
-            from datetime import datetime, timezone
-            today = datetime.now(timezone.utc).date()
-            task_date = process_task_run.updated.date() if process_task_run.updated else None
-            
-            # If the task was completed on a different day, reset the processed emails count
-            if task_date and task_date < today:
-                logger.info(f"Task was completed on {task_date}, resetting processed emails count for today")
-                process_task_run.processed_emails = 0
-                process_task_run.total_emails = 0
-            elif process_task_run.processed_emails >= settings.batch_size_by_env:
-                # limit how frequently emails can be fetched by a specific user (only if same day)
-                logger.warning(
-                    "Already fetched the maximum number (%s) of emails for this user for today",
-                    settings.batch_size_by_env,
-                    extra={"user_id": user_id},
-                )
-                return JSONResponse(
-                    content={
-                        "message": "Processing complete",
-                        "processed_emails": process_task_run.processed_emails,
-                        "total_emails": process_task_run.total_emails,
-                    }
-                )
-
-        # this is helpful if the user applies for a new job and wants to rerun the analysis during the same session
-        process_task_run.processed_emails = 0
-        process_task_run.total_emails = 0
-        process_task_run.status = task_models.STARTED
-
-        db_session.commit()  # sync with the database so calls in the future reflect the task is already started
-
-        start_date = request.session.get("start_date")
-        logger.info(f"start_date: {start_date}")
-        start_date_query = get_start_date_email_filter(start_date)
-        is_new_user = request.session.get("is_new_user")
-
-        query = start_date_query
-        # check for users last updated email
-        if last_updated:
-            # this converts our date time to number of seconds 
-            additional_time = int(last_updated.timestamp())
-            # we append it to query so we get only emails recieved after however many seconds
-            # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
-            # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
-            if not start_date or not is_new_user:
-                query = QUERY_APPLIED_EMAIL_FILTER
-                query += f" after:{additional_time}"
-            
-                logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
-        else:
-            logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
-            logger.info(
-                f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)"
+    # we track starting and finishing fetching of emails for each user
+    process_task_run = db_session.exec(
+        select(task_models.TaskRuns).filter_by(user_id=user_id)
+    ).one_or_none()
+    if process_task_run is None:
+        # if this is the first time running the task for the user, create a record
+        process_task_run = task_models.TaskRuns(user_id=user_id)
+        db_session.add(process_task_run)
+    else:
+        # Check if the task was completed on a different day
+        from datetime import datetime, timezone
+        today = datetime.now(timezone.utc).date()
+        task_date = process_task_run.updated.date() if process_task_run.updated else None
+        
+        # If the task was completed on a different day, reset the processed emails count
+        if task_date and task_date < today:
+            logger.info(f"Task was completed on {task_date}, resetting processed emails count for today")
+            process_task_run.processed_emails = 0
+            process_task_run.total_emails = 0
+        elif process_task_run.processed_emails >= settings.batch_size_by_env:
+            # limit how frequently emails can be fetched by a specific user (only if same day)
+            logger.warning(
+                "Already fetched the maximum number (%s) of emails for this user for today",
+                settings.batch_size_by_env,
+                extra={"user_id": user_id},
+            )
+            return JSONResponse(
+                content={
+                    "message": "Processing complete",
+                    "processed_emails": process_task_run.processed_emails,
+                    "total_emails": process_task_run.total_emails,
+                }
             )
 
-        messages = get_email_ids(query=query, gmail_instance=gmail_instance)
-        # Update session to remove "new user" status
-        request.session["is_new_user"] = False
+    # this is helpful if the user applies for a new job and wants to rerun the analysis during the same session
+    process_task_run.processed_emails = 0
+    process_task_run.total_emails = 0
+    process_task_run.status = task_models.STARTED
 
-        if not messages:
-            logger.info(f"user_id:{user_id} No job application emails found.")
-            process_task_run = db_session.get(task_models.TaskRuns, user_id)
-            process_task_run.status = task_models.FINISHED
-            db_session.commit()
-            return
+    db_session.commit()  # sync with the database so calls in the future reflect the task is already started
 
-        logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
-        process_task_run.total_emails = len(messages)
+    start_date = request.session.get("start_date")
+    logger.info(f"start_date: {start_date}")
+    start_date_query = get_start_date_email_filter(start_date)
+    is_new_user = request.session.get("is_new_user")
+
+    query = start_date_query
+    # check for users last updated email
+    if last_updated:
+        # this converts our date time to number of seconds 
+        additional_time = int(last_updated.timestamp())
+        # we append it to query so we get only emails recieved after however many seconds
+        # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
+        # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
+        if not start_date or not is_new_user:
+            query = QUERY_APPLIED_EMAIL_FILTER
+            query += f" after:{additional_time}"
+        
+            logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
+    else:
+        logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
+        logger.info(
+            f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)"
+        )
+
+    messages = get_email_ids(query=query, gmail_instance=gmail_instance)
+    # Update session to remove "new user" status
+    request.session["is_new_user"] = False
+
+    if not messages:
+        logger.info(f"user_id:{user_id} No job application emails found.")
+        process_task_run = db_session.get(task_models.TaskRuns, user_id)
+        process_task_run.status = task_models.FINISHED
         db_session.commit()
+        return
 
-        email_records = []  # list to collect email records
+    logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
+    process_task_run.total_emails = len(messages)
+    db_session.commit()
+
+    email_records = []  # list to collect email records
 
         for idx, message in enumerate(messages):
             # Check for cancellation before processing each email
@@ -395,11 +392,11 @@ def fetch_emails_to_db(
             process_task_run.processed_emails = idx + 1
             db_session.commit()
 
-            msg = get_email(
-                message_id=msg_id,
-                gmail_instance=gmail_instance,
-                user_email=user.user_email,
-            )
+        msg = get_email(
+            message_id=msg_id,
+            gmail_instance=gmail_instance,
+            user_email=user.user_email,
+        )
 
             if msg:
                 try:
@@ -422,50 +419,50 @@ def fetch_emails_to_db(
                         f"user_id:{user_id} Error processing email {idx + 1} of {len(messages)} with id {msg_id}: {e}"
                     )
 
-                if not isinstance(result, str) and result:
+            if not isinstance(result, str) and result:
+                logger.info(
+                    f"user_id:{user_id} successfully extracted email {idx + 1} of {len(messages)} with id {msg_id}"
+                )
+                if result.get("job_application_status").lower().strip() == "false positive":
                     logger.info(
-                        f"user_id:{user_id} successfully extracted email {idx + 1} of {len(messages)} with id {msg_id}"
+                        f"user_id:{user_id} email {idx + 1} of {len(messages)} with id {msg_id} is a false positive, not related to job search"
                     )
-                    if result.get("job_application_status").lower().strip() == "false positive":
-                        logger.info(
-                            f"user_id:{user_id} email {idx + 1} of {len(messages)} with id {msg_id} is a false positive, not related to job search"
-                        )
-                        continue  # skip this email if it's a false positive
-                else:  # processing returned unknown which is also likely false positive
-                    logger.warning(
-                        f"user_id:{user_id} failed to extract email {idx + 1} of {len(messages)} with id {msg_id}"
-                    )
-                    result = {"company_name": "unknown", "application_status": "unknown", "job_title": "unknown"}
+                    continue  # skip this email if it's a false positive
+            else:  # processing returned unknown which is also likely false positive
+                logger.warning(
+                    f"user_id:{user_id} failed to extract email {idx + 1} of {len(messages)} with id {msg_id}"
+                )
+                result = {"company_name": "unknown", "application_status": "unknown", "job_title": "unknown"}
 
-                message_data = {
-                    "id": msg_id,
-                    "company_name": result.get("company_name", "unknown"),
-                    "application_status": result.get("job_application_status", "unknown"),
-                    "received_at": msg.get("date", "unknown"),
-                    "subject": msg.get("subject", "unknown"),
-                    "job_title": result.get("job_title", "unknown"),
-                    "from": msg.get("from", "unknown"),
-                }
-                email_record = create_user_email(user, message_data, db_session)
-                if email_record:
-                    email_records.append(email_record)
-                    logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
-                else:
-                    logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
+            message_data = {
+                "id": msg_id,
+                "company_name": result.get("company_name", "unknown"),
+                "application_status": result.get("job_application_status", "unknown"),
+                "received_at": msg.get("date", "unknown"),
+                "subject": msg.get("subject", "unknown"),
+                "job_title": result.get("job_title", "unknown"),
+                "from": msg.get("from", "unknown"),
+            }
+            email_record = create_user_email(user, message_data, db_session)
+            if email_record:
+                email_records.append(email_record)
+                logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
+            else:
+                logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
 
-        # batch insert all records at once
-        if email_records:
-            logger.info(f"About to add {len(email_records)} email records to database for user {user_id}")
-            db_session.add_all(email_records)
-            db_session.commit()  # Commit immediately after adding records
-            logger.info(
-                f"Successfully committed {len(email_records)} email records for user {user_id}"
-            )
-        else:
-            logger.warning(f"No email records to add for user {user_id}")
+    # batch insert all records at once
+    if email_records:
+        logger.info(f"About to add {len(email_records)} email records to database for user {user_id}")
+        db_session.add_all(email_records)
+        db_session.commit()  # Commit immediately after adding records
+        logger.info(
+            f"Successfully committed {len(email_records)} email records for user {user_id}"
+        )
+    else:
+        logger.warning(f"No email records to add for user {user_id}")
 
-        process_task_run.status = task_models.FINISHED
-        db_session.commit()
+    process_task_run.status = task_models.FINISHED
+    db_session.commit()
 
         logger.info(f"user_id:{user_id} Email fetching complete.")
 

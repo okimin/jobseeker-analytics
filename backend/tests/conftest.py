@@ -8,8 +8,7 @@ os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pytest
 from testcontainers.postgres import PostgresContainer
 import sqlalchemy as sa
-from sqlalchemy.orm import Session
-from sqlmodel import SQLModel
+from sqlmodel import Session, SQLModel
 from fastapi.testclient import TestClient
 from fastapi import Request
 from datetime import datetime

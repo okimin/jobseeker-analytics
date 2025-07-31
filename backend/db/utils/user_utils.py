@@ -44,6 +44,9 @@ def add_user(user, request, start_date=None, db_session=None) -> Users:
     Writes user data to the users model and session storage
     """
     if db_session:
+        result = db_session.bind.url
+        logger.info("add_user if db_sessionConnected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
         # Use provided session
         existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
 
@@ -76,6 +79,9 @@ def add_user(user, request, start_date=None, db_session=None) -> Users:
             logger.info(f"User {user.user_id} already exists in the database.")
             return existing_user
     else:
+        result = session.bind.url
+        logger.info("add_user else Connected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
         # Fallback to creating new session
         from database import engine
         with Session(engine) as session:
