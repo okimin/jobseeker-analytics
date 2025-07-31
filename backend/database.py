@@ -5,7 +5,9 @@ from utils.config_utils import get_settings
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import fastapi
+import logging
 
+logger = logging.getLogger(__name__)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -26,11 +28,14 @@ DBSession = Annotated[Session, fastapi.Depends(request_session)]
 
 settings = get_settings()
 IS_DOCKER_CONTAINER = os.environ.get("IS_DOCKER_CONTAINER", 0)
-if IS_DOCKER_CONTAINER:
+if IS_DOCKER_CONTAINER and not settings.is_publicly_deployed:
+    logger.info("Using DATABASE_URL_DOCKER for locally deployed environment")
     DATABASE_URL = settings.DATABASE_URL_DOCKER
 elif settings.is_publicly_deployed:
+    logger.info("Using DATABASE_URL for publicly deployed environment")
     DATABASE_URL = settings.DATABASE_URL
 else:
+    logger.info("Using DATABASE_URL_LOCAL_VIRTUAL_ENV for locally deployed environment")
     DATABASE_URL = settings.DATABASE_URL_LOCAL_VIRTUAL_ENV
 
 engine = create_engine(DATABASE_URL)
