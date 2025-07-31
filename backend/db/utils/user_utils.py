@@ -14,6 +14,9 @@ def get_last_email_date(user_id: str) -> Optional[datetime]:
 
     """
     with Session(engine) as session:
+        result = session.bind.url
+        logger.info("get_last_email_date Connected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
         row = session.exec(
             select(func.max(UserEmails.received_at))
             .where(UserEmails.user_id == user_id)
@@ -26,6 +29,9 @@ def user_exists(user) -> Tuple[bool, Optional[datetime]]:
 
     """
     with Session(engine) as session:
+        result = session.bind.url
+        logger.info("user_exists Connected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
         existing_user = session.exec(select(Users).where(Users.user_id == user.user_id)).first()
         if not existing_user:
             return False, None

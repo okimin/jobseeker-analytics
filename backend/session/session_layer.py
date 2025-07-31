@@ -8,6 +8,9 @@ import database
 from db.users import Users
 from sqlmodel import select, Session
 from database import engine
+import logging
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
@@ -54,6 +57,9 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
     if user_id:
         # check that user actually exists in database first
         with Session(engine) as session:
+            result = session.bind.url
+            logger.info("validate_session Connected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
             user = session.exec(select(Users).where(Users.user_id == user_id))
             if not user:
                 clear_session(request, user_id)

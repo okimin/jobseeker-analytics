@@ -10,6 +10,9 @@ settings = get_settings()
 
 def processed_emails_exceeds_rate_limit(user_id):
     with Session(database.engine) as db_session:
+        result = db_session.bind.url
+        logger.info("processed_emails_exceeds_rate_limit Connected to database: %s, user: %s, host: %s",
+                   result.database, result.username, result.host)
         logger.info(f"Fetching processed task count for user_id: {user_id}")
         process_task_run = db_session.exec(
             select(task_models.TaskRuns).filter_by(user_id=user_id)

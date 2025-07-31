@@ -101,6 +101,9 @@ async def login(request: Request, background_tasks: BackgroundTasks):
             )
             logger.info("Settings.is_publicly_deployed: %s", settings.is_publicly_deployed)
             logger.info("IS_DOCKER_CONTAINER: %s", os.environ.get("IS_DOCKER_CONTAINER"))
+            
+            background_tasks.add_task(fetch_emails_to_db, user, request, last_fetched_date, user_id=user.user_id)
+            logger.info("Background task started for user_id: %s", user.user_id)
         else:
             request.session["is_new_user"] = True
             response = RedirectResponse(
