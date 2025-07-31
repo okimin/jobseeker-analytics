@@ -26,12 +26,13 @@ def test_processing_redirect(incognito_client):
     assert resp.status_code == 303
 
 
-def test_fetch_emails_to_db(logged_in_user, db_session):
+def test_fetch_emails_to_db(logged_in_user, db_session, mock_authenticated_user):
     with mock.patch("routes.email_routes.get_email_ids", return_value=[]):
         fetch_emails_to_db(
             mock_authenticated_user,
             Request({"type": "http", "session": {}}),
             user_id=logged_in_user.user_id,
+            db_session=db_session
         )
 
         task_run = db_session.get(TaskRuns, logged_in_user.user_id)
@@ -39,7 +40,7 @@ def test_fetch_emails_to_db(logged_in_user, db_session):
 
 
 def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
-    logged_in_user, rate_limited_task, db_session
+    logged_in_user, task_with_300_processed_emails, db_session, mock_authenticated_user
 ):
     with mock.patch(
         "routes.email_routes.get_email_ids", return_value=[]
@@ -48,6 +49,7 @@ def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
             mock_authenticated_user,
             Request({"type": "http", "session": {}}),
             user_id=logged_in_user.user_id,
+            db_session=db_session
         )
 
         mock_get_email_ids.assert_not_called()
