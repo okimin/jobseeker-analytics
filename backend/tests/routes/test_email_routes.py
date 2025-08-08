@@ -1,8 +1,5 @@
-from utils import auth_utils
 from unittest import mock
-
 from fastapi import Request
-from google.oauth2.credentials import Credentials
 
 from db.processing_tasks import TaskRuns, FINISHED, STARTED
 from routes.email_routes import fetch_emails_to_db

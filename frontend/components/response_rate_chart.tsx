@@ -54,7 +54,9 @@ export default function JobTitleResponseChart() {
 				if (result.length === 0) {
 					console.warn("Empty response");
 				} else {
-					setData(result);
+					// Sort the data by response rate from highest to lowest
+					const sortedData = result.sort((a: ResponseData, b: ResponseData) => b.rate - a.rate);
+					setData(sortedData.slice(0, 5));
 				}
 			} catch {
 				addToast({

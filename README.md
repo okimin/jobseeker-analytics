@@ -6,9 +6,10 @@
 
 Isn't tracking companies you've applied to exhausting? The emotional toll burned me out faster than the job hunt itself.
 
-Track your job applications — automatically, straight from your inbox.
+That's why I built JAJA—
+to automate the tedious work of tracking applications.
 
-<img width="1080" height="1080" alt="star" src="https://github.com/user-attachments/assets/5493fdd9-63aa-4951-86c7-95195cef1431" />
+<img width="821" height="1049" alt="CleanShot 2025-08-02 at 00 20 18" src="https://github.com/user-attachments/assets/e02703d7-7d6a-4628-9737-4013c42274af" />
 
 
 🎥 [Watch a demo](https://youtube.com/shorts/YT7qzTh2Q7A?feature=share)

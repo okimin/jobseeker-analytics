@@ -15,14 +15,6 @@ export const siteConfig = {
 	],
 	navMenuItems: [
 		{
-			label: "Preview Dashboard",
-			href: "/preview/dashboard"
-		},
-		{
-			label: "Preview Processing",
-			href: "/preview/processing"
-		},
-		{
 			label: "Dashboard",
 			href: "/dashboard"
 		},

@@ -1,6 +1,5 @@
 from db import processing_tasks as task_models
-from sqlmodel import Session, select
-import database
+from sqlmodel import select
 import logging
 from utils.config_utils import get_settings
 

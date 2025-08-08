@@ -31,6 +31,8 @@ def process_email(email_text: str, user_id: str, db_session):
     # Import here to avoid circular imports
     from routes.email_routes import user_cancellation_flags, cancellation_flags_lock
     
+    logger.info(f"user_id:{user_id} Starting LLM processing of email content (length: {len(email_text)} chars)")
+    
     prompt = f"""
         First, extract the job application status from the following email using the labels below. 
         If the status is 'False positive', only return the status as 'False positive' and do not extract company name or job title. 
@@ -109,6 +111,9 @@ def process_email(email_text: str, user_id: str, db_session):
         Remove backticks. Only use double quotes. Enclose key and value pairs in a single pair of curly braces.
         Email: {email_text}
     """
+    
+    logger.debug(f"user_id:{user_id} LLM prompt prepared (length: {len(prompt)} chars)")
+    
     retries = 3  # Max retries
     delay = 60  # Initial delay
     for attempt in range(retries):
@@ -119,7 +124,7 @@ def process_email(email_text: str, user_id: str, db_session):
                 return None
         
         try:
-            logger.info("Calling generate_content")
+            logger.info(f"user_id:{user_id} Calling generate_content (attempt {attempt + 1}/{retries})")
             
             # Use ThreadPoolExecutor with timeout for LLM call
             with ThreadPoolExecutor() as executor:
@@ -128,7 +133,7 @@ def process_email(email_text: str, user_id: str, db_session):
                     response: GenerateTextResponse = future.result(timeout=30)  # 30 second timeout
                     response.resolve()
                     response_json: str = response.text
-                    logger.info("Received response from model: %s", response_json)
+                    logger.info(f"user_id:{user_id} Received response from model: %s", response_json)
                     
                     if response_json:
                         cleaned_response_json = (
@@ -137,10 +142,12 @@ def process_email(email_text: str, user_id: str, db_session):
                             .replace("'", '"')
                             .strip()
                         )
-                        logger.info("Cleaned response: %s", cleaned_response_json)
-                        return json.loads(cleaned_response_json)
+                        logger.info(f"user_id:{user_id} Cleaned response: %s", cleaned_response_json)
+                        result = json.loads(cleaned_response_json)
+                logger.info(f"user_id:{user_id} Successfully parsed JSON response")
+                return result
                     else:
-                        logger.error("Empty response received from the model.")
+                        logger.error(f"user_id:{user_id} Empty response received from the model.")
                         return None
                         
                 except FuturesTimeoutError:
@@ -157,7 +164,7 @@ def process_email(email_text: str, user_id: str, db_session):
             daily_batch_exceeded = processed_emails_exceeds_rate_limit(user_id, db_session)
             if "429" in str(e) and not daily_batch_exceeded:
                 logger.warning(
-                    f"Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
+                    f"user_id:{user_id} Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
                 )
                 time.sleep(delay)
             elif "429" in str(e) and daily_batch_exceeded:

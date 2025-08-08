@@ -546,3 +546,37 @@ export const BugIcon = ({ size = 24, ...props }: IconSvgProps) => (
 		<path d="M8 22h8" />
 	</svg>
 );
+
+export const EditIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+		<path d="m18.5 2.5 3 3L12 15l-4 1 1-4Z" />
+	</svg>
+);
+
+export const PlusIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="M12 5v14" />
+		<path d="M5 12h14" />
+	</svg>
+);

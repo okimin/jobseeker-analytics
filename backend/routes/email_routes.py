@@ -6,6 +6,7 @@ from sqlmodel import select, desc
 from db.user_emails import UserEmails
 from db import processing_tasks as task_models
 from db.utils.user_email_utils import create_user_email
+from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
 from utils.email_utils import get_email_ids, get_email
 from utils.llm_utils import process_email
@@ -23,6 +24,7 @@ SECONDS_BETWEEN_FETCHING_EMAILS = 3600  # 1 hour
 from datetime import datetime, timedelta
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from utils.job_utils import normalize_job_title
 import threading
 import asyncio
 
@@ -117,6 +119,14 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         statement = select(UserEmails).where(UserEmails.user_id == user_id).order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()
 
+        for email in user_emails:
+            new_job_title = normalize_job_title(email.job_title)
+            if email.normalized_job_title != new_job_title:
+                email.normalized_job_title = new_job_title
+                db_session.add(email)
+                db_session.commit()
+                logger.info(f"Updated normalized job title for email {email.id} to {new_job_title}")
+
         # Filter out records with "unknown" application status
         filtered_emails = [
             email for email in user_emails 
@@ -182,9 +192,12 @@ async def start_fetch_emails(
         creds = Credentials.from_authorized_user_info(creds_dict)
         user = AuthenticatedUser(creds)
         logger.info(f"Starting email fetching process for user_id: {user_id}")
+
+        # Get the last email date for incremental fetching
+        last_updated = get_last_email_date(user_id, db_session)
         # Start email fetching in the background and track the task
         loop = asyncio.get_event_loop()
-        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, user_id=user_id, db_session= db_session))
+        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, last_updated, user_id=user_id, db_session= db_session))
         with fetch_email_tasks_lock:
             fetch_email_tasks[user_id] = task
         def cleanup_task(fut):
@@ -330,21 +343,20 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
         start_date_query = get_start_date_email_filter(start_date)
         is_new_user = request.session.get("is_new_user")
 
-        query = start_date_query
-        # check for users last updated email
-        if last_updated:
-            # this converts our date time to number of seconds 
-            additional_time = int(last_updated.timestamp())
-            # we append it to query so we get only emails recieved after however many seconds
-            # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
-            # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
-            if not start_date or not is_new_user:
-                query = QUERY_APPLIED_EMAIL_FILTER
-                query += f" after:{additional_time}"
-            
-                logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
-        else:
-            logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
+    query = start_date_query
+    # check for users last updated email
+    if last_updated:
+        # this converts our date time to number of seconds 
+        additional_time = last_updated.strftime("%Y/%m/%d")
+        # we append it to query so we get only emails recieved after however many seconds
+        # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
+        # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
+        if not start_date or not is_new_user:
+            query = QUERY_APPLIED_EMAIL_FILTER
+            query += f" after:{additional_time}"
+            logger.info(f"user_id:{user_id} Fetching emails after {additional_time}")
+    else:
+        logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
 
 
         messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
@@ -364,7 +376,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
 
         email_records = []  # list to collect email records
 
-        for idx, message in enumerate(messages):
+for idx, message in enumerate(messages):
             # Check for cancellation before processing each email
             with cancellation_flags_lock:
                 if user_cancellation_flags.get(user_id, False):
@@ -496,6 +508,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
             process_task_run.processed_emails = idx + 1
             db_session.commit()
 
+        logger.debug(f"user_id:{user_id} getting email content for message {idx + 1}")
         msg = get_email(
             message_id=msg_id,
             gmail_instance=gmail_instance,
@@ -503,8 +516,11 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
         )
 
             if msg:
+            logger.debug(f"user_id:{user_id} email content retrieved for message {idx + 1}, processing with LLM")
                 try:
                     result = process_email(msg["text_content"], user_id, db_session)
+                logger.debug(f"user_id:{user_id} LLM processing completed for message {idx + 1}")
+                
                     # Check for cancellation after LLM processing
                     with cancellation_flags_lock:
                         if user_cancellation_flags.get(user_id, False):
@@ -518,6 +534,8 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                         for key in result.keys():
                             if not result[key]:
                                 result[key] = "unknown"
+                        
+                logger.debug(f"user_id:{user_id} processed result for message {idx + 1}: {result}")
                 except Exception as e:
                     logger.error(
                         f"user_id:{user_id} Error processing email {idx + 1} of {len(messages)} with id {msg_id}: {e}"
@@ -538,6 +556,7 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 )
                 result = {"company_name": "unknown", "application_status": "unknown", "job_title": "unknown"}
 
+            logger.debug(f"user_id:{user_id} creating message data for email {idx + 1}")
             message_data = {
                 "id": msg_id,
                 "company_name": result.get("company_name", "unknown"),
@@ -547,7 +566,10 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 "job_title": result.get("job_title", "unknown"),
                 "from": msg.get("from", "unknown"),
             }
+            
+            logger.debug(f"user_id:{user_id} creating user email record for message {idx + 1}")
             email_record = create_user_email(user, message_data, db_session)
+            
             if email_record:
                 email_records.append(email_record)
                 # check rate limit against total daily count
@@ -557,6 +579,13 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
             else:
                 logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
+                
+            logger.debug(f"user_id:{user_id} completed processing email {idx + 1} of {len(messages)}")
+        else:
+            logger.warning(f"user_id:{user_id} failed to retrieve email content for message {idx + 1} with id {msg_id}")
+
+        # Update the task status in the database after each email
+        logger.debug(f"user_id:{user_id} updating task status after processing email {idx + 1}")
 
     # batch insert all records at once
     if email_records:

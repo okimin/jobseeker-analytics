@@ -8,7 +8,7 @@ from routes.email_routes import query_emails
 import database
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-
+from utils.job_utils import normalize_job_title
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -28,8 +28,11 @@ limiter = Limiter(key_func=get_remote_address)
 def response_rate_by_job_title(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     
     try:
+        logger.info(f"Starting response rate calculation for user_id: {user_id}")
+        
         # Get job related email data from DB
         user_emails = query_emails(request, db_session=db_session, user_id=user_id)
+        logger.info(f"Retrieved {len(user_emails)} emails for user_id: {user_id}")
 
         # Create unique application IDs based on company_name only (ignore job_title for now)
         applications = {}
@@ -42,6 +45,7 @@ def response_rate_by_job_title(request: Request, db_session: database.DBSession,
                     applications[app_id] = {
                         "company": email.company_name,
                         "job_title": email.job_title,
+                        "normalized_job_title": getattr(email, 'normalized_job_title', ''),
                         "statuses": set()
                     }
                 
@@ -51,34 +55,61 @@ def response_rate_by_job_title(request: Request, db_session: database.DBSession,
                     if status != "unknown":
                         applications[app_id]["statuses"].add(status)
 
+        logger.info(f"Created {len(applications)} unique applications for user_id: {user_id}")
+
         # Filter out applications that only have unknown statuses (no valid statuses)
         valid_applications = {}
         for app_id, app_data in applications.items():
             if app_data["statuses"]:  # Only include applications that have at least one valid status
                 valid_applications[app_id] = app_data
 
-        # Group applications by job title
+        logger.info(f"Filtered to {len(valid_applications)} valid applications for user_id: {user_id}")
+
+        # Group applications by normalized job title
         job_title_applications = {}
         
         for app_id, app_data in valid_applications.items():
             job_title = app_data["job_title"]
+            normalized_job_title = app_data.get("normalized_job_title", "")
             
             # Skip applications with "unknown" job titles
             if job_title and job_title.lower() != "unknown":
-                if job_title not in job_title_applications:
-                    job_title_applications[job_title] = {
+                # Use normalized job title if available, otherwise normalize on-the-fly
+                if normalized_job_title and normalized_job_title.strip():
+                    display_title = normalized_job_title.title()  # Ensure capitalization
+                    logger.debug(f"Using stored normalized title: '{job_title}' -> '{display_title}'")
+                else:
+                    # Fall back to on-the-fly normalization for backward compatibility
+                    try:
+                        logger.debug(f"Normalizing job title on-the-fly: '{job_title}'")
+                        normalized_title = normalize_job_title(job_title)
+                        # Only use normalized title if it's valid (not None or empty)
+                        if normalized_title and normalized_title.strip():
+                            display_title = normalized_title  # Already capitalized by normalize_job_title
+                            logger.debug(f"On-the-fly normalization successful: '{job_title}' -> '{display_title}'")
+                        else:
+                            display_title = job_title.title()  # Fall back to capitalized original
+                            logger.debug(f"Normalization returned empty, using capitalized original: '{job_title}' -> '{display_title}'")
+                    except Exception as e:
+                        logger.warning(f"Failed to normalize job title '{job_title}': {e}")
+                        display_title = job_title.title()  # Fall back to capitalized original
+                
+                if display_title not in job_title_applications:
+                    job_title_applications[display_title] = {
                         "total": 0,
                         "responses": 0
                     }
                 
-                job_title_applications[job_title]["total"] += 1
+                job_title_applications[display_title]["total"] += 1
                 
                 # Check if this application received any response beyond initial confirmation/rejection
                 statuses = app_data["statuses"]
                 has_response = any(status not in ["application confirmation", "rejection"] for status in statuses)
                 
                 if has_response:
-                    job_title_applications[job_title]["responses"] += 1
+                    job_title_applications[display_title]["responses"] += 1
+
+        logger.info(f"Grouped into {len(job_title_applications)} job title categories for user_id: {user_id}")
 
         # Calculate response rates for each job title
         response_rate = []
@@ -88,7 +119,9 @@ def response_rate_by_job_title(request: Request, db_session: database.DBSession,
                 "title": job_title,
                 "rate": rate
             })
+            logger.debug(f"Job title '{job_title}': {data['responses']}/{data['total']} = {rate}% response rate")
 
+        logger.info(f"Calculated response rates for {len(response_rate)} job titles for user_id: {user_id}")
         return response_rate
     
     except Exception as e:

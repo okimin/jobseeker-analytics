@@ -65,10 +65,7 @@ export const Navbar = () => {
 
 			<NavbarContent className="hidden md:flex basis-1/5 sm:basis-full" justify="end">
 				<NavbarItem>
-					<Link
-						className="text-sm font-normal text-default-600 hover:text-default-900"
-						href="/contributors"
-					>
+					<Link className="text-sm font-normal text-default-600 hover:text-default-900" href="/contributors">
 						Contributors
 					</Link>
 				</NavbarItem>

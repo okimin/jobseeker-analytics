@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import React from "react";
@@ -29,52 +29,52 @@ export default function Dashboard() {
 	const [companyFilter, setCompanyFilter] = useState("");
 	const [hideRejections, setHideRejections] = useState<boolean>(true);
 	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(true);
-	const [filteredData, setFilteredData] = useState<Application[]>([]);
+	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
+
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				// Check if user is logged in
-				const isAuthenticated = await checkAuth(apiUrl);
-				if (!isAuthenticated) {
-					addToast({
-						title: "You need to be logged in to access this page.",
-						color: "warning"
-					});
-					router.push("/");
-					return;
-				}
-
-				// Fetch applicaions (if user is logged in)
-				const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}`, {
-					method: "GET",
-					credentials: "include" // Include cookies for session management
+	const fetchData = async () => {
+		try {
+			setLoading(true);
+			// Check if user is logged in
+			const isAuthenticated = await checkAuth(apiUrl);
+			if (!isAuthenticated) {
+				addToast({
+					title: "You need to be logged in to access this page.",
+					color: "warning"
 				});
-
-				if (!response.ok) {
-					if (response.status === 404) {
-						setError("No applications found");
-					} else {
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-				}
-
-				const result = await response.json();
-				setTotalPages(result.totalPages);
-
-				setData(result);
-			} catch {
-				setError("Failed to load applications");
-			} finally {
-				setLoading(false);
+				router.push("/");
+				return;
 			}
-		};
 
+			// Fetch applications (if user is logged in)
+			const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}`, {
+				method: "GET",
+				credentials: "include" // Include cookies for session management
+			});
+
+			if (!response.ok) {
+				if (response.status === 404) {
+					setError("No applications found");
+				} else {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+			}
+
+			const result = await response.json();
+			setTotalPages(result.totalPages);
+
+			setData(result);
+		} catch {
+			setError("Failed to load applications");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		fetchData();
 	}, [apiUrl, router, currentPage]);
-
-
 
 	useEffect(() => {
 		// Fetch Sankey data
@@ -96,45 +96,45 @@ export default function Dashboard() {
 	}, [apiUrl, router, currentPage]);
 
 	// Filter data based on search term, status, company, and hide options
-	useEffect(() => {
-		let filtered = data;
+	const filteredData = useMemo(() => {
+		return data.filter((item) => {
+			const matchesSearch =
+				!searchTerm ||
+				item.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(item.normalized_job_title &&
+					item.normalized_job_title.toLowerCase().includes(searchTerm.toLowerCase()));
 
-		// Apply hide filters first
-		if (hideRejections) {
-			filtered = filtered.filter((item) => 
-				item.application_status.toLowerCase() !== "rejection"
+			const matchesStatus = !statusFilter || item.application_status === statusFilter;
+			const matchesCompany = !companyFilter || item.company_name === companyFilter;
+			const matchesNormalizedJobTitle =
+				!normalizedJobTitleFilter || item.normalized_job_title === normalizedJobTitleFilter;
+
+			const isNotRejection = !hideRejections || !item.application_status.toLowerCase().includes("reject");
+
+			const isNotApplicationConfirmation =
+				!hideApplicationConfirmations ||
+				!item.application_status.toLowerCase().includes("application confirmation");
+
+			return (
+				matchesSearch &&
+				matchesStatus &&
+				matchesCompany &&
+				matchesNormalizedJobTitle &&
+				isNotRejection &&
+				isNotApplicationConfirmation
 			);
-		}
-
-		if (hideApplicationConfirmations) {
-			filtered = filtered.filter((item) => 
-				item.application_status.toLowerCase() !== "application confirmation"
-			);
-		}
-
-		// Apply search filter
-		if (searchTerm.trim() !== "") {
-			filtered = filtered.filter((item) => 
-				item.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-			);
-		}
-
-		// Apply status filter
-		if (statusFilter.trim() !== "") {
-			filtered = filtered.filter((item) => 
-				item.application_status === statusFilter
-			);
-		}
-
-		// Apply company filter
-		if (companyFilter.trim() !== "") {
-			filtered = filtered.filter((item) => 
-				item.company_name === companyFilter
-			);
-		}
-
-		setFilteredData(filtered);
-	}, [data, searchTerm, statusFilter, companyFilter, hideRejections, hideApplicationConfirmations]);
+		});
+	}, [
+		data,
+		searchTerm,
+		statusFilter,
+		companyFilter,
+		normalizedJobTitleFilter,
+		hideRejections,
+		hideApplicationConfirmations
+	]);
 
 	const nextPage = () => {
 		if (currentPage < totalPages) {
@@ -438,28 +438,31 @@ export default function Dashboard() {
 
 	return (
 		<JobApplicationsDashboard
+			companyFilter={companyFilter}
 			currentPage={currentPage}
 			data={filteredData}
 			downloading={downloading}
+			hideApplicationConfirmations={hideApplicationConfirmations}
+			hideRejections={hideRejections}
 			loading={loading}
+			normalizedJobTitleFilter={normalizedJobTitleFilter}
 			responseRate={responseRateContent}
 			sankeyChart={sankeyChartContent}
 			searchTerm={searchTerm}
 			statusFilter={statusFilter}
-			companyFilter={companyFilter}
-			hideRejections={hideRejections}
-			hideApplicationConfirmations={hideApplicationConfirmations}
 			totalPages={totalPages}
+			onCompanyFilterChange={setCompanyFilter}
 			onDownloadCsv={downloadCsv}
 			onDownloadSankey={downloadSankey}
+			onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
+			onHideRejectionsChange={setHideRejections}
 			onNextPage={nextPage}
+			onNormalizedJobTitleFilterChange={setNormalizedJobTitleFilter}
 			onPrevPage={prevPage}
+			onRefreshData={fetchData}
 			onRemoveItem={handleRemoveItem}
 			onSearchChange={setSearchTerm}
 			onStatusFilterChange={setStatusFilter}
-			onCompanyFilterChange={setCompanyFilter}
-			onHideRejectionsChange={setHideRejections}
-			onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
 		/>
 	);
 }

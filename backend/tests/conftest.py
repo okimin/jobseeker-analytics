@@ -1,10 +1,5 @@
 import sys
 import os
-
-# Add the parent directory to sys.path BEFORE any other imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 import pytest
 from testcontainers.postgres import PostgresContainer
 import sqlalchemy as sa
@@ -14,16 +9,18 @@ from fastapi import Request
 from datetime import datetime
 from unittest.mock import Mock
 
-import main
-from session.session_layer import validate_session
+# Add the parent directory to sys.path BEFORE any other imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from db.processing_tasks import STARTED, FINISHED, TaskRuns
-from db.users import Users
-import database  # noqa: E402
+import database  # noqa: E402 DONT MOVE THIS
+import main  # noqa: E402
+from session.session_layer import validate_session  # noqa: E402
+from db.processing_tasks import STARTED, FINISHED, TaskRuns  # noqa: E402
+from db.users import Users # noqa: E402
 
 # Use SQLite for GitHub CI pipeline
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-
 
 @pytest.fixture(scope="session")
 def postgres_container():
