@@ -321,48 +321,48 @@ def fetch_emails_to_db(user: AuthenticatedUser, request: Request, last_updated: 
                 }
             )
 
-    process_task_run.status = task_models.STARTED
+        process_task_run.status = task_models.STARTED
 
-    db_session.commit()  # sync with the database so calls in the future reflect the task is already started
+        db_session.commit()  # sync with the database so calls in the future reflect the task is already started
 
-    start_date = request.session.get("start_date")
-    logger.info(f"start_date: {start_date}")
-    start_date_query = get_start_date_email_filter(start_date)
-    is_new_user = request.session.get("is_new_user")
+        start_date = request.session.get("start_date")
+        logger.info(f"start_date: {start_date}")
+        start_date_query = get_start_date_email_filter(start_date)
+        is_new_user = request.session.get("is_new_user")
 
-    query = start_date_query
-    # check for users last updated email
-    if last_updated:
-        # this converts our date time to number of seconds 
-        additional_time = int(last_updated.timestamp())
-        # we append it to query so we get only emails recieved after however many seconds
-        # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
-        # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
-        if not start_date or not is_new_user:
-            query = QUERY_APPLIED_EMAIL_FILTER
-            query += f" after:{additional_time}"
-        
-            logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
-    else:
-        logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
+        query = start_date_query
+        # check for users last updated email
+        if last_updated:
+            # this converts our date time to number of seconds 
+            additional_time = int(last_updated.timestamp())
+            # we append it to query so we get only emails recieved after however many seconds
+            # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
+            # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
+            if not start_date or not is_new_user:
+                query = QUERY_APPLIED_EMAIL_FILTER
+                query += f" after:{additional_time}"
+            
+                logger.info(f"user_id:{user_id} Fetching emails after {last_updated.isoformat()}")
+        else:
+            logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
 
 
-    messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
-    # Update session to remove "new user" status
-    request.session["is_new_user"] = False
+        messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
+        # Update session to remove "new user" status
+        request.session["is_new_user"] = False
 
-    if not messages:
-        logger.info(f"user_id:{user_id} No job application emails found.")
-        process_task_run = db_session.get(task_models.TaskRuns, user_id)
-        process_task_run.status = task_models.FINISHED
+        if not messages:
+            logger.info(f"user_id:{user_id} No job application emails found.")
+            process_task_run = db_session.get(task_models.TaskRuns, user_id)
+            process_task_run.status = task_models.FINISHED
+            db_session.commit()
+            return
+
+        logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
+        process_task_run.total_emails = len(messages)
         db_session.commit()
-        return
 
-    logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
-    process_task_run.total_emails = len(messages)
-    db_session.commit()
-
-    email_records = []  # list to collect email records
+        email_records = []  # list to collect email records
 
         for idx, message in enumerate(messages):
             # Check for cancellation before processing each email
