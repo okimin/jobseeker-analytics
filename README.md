@@ -2,34 +2,51 @@
 
 ## **About Just A Job App**
 
-**JAJA tracks your job applications automatically, no spreadsheet required.** 
+**JAJA tracks job applications automatically by syncing with your inbox.** 
 
-Isn't tracking companies you've applied to exhausting? The emotional toll burned me out faster than the job hunt itself.
+Built for the data-driven job seeker who dreams of a r/DataIsBeautiful post but can't face the emotional toll of updating a spreadsheet with every rejection. 
 
-That's why I built JAJA—
-to automate the tedious work of tracking applications.
+---
 
-<img width="821" height="1049" alt="CleanShot 2025-08-02 at 00 20 18" src="https://github.com/user-attachments/assets/e02703d7-7d6a-4628-9737-4013c42274af" />
+Sign up for an upcoming open source install party workshop: https://lu.ma/justajobapp
+
+---
+
+JAJA was featured on GitHub's official YouTube channel for Open Source Friday! 
+
+🎥 [Watch the full episode here](https://youtu.be/sbzKMVaYHZw?list=PL0ZEIUccq0tD_c7gV0lAMXDXl-xK4pxch&t=1260) 
 
 
-🎥 [Watch a demo](https://youtube.com/shorts/YT7qzTh2Q7A?feature=share)
+<img width="1778" height="1100" alt="CleanShot 2025-08-08 at 23 01 30" src="https://github.com/user-attachments/assets/3fecb216-b476-4c3d-aced-8b0eee6b6892" />
+
+
+JAJA was featured on GitHub's official YouTube channel for Open Source Friday! 
+
+🎥 [Watch the full episode here](https://youtu.be/sbzKMVaYHZw?list=PL0ZEIUccq0tD_c7gV0lAMXDXl-xK4pxch&t=1260) 
+
+---
 
 ## **Try the App**
 
-**Option 1: Join the beta**
+**Option 1: Join the JAJA(Pro) beta**
 
 [Get on the waitlist](https://app.formbricks.com/s/cmagfwkuu3f8bug01e340supq) to reserve your spot.
+
+The beta's perfect if you're:
+- strapped for time
+- don't want to install anything.
 
 **Option 2: Do-It-Yourself (DIY) Install**
 -  📹 Video tutorial: https://youtu.be/6LXlCdcsXPE 
 - Already familiar with GitHub? Start with [CONTRIBUTING.md](https://github.com/lnovitz/jobseeker-analytics/blob/main/CONTRIBUTING.md).
 - If you run into issues, hop into [Discord](https://discord.gg/gsdpMchCam).
-- Not familiar with GitHub? We’ll help you get set up! [Email us](mailto:help@justajobapp.com?subject=Help%20Running%20App%20On%20Personal%20Computer) to book time with a friendly developer
+- Prefer live help? Get notified about upcoming guided tutorials, hosted online: https://lu.ma/justajobapp
+
+Changed your mind about DIY Install? [Get JAJA(Pro)](https://app.formbricks.com/s/cmagfwkuu3f8bug01e340supq)
 
 ## **Support & Feedback**
 
 - Join our [Discord community](https://discord.gg/gsdpMchCam)
-- [Send us feedback](https://docs.google.com/forms/d/e/1FAIpQLSeTJB5JDo-SNdVn2Ga3caExaYlwempeYHhWbEiao3jNCWXogQ/viewform?usp=sharing)
 - Or email [help@justajobapp.com](mailto:help@justajobapp.com)
 
 ## Want to Get Involved?

@@ -1,18 +1,13 @@
-# Developer Contributor Onboarding Guide 🚀
+## 🎯 Your Mini-Quest: Join the Wall of Fame
 
-Welcome to Just A Job App (JAJA)! This guide will help you get started as a contributor and complete your first contribution. 
+By the end of this mini-quest, you will be able to:
 
-## 🎯 Your First Contribution: Join the Wall of Fame
-
-Your first task is to add yourself to our **Wall of Fame** - a special page that showcases all contributors to this project. This mini-quest will help you:
-
-1. ✅ Set up the development environment
-2. ✅ Make your first code change
-3. ✅ Verify the app runs locally
-4. ✅ Submit your first pull request
+1. ✅ Track your job search automatically
+2. ✅ Add Git, GitHub, and Docker to your resume Skills section
+3. ✅ Showcase yourself at https://www.justajob.app/contributors
 
 <p align="left">
-    <img src="frontend/public/contributors/WallOfFame.png" alt="Wall of Fame" width="400">
+    <img width="400" alt="Wall of Fame" src="https://github.com/user-attachments/assets/b6f99068-fb59-4466-a93a-47b3580ad9e9" />
 </p>
 
 ## 📋 Prerequisites
