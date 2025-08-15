@@ -1,8 +1,11 @@
 import google.generativeai as genai
 import time
 import json
+import asyncio
 from google.ai.generativelanguage_v1beta2 import GenerateTextResponse
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
 
 from utils.config_utils import get_settings
 from utils.task_utils import processed_emails_exceeds_rate_limit
@@ -21,9 +24,17 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def process_email(email_text: str, user_id: str, db_session):
+# Thread pool for LLM calls
+llm_executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="llm_worker")
+
+async def process_email_async(email_text: str, user_id: str, db_session, cancellation_event: Optional[asyncio.Event] = None):
     logger.info(f"user_id:{user_id} Starting LLM processing of email content (length: {len(email_text)} chars)")
     
+    # Check if cancelled before starting
+    if cancellation_event and cancellation_event.is_set():
+        logger.info(f"user_id:{user_id} LLM processing cancelled before starting")
+        raise asyncio.CancelledError("Processing was cancelled")
+
     prompt = f"""
         First, extract the job application status from the following email using the labels below. 
         If the status is 'False positive', only return the status as 'False positive' and do not extract company name or job title. 
@@ -113,9 +124,26 @@ def process_email(email_text: str, user_id: str, db_session):
     retries = 3  # Max retries
     delay = 60  # Initial delay
     for attempt in range(retries):
+        # Check cancellation before each attempt
+        if cancellation_event and cancellation_event.is_set():
+            logger.info(f"user_id:{user_id} LLM processing cancelled during attempt {attempt + 1}")
+            raise asyncio.CancelledError("Processing was cancelled")
+
         try:
             logger.info(f"user_id:{user_id} Calling generate_content (attempt {attempt + 1}/{retries})")
-            response: GenerateTextResponse = model.generate_content(prompt)
+
+            # Run the LLM call in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                llm_executor, 
+                lambda: model.generate_content(prompt)
+            )
+            
+            # Check cancellation after LLM call
+            if cancellation_event and cancellation_event.is_set():
+                logger.info(f"user_id:{user_id} LLM processing cancelled after model call")
+                raise asyncio.CancelledError("Processing was cancelled")
+            
             response.resolve()
             response_json: str = response.text
             logger.info(f"user_id:{user_id} Received response from model: %s", response_json)
@@ -139,13 +167,21 @@ def process_email(email_text: str, user_id: str, db_session):
             else:
                 logger.error(f"user_id:{user_id} Empty response received from the model.")
                 return None
+        except asyncio.CancelledError:
+            logger.info(f"user_id:{user_id} LLM processing was cancelled")
+            raise
         except Exception as e:
             daily_batch_exceeded = processed_emails_exceeds_rate_limit(user_id, db_session)
             if "429" in str(e) and not daily_batch_exceeded:
                 logger.warning(
                     f"user_id:{user_id} Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
                 )
-                time.sleep(delay)
+                # Use asyncio.sleep for non-blocking delay with cancellation check
+                try:
+                    await asyncio.sleep(delay)
+                except asyncio.CancelledError:
+                    logger.info(f"user_id:{user_id} LLM processing cancelled during retry delay")
+                    raise
             elif "429" in str(e) and daily_batch_exceeded:
                 logger.error("Daily rate limit exceeded. Not retrying.")
                 return None
@@ -154,3 +190,10 @@ def process_email(email_text: str, user_id: str, db_session):
                 return None
     logger.error(f"Failed to process email after {retries} attempts.")
     return None
+
+
+# Keep the original sync function for backward compatibility
+def process_email(email_text: str, user_id: str, db_session):
+    """Synchronous wrapper - runs the async version"""
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(process_email_async(email_text, user_id, db_session))

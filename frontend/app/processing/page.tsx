@@ -57,6 +57,7 @@ const ProcessingPage = () => {
 					setProgress(100 * (processed / total));
 				}
 				if (result.message === "Processing complete") {
+					console.log("Done ", result);
 					clearInterval(interval);
 					router.push("/dashboard");
 				}
@@ -94,18 +95,6 @@ const ProcessingPage = () => {
 
 			// 3. Change start date
 			await changeStartDate(selectedDate);
-
-			// 4. Delete old emails before new start date
-			await fetch(`${apiUrl}/delete-emails-before-start-date`, {
-				method: "DELETE",
-				credentials: "include"
-			});
-
-			// 5. Restart with clean state
-			await fetch(`${apiUrl}/restart-processing`, {
-				method: "POST",
-				credentials: "include"
-			});
 
 			// 6. Reset UI state
 			setShowModal(false);

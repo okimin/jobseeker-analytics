@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlmodel import select, desc
@@ -9,7 +9,7 @@ from db.utils.user_email_utils import create_user_email
 from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
 from utils.email_utils import get_email_ids, get_email, decode_subject_line
-from utils.llm_utils import process_email
+from utils.llm_utils import process_email, process_email_async
 from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
 from session.session_layer import validate_session
@@ -44,9 +44,9 @@ router = APIRouter()
 fetch_email_tasks = {}
 fetch_email_tasks_lock = threading.Lock()
 
-# Global dictionary to track cancellation flags for users
-user_cancellation_flags = {}
-cancellation_flags_lock = threading.Lock()
+# Global dictionary to track cancellation events per user
+user_cancellation_events: Dict[str, asyncio.Event] = {}
+cancellation_lock = threading.Lock()
 
 @router.get("/processing", response_class=HTMLResponse)
 async def processing(
@@ -181,6 +181,7 @@ async def start_fetch_emails(
     if not user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
     logger.info(f"user_id:{user_id} start_fetch_emails")
+
     # Retrieve stored credentials
     creds_json = request.session.get("creds")
     if not creds_json:
@@ -200,7 +201,8 @@ async def start_fetch_emails(
 
         # Start email fetching in the background and track the task
         loop = asyncio.get_event_loop()
-        task = loop.create_task(asyncio.to_thread(fetch_emails_to_db, user, request, last_updated, user_id=user_id, db_session= db_session))
+        task = loop.create_task(fetch_emails_to_db_async(user, request, last_updated, user_id=user_id, db_session=db_session))
+        
         with fetch_email_tasks_lock:
             fetch_email_tasks[user_id] = task
         def cleanup_task(fut):
@@ -224,9 +226,6 @@ async def restart_processing(
     """
     Restarts the email processing after a date change.
     """
-    # Clear cancellation flag for fresh start
-    with cancellation_flags_lock:
-        user_cancellation_flags.pop(user_id, None)
     
     # First ensure any existing task is stopped
     with fetch_email_tasks_lock:
@@ -263,10 +262,15 @@ async def stop_fetch_emails(request: Request, db_session: database.DBSession, us
     """
     Stops the background email fetching task and resets processing status.
     """
-    # Set cancellation flag for the user
-    with cancellation_flags_lock:
-        user_cancellation_flags[user_id] = True
     
+    # Signal cancellation first
+    with cancellation_lock:
+        cancellation_event = user_cancellation_events.get(user_id)
+        if cancellation_event:
+            cancellation_event.set()
+            logger.info(f"Set cancellation event for user_id {user_id}")
+    
+    # Then cancel the task
     with fetch_email_tasks_lock:
         task = fetch_email_tasks.get(user_id)
     
@@ -274,18 +278,15 @@ async def stop_fetch_emails(request: Request, db_session: database.DBSession, us
         logger.warning(f"No running fetch-emails task for user_id {user_id}")
         return JSONResponse(content={"message": "No running fetch-emails task to stop."}, status_code=404)
     
-    # Cancel the task
     cancelled = task.cancel()
     
-    # Give the task a moment to recognize cancellation
-    await asyncio.sleep(1.0)
+    # Give more time for graceful cancellation
+    await asyncio.sleep(2.0)
     
     # Reset the task status in database
     process_task_run = db_session.get(task_models.TaskRuns, user_id)
     if process_task_run:
         process_task_run.status = task_models.CANCELLED
-        process_task_run.processed_emails = 0
-        process_task_run.total_emails = 0
         db_session.add(process_task_run)
         db_session.commit()
     
@@ -477,3 +478,224 @@ def fetch_emails_to_db(
     db_session.commit()
 
     logger.info(f"user_id:{user_id} Email fetching complete.")
+
+async def fetch_emails_to_db_async(
+    user: AuthenticatedUser,
+    request: Request,
+    last_updated: Optional[datetime] = None,
+    *,
+    user_id: str,
+    db_session,
+) -> None:
+    logger.info(f"Fetching emails to db for user_id: {user_id}")
+
+    cancellation_event = asyncio.Event()
+    with cancellation_lock:
+        user_cancellation_events[user_id] = cancellation_event
+    
+    try:
+        gmail_instance = user.service
+
+        # we track starting and finishing fetching of emails for each user
+        db_session.commit()  # Commit pending changes to ensure the database is in latest state
+        process_task_run = db_session.exec(
+            select(task_models.TaskRuns).filter_by(user_id=user_id)
+        ).one_or_none()
+        if process_task_run is None:
+            # if this is the first time running the task for the user, create a record
+            process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
+            db_session.add(process_task_run)
+            db_session.commit()
+        else:
+            # Check if the task was completed on a different day
+            from datetime import datetime, timezone
+            today = datetime.now(timezone.utc).date()
+            task_date = process_task_run.updated.date() if process_task_run.updated else None
+            
+            # If the task was completed on a different day, reset the processed emails count
+            if task_date and task_date < today:
+                logger.info(f"Task was completed on {task_date}, resetting processed emails count for today")
+                process_task_run.processed_emails = 0
+                process_task_run.total_emails = 0
+            elif process_task_run.processed_emails >= settings.batch_size_by_env:
+                # limit how frequently emails can be fetched by a specific user (only if same day)
+                logger.warning(
+                    "Already fetched the maximum number (%s) of emails for this user for today",
+                    settings.batch_size_by_env,
+                    extra={"user_id": user_id},
+                )
+                return JSONResponse(
+                    content={
+                        "message": "Processing complete",
+                        "processed_emails": process_task_run.processed_emails,
+                        "total_emails": process_task_run.total_emails,
+                    }
+                )
+
+        process_task_run.status = task_models.STARTED
+
+        db_session.commit()  # sync with the database so calls in the future reflect the task is already started
+
+        # Check for cancellation before starting
+        if cancellation_event.is_set():
+            logger.info(f"user_id:{user_id} Processing cancelled before starting")
+            return
+        
+        start_date = request.session.get("start_date")
+        logger.info(f"start_date: {start_date}")
+        start_date_query = get_start_date_email_filter(start_date)
+        is_new_user = request.session.get("is_new_user")
+
+        query = start_date_query
+        # check for users last updated email
+        if last_updated:
+            # this converts our date time to number of seconds 
+            additional_time = last_updated.strftime("%Y/%m/%d")
+            # we append it to query so we get only emails recieved after however many seconds
+            # for example, if the newest email you’ve stored was received at 2025‑03‑20 14:32 UTC, we convert that to 1710901920s 
+            # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
+            if not start_date or not is_new_user:
+                query = QUERY_APPLIED_EMAIL_FILTER
+                query += f" after:{additional_time}"
+                logger.info(f"user_id:{user_id} Fetching emails after {additional_time}")
+        else:
+            logger.info(f"user_id:{user_id} Fetching all emails (no last_date maybe with start date)")
+
+
+        messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
+        # Update session to remove "new user" status
+        request.session["is_new_user"] = False
+
+        if not messages:
+            logger.info(f"user_id:{user_id} No job application emails found.")
+            process_task_run = db_session.get(task_models.TaskRuns, user_id)
+            process_task_run.status = task_models.FINISHED
+            db_session.commit()
+            return
+
+        logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
+        process_task_run.total_emails = len(messages)
+        db_session.commit()
+
+        email_records = []  # list to collect email records
+
+        for idx, message in enumerate(messages):
+
+            # Check for cancellation at the start of each email processing
+            if cancellation_event.is_set():
+                logger.info(f"user_id:{user_id} Processing cancelled at email {idx + 1} of {len(messages)}")
+                process_task_run.status = task_models.CANCELLED
+                db_session.commit()
+                return
+            
+            message_data = {}
+            # (email_subject, email_from, email_domain, company_name, email_dt)
+            msg_id = message["id"]
+            logger.info(
+                f"user_id:{user_id} begin processing for email {idx + 1} of {len(messages)} with id {msg_id}"
+            )
+            process_task_run.processed_emails = idx + 1
+
+            logger.debug(f"user_id:{user_id} getting email content for message {idx + 1}")
+            msg = get_email(
+                message_id=msg_id,
+                gmail_instance=gmail_instance,
+                user_email=user.user_email,
+            )
+
+            if msg:
+                logger.debug(f"user_id:{user_id} email content retrieved for message {idx + 1}, processing with LLM")
+                try:
+                    # Use the async LLM processing with cancellation support
+                    result = await process_email_async(msg["text_content"], user_id, db_session, cancellation_event)
+                    logger.debug(f"user_id:{user_id} LLM processing completed for message {idx + 1}")
+                    
+                    # Check for cancellation after LLM processing
+                    if cancellation_event.is_set():
+                        logger.info(f"user_id:{user_id} Processing cancelled after LLM processing for email {idx + 1}")
+                        process_task_run.status = task_models.CANCELLED
+                        db_session.commit()
+                        return
+                    
+                    # if values are empty strings or null, set them to "unknown"
+                    for key in result.keys():
+                        if not result[key]:
+                            result[key] = "unknown"
+                            
+                    logger.debug(f"user_id:{user_id} processed result for message {idx + 1}: {result}")
+                except asyncio.CancelledError:
+                    logger.info(f"user_id:{user_id} LLM processing was cancelled for email {idx + 1}")
+                    process_task_run.status = task_models.CANCELLED
+                    db_session.commit()
+                    return
+                except Exception as e:
+                    logger.error(
+                        f"user_id:{user_id} Error processing email {idx + 1} of {len(messages)} with id {msg_id}: {e}"
+                    )
+
+                if not isinstance(result, str) and result:
+                    logger.info(
+                        f"user_id:{user_id} successfully extracted email {idx + 1} of {len(messages)} with id {msg_id}"
+                    )
+                    if result.get("job_application_status").lower().strip() == "false positive":
+                        logger.info(
+                            f"user_id:{user_id} email {idx + 1} of {len(messages)} with id {msg_id} is a false positive, not related to job search"
+                        )
+                        continue  # skip this email if it's a false positive
+                else:  # processing returned unknown which is also likely false positive
+                    logger.warning(
+                        f"user_id:{user_id} failed to extract email {idx + 1} of {len(messages)} with id {msg_id}"
+                    )
+                    result = {"company_name": "unknown", "application_status": "unknown", "job_title": "unknown"}
+
+                logger.debug(f"user_id:{user_id} creating message data for email {idx + 1}")
+                message_data = {
+                    "id": msg_id,
+                    "company_name": result.get("company_name", "unknown"),
+                    "application_status": result.get("job_application_status", "unknown"),
+                    "received_at": msg.get("date", "unknown"),
+                    "subject": msg.get("subject", "unknown"),
+                    "job_title": result.get("job_title", "unknown"),
+                    "from": msg.get("from", "unknown"),
+                }
+                
+                logger.debug(f"user_id:{user_id} creating user email record for message {idx + 1}")
+                email_record = create_user_email(user, message_data, db_session)
+                
+                if email_record:
+                    email_records.append(email_record)
+                    # check rate limit against total daily count
+                    if exceeds_rate_limit(process_task_run.processed_emails):
+                        logger.warning(f"Rate limit exceeded for user {user_id} at {process_task_run.processed_emails} emails")
+                        break
+                    logger.debug(f"Added email record for {message_data.get('company_name', 'unknown')} - {message_data.get('application_status', 'unknown')}")
+                else:
+                    logger.debug(f"Skipped email record (already exists or error) for {message_data.get('company_name', 'unknown')}")
+                    
+                logger.debug(f"user_id:{user_id} completed processing email {idx + 1} of {len(messages)}")
+            else:
+                logger.warning(f"user_id:{user_id} failed to retrieve email content for message {idx + 1} with id {msg_id}")
+
+            # Update the task status in the database after each email
+            logger.debug(f"user_id:{user_id} updating task status after processing email {idx + 1}")
+
+        # batch insert all records at once
+        if email_records:
+            logger.info(f"About to add {len(email_records)} email records to database for user {user_id}")
+            db_session.add_all(email_records)
+            db_session.commit()  # Commit immediately after adding records
+            logger.info(
+                f"Successfully committed {len(email_records)} email records for user {user_id}"
+            )
+        else:
+            logger.warning(f"No email records to add for user {user_id}")
+
+        process_task_run.status = task_models.FINISHED
+        db_session.commit()
+
+        logger.info(f"user_id:{user_id} Email fetching complete.")
+    
+    finally:
+        # Clean up cancellation event
+        with cancellation_lock:
+            user_cancellation_events.pop(user_id, None)
