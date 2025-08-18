@@ -8,7 +8,7 @@ from db import processing_tasks as task_models
 from db.utils.user_email_utils import create_user_email
 from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
-from utils.email_utils import get_email_ids, get_email
+from utils.email_utils import get_email_ids, get_email, decode_subject_line
 from utils.llm_utils import process_email
 from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
@@ -440,6 +440,7 @@ def fetch_emails_to_db(
                 "job_title": result.get("job_title", "unknown"),
                 "from": msg.get("from", "unknown"),
             }
+            message_data["subject"] = decode_subject_line(message_data["subject"])
             
             logger.debug(f"user_id:{user_id} creating user email record for message {idx + 1}")
             email_record = create_user_email(user, message_data, db_session)

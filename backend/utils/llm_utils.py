@@ -37,6 +37,7 @@ def process_email(email_text: str, user_id: str, db_session):
         Information request
         Assessment sent
         Interview invitation
+        Referral - Action required
         Did not apply - inbound request
         Action required from company
         Hiring freeze notification
@@ -49,6 +50,10 @@ def process_email(email_text: str, user_id: str, db_session):
         Application confirmation
         Assign this label if the email confirms receipt of a job application.
         Examples: "We have received your application", "Thank you for applying", "Your application has been submitted".
+
+        Referral - Action required
+        Assign this label if the email is a referral from a current employee and you need to complete the application.
+        Examples: "referred you to a job", "been referred for", "thinks you would make a great addition", "Employee Referral Program"
 
         Rejection
         Use this label for emails explicitly stating that the candidate is not moving forward in the process.

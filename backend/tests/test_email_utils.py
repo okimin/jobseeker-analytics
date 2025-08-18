@@ -169,3 +169,6 @@ def test_clean_whitespace():
     assert email_utils.clean_whitespace("") == ""
     assert email_utils.clean_whitespace(None) == ""
     
+
+def test_decode_subject_line():
+    assert email_utils.decode_subject_line("=?UTF-8?Q?Deploy_APIs_at_Scale_=E2=80=93_Forward_?= =?UTF-8?Q?Deployed_Engineer_(SF_In-Person)?=") == "Deploy APIs at Scale – Forward Deployed Engineer (SF In-Person)"

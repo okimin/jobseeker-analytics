@@ -278,6 +278,26 @@ def get_email_domain_from_address(email_address):
     return email_address.split("@")[1] if "@" in email_address else ""
 
 
+def decode_subject_line(subject_line: str) -> str:
+    """
+    Decode the subject line of an email.
+    """
+    from email.header import decode_header
+    # Decode the string
+    try:
+        decoded_parts = decode_header(subject_line)
+
+        # Join the decoded parts into a single, clean string
+        full_decoded_string = ''.join(
+            part.decode(charset if charset else 'ascii') if isinstance(part, bytes) else part
+            for part, charset in decoded_parts
+        )
+        return full_decoded_string
+    except Exception as e:
+        logger.error("Error decoding subject line: %s", e)
+        return subject_line
+
+
 def clean_email(email_body: str) -> list:
     import spacy
     from spacy_cleaner import processing, Cleaner
