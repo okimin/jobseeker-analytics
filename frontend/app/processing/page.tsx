@@ -140,9 +140,9 @@ const ProcessingPage = () => {
 					<p className="text-sm text-gray-500 mt-2">
 						Taking too long?{" "}
 						<button
-							onClick={handleCancel}
-							disabled={isCancelling}
 							className="underline hover:text-gray-700 disabled:opacity-50"
+							disabled={isCancelling}
+							onClick={handleCancel}
 						>
 							{isCancelling ? "Cancelling..." : "Cancel the process"}
 						</button>
