@@ -11,10 +11,9 @@ const ProcessingPage = () => {
 	const router = useRouter();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 	const [progress, setProgress] = useState(0);
+	const [showCancelMessage, setShowCancelMessage] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
-	const [processedEmails, setProcessedEmails] = useState(0);
-	const [totalEmails, setTotalEmails] = useState(0);
 
 	useEffect(() => {
 		const process = async () => {
@@ -29,6 +28,14 @@ const ProcessingPage = () => {
 				return;
 			}
 
+			// Set up timer to show cancel message after 10 minutes
+			const cancelTimer = setTimeout(
+				() => {
+					setShowCancelMessage(true);
+				},
+				10 * 60 * 1000
+			); // 10 minutes in milliseconds
+
 			const interval = setInterval(async () => {
 				try {
 					const res = await fetch(`${apiUrl}/processing`, {
@@ -41,9 +48,6 @@ const ProcessingPage = () => {
 					const processed = Number(result.processed_emails);
 					console.log(`Progress update: ${processed}/${total} - ${result.message}`);
 
-					setProcessedEmails(processed);
-					setTotalEmails(total);
-
 					if (!total || isNaN(total)) {
 						setProgress(100);
 					} else {
@@ -51,10 +55,12 @@ const ProcessingPage = () => {
 					}
 					if (result.message === "Processing complete") {
 						clearInterval(interval);
+						clearTimeout(cancelTimer);
 						// Force a full page refresh to ensure new user status is checked
 						window.location.href = "/dashboard";
 					} else if (result.message === "Processing cancelled") {
 						clearInterval(interval);
+						clearTimeout(cancelTimer);
 						addToast({
 							title: "Processing was cancelled",
 							color: "warning"
@@ -63,12 +69,16 @@ const ProcessingPage = () => {
 						window.location.href = "/dashboard";
 					}
 				} catch {
+					clearTimeout(cancelTimer);
 					router.push("/logout");
 				}
 			}, 3000);
 
 			setIntervalId(interval);
-			return () => clearInterval(interval);
+			return () => {
+				clearInterval(interval);
+				clearTimeout(cancelTimer);
+			};
 		};
 
 		process();
@@ -126,12 +136,18 @@ const ProcessingPage = () => {
 				<p className="text-lg mt-4">
 					Eating rejections for dinner. You will be redirected to your dashboard soon.
 				</p>
-				<p className="text-sm text-gray-500 mt-2">
-					Taking too long?{" "}
-					<a onClick={() => handleCancel()}>
-						<u>Cancel the process.</u>
-					</a>
-				</p>
+				{showCancelMessage && (
+					<p className="text-sm text-gray-500 mt-2">
+						Taking too long?{" "}
+						<button
+							onClick={handleCancel}
+							disabled={isCancelling}
+							className="underline hover:text-gray-700 disabled:opacity-50"
+						>
+							{isCancelling ? "Cancelling..." : "Cancel the process"}
+						</button>
+					</p>
+				)}
 			</div>
 		</div>
 	);
