@@ -22,7 +22,6 @@ logging.basicConfig(
 )
 
 def process_email(email_text: str, user_id: str, db_session):
-def process_email(email_text: str, user_id: str, db_session):
     logger.info(f"user_id:{user_id} Starting LLM processing of email content (length: {len(email_text)} chars)")
     
     
@@ -118,7 +117,6 @@ def process_email(email_text: str, user_id: str, db_session):
         try:
             logger.info(f"user_id:{user_id} Calling generate_content (attempt {attempt + 1}/{retries})")
             response: GenerateTextResponse = model.generate_content(prompt)
-            response: GenerateTextResponse = model.generate_content(prompt)
             response.resolve()
             response_json: str = response.text
             logger.info(f"user_id:{user_id} Received response from model: %s", response_json)
@@ -149,7 +147,6 @@ def process_email(email_text: str, user_id: str, db_session):
                     f"user_id:{user_id} Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
                 )
                 time.sleep(delay)
-                time.sleep(delay)
             elif "429" in str(e) and daily_batch_exceeded:
                 logger.error("Daily rate limit exceeded. Not retrying.")
                 return None
@@ -158,4 +155,3 @@ def process_email(email_text: str, user_id: str, db_session):
                 return None
     logger.error(f"Failed to process email after {retries} attempts.")
     return None
-    
