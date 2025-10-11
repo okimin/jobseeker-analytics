@@ -79,8 +79,7 @@ app_df["domain"] = (
 
 app_df["domain_copy"] = app_df["domain"]
 
-company_name_in_subject_pattern = r'(?i)(?:your application was sent to|applying to|applied to|application to|for your interest in(?:\s+joining)?|at|hank you from|interview with|step with)\s+(?:.*?\s+\bat\b\s+)?["\'“”‘’<]*([\w][\w&.\'\-\s]*?)\s*(?:[^\w&.\'\-\s]|$)'
-
+company_name_in_subject_pattern = r'(?i)(?:@|your application was sent to|applying to|applied to|application to|for your interest in(?:\s+joining)?|at|hank you from|interview with|step with)\s+(?:.*?\s+\bat\b\s+)?["\'“”‘’<]*([\w][\w&.\'\s]*?)\s*(?:[^\w&.\'\s]|$)'
 test = app_df["subject"].str.extract(company_name_in_subject_pattern, expand=False)
 app_df["sent_to_word"] = test
 mask = app_df["subject"].str.contains(company_name_in_subject_pattern, regex=True, na=False)
