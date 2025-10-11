@@ -54,16 +54,12 @@ def get_date_format(date_str):
 app_df["date_formatted"] = app_df["date"].astype(str).apply(get_date_format)
 print(app_df[["date", "date_formatted"]])
 #app_df = app_df[(app_df["date"] >= "2025-01-01") & (app_df["date"] <= "2025-07-01")].copy()
-#app_df = app_df[(app_df["id"] == "18e7936b391583ae")] # TODO: REMOVE when done testing
-# Extract word before dot if dot exists, else keep original value
-# def extract_before_dot(s):
-#     return s.split('.')[0] if '.' in s else s
+#app_df = app_df[(app_df["id"] == "18fc53e1e5183432")] # TODO: REMOVE when done testing
 
 def extract_before_dot(stringy):
     # @careers.stripe.com should return stripe
     # Split by dots and take the second-to-last part (before the TLD)
     parts = stringy.split('.')
-    #import pdb; pdb.set_trace()
 
     if len(parts) >= 2:
         # Remove common TLDs and get the main domain
@@ -83,7 +79,7 @@ app_df["domain"] = (
 
 app_df["domain_copy"] = app_df["domain"]
 
-company_name_in_subject_pattern = r'(?i)(?:your application was sent to|applying to|application to|for your interest in|at|hank you from|interview with|step with)\s+(?:.*?\s+\bat\b\s+)?["\'“”‘’<]*([\w][\w&.\'\-\s]*?)\s*(?:[^\w&.\'\-\s]|$)'
+company_name_in_subject_pattern = r'(?i)(?:your application was sent to|applying to|applied to|application to|for your interest in(?:\s+joining)?|at|hank you from|interview with|step with)\s+(?:.*?\s+\bat\b\s+)?["\'“”‘’<]*([\w][\w&.\'\-\s]*?)\s*(?:[^\w&.\'\-\s]|$)'
 
 test = app_df["subject"].str.extract(company_name_in_subject_pattern, expand=False)
 app_df["sent_to_word"] = test
@@ -91,7 +87,6 @@ mask = app_df["subject"].str.contains(company_name_in_subject_pattern, regex=Tru
 #import pdb; pdb.set_trace()
 app_df.loc[mask, "domain_copy"] = app_df.loc[mask, "sent_to_word"].apply(lambda s: s.lower().strip() if pd.notnull(s) else s)
 
-# app_df = app_df[app_df["domain"].str.contains("andes", na=False, flags=re.IGNORECASE) | app_df["subject"].str.contains("andes", na=False, flags=re.IGNORECASE)]
 
 print(app_df)
 # Sort by domain and date ASC
@@ -99,9 +94,28 @@ app_df = app_df.sort_values(["domain", "date_formatted"], ascending=[True, True]
 app_df["domain_copy"] = app_df["domain_copy"].mask(app_df["domain"].isin(generic_email_domains))
 #import pdb; pdb.set_trace()
 app_df["split_sent_word"] = app_df["sent_to_word"].apply(lambda s: str(s).split(' at ')[-1].strip()) # the Frontend Engineer role at GitLab -> GitLab
+app_df["split_sent_word_with"] = app_df["subject"].apply(lambda s: str(s).split(' with ')[0].strip()) # the Frontend Engineer role with GitLab -> GitLab
+#import pdb; pdb.set_trace()
+app_df["split_sent_word_at_symbol"] = app_df["subject"].apply(lambda s: str(s).split(' @ ')[-1].strip()) # the Frontend Engineer role @ GitLab -> GitLab
 app_df["first_before_dash"] = app_df["sent_to_word"].apply(lambda s: str(s).split('-')[0].strip()) # Canonical - Python Software Engineer - Ubuntu Server Certification -> Canonical
 app_df["before_for"] = app_df["sent_to_word"].apply(lambda s: str(s).split(' for')[0].strip()) # Allergan Data Labs for the Sr. Data Engineer -> Allergan Data Labs
+app_df["first_before_dash_subject"] = app_df["subject"].apply(lambda s: (str(s).split('-')[0].strip() if ('-' in str(s)) else pd.NA)) # Canonical - Python Software Engineer - Ubuntu Server Certification -> Canonical
 
+# getting before preposition now
+before_prep_in_subject_pattern = r'([A-Z]\w*(?:\s+[A-Z]\w*)*)\s+\b(?:successfully|has|was|in|of)\b'
+test_prep = app_df["first_before_dash"].str.extract(before_prep_in_subject_pattern, expand=False)
+app_df["before_prep"] = test_prep
+mask = app_df["first_before_dash"].str.contains(before_prep_in_subject_pattern, regex=True, na=False)
+#import pdb; pdb.set_trace()
+app_df.loc[mask, "before_prep_copy"] = app_df.loc[mask, "before_prep"].apply(lambda s: s.strip() if pd.notnull(s) else s)
+
+
+interview_pattern = r'(?i)^(?:Re:\s*)?(.*?)(?=\s*(?:(?:Zoom|Phone|Virtual|Video|Technical)\s+)?(?:Interview|application)|\|)'
+test_interview = app_df["subject"].str.extract(interview_pattern, expand=False)
+app_df["before_interview"] = test_interview
+mask = app_df["subject"].str.contains(interview_pattern, regex=True, na=False)
+#import pdb; pdb.set_trace()
+app_df.loc[mask, "before_itnerview_copy"] = app_df.loc[mask, "before_interview"].apply(lambda s: (s.strip() if ':' not in s else s.split(":")[0].strip()) if pd.notnull(s) else s)
 #app_df['coalesce'] = app_df[['domain', 'domain_copy']].bfill(axis=1).iloc[:, 0]
 #app_df["coalesce2"] = app_df["coalesce"].mask(app_df["coalesce"].isin(generic_email_domains))
 #app_df["sent_to_word2"] = app_df["sent_to_word"].str.contains(company_name_in_subject_pattern, regex=True, na=False)
