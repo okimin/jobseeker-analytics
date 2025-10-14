@@ -20,7 +20,7 @@ const Index = () => {
                             Stop Drowning in Job Applications. Start Seeing What Works.
                         </h1>
                         <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                            I developed a system that landed me a 17% interview rate—3x the industry average. But I was so overwhelmed I forgot to update my spreadsheet and even missed an interview. I'm building the tool I needed to automate the process and never miss an opportunity again.
+                            I developed a system that landed me a 17% cold interview rate (3x the industry average.) But I was so overwhelmed I forgot to update my spreadsheet and even <strong>missed an interview</strong>. I'm building the tool I needed to automate the process and never miss an opportunity again.
                         </p>
                         <div className="mt-10 flex items-center justify-center gap-x-6">
                             <Button
@@ -162,7 +162,7 @@ const Index = () => {
                             When Your Manual Spreadsheet Fails, You Miss Opportunities.
                         </h2>
                         <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                            At a certain point in a high-volume job search, manual tracking doesn't just become tedious—it breaks. You forget to update a status, a crucial follow-up slips through the cracks, or worse, you miss an interview entirely because it was lost in the chaos.
+                            At a certain point in a high-volume job search, manual tracking doesn't just become tedious - it breaks. You forget to update a status, a crucial follow-up slips through the cracks, or worse, you miss an interview entirely because it was lost in the chaos.
                         </p>
                         <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
                             This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to be a command center for dozens of active conversations, deadlines, and follow-ups. Relying on them is a strategic disadvantage that can cost you your dream role.
@@ -177,10 +177,10 @@ const Index = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-                                A System Designed From Experience, Built for Reliability.
+                                A System Designed From Experience, Built for Efficient Professionals.
                             </h2>
                             <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                                JustAJobApp is the intelligent, email-powered dashboard designed from the hard-won lessons of a successful—and chaotic—job search. It automates the tedious tracking that leads to critical mistakes, so you can focus on preparation, not panic.
+                                JustAJobApp is an email-powered dashboard designed from a job search that landed interviews with 38 companies over 5 months. It automates the tedious tracking that leads to missed interviews and low morale.
                             </p>
                             <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
                                 By securely connecting to your email, it automatically finds your applications and organizes your pipeline. It's the tool I wish I had when things got overwhelming. It's the safety net you need to ensure no opportunity gets left behind.
@@ -236,6 +236,7 @@ const Index = () => {
                                 <h3 className="text-xl font-semibold mb-2">Automated Dashboard</h3>
                                 <p className="text-gray-600 dark:text-gray-300">
                                     Connect your email and watch as your dashboard auto-populates with the company name, job title, status, and application date. <br />
+									<br></br>
                                     <strong className="text-amber-600">
                                         Benefit: Save hours of tedious data entry and eliminate human error.
                                     </strong>
@@ -244,8 +245,9 @@ const Index = () => {
                             <div>
                                 <h3 className="text-xl font-semibold mb-2">Intelligent Application Sorting</h3>
                                 <p className="text-gray-600 dark:text-gray-300">
-                                    Your applications are automatically categorized into one of ten statuses—from 'Applied' to 'Assessment Sent' to 'Offer Extended'. <br />
-                                    <strong className="text-amber-600">
+                                    Your applications are automatically categorized into one of ten statuses- from 'Applied' to 'Assessment Sent' to 'Offer Extended'. <br />
+									<br></br>
+                                    <strong className="text-amber-600">	
                                         Benefit: Get a clear, organized view of your entire pipeline at a glance.
                                     </strong>
                                 </p>
@@ -254,6 +256,7 @@ const Index = () => {
                                 <h3 className="text-xl font-semibold mb-2">Data-Driven Insights</h3>
                                 <p className="text-gray-600 dark:text-gray-300">
                                     Instantly see your interview-to-application ratio and identify the top 5 job titles that are generating the most employer responses. <br />
+									<br></br>
                                     <strong className="text-amber-600">
                                         Benefit: Stop guessing. Double down on the strategies that are actually working.
                                     </strong>
@@ -263,6 +266,7 @@ const Index = () => {
                                 <h3 className="text-xl font-semibold mb-2">Inbox & Morale Protection</h3>
                                 <p className="text-gray-600 dark:text-gray-300">
                                     Recruiter emails that land in spam are surfaced, and rejection emails are automatically archived, keeping your inbox clean. <br />
+									<br></br>
                                     <strong className="text-amber-600">
                                         Benefit: Never miss a critical opportunity and protect your focus for the wins.
                                     </strong>
@@ -318,10 +322,10 @@ const Index = () => {
                                 My System Worked. My Spreadsheet Didn't.
                             </h2>
                             <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                                "After being laid off, I developed a system to navigate the chaos of the job market. It worked. Over 5 months, I turned <strong>123 cold applications</strong> into <strong>46 interviews</strong> and <strong>2 offers</strong>, achieving a <strong>17% interview rate</strong>—triple the industry average.
+                                "After being laid off, I developed a system to navigate the chaos of the job market. It worked. Over 5 months, I turned <strong>118 cold applications</strong> into <strong>21 recruiter calls</strong>, achieving a <strong>17% interview rate</strong>- triple the industry average. My LinkedIn profile attracted 10 recruiters, propelling me to <strong>4 final rounds</strong> and <strong>2 offers</strong>.
                             </p>
                             <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                                But my manual spreadsheet couldn't keep up with the success. I was so overwhelmed tracking everything that I forgot to update it and <strong>even missed an interview.</strong> My method for getting interviews was solid, but my system for tracking them had failed me at a critical moment. That's why I'm building JustAJobApp. It's the tool I needed—automating my successful system so you never have to choose between finding opportunities and tracking them."
+                                But my manual spreadsheet couldn't keep up with the success. I was so overwhelmed tracking everything that I forgot to update it and <strong>even missed an interview.</strong> My method for getting interviews was solid, but my system for tracking them had failed me at a critical moment. That's why I'm building JustAJobApp. It's the tool I needed - automating my successful system so you never have to choose between finding opportunities and tracking them."
                             </p>
                             <p className="mt-4 font-semibold text-gray-900 dark:text-white">
                                 – Lianna Novitz, Founder of Just A Job App
@@ -339,7 +343,7 @@ const Index = () => {
                             The Vision: What's Next
                         </h2>
                         <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                            Organizing your search is just the beginning. Once we've perfected the tracker with your feedback, we'll begin building <strong className="text-amber-600">'Shining Nuggets'</strong>: a revolutionary mobile game designed to help you discover and validate your most impressive accomplishments through anonymous peer feedback. The goal is to close the frustrating gap between application and interview forever.
+                            Organizing your search is just the beginning. Once we've perfected the tracker with your feedback, we'll begin building <strong className="text-amber-600">'Shining Nuggets'</strong>: a mobile game designed to help you discover and validate your most impressive accomplishments through anonymous peer feedback. The goal is to close the frustrating gap between application and interview forever.
                         </p>
                     </div>
                 </div>
@@ -420,7 +424,7 @@ const Index = () => {
             <section id="waitlist" className="max-w-4xl mx-auto py-16">
                 <div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
                     <h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
-                        Get the System Behind a 17% Interview Rate.
+                        Get the System Behind a 3x Interview Rate.
                     </h2>
                     <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
                         Join 300+ ambitious professionals on our priority list. 
