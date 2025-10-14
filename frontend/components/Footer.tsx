@@ -110,11 +110,11 @@ const Footer = () => {
 
 					<div>
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">
-							Get the Unfair Advantage in Your Job Search.
+							Get the System Behind a 3x Interview Rate.
 						</h3>
 						<p className="text-default-500 mb-4">
-							Join 300+ ambitious professionals on the priority list. We'll give you early access to the
-							tools that turn your hidden achievements into your next big opportunity.
+							Join 300+ ambitious professionals on our priority list. 
+							We're building this so you can focus on winning the interview, not data entry.
 						</p>
 						<a
 							className="flex items-center justify-center md:justify-start gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
@@ -136,7 +136,7 @@ const Footer = () => {
 							}}
 						>
 							<ExternalLinkIcon size={16} />
-							Request Early Access
+							Request My Invite
 						</a>
 					</div>
 					<div>

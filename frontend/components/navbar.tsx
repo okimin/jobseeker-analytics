@@ -20,7 +20,7 @@ export const Navbar = () => {
 									Just A Job App
 								</span>
 								<span className="text-xs text-default-500 -mt-1">
-									Get the Unfair Advantage in Your Job Search.
+									Get the System Behind a 3x Interview Rate.
 								</span>
 							</div>
 						</div>
@@ -80,7 +80,7 @@ export const Navbar = () => {
 						}
 					}}
 				>
-					Request Early Access
+					Request Your Invite
 				</Button>
 			</NavbarContent>
 		</HeroUINavbar>
