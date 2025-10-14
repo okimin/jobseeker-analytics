@@ -124,35 +124,22 @@ const Index = () => {
             <div className="container mx-auto px-4 py-24 sm:py-32">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                     <div>
-                        {/* Chart image with click functionality */}
-                        <div
-                            className="bg-gray-200 dark:bg-gray-700 h-80 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => {
-                                setPopupImageSrc("homepage/Problem2.png");
-                                setShowImagePopup(true);
-                            }}
-                        >
-                            <div className="relative">
-                                <img
-                                    alt="Chart showing Applications Per Hire tripling"
-                                    className="max-h-80 max-w-full object-contain"
-                                    src="homepage/Problem.png"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
-                                    <svg
-                                        className="h-12 w-12 text-white"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                        />
+                        {/* Testimonial */}
+                        <div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-8 border border-amber-200 dark:border-amber-800/50">
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0">
+                                    <svg className="w-8 h-8 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
                                     </svg>
+                                </div>
+                                <div className="flex-1">
+                                    <blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
+                                        "I get so many emails, I mistook a message for a rejection. JustAJobApp caught a status update that my Gmail filters missed, prompting me to look again. It wasn't a rejection - it was an invitation to apply for a reopened position. I would have completely missed this opportunity without it."
+                                    </blockquote>
+                                    <div className="mt-4">
+                                        <div className="text-sm font-semibold text-gray-900 dark:text-white">Beta User</div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">Computer Science and Engineering New Grad</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
