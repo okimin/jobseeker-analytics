@@ -85,7 +85,7 @@ export const Navbar = () => {
 			</HeroUINavbar>
 
 			{/* Mobile Sticky Button */}
-			<div className="md:hidden fixed bottom-4 right-4 z-50">
+			<div className="md:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
 				<Button
 					as="a"
 					className="bg-amber-600 text-white hover:bg-amber-700 shadow-lg"
