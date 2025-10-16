@@ -460,14 +460,17 @@ const Index = () => {
 							Get the System Behind a 3x Interview Rate.
 						</h2>
 						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-							Join 300+ ambitious professionals on our priority list. We're building the tool I wish I had-
-							one where you focus on winning the interview, not on data entry. Your search is 100%
+							Join 300+ ambitious professionals on our priority list. We're building the tool I wish I
+							had- one where you focus on winning the interview, not on data entry. Your search is 100%
 							confidential.
 						</p>
 
 						<div className="flex justify-center mb-10">
 							{/* Embedded Formbricks Survey */}
-							<div className="w-full max-w-md dark:opacity-70" style={{ position: "relative", overflow: "auto" }}>
+							<div
+								className="w-full max-w-md dark:opacity-70"
+								style={{ position: "relative", overflow: "auto" }}
+							>
 								<iframe
 									className="rounded-md dark:border dark:border-gray-700 w-full"
 									src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
