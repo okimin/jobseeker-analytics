@@ -453,25 +453,27 @@ const Index = () => {
 				</div>
 			</div>
 
-			<section className="max-w-4xl mx-auto py-16" id="waitlist">
-				<div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
-					<h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
-						Get the System Behind a 3x Interview Rate.
-					</h2>
-					<p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-						Join 300+ ambitious professionals on our priority list. We're building the tool I wish I had-
-						one where you focus on winning the interview, not on data entry. Your search is 100%
-						confidential.
-					</p>
+			<section className="w-full px-4 py-16" id="waitlist">
+				<div className="max-w-4xl mx-auto">
+					<div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
+						<h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
+							Get the System Behind a 3x Interview Rate.
+						</h2>
+						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+							Join 300+ ambitious professionals on our priority list. We're building the tool I wish I had-
+							one where you focus on winning the interview, not on data entry. Your search is 100%
+							confidential.
+						</p>
 
-					<div className="flex justify-center mb-10">
-						{/* Embedded Formbricks Survey */}
-						<div className="dark:opacity-70" style={{ position: "relative", overflow: "auto" }}>
-							<iframe
-								className="rounded-md dark:border dark:border-gray-700"
-								src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
-								style={{ width: "400px", height: "340px", border: 0 }}
-							/>
+						<div className="flex justify-center mb-10">
+							{/* Embedded Formbricks Survey */}
+							<div className="w-full max-w-md dark:opacity-70" style={{ position: "relative", overflow: "auto" }}>
+								<iframe
+									className="rounded-md dark:border dark:border-gray-700 w-full"
+									src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
+									style={{ height: "340px", border: 0, minWidth: "300px" }}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
