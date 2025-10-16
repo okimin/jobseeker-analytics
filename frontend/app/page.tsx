@@ -14,7 +14,8 @@ const Index = () => {
 		<div className="flex flex-col min-h-screen overflow-x-hidden">
 			<main className="flex-grow bg-gradient-to-b from-background to-background/95">
 				<Navbar />
-				<div className="container mx-auto px-4 py-6 max-w-full">{/* Content continues */}
+				<div className="container mx-auto px-4 py-6 max-w-full">
+					{/* Content continues */}
 					<div className="text-center">
 						<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-6 from-amber-600 to-emerald-600">
 							Stop Drowning in Job Applications. Start Seeing What Works.
