@@ -92,3 +92,33 @@ class AuthenticatedUser:
             proxy_user_id = str(uuid.uuid4())
             logger.error("Could not verify ID token. Using proxy ID: %s", proxy_user_id)
             return proxy_user_id, None  # Generate a random ID and return None for email
+
+
+def get_google_authorization_url(flow, has_valid_refresh_token: bool) -> tuple[str, str]:
+    """
+    Helper function to generate the Google OAuth2 authorization URL with appropriate prompt.
+    Use 'select_account' for returning users (with refresh tokens), or 'consent' for new users.
+    
+    Args:
+        flow: Google OAuth2 flow object
+        has_valid_refresh_token (bool): Whether the user has a valid refresh token
+        
+    Returns:
+        tuple[str, str]: (authorization_url, state) from the OAuth flow
+    """
+    if has_valid_refresh_token:
+        # Returning user - use select_account (no consent screen)
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            prompt='select_account'
+        )
+        logger.info("Using select_account for returning user")
+    else:
+        # New user or user without refresh token - use consent
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            prompt='consent'
+        )
+        logger.info("Using consent for new user or user without refresh token")
+    
+    return authorization_url, state

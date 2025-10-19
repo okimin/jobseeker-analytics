@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
-from utils.auth_utils import AuthenticatedUser
+from utils.auth_utils import AuthenticatedUser, get_google_authorization_url
 from session.session_layer import create_random_session_string, validate_session
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
@@ -52,7 +52,22 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
 
     try:
         if not code:
-            authorization_url, state = flow.authorization_url(prompt="consent")
+            # Check if user has existing valid credentials
+            existing_creds_json = request.session.get("creds")
+            has_valid_refresh_token = False
+            
+            if existing_creds_json:
+                try:
+                    creds_dict = json.loads(existing_creds_json)
+                    if creds_dict.get('refresh_token'):
+                        has_valid_refresh_token = True
+                        logger.info("User has existing refresh token")
+                except Exception as e:
+                    logger.info("Could not parse existing credentials: %s", e)
+            
+            # Use different prompts based on whether user has refresh token
+            authorization_url, state = get_google_authorization_url(flow, has_valid_refresh_token)
+            
             return RedirectResponse(url=authorization_url)
         logger.info("Authorization code received, exchanging for token...")
         try:
