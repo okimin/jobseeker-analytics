@@ -155,27 +155,20 @@ const Index = () => {
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-
-			<div className="py-24">
-				<div className="mx-auto max-w-7xl px-6 lg:px-8">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-						<div>
-							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-								When Your Manual Spreadsheet Fails, You Miss Opportunities.
-							</h2>
-							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								At a certain point in a high-volume job search, manual tracking doesn't just become
-								tedious - it breaks. You forget to update a status, a crucial follow-up slips through
-								the cracks, or worse, you miss an interview entirely because it was lost in the chaos.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to
-								be a command center for dozens of active conversations, deadlines, and follow-ups.
-								Relying on them is a strategic disadvantage that can cost you your dream role.
-							</p>
-						</div>
+					<div>
+						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+							When Your Manual Spreadsheet Fails, You Miss Opportunities.
+						</h2>
+						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+							At a certain point in a high-volume job search, manual tracking doesn't just become
+							tedious - it breaks. You forget to update a status, a crucial follow-up slips through
+							the cracks, or worse, you miss an interview entirely because it was lost in the chaos.
+						</p>
+						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+							This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to
+							be a command center for dozens of active conversations, deadlines, and follow-ups.
+							Relying on them is a strategic disadvantage that can cost you your dream role.
+						</p>
 					</div>
 				</div>
 			</div>
