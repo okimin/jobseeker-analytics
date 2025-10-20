@@ -102,8 +102,7 @@ const Footer = () => {
 					<div>
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Just A Job App</h3>
 						<p className="text-default-500 mb-4">
-							Designed for ambitious professionals. <br />
-							Built to fix a broken system.
+								Stop Dreading Your Job Search.
 						</p>
 					</div>
 
@@ -112,8 +111,9 @@ const Footer = () => {
 							Get the System Behind a 3x Interview Rate.
 						</h3>
 						<p className="text-default-500 mb-4">
-							Join 300+ ambitious professionals on our priority list. We're building this so you can focus
-							on winning the interview, not data entry.
+							Join 300+ ambitious professionals who want to take back their time and focus on what actually matters: landing the offer.
+
+
 						</p>
 						<a
 							className="flex items-center justify-center md:justify-start gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
