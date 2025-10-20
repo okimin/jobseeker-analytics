@@ -16,43 +16,46 @@ const Index = () => {
 				<Navbar />
 				<div className="w-full bg-gradient-to-b from-amber-50/60 to-transparent dark:from-gray-800/30 border-b border-amber-100/40 dark:border-emerald-900/30">
 					<div className="container mx-auto px-4 py-16 sm:py-24 max-w-5xl">
-					{/* Content continues */}
-					<div className="text-center">
-						<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-6 from-amber-600 to-emerald-600">
-							Get the System Behind a 3x Interview Rate.
-						</h1>
-						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							JustAJobApp.com connects to your inbox to <em>automatically</em> build your job search dashboard. No more spreadsheets. No more manual data entry.
-						</p>
-						<div className="mt-10 flex items-center justify-center gap-x-6">
-							<Button
-								as="a"
-								className="bg-amber-600 text-white hover:bg-amber-700"
-								href="#waitlist"
-								size="lg"
-								variant="solid"
-								onPress={() => {
-									// Add fireworks animation to waitlist section
-									const waitlistSection = document.getElementById("waitlist");
-									if (waitlistSection) {
-										// Import the function dynamically to avoid circular dependencies
-										import("@/components/Footer").then((module) => {
-											const { createFireworkEffect } = module;
-											waitlistSection.classList.add("golden-sparkle-border");
-											createFireworkEffect(waitlistSection);
-											setTimeout(() => {
-												waitlistSection.classList.remove("golden-sparkle-border");
-											}, 2000);
-										});
-									}
-								}}
-							>
-								Get Early Access
-							</Button>
+						{/* Content continues */}
+						<div className="text-center">
+							<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-6 from-amber-600 to-emerald-600">
+								Get the System Behind a 3x Interview Rate.
+							</h1>
+							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								JustAJobApp.com connects to your inbox to <em>automatically</em> build your job search
+								dashboard. No more spreadsheets. No more manual data entry.
+							</p>
+							<div className="mt-10 flex items-center justify-center gap-x-6">
+								<Button
+									as="a"
+									className="bg-amber-600 text-white hover:bg-amber-700"
+									href="#waitlist"
+									size="lg"
+									variant="solid"
+									onPress={() => {
+										// Add fireworks animation to waitlist section
+										const waitlistSection = document.getElementById("waitlist");
+										if (waitlistSection) {
+											// Import the function dynamically to avoid circular dependencies
+											import("@/components/Footer").then((module) => {
+												const { createFireworkEffect } = module;
+												waitlistSection.classList.add("golden-sparkle-border");
+												createFireworkEffect(waitlistSection);
+												setTimeout(() => {
+													waitlistSection.classList.remove("golden-sparkle-border");
+												}, 2000);
+											});
+										}
+									}}
+								>
+									Get Early Access
+								</Button>
+							</div>
+							<p className="mt-4 text-sm text-gray-500">
+								Join 300+ professionals who have already signed up.
+							</p>
 						</div>
-						<p className="mt-4 text-sm text-gray-500">Join 300+ professionals who have already signed up.</p>
 					</div>
-				</div>
 				</div>
 			</main>
 
@@ -61,29 +64,33 @@ const Index = () => {
 			{/* Problem/Agitation Section */}
 			<div className="bg-gray-50 dark:bg-gray-900/40 py-24">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
-						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-							The "Second Job" of Job Searching is Burning You Out.
-						</h2>
-						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							The market is brutal. Applications per hire have <em>tripled</em> since 2021, and 90% of candidates are rejected or ghosted.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							No wonder 64% of job seekers report symptoms of burnout—feeling exhausted, stuck, and overwhelmed.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							You're already managing a full-time job. The last thing you have time for is:
-						</p>
-						<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							<li>Manually copying and pasting job descriptions into a spreadsheet.</li>
-							<li>Sifting through your inbox to find out <em>who</em> you heard back from.</li>
-							<li>Worrying you're missing critical recruiter emails in your spam folder.</li>
-							<li>Losing track of applications, deadlines, and follow-ups.</li>
-						</ul>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Your problem isn't your qualifications; it's the inefficient, time-consuming <em>process</em>.
-						</p>
-					</div>
-				</div>	
+					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+						The "Second Job" of Job Searching is Burning You Out.
+					</h2>
+					<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						The market is brutal. Applications per hire have <em>tripled</em> since 2021, and 90% of
+						candidates are rejected or ghosted.
+					</p>
+					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						No wonder 64% of job seekers report symptoms of burnout—feeling exhausted, stuck, and
+						overwhelmed.
+					</p>
+					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						You're already managing a full-time job. The last thing you have time for is:
+					</p>
+					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						<li>Manually copying and pasting job descriptions into a spreadsheet.</li>
+						<li>
+							Sifting through your inbox to find out <em>who</em> you heard back from.
+						</li>
+						<li>Worrying you're missing critical recruiter emails in your spam folder.</li>
+						<li>Losing track of applications, deadlines, and follow-ups.</li>
+					</ul>
+					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						Your problem isn't your qualifications; it's the inefficient, time-consuming <em>process</em>.
+					</p>
+				</div>
+			</div>
 
 			{/* Solution / Value Prop Section */}
 			<div className="bg-white dark:bg-gray-900 py-24">
@@ -97,10 +104,14 @@ const Index = () => {
 								JustAJobApp.com connects securely to your email inbox.
 							</p>
 							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								The moment you apply, it automatically parses your application confirmations, rejections, and interview invitations. It builds a living, breathing dashboard of your entire job search.
+								The moment you apply, it automatically parses your application confirmations,
+								rejections, and interview invitations. It builds a living, breathing dashboard of your
+								entire job search.
 							</p>
 							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								You see the company, job title, application status, and contact date—all without lifting a finger. Finally, you can focus on your current role while your job search runs efficiently (and discreetly) in the background.
+								You see the company, job title, application status, and contact date—all without lifting
+								a finger. Finally, you can focus on your current role while your job search runs
+								efficiently (and discreetly) in the background.
 							</p>
 						</div>
 						<div>
@@ -148,14 +159,19 @@ const Index = () => {
 						Stop "Clipping." Start Automating.
 					</h2>
 					<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Unlike other job trackers (Huntr, Teal, Simplify) that force you to <em>manually "clip"</em> every job with a browser extension, JustAJobApp.com is automated.
+						Unlike other job trackers (Huntr, Teal, Simplify) that force you to <em>manually "clip"</em>{" "}
+						every job with a browser extension, JustAJobApp.com is automated.
 					</p>
 					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date.
-						It’s an <strong>email-powered</strong> tracker designed for busy professionals who value efficiency and discretion.
+						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an{" "}
+						<strong>email-powered</strong> tracker designed for busy professionals who value efficiency and
+						discretion.
 					</p>
 					<p className="mt-6 text-base text-gray-700 dark:text-gray-400">
-						<strong>Our open-source project ("jobseeker-analytics") has a 48% star-to-download conversion rate</strong> — <em>3 times higher than the median</em> for other job search tools.
+						<strong>
+							Our open-source project ("jobseeker-analytics") has a 48% star-to-download conversion rate
+						</strong>{" "}
+						— <em>3 times higher than the median</em> for other job search tools.
 					</p>
 				</div>
 			</div>
@@ -178,7 +194,15 @@ const Index = () => {
 								</div>
 								<div className="flex-1">
 									<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
-										"I receive so many emails a day that I mistook one for a rejection. Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. <strong>I would have completely missed this opportunity if it wasn't for JustAJobApp.</strong>"
+										"I receive so many emails a day that I mistook one for a rejection. Later, I saw
+										a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It
+										prompted me to go back and find the email—it wasn't a rejection, but an
+										invitation to apply for a reopened position.{" "}
+										<strong>
+											I would have completely missed this opportunity if it wasn't for
+											JustAJobApp.
+										</strong>
+										"
 									</blockquote>
 									<div className="mt-4 text-sm font-semibold text-gray-900 dark:text-white">
 										Computer Science & Engineering New Grad (May 2025)
@@ -195,7 +219,8 @@ const Index = () => {
 								</div>
 								<div className="flex-1">
 									<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
-										"I get to see the entire picture on a single dashboard... and <strong>not have to continually update a spreadsheet.</strong>"
+										"I get to see the entire picture on a single dashboard... and{" "}
+										<strong>not have to continually update a spreadsheet.</strong>"
 									</blockquote>
 									<div className="mt-4 text-sm font-semibold text-gray-900 dark:text-white">
 										Donal Murphy, MBA, Global Events Producer
@@ -248,27 +273,36 @@ const Index = () => {
 							</div>
 						</div>
 						<div className="py-24 md:col-span-2">
-						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-							Built From Frustration. Proven by Results.
-						</h2>
-						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							In 2024, after my role supporting clients like Netflix and Riot Games was eliminated by email, I was thrown into the job market chaos. I submitted 118 tailored applications and my inbox flooded with 70 rejections.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Out of frustration, I built a system. <strong>It worked.</strong>
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							I turned those <strong>118 cold applications</strong> into <strong>21 recruiter calls</strong>, achieving a <strong>17% interview rate</strong>—triple the industry average. My LinkedIn profile attracted 10 recruiters, propelling me to <strong>4 final rounds</strong> and <strong>2 offers</strong>.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							But even with this success, I was so overwhelmed I forgot to update my spreadsheet and even <em>missed an interview</em>. The manual tracking was unsustainable.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							I turned my system into an email-powered tool and shared it on GitHub. Over 25 developers and 100+ beta testers helped build what JustAJobApp.com is today. We've tracked over 3,000 applications and 268 interview invites. I built this so you can get the results without the burnout.
-						</p>
-						<p className="mt-4 font-semibold text-gray-900 dark:text-white">
-							– Lianna Novitz, Founder of Just A Job App
-						</p>
+							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
+								Built From Frustration. Proven by Results.
+							</h2>
+							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								In 2024, after my role supporting clients like Netflix and Riot Games was eliminated by
+								email, I was thrown into the job market chaos. I submitted 118 tailored applications and
+								my inbox flooded with 70 rejections.
+							</p>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								Out of frustration, I built a system. <strong>It worked.</strong>
+							</p>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								I turned those <strong>118 cold applications</strong> into{" "}
+								<strong>21 recruiter calls</strong>, achieving a <strong>17% interview rate</strong>
+								—triple the industry average. My LinkedIn profile attracted 10 recruiters, propelling me
+								to <strong>4 final rounds</strong> and <strong>2 offers</strong>.
+							</p>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								But even with this success, I was so overwhelmed I forgot to update my spreadsheet and
+								even <em>missed an interview</em>. The manual tracking was unsustainable.
+							</p>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								I turned my system into an email-powered tool and shared it on GitHub. Over 25
+								developers and 100+ beta testers helped build what JustAJobApp.com is today. We've
+								tracked over 3,000 applications and 268 interview invites. I built this so you can get
+								the results without the burnout.
+							</p>
+							<p className="mt-4 font-semibold text-gray-900 dark:text-white">
+								– Lianna Novitz, Founder of Just A Job App
+							</p>
 						</div>
 					</div>
 				</div>
@@ -282,16 +316,21 @@ const Index = () => {
 							The Future: From Automated Tracking to Effortless Prep
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Tracking your applications is just the beginning. The next, most stressful step is preparing for the interview.
+							Tracking your applications is just the beginning. The next, most stressful step is preparing
+							for the interview.
 						</p>
 						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
 							At my peak, I was managing 9 interviews in a single week. It was madness.
 						</p>
 						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							<strong>Coming Soon:</strong> Once JustAJobApp.com detects an interview in your inbox, it will automatically spring into action. We're building a system to help you prepare by identifying interviewers from the calendar invite, drafting company-specific questions, and mapping key talking points from your resume to the job description.
+							<strong>Coming Soon:</strong> Once JustAJobApp.com detects an interview in your inbox, it
+							will automatically spring into action. We're building a system to help you prepare by
+							identifying interviewers from the calendar invite, drafting company-specific questions, and
+							mapping key talking points from your resume to the job description.
 						</p>
 						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Sign up today to lock in your access to the automated tracker and be the first to know when interview prep is launched.
+							Sign up today to lock in your access to the automated tracker and be the first to know when
+							interview prep is launched.
 						</p>
 					</div>
 				</div>
@@ -302,31 +341,32 @@ const Index = () => {
 			{/* Final Call to Action Section */}
 
 			<section className="w-full px-4 py-16" id="waitlist">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
-						Stop Dreading Your Job Search.
-                        </h2>
-                        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-						Take back your time. End the spreadsheet madness. Automate your job search and focus on what <em>actually</em> matters: landing the offer.
-                        </p>
+				<div className="max-w-4xl mx-auto">
+					<div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
+						<h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
+							Stop Dreading Your Job Search.
+						</h2>
+						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+							Take back your time. End the spreadsheet madness. Automate your job search and focus on what{" "}
+							<em>actually</em> matters: landing the offer.
+						</p>
 
-                        <div className="flex justify-center mb-10">
-                            {/* Embedded Formbricks Survey */}
-                            <div
-                                className="w-full max-w-md dark:opacity-70"
-                                style={{ position: "relative", overflow: "auto" }}
-                            >
-                                <iframe
-                                    className="rounded-md dark:border dark:border-gray-700 w-full"
-                                    src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
-                                    style={{ height: "340px", border: 0, minWidth: "300px" }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+						<div className="flex justify-center mb-10">
+							{/* Embedded Formbricks Survey */}
+							<div
+								className="w-full max-w-md dark:opacity-70"
+								style={{ position: "relative", overflow: "auto" }}
+							>
+								<iframe
+									className="rounded-md dark:border dark:border-gray-700 w-full"
+									src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
+									style={{ height: "340px", border: 0, minWidth: "300px" }}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
 
 			<Footer />
 
@@ -376,4 +416,3 @@ const Index = () => {
 };
 
 export default Index;
-

@@ -27,7 +27,7 @@ export const Navbar = () => {
 											Just A Job App
 										</span>
 										<span className="text-xs text-default-500 -mt-1">
-										Stop Dreading Your Job Search.
+											Stop Dreading Your Job Search.
 										</span>
 									</div>
 								</div>

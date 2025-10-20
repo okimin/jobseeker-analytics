@@ -101,9 +101,7 @@ const Footer = () => {
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 					<div>
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Just A Job App</h3>
-						<p className="text-default-500 mb-4">
-								Stop Dreading Your Job Search.
-						</p>
+						<p className="text-default-500 mb-4">Stop Dreading Your Job Search.</p>
 					</div>
 
 					<div>
@@ -111,9 +109,8 @@ const Footer = () => {
 							Get the System Behind a 3x Interview Rate.
 						</h3>
 						<p className="text-default-500 mb-4">
-							Join 300+ ambitious professionals who want to take back their time and focus on what actually matters: landing the offer.
-
-
+							Join 300+ ambitious professionals who want to take back their time and focus on what
+							actually matters: landing the offer.
 						</p>
 						<a
 							className="flex items-center justify-center md:justify-start gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
