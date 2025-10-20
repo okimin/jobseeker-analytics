@@ -126,7 +126,7 @@ const Index = () => {
 			</div>
 
 			{/* Problem/Agitation Section */}
-			<div className="container mx-auto px-4 py-24 sm:py-32">
+			<div className="container mx-auto px-4 py-24">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 					<div>
 						{/* Testimonial */}
@@ -139,43 +139,51 @@ const Index = () => {
 								</div>
 								<div className="flex-1">
 									<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
-										"I get so many emails, I mistook a message for a rejection. JustAJobApp caught a
-										status update that my Gmail filters missed, prompting me to look again. It
-										wasn't a rejection - it was an invitation to apply for a reopened position. I
-										would have completely missed this opportunity without it."
+										"I receive so many emails a day that I mistook one for a rejection. 
+										Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. 
+										It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. 
+										I would have completely missed this opportunity if it wasn't for JustAJobApp."
 									</blockquote>
 									<div className="mt-4">
 										<div className="text-sm font-semibold text-gray-900 dark:text-white">
-											Beta User
+											Computer Science & Engineering New Grad (May 2025), F1-OPT
 										</div>
 										<div className="text-sm text-gray-600 dark:text-gray-400">
-											Computer Science and Engineering New Grad
+											Beta Tester
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div>
-						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-							When Your Manual Spreadsheet Fails, You Miss Opportunities.
-						</h2>
-						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							At a certain point in a high-volume job search, manual tracking doesn't just become tedious
-							- it breaks. You forget to update a status, a crucial follow-up slips through the cracks, or
-							worse, you miss an interview entirely because it was lost in the chaos.
-						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to be a
-							command center for dozens of active conversations, deadlines, and follow-ups. Relying on
-							them is a strategic disadvantage that can cost you your dream role.
-						</p>
+				</div>
+			</div>
+
+			<div className="py-24">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+								
+						<div>
+							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+								When Your Manual Spreadsheet Fails, You Miss Opportunities.
+							</h2>
+							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								At a certain point in a high-volume job search, manual tracking doesn't just become tedious
+								- it breaks. You forget to update a status, a crucial follow-up slips through the cracks, or
+								worse, you miss an interview entirely because it was lost in the chaos.
+							</p>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to be a
+								command center for dozens of active conversations, deadlines, and follow-ups. Relying on
+								them is a strategic disadvantage that can cost you your dream role.
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			{/* Solution Section */}
-			<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">
+			<div className="bg-white dark:bg-gray-900 py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 						<div>
@@ -232,7 +240,8 @@ const Index = () => {
 			</div>
 
 			{/* Features & Benefits Section */}
-			<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">
+			<div className="py-24">
+			{/*<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">*/}
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="mx-auto max-w-2xl lg:text-center">
 						<h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
@@ -288,8 +297,36 @@ const Index = () => {
 				</div>
 			</div>
 
+			{/* Second Testimonial Section */}
+			<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">
+				<div className="mx-auto max-w-4xl px-6 lg:px-8">
+					<div className="bg-gradient-to-r from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/30 rounded-xl p-8 border border-emerald-200 dark:border-emerald-800/50">
+						<div className="flex items-start gap-4">
+							<div className="flex-shrink-0">
+								<svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z" />
+								</svg>
+							</div>
+							<div className="flex-1">
+								<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
+									"I get to see the entire picture on a single dashboard... and not have to continually update a spreadsheet."
+								</blockquote>
+								<div className="mt-4">
+									<div className="text-sm font-semibold text-gray-900 dark:text-white">
+										Donal Murphy, MBA, Global Events Producer
+									</div>
+									<div className="text-sm text-gray-600 dark:text-gray-400">
+										Beta Tester
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			{/* Founder's Story Section */}
-			<div className="bg-white dark:bg-gray-800 py-24 sm:py-32">
+			<div className="py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
 						<div className="md:col-span-1">
@@ -328,7 +365,7 @@ const Index = () => {
 								</div>
 							</div>
 						</div>
-						<div className="md:col-span-2">
+						<div className="py-24 md:col-span-2">
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
 								My System Worked. My Spreadsheet Didn't.
 							</h2>
@@ -356,7 +393,7 @@ const Index = () => {
 			</div>
 
 			{/* Vision Section */}
-			<div className="bg-gray-50 dark:bg-gray-900/60 py-24 sm:py-32">
+			<div className="bg-gray-50 dark:bg-gray-900/60 py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="mx-auto max-w-2xl lg:text-center">
 						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
@@ -374,7 +411,7 @@ const Index = () => {
 			</div>
 
 			{/* FAQ Section - Addressing Objections */}
-			<div className="bg-gray-50 dark:bg-gray-800 py-24 sm:py-32">
+			<div className="py-24">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8">
 					<div className="text-center mb-16">
 						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
@@ -414,7 +451,7 @@ const Index = () => {
 			</div>
 
 			{/* Final CTA Section */}
-			<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">
+			<div className="bg-white dark:bg-gray-900 py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="mx-auto max-w-2xl lg:text-center">
 						<h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
