@@ -139,18 +139,17 @@ const Index = () => {
 								</div>
 								<div className="flex-1">
 									<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
-										"I receive so many emails a day that I mistook one for a rejection. 
-										Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. 
-										It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. 
-										I would have completely missed this opportunity if it wasn't for JustAJobApp."
+										"I receive so many emails a day that I mistook one for a rejection. Later, I saw
+										a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It
+										prompted me to go back and find the email—it wasn't a rejection, but an
+										invitation to apply for a reopened position. I would have completely missed this
+										opportunity if it wasn't for JustAJobApp."
 									</blockquote>
 									<div className="mt-4">
 										<div className="text-sm font-semibold text-gray-900 dark:text-white">
 											Computer Science & Engineering New Grad (May 2025), F1-OPT
 										</div>
-										<div className="text-sm text-gray-600 dark:text-gray-400">
-											Beta Tester
-										</div>
+										<div className="text-sm text-gray-600 dark:text-gray-400">Beta Tester</div>
 									</div>
 								</div>
 							</div>
@@ -162,20 +161,19 @@ const Index = () => {
 			<div className="py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-								
 						<div>
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
 								When Your Manual Spreadsheet Fails, You Miss Opportunities.
 							</h2>
 							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								At a certain point in a high-volume job search, manual tracking doesn't just become tedious
-								- it breaks. You forget to update a status, a crucial follow-up slips through the cracks, or
-								worse, you miss an interview entirely because it was lost in the chaos.
+								At a certain point in a high-volume job search, manual tracking doesn't just become
+								tedious - it breaks. You forget to update a status, a crucial follow-up slips through
+								the cracks, or worse, you miss an interview entirely because it was lost in the chaos.
 							</p>
 							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to be a
-								command center for dozens of active conversations, deadlines, and follow-ups. Relying on
-								them is a strategic disadvantage that can cost you your dream role.
+								This isn't a personal failing; it's a system failure. Spreadsheets weren't designed to
+								be a command center for dozens of active conversations, deadlines, and follow-ups.
+								Relying on them is a strategic disadvantage that can cost you your dream role.
 							</p>
 						</div>
 					</div>
@@ -241,7 +239,7 @@ const Index = () => {
 
 			{/* Features & Benefits Section */}
 			<div className="py-24">
-			{/*<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">*/}
+				{/*<div className="bg-white dark:bg-gray-900 py-24 sm:py-32">*/}
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="mx-auto max-w-2xl lg:text-center">
 						<h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
@@ -309,15 +307,14 @@ const Index = () => {
 							</div>
 							<div className="flex-1">
 								<blockquote className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
-									"I get to see the entire picture on a single dashboard... and not have to continually update a spreadsheet."
+									"I get to see the entire picture on a single dashboard... and not have to
+									continually update a spreadsheet."
 								</blockquote>
 								<div className="mt-4">
 									<div className="text-sm font-semibold text-gray-900 dark:text-white">
 										Donal Murphy, MBA, Global Events Producer
 									</div>
-									<div className="text-sm text-gray-600 dark:text-gray-400">
-										Beta Tester
-									</div>
+									<div className="text-sm text-gray-600 dark:text-gray-400">Beta Tester</div>
 								</div>
 							</div>
 						</div>
