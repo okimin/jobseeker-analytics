@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/Footer";
@@ -26,34 +25,17 @@ const Index = () => {
 								dashboard. No more spreadsheets. No more manual data entry.
 							</p>
 							<div className="mt-10 flex items-center justify-center gap-x-6">
-								<Button
-									as="a"
-									className="bg-amber-600 text-white hover:bg-amber-700"
-									href="#waitlist"
-									size="lg"
-									variant="solid"
-									onPress={() => {
-										// Add fireworks animation to waitlist section
-										const waitlistSection = document.getElementById("waitlist");
-										if (waitlistSection) {
-											// Import the function dynamically to avoid circular dependencies
-											import("@/components/Footer").then((module) => {
-												const { createFireworkEffect } = module;
-												waitlistSection.classList.add("golden-sparkle-border");
-												createFireworkEffect(waitlistSection);
-												setTimeout(() => {
-													waitlistSection.classList.remove("golden-sparkle-border");
-												}, 2000);
-											});
-										}
-									}}
+								<a
+									className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+									href="https://www.buymeacoffee.com/justajobapp"
+									rel="noopener noreferrer"
+									target="_blank"
 								>
-									Get Early Access
-								</Button>
+									<span className="mr-2">☕</span>
+									Buy us a coffee
+								</a>
 							</div>
-							<p className="mt-4 text-sm text-gray-500">
-								Join 300+ professionals who have already signed up.
-							</p>
+							<p className="mt-4 text-sm text-gray-500">Support our project to help us launch faster.</p>
 						</div>
 					</div>
 				</div>
@@ -329,8 +311,8 @@ const Index = () => {
 							mapping key talking points from your resume to the job description.
 						</p>
 						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Sign up today to lock in your access to the automated tracker and be the first to know when
-							interview prep is launched.
+							Support our project today to help us launch the automated tracker and be the first to know
+							when interview prep is launched.
 						</p>
 					</div>
 				</div>
@@ -351,17 +333,29 @@ const Index = () => {
 							<em>actually</em> matters: landing the offer.
 						</p>
 
-						<div className="flex justify-center mb-10">
-							{/* Embedded Formbricks Survey */}
-							<div
-								className="w-full max-w-md dark:opacity-70"
-								style={{ position: "relative", overflow: "auto" }}
-							>
-								<iframe
-									className="rounded-md dark:border dark:border-gray-700 w-full"
-									src="https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?embed=true&source=JustAJobAppLandingPageEmbed"
-									style={{ height: "340px", border: 0, minWidth: "300px" }}
-								/>
+						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
+							<h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+								Help Us Launch Faster 🚀
+							</h3>
+							<p className="text-gray-600 dark:text-gray-300 mb-6">
+								JustAJobApp.com is currently blocked by Google's 100-user hard cap. To lift this cap and
+								make the app available to everyone, we must pass a one-time,{" "}
+								<strong>$3,000 mandatory security audit</strong>.
+							</p>
+							<p className="text-gray-600 dark:text-gray-300 mb-6">
+								Your support will directly fund this audit. It is the only thing standing between
+								JustAJobApp.com and helping thousands of job seekers.
+							</p>
+							<div className="flex justify-center">
+								<a
+									className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200 shadow-lg hover:shadow-xl"
+									href="https://www.buymeacoffee.com/justajobapp"
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									<span className="mr-3 text-xl">☕</span>
+									Buy us a coffee
+								</a>
 							</div>
 						</div>
 					</div>

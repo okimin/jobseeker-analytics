@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
-import { ExternalLinkIcon, GoogleIcon } from "@/components/icons";
+import { GoogleIcon } from "@/components/icons";
 
 // Function to create a firework particle effect
 // Exported so it can be used from other components
@@ -113,26 +113,13 @@ const Footer = () => {
 							actually matters: landing the offer.
 						</p>
 						<a
-							className="flex items-center justify-center md:justify-start gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
-							href="#waitlist"
-							onClick={() => {
-								// Add fireworks animation to waitlist section
-								const waitlistSection = document.getElementById("waitlist");
-								if (waitlistSection) {
-									waitlistSection.classList.add("golden-sparkle-border");
-
-									// Create actual firework particles on top for extra effect
-									createFireworkEffect(waitlistSection);
-
-									// Remove the animation class after a shorter time
-									setTimeout(() => {
-										waitlistSection.classList.remove("golden-sparkle-border");
-									}, 2000);
-								}
-							}}
+							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+							href="https://www.buymeacoffee.com/justajobapp"
+							rel="noopener noreferrer"
+							target="_blank"
 						>
-							<ExternalLinkIcon size={16} />
-							Request My Invite
+							<span className="mr-2">☕</span>
+							Buy us a coffee
 						</a>
 					</div>
 					<div>
