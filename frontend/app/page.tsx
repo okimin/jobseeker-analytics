@@ -187,7 +187,7 @@ const Index = () => {
 										"
 									</blockquote>
 									<div className="mt-4 text-sm font-semibold text-gray-900 dark:text-white">
-										Computer Science & Engineering New Grad (May 2025)
+										Computer Science & Engineering New Grad (May 2025), F1-OPT
 									</div>
 								</div>
 							</div>
