@@ -15,7 +15,7 @@ Choose your DIY Install path:
 - Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install) 
 - More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
 
-No GitHub account? [Join the waitlist](https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?source=GHREAD1).
+No GitHub account? [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
 
 ## Problem: The Job Search is Burning You Out
 
