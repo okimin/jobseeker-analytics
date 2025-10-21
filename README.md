@@ -1,9 +1,6 @@
-# Just A Job App
+# Stop dreading your job search.
 
-
-## 9 out of 10 applications are met with rejection or silence.
-## We're building the platform to make yours the one they can't ignore.
-
+## JustAJobApp.com connects to your inbox to automatically build your job search dashboard. No more spreadsheets. No more manual data entry.
 
 <img width="50%" height="50%" alt="Logo" src="frontend/public/homepage/Problem2.png" />
 
@@ -20,43 +17,58 @@ Choose your DIY Install path:
 
 No GitHub account? [Join the waitlist](https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?source=GHREAD1).
 
-## Problem: The Job Search is Officially Broken
+## Problem: The Job Search is Burning You Out
 
-Does this sound familiar? You spend hours tailoring your resume and writing the perfect cover letter, only to send it into a black hole. Days turn into weeks. The only reply is a generic rejection email, or worse, complete silence.
+The market is brutal. Applications per hire have tripled since 2021, and 90% of candidates are rejected or ghosted.
 
-You're not imagining it. The game has changed:
-- **It's 3x more competitive:** The number of applications per hire has tripled since early 2021.
-- **It's overwhelming:** Our research shows 77% of job seekers use over three different tools to manage a process 64% already find frustrating.
-- **It's leading to burnout:** 64% of applicants report feeling exhausted and stuck.
+No wonder 64% of job seekers report symptoms of burnout—feeling exhausted, stuck, and overwhelmed.
+
+If you're already managing a full-time job, the last thing you have time for is:
+- Manually copying and pasting job descriptions into a spreadsheet.
+- Sifting through your inbox to find out who you heard back from.
+- Worrying you're missing critical recruiter emails in your spam folder.
+- Losing track of applications, deadlines, and follow-ups.
+
+Your problem isn't your qualifications; it's the inefficient, time-consuming process.
 
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
 
-## Our Solution: A Smarter Way to Job Search
+## Our Solution: Stop "Clipping." Start Automating.
 
-Imagine a single platform that not only organizes your entire job search but also helps you perfect your resume with real, anonymous feedback *before* you apply.
+Unlike other job trackers (Huntr, Teal, Simplify) that force you to manually "clip" every job with a browser extension, JustAJobApp.com is automated.
+
+Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an email-powered tracker designed for busy professionals who value efficiency and discretion.
 
 <img width="30%" height="30%" alt="Logo" src="frontend/public/homepage/Solution.png" />
 
-We are creating a seamless experience that integrates our email-powered application tracker with **Shining Nuggets**, a mobile game designed to discover and validate your most impressive accomplishments:
+## Why 100+ Beta Testers Ditched Their Spreadsheets
 
-1. ✅ **You'll Get Organized Instantly**  
-   See your entire job search pipeline in one clean dashboard, with email-powered features that automate the tedious parts.
+Computer Science & Engineering New Grad (May 2025):
+> "I receive so many emails a day that I mistook one for a rejection. Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. I would have completely missed this opportunity if it wasn't for JustAJobApp."
 
-2. 🔬 **You'll Play 'Shining Nuggets'**  
-   Mine your professional achievements and get them anonymously peer-reviewed in fun, 6-second challenges.
+Donal Murphy, MBA, Global Events Producer:
+> "I get to see the entire picture on a single dashboard... and not have to continually update a spreadsheet."
 
-3. 🔬 **You'll Apply with Data-Backed Confidence**  
-   Use your top-rated, validated achievements to build resumes that get noticed, closing the frustrating gap between application and interview.
+## Coming Soon
 
-Key:
-✅ = Feature Deployed
-🔬 = User Research Phase
+Tracking your applications is just the beginning. 
+
+The next, most stressful step is preparing for the interview.
+
+Once the system detects an interview in your inbox, it will automatically spring into action. 
+
+We're building a system to help you prepare by identifying interviewers from the calendar invite, drafting company-specific questions, and mapping key talking points from your resume to the job description.
+
 
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
 
-## Launch & Beta
+## The Current Roadblock
 
-Interested in trying out the new features? Join the waitlist [here](https://app.formbricks.com/s/cmf667qha4ahcyg01nu13lsgo?source=GHREAD2).
+We are currently blocked by Google's 100-user hard cap. To lift this cap and make the app available to everyone, I must pass a one-time, $3,000 mandatory security audit.
+
+Today I had to turn away another job seeker who needed this tool but was (rightfully) concerned about its unverified status.
+
+Your [support](https://buymeacoffee.com/justajobapp) will directly fund this audit. It is the only thing standing between us and helping thousands of job seekers.
 
 ## News 
 
@@ -72,12 +84,10 @@ In July 2025, we secured a feature on GitHub's official YouTube channel, which h
 
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
 
-- Contribute: see [CONTRIBUTING.md](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#welcome-to-do-it-yourself-diy-install)  
-- Community: https://discord.gg/gsdpMchCam  
-- Support: help@justajobapp.com
+- Help us fund our security audit! https://buymeacoffee.com/justajobapp
 
 
-## Join the Miner's Union
+## Thank You to Our Contributors
 
 <a href="https://github.com/just-a-job-app/jobseeker-analytics/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />
