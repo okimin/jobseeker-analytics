@@ -7,7 +7,7 @@
 The job search is officially broken, and it's not just you. Applications per hire have tripled since early 2021, leaving even qualified candidates stuck in an endless cycle of submitting resumes into the void.
 
 
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
 
 ## Get Started
 
@@ -31,7 +31,7 @@ If you're already managing a full-time job, the last thing you have time for is:
 
 Your problem isn't your qualifications; it's the inefficient, time-consuming process.
 
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
 
 ## Our Solution: Stop "Clipping." Start Automating.
 
@@ -60,7 +60,7 @@ Once the system detects an interview in your inbox, it will automatically spring
 We're building a system to help you prepare by identifying interviewers from the calendar invite, drafting company-specific questions, and mapping key talking points from your resume to the job description.
 
 
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
 
 ## The Current Roadblock
 
@@ -82,10 +82,16 @@ In July 2025, we secured a feature on GitHub's official YouTube channel, which h
 
 ## Get Involved
 
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lnovitz)
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
 
-- Help us fund our security audit! https://buymeacoffee.com/justajobapp
+- Over 25 volunteer developers and 100 beta testers helped build what JustAJobApp.com is today. We've tracked over 3,000 applications and 268 interview invites.
+- But we are currently blocked. Google has a 100-user hard cap on unverified apps. To lift this cap and make a less stressful job search experience available to everyone (outside the developer community), we must pass a one-time, $3,000 mandatory security audit.
+- Recently I had to turn away another job seeker who needed this tool but was (rightfully) concerned about its unverified status.
+- So I've set up a BuyMeACoffee page to [raise the $3,000 to pass the security audit](https://www.buymeacoffee.com/justajobapp). It's the only thing standing between us and helping thousands of job seekers.
 
+Check out the page below to support us.
+
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
 
 ## Thank You to Our Contributors
 
