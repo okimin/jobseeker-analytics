@@ -39,7 +39,7 @@ Unlike other job trackers (Huntr, Teal, Simplify) that force you to manually "cl
 
 Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an email-powered tracker designed for busy professionals who value efficiency and discretion.
 
-<img width="30%" height="30%" alt="Logo" src="frontend/public/homepage/Solution.png" />
+<img width="75%" height="75%" alt="Logo" src="frontend/public/homepage/Solution-Screenshot.png" />
 
 ## Why 100+ Beta Testers Ditched Their Spreadsheets
 
@@ -77,7 +77,7 @@ In July 2025, we secured a feature on GitHub's official YouTube channel, which h
 🎥 [Watch the full episode here](https://youtu.be/sbzKMVaYHZw?list=PL0ZEIUccq0tD_c7gV0lAMXDXl-xK4pxch&t=1260) 
 
 
-<img width="75%" height="75%" alt="GitHubFeatureYouTube" src="frontend/public/contributors/GitHubFeatureYouTube.png" />
+<img width="75%" height="75%" alt="GitHubFeatureYouTube" src="frontend/public/homepage/News.png" />
 
 
 ## Get Involved
