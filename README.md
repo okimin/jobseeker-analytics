@@ -43,7 +43,7 @@ Apply for a job. Get a confirmation email. That's it. Your tracker is now up to 
 
 ## Why 100+ Beta Testers Ditched Their Spreadsheets
 
-Computer Science & Engineering New Grad (May 2025):
+Computer Science & Engineering New Grad (May 2025), F1-OPT:
 > "I receive so many emails a day that I mistook one for a rejection. Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. I would have completely missed this opportunity if it wasn't for JustAJobApp."
 
 Donal Murphy, MBA, Global Events Producer:
