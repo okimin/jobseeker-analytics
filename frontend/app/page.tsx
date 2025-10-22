@@ -101,7 +101,7 @@ const Index = () => {
 							<div
 								className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
 								onClick={() => {
-									setPopupImageSrc("homepage/Solution.png");
+									setPopupImageSrc("homepage/Solution-Screenshot.png");
 									setShowImagePopup(true);
 								}}
 							>
@@ -109,7 +109,7 @@ const Index = () => {
 									<img
 										alt="Clean, modern dashboard showing automated application tracking"
 										className="max-h-80 max-w-full object-contain"
-										src="homepage/Solution.png"
+										src="homepage/Solution-Screenshot.png"
 									/>
 									<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
 										<svg
@@ -217,23 +217,21 @@ const Index = () => {
 			{/* Founder's Story / Credibility Section */}
 			<div className="py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-						<div className="md:col-span-1">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-center">
+						<div className="md:col-span-2">
 							{/* Founder Image with click functionality */}
 							<div
 								className="bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
 								onClick={() => {
-									setPopupImageSrc("homepage/Founder - 2x.png");
+									setPopupImageSrc("homepage/News.png");
 									setShowImagePopup(true);
 								}}
 							>
 								<div className="relative">
 									<img
 										alt="Founder of Just A Job App"
-										className="w-full h-auto object-cover"
-										height="140px"
-										src="homepage/Founder - 2x.png"
-										width="165px"
+										className="max-h-80 max-w-full object-contain"
+										src="homepage/News.png"
 									/>
 									<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
 										<svg
