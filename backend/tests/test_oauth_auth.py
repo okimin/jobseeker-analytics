@@ -7,7 +7,7 @@ def test_new_user_gets_consent_prompt():
     mock_flow = Mock()
     mock_flow.authorization_url.return_value = ("https://google.com/auth", "state")
     
-    get_google_authorization_url(mock_flow, has_valid_refresh_token=False)
+    get_google_authorization_url(mock_flow, has_valid_creds=False)
     
     mock_flow.authorization_url.assert_called_once_with(
         access_type='offline',
@@ -20,7 +20,7 @@ def test_returning_user_gets_select_account():
     mock_flow = Mock()
     mock_flow.authorization_url.return_value = ("https://google.com/auth", "state")
     
-    get_google_authorization_url(mock_flow, has_valid_refresh_token=True)
+    get_google_authorization_url(mock_flow, has_valid_creds=True)
     
     mock_flow.authorization_url.assert_called_once_with(
         access_type='offline',
@@ -35,7 +35,7 @@ def test_oauth_flow_parameters():
     mock_flow.authorization_url.return_value = ("https://google.com/oauth", "state")
     
     # Test new user flow
-    get_google_authorization_url(mock_flow, has_valid_refresh_token=False)
+    get_google_authorization_url(mock_flow, has_valid_creds=False)
     mock_flow.authorization_url.assert_called_with(
         access_type='offline',
         prompt='consent'
@@ -43,7 +43,7 @@ def test_oauth_flow_parameters():
     
     # Reset and test returning user flow
     mock_flow.authorization_url.reset_mock()
-    get_google_authorization_url(mock_flow, has_valid_refresh_token=True)
+    get_google_authorization_url(mock_flow, has_valid_creds=True)
     mock_flow.authorization_url.assert_called_with(
         access_type='offline',
         prompt='select_account'
