@@ -1,7 +1,6 @@
 import sys
 import os
 import pytest
-from testcontainers.postgres import PostgresContainer
 import sqlalchemy as sa
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
@@ -22,11 +21,6 @@ from db.users import Users # noqa: E402
 
 # Use SQLite for GitHub CI pipeline and Docker environments
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-
-@pytest.fixture(scope="session")
-def postgres_container():
-    with PostgresContainer("postgres:13") as postgres:
-        yield postgres
 
 
 @pytest.fixture
