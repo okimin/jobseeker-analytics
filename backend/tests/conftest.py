@@ -91,9 +91,10 @@ def engine(monkeypatch, postgres_container):
                     transaction.execute(
                         sa.text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE")
                     )
-                except:
+                except Exception as e:
                     # Fallback to DELETE if TRUNCATE fails
                     transaction.execute(table.delete())
+                    print("Exception cleaning up tables in test %s" % e)
         else:
             # For SQLite, use DELETE
             for table in reversed(SQLModel.metadata.sorted_tables):
