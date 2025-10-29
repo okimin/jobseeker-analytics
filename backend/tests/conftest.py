@@ -26,23 +26,14 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 # Force SQLite mode - set this to True to always use SQLite instead of testcontainers
 FORCE_SQLITE = os.environ.get("FORCE_SQLITE", "true").lower() == "true"
 
-
-def is_running_in_docker():
-    """Check if we're running inside a Docker container"""
-    try:
-        with open("/proc/1/cgroup", "rt") as f:
-            return "docker" in f.read()
-    except:
-        return (
-            os.path.exists("/.dockerenv")
-            or os.environ.get("RUNNING_IN_DOCKER", "false").lower() == "true"
-        )
+# Check if running in Docker container (consistent with database.py)
+IS_DOCKER_CONTAINER = bool(int(os.environ.get("IS_DOCKER_CONTAINER", 0)))
 
 
 @pytest.fixture(scope="session")
 def postgres_container():
     # Only use testcontainers if not running in Docker and not forced to use SQLite
-    if not FORCE_SQLITE and not is_running_in_docker():
+    if not FORCE_SQLITE and not IS_DOCKER_CONTAINER:
         try:
             with PostgresContainer("postgres:13") as postgres:
                 yield postgres
@@ -60,7 +51,7 @@ def engine(monkeypatch, postgres_container):
     if (
         postgres_container is not None
         and not FORCE_SQLITE
-        and not is_running_in_docker()
+        and not IS_DOCKER_CONTAINER
     ):
         # Use PostgreSQL with testcontainers when running locally
         test_url = sa.URL.create(
@@ -92,7 +83,7 @@ def engine(monkeypatch, postgres_container):
         if (
             postgres_container is not None
             and not FORCE_SQLITE
-            and not is_running_in_docker()
+            and not IS_DOCKER_CONTAINER
         ):
             # For PostgreSQL, use TRUNCATE for faster cleanup
             for table in reversed(SQLModel.metadata.sorted_tables):
