@@ -59,7 +59,7 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
                     creds_dict = json.loads(creds_json)
                     has_refresh_token = bool(creds_dict.get("refresh_token"))
                 except:
-                    pass
+                    logger.info("Trouble loading credentials from user session.")
             
             authorization_url, state = get_google_authorization_url(flow, has_refresh_token)
             return RedirectResponse(url=authorization_url)
