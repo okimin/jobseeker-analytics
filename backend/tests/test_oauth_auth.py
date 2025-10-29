@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from utils.auth_utils import get_google_authorization_url
 
 
