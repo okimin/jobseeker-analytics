@@ -1,6 +1,6 @@
 "use client";
 
-import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem, Button } from "@heroui/react";
+import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@heroui/react";
 import NextLink from "next/link";
 
 export const Navbar = () => {
@@ -27,7 +27,7 @@ export const Navbar = () => {
 											Just A Job App
 										</span>
 										<span className="text-xs text-default-500 -mt-1">
-											Get the System Behind a 3x Interview Rate.
+											Stop Dreading Your Job Search.
 										</span>
 									</div>
 								</div>
@@ -37,29 +37,15 @@ export const Navbar = () => {
 
 					<NavbarContent className="basis-1/5 sm:basis-full" justify="end">
 						<NavbarItem>
-							<Button
-								as="a"
-								className="bg-amber-600 text-white hover:bg-amber-700"
-								href="#waitlist"
-								variant="solid"
-								onPress={() => {
-									// Add fireworks animation to waitlist section
-									const waitlistSection = document.getElementById("waitlist");
-									if (waitlistSection) {
-										// Import the function dynamically to avoid circular dependencies
-										import("@/components/Footer").then((module) => {
-											const { createFireworkEffect } = module;
-											waitlistSection.classList.add("golden-sparkle-border");
-											createFireworkEffect(waitlistSection);
-											setTimeout(() => {
-												waitlistSection.classList.remove("golden-sparkle-border");
-											}, 2000);
-										});
-									}
-								}}
+							<a
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+								href="https://www.buymeacoffee.com/justajobapp"
+								rel="noopener noreferrer"
+								target="_blank"
 							>
-								Request Early Access
-							</Button>
+								<span className="mr-2">☕</span>
+								Buy us a coffee
+							</a>
 						</NavbarItem>
 					</NavbarContent>
 				</div>
@@ -86,30 +72,15 @@ export const Navbar = () => {
 
 			{/* Mobile Sticky Button */}
 			<div className="md:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-				<Button
-					as="a"
-					className="bg-amber-600 text-white hover:bg-amber-700 shadow-lg"
-					href="#waitlist"
-					size="lg"
-					variant="solid"
-					onPress={() => {
-						// Add fireworks animation to waitlist section
-						const waitlistSection = document.getElementById("waitlist");
-						if (waitlistSection) {
-							// Import the function dynamically to avoid circular dependencies
-							import("@/components/Footer").then((module) => {
-								const { createFireworkEffect } = module;
-								waitlistSection.classList.add("golden-sparkle-border");
-								createFireworkEffect(waitlistSection);
-								setTimeout(() => {
-									waitlistSection.classList.remove("golden-sparkle-border");
-								}, 2000);
-							});
-						}
-					}}
+				<a
+					className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200 shadow-lg hover:shadow-xl"
+					href="https://www.buymeacoffee.com/justajobapp"
+					rel="noopener noreferrer"
+					target="_blank"
 				>
-					Get Invite
-				</Button>
+					<span className="mr-2">☕</span>
+					Buy us a coffee
+				</a>
 			</div>
 		</>
 	);

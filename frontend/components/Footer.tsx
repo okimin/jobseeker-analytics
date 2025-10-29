@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
-import { ExternalLinkIcon, GoogleIcon } from "@/components/icons";
+import { GoogleIcon } from "@/components/icons";
 
 // Function to create a firework particle effect
 // Exported so it can be used from other components
@@ -101,10 +101,7 @@ const Footer = () => {
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 					<div>
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Just A Job App</h3>
-						<p className="text-default-500 mb-4">
-							Designed for ambitious professionals. <br />
-							Built to fix a broken system.
-						</p>
+						<p className="text-default-500 mb-4">Stop Dreading Your Job Search.</p>
 					</div>
 
 					<div>
@@ -112,30 +109,17 @@ const Footer = () => {
 							Get the System Behind a 3x Interview Rate.
 						</h3>
 						<p className="text-default-500 mb-4">
-							Join 300+ ambitious professionals on our priority list. We're building this so you can focus
-							on winning the interview, not data entry.
+							Join 300+ ambitious professionals who want to take back their time and focus on what
+							actually matters: landing the offer.
 						</p>
 						<a
-							className="flex items-center justify-center md:justify-start gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
-							href="#waitlist"
-							onClick={() => {
-								// Add fireworks animation to waitlist section
-								const waitlistSection = document.getElementById("waitlist");
-								if (waitlistSection) {
-									waitlistSection.classList.add("golden-sparkle-border");
-
-									// Create actual firework particles on top for extra effect
-									createFireworkEffect(waitlistSection);
-
-									// Remove the animation class after a shorter time
-									setTimeout(() => {
-										waitlistSection.classList.remove("golden-sparkle-border");
-									}, 2000);
-								}
-							}}
+							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+							href="https://www.buymeacoffee.com/justajobapp"
+							rel="noopener noreferrer"
+							target="_blank"
 						>
-							<ExternalLinkIcon size={16} />
-							Request My Invite
+							<span className="mr-2">☕</span>
+							Buy us a coffee
 						</a>
 					</div>
 					<div>
