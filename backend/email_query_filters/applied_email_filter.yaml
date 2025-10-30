@@ -50,7 +50,6 @@
     - no-reply@ashbyhq.com
     - no-reply@greenhouse.io
     - no-reply@us.greenhouse-mail.io
-    - no-reply@hire.lever.co
     - notification@smartrecruiters.com
     - myworkday.com
     - hit-reply@linkedin.com
@@ -58,6 +57,7 @@
     - inmail-hit-reply@linkedin.com
     - '@docusign.net'  # offers
     - '@eqrecruiters.com'
+    - '@hire.lever.co'
 
 ## exclude all of the following subjects
 - logic: all
