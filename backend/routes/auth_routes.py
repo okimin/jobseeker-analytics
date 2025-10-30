@@ -29,9 +29,12 @@ router = APIRouter()
 
 APP_URL = settings.APP_URL
 
+
 @router.get("/login")
 @limiter.limit("10/minute")
-async def login(request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession):
+async def login(
+    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession
+):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
     client_config = {
@@ -40,7 +43,7 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
             "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "redirect_uris": json.loads(os.getenv("GOOGLE_CLIENT_REDIRECT_URI")),
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token"
+            "token_uri": "https://oauth2.googleapis.com/token",
         }
     }
 
@@ -58,10 +61,12 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
                 try:
                     creds_dict = json.loads(creds_json)
                     has_refresh_token = bool(creds_dict.get("refresh_token"))
-                except:
+                except json.JSONDecodeError:
                     logger.info("Trouble loading credentials from user session.")
-            
-            authorization_url, state = get_google_authorization_url(flow, has_refresh_token)
+
+            authorization_url, state = get_google_authorization_url(
+                flow, has_refresh_token
+            )
             return RedirectResponse(url=authorization_url)
         logger.info("Authorization code received, exchanging for token...")
         try:
@@ -70,17 +75,20 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
             logger.error("Failed to fetch token: %s", e)
             return RedirectResponse(
                 url=f"{settings.APP_URL}/errors?message=permissions_error",
-                status_code=303
-            )   
+                status_code=303,
+            )
         try:
             creds = flow.credentials
-            logger.info("Credentials received - has refresh_token: %s", bool(creds.refresh_token))
+            logger.info(
+                "Credentials received - has refresh_token: %s",
+                bool(creds.refresh_token),
+            )
         except Exception as e:
             logger.error("Failed to fetch credentials: %s", e)
             return RedirectResponse(
                 url=f"{settings.APP_URL}/errors?message=credentials_error",
-                status_code=303
-            )  
+                status_code=303,
+            )
 
         if not creds.valid:
             try:
@@ -108,7 +116,7 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
         request.session["token_expiry"] = token_expiry
         request.session["user_id"] = user.user_id
         request.session["access_token"] = creds.token
-        
+
         # Preserve old refresh token if new credentials don't have one
         new_creds_json = creds.to_json()
         if not creds.refresh_token and (old_creds := request.session.get("creds")):
@@ -118,9 +126,11 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
                     new_dict = json.loads(new_creds_json)
                     new_dict["refresh_token"] = old_dict["refresh_token"]
                     new_creds_json = json.dumps(new_dict)
-            except:
-                pass
-        
+            except json.JSONDecodeError as e:
+                logger.warning(
+                    "Failed to preserve refresh token from old credentials: %s", str(e)
+                )
+
         request.session["creds"] = new_creds_json
 
         # NOTE: change redirection once dashboard is completed
@@ -131,10 +141,21 @@ async def login(request: Request, background_tasks: BackgroundTasks, db_session:
             response = RedirectResponse(
                 url=f"{settings.APP_URL}/processing", status_code=303
             )
-            logger.info("Settings.is_publicly_deployed: %s", settings.is_publicly_deployed)
-            logger.info("IS_DOCKER_CONTAINER: %s", os.environ.get("IS_DOCKER_CONTAINER"))
-            
-            background_tasks.add_task(fetch_emails_to_db, user, request, last_fetched_date, user_id=user.user_id, db_session=db_session)
+            logger.info(
+                "Settings.is_publicly_deployed: %s", settings.is_publicly_deployed
+            )
+            logger.info(
+                "IS_DOCKER_CONTAINER: %s", os.environ.get("IS_DOCKER_CONTAINER")
+            )
+
+            background_tasks.add_task(
+                fetch_emails_to_db,
+                user,
+                request,
+                last_fetched_date,
+                user_id=user.user_id,
+                db_session=db_session,
+            )
             logger.info("Background task started for user_id: %s", user.user_id)
         else:
             request.session["is_new_user"] = True
@@ -165,7 +186,5 @@ async def logout(request: Request, response: RedirectResponse):
 @router.get("/me")
 async def getUser(request: Request, user_id: str = Depends(validate_session)):
     if not user_id:
-        raise HTTPException(
-            status_code=401, detail="No user id found in session"
-        )    
+        raise HTTPException(status_code=401, detail="No user id found in session")
     return {"user_id": user_id}
