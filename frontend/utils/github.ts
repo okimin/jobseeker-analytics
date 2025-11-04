@@ -49,7 +49,7 @@ export async function createGitHubIssue(params: CreateIssueParams): Promise<GitH
 
 	try {
 		const response = await appOctokit.issues.create({
-			owner: "just-a-job-app",
+			owner: "JustAJobApp",
 			repo: "jobseeker-analytics",
 			title,
 			body,
