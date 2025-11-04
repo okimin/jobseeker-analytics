@@ -11,6 +11,13 @@ The job search is officially broken, and it's not just you. Applications per hir
 
 ## Get Started
 
+```mermaid
+graph LR
+    A{Do you have a Gmail account?} -- Yes --> C[Continue with DIY Install];
+    A -- No --> B[Set up forwarding to a Gmail account];
+    B --> C;
+```
+    
 Choose your DIY Install path: 
 - Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install) 
 - More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
