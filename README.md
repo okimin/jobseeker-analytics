@@ -11,11 +11,23 @@ The job search is officially broken, and it's not just you. Applications per hir
 
 ## Get Started
 
-Choose your DIY Install path: 
-- Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install) 
-- More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
+```mermaid
+graph LR
+    A{Do you have a GitHub account?} -- No --> B[Reserve 50% off the official app at BuyMeACoffee.com/JustAJobApp];
+    A -- Yes --> C{Do you have a Gmail account?};
+    C -- Yes --> D[Continue with DIY Install];
+    C -- No --> E[Set up forwarding to a Gmail account];
+    E --> D;
+```
 
-No GitHub account? [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
+**Do you have a GitHub account?**
+
+* **Yes:** Choose your DIY Install path: 
+  * Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install)
+  * More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
+
+
+* **No:** [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
 
 ## Problem: The Job Search is Burning You Out
 
