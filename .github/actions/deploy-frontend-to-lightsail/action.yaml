@@ -55,6 +55,8 @@ runs:
       chmod +x /usr/local/bin/lightsailctl
 
   - name: Clean up Lightsail images
+    env:
+      LIGHTSAIL_SERVICE_NAME: jaja-frontend
     shell: bash
     run: |
       # Source - https://stackoverflow.com/a/79334875
