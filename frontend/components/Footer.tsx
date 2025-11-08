@@ -139,45 +139,45 @@ const Footer = () => {
 				<div className="mt-12 pt-6 border-t text-center text-sm text-default-500">
 					<div className="flex flex-col space-y-2 mb-4">
 						<div className="flex flex-wrap justify-center gap-6">
-							<a 
-								href="/privacy" 
+							<a
 								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+								href="/privacy"
 							>
 								Privacy Policy
 							</a>
-							<a 
-								href="/terms" 
+							<a
 								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+								href="/terms"
 							>
 								Terms of Service
 							</a>
-							<a 
-								href="/cookies" 
+							<a
 								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+								href="/cookies"
 							>
 								Cookie Policy
 							</a>
-							<a 
-								href="/dsar" 
+							<a
 								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+								href="/dsar"
 							>
 								Data Requests
 							</a>
 						</div>
 						<div className="flex flex-wrap justify-center gap-4 text-xs">
-							<a 
-								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97" 
-								target="_blank" 
-								rel="noopener noreferrer"
+							<a
 								className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors"
+								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97"
+								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Do Not Sell or Share My Personal Information
 							</a>
-							<a 
-								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97" 
-								target="_blank" 
-								rel="noopener noreferrer"
+							<a
 								className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors"
+								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97"
+								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Limit the Use Of My Sensitive Personal Information
 							</a>
