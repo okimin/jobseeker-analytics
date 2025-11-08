@@ -137,7 +137,53 @@ const Footer = () => {
 				</div>
 
 				<div className="mt-12 pt-6 border-t text-center text-sm text-default-500">
-					<p className="mt-2 text-amber-600 font-medium">© {new Date().getFullYear()} Just A Job App</p>
+					<div className="flex flex-col space-y-2 mb-4">
+						<div className="flex flex-wrap justify-center gap-6">
+							<a 
+								href="/privacy" 
+								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+							>
+								Privacy Policy
+							</a>
+							<a 
+								href="/terms" 
+								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+							>
+								Terms of Service
+							</a>
+							<a 
+								href="/cookies" 
+								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+							>
+								Cookie Policy
+							</a>
+							<a 
+								href="/dsar" 
+								className="text-default-500 hover:text-default-700 dark:hover:text-default-300 transition-colors"
+							>
+								Data Requests
+							</a>
+						</div>
+						<div className="flex flex-wrap justify-center gap-4 text-xs">
+							<a 
+								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97" 
+								target="_blank" 
+								rel="noopener noreferrer"
+								className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors"
+							>
+								Do Not Sell or Share My Personal Information
+							</a>
+							<a 
+								href="https://app.termly.io/notify/a8dc31e4-d96a-461e-afe0-abdec759bc97" 
+								target="_blank" 
+								rel="noopener noreferrer"
+								className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors"
+							>
+								Limit the Use Of My Sensitive Personal Information
+							</a>
+						</div>
+					</div>
+					<p className="mt-2 text-amber-600 font-medium">© {new Date().getFullYear()} JustAJobApp LLC</p>
 				</div>
 			</div>
 		</footer>
