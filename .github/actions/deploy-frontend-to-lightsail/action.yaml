@@ -73,14 +73,18 @@ runs:
         --query "containerImages[*].image" \
         --output text)
 
-      for IMAGE in ${EXISTING_IMAGES}; do
-        if [[ ! "${ACTIVE_IMAGES}" =~ "${IMAGE}" ]]; then
-          echo "Deleting unused image: ${IMAGE}"
-          aws lightsail delete-container-image \
-            --service-name ${LIGHTSAIL_SERVICE_NAME} \
-            --image "${IMAGE}"
-        fi
-      done
+      size=$(echo "${EXISTING_IMAGES}" | wc -w)
+      if [[ $size == 1 ]]; then
+        echo 'skip cleanup'
+      else
+        for IMAGE in ${EXISTING_IMAGES}; do
+          if [[ ! "${ACTIVE_IMAGES}" =~ "${IMAGE}" ]]; then
+            echo "Deleting unused image: ${IMAGE}"
+            aws lightsail delete-container-image \
+              --service-name ${LIGHTSAIL_SERVICE_NAME} \
+              --image "${IMAGE}"
+          fi
+        done
 
   - name: Build and push Docker image
     env:
