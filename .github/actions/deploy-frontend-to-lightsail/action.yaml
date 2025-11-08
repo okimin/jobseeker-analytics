@@ -102,7 +102,7 @@ runs:
       ESCAPED_GH_PRIVATE_KEY=$(printf '%s' "${GH_PRIVATE_KEY}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr '\n' ' ' | sed 's/\r//g')
       echo "::add-mask::${ESCAPED_GH_PRIVATE_KEY}"
 
-      # Source - https://stackoverflow.com/a
+      # Source - https://stackoverflow.com/a/79334875
       # Posted by Christopher Wrogg
       # Retrieved 2025-11-07, License - CC BY-SA 4.0
 
