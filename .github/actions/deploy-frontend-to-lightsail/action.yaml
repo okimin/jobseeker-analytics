@@ -84,7 +84,8 @@ runs:
               --service-name ${LIGHTSAIL_SERVICE_NAME} \
               --image "${IMAGE}"
           fi
-      done
+        done
+      fi
 
   - name: Build and push Docker image
     env:
