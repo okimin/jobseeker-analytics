@@ -54,6 +54,32 @@ runs:
       curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
       chmod +x /usr/local/bin/lightsailctl
 
+  - name: Clean up Lightsail images
+    shell: bash
+    run: |
+      # Source - https://stackoverflow.com/a/79334875
+      # Posted by Christopher Wrogg
+      # Retrieved 2025-11-07, License - CC BY-SA 4.0
+
+      ACTIVE_IMAGES=$(aws lightsail get-container-services \
+        --service-name ${LIGHTSAIL_SERVICE_NAME} \
+        --query "containerServices[0].currentDeployment.containers.*.image" \
+        --output text)
+
+      EXISTING_IMAGES=$(aws lightsail get-container-images \
+        --service-name ${LIGHTSAIL_SERVICE_NAME} \
+        --query "containerImages[*].image" \
+        --output text)
+
+      for IMAGE in ${EXISTING_IMAGES}; do
+        if [[ ! "${ACTIVE_IMAGES}" =~ "${IMAGE}" ]]; then
+          echo "Deleting unused image: ${IMAGE}"
+          aws lightsail delete-container-image \
+            --service-name ${LIGHTSAIL_SERVICE_NAME} \
+            --image "${IMAGE}"
+        fi
+      done
+
   - name: Build and push Docker image
     env:
       LIGHTSAIL_SERVICE_NAME: jaja-frontend
@@ -101,30 +127,6 @@ runs:
       # Escape environment variables for JSON
       ESCAPED_GH_PRIVATE_KEY=$(printf '%s' "${GH_PRIVATE_KEY}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr '\n' ' ' | sed 's/\r//g')
       echo "::add-mask::${ESCAPED_GH_PRIVATE_KEY}"
-
-      # Source - https://stackoverflow.com/a/79334875
-      # Posted by Christopher Wrogg
-      # Retrieved 2025-11-07, License - CC BY-SA 4.0
-
-      ACTIVE_IMAGES=$(aws lightsail get-container-services \
-        --service-name ${LIGHTSAIL_SERVICE_NAME} \
-        --query "containerServices[0].currentDeployment.containers.*.image" \
-        --output text)
-
-      EXISTING_IMAGES=$(aws lightsail get-container-images \
-        --service-name ${LIGHTSAIL_SERVICE_NAME} \
-        --query "containerImages[*].image" \
-        --output text)
-
-      for IMAGE in ${EXISTING_IMAGES}; do
-        if [[ ! "${ACTIVE_IMAGES}" =~ "${IMAGE}" ]]; then
-          echo "Deleting unused image: ${IMAGE}"
-          aws lightsail delete-container-image \
-            --service-name ${LIGHTSAIL_SERVICE_NAME} \
-            --image "${IMAGE}"
-        fi
-      done
-
       
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
