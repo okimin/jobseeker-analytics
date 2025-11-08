@@ -580,3 +580,74 @@ export const PlusIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
 		<path d="M5 12h14" />
 	</svg>
 );
+
+export const TrophyIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+		<path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+		<path d="M4 22h16" />
+		<path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+		<path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+		<path d="M8 21v-1a2 2 0 0 0-2-2H4.5a2.5 2.5 0 0 1 0-5H6V9c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v2h1.5a2.5 2.5 0 0 0 0 5H18a2 2 0 0 0-2 2v1" />
+	</svg>
+);
+
+export const EyeIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+		<circle cx="12" cy="12" r="3" />
+	</svg>
+);
+
+export const PaperAirplaneIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="m22 2-7 20-4-9-9-4Z" />
+		<path d="M22 2 11 13" />
+	</svg>
+);
+
+export const SparklesIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+	<svg
+		fill="none"
+		height={size || height}
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width={size || width}
+		{...props}
+	>
+		<path d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9 1.9 5.8 1.9-5.8 5.8-1.9-5.8-1.9z" />
+	</svg>
+);

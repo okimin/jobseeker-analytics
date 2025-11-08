@@ -1,45 +1,50 @@
 ## Table of Contents
 
-1. [Welcome!](#welcome)
-2. [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
-    - [Install the Prerequisites](#install-the-prerequisites)
-    - [Clone the repo](#clone-the-repo)
-    - [Get a Google AI API key](#get-a-google-ai-api-key)
-    - [Create a Google OAuth App](#create-a-google-oauth-app)
-    - [Set Up Environment Variables](#set-up-environment-variables)
-    - [Run the App: Two options](#run-the-app-two-options)
-        - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
-        - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
-    - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
-    - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
-3. [Submit Changes](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
+1. [Welcome to Do-It-Yourself (DIY) Install](#welcome-to-do-it-yourself-diy-install)
+2. [📹 Watch the Video](#-video-tutorial-diy-install)
+3. [📖 Read the Text](#-written-tutorial-diy-install)
+    - [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
+        - [Install the Prerequisites](#install-the-prerequisites)
+        - [Clone the repo](#clone-the-repo)
+        - [Get a Google AI API key](#get-a-google-ai-api-key)
+        - [Create a Google OAuth App](#create-a-google-oauth-app)
+        - [Set Up Environment Variables](#set-up-environment-variables)
+        - [Run the App: Two options](#run-the-app-two-options)
+            - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
+            - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
+        - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
+        - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
+4. [Submit Changes](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
     - The "One Diff, One Thesis" Principle
     - Keep Pull Requests Under 250 Lines of Code
     - Make your code testable
-4. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
+5. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
     - [How Do I Submit a (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
-5. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
+6. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
     - [Examples of positive behavior](#examples-of-behavior-that-contributes-to-positive-environment)
     - [Examples of unacceptable behavior](#examples-of-unacceptable-behavior)
 
 ---
 
-# Welcome!
+# Welcome to Do-It-Yourself (DIY) Install
 
 Whether this is your first time downloading code or the gazillionth time cloning a repo, we are happy to see you. 
 
 Here you will learn how to install the app directly on your personal computer. 
 
-Once the app is installed, you'll be able to gain full access to all the features. 
+Once the app is installed, you'll have full access to all the features.
 
-If you are a current or aspiring developer, you can pick up [open issues](https://github.com/jobba-help/jobseeker-analytics/issues), write code to fix them, and get your work reviewed and merged. Comment on an issue if you'd like to try resolving it.
+Choose your path: Video [📹](#-video-tutorial-diy-install) or Manual [📖](#-written-tutorial-diy-install)
 
-If you're not an aspiring developer, that's totally ok. 
+Note: If you are a current or aspiring developer, you can pick up [open issues](https://github.com/just-a-job-app/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee), write code to fix them, and get your work reviewed and merged. Comment on an issue if you'd like to try resolving it.
 
-Keep reading to install the app. 
+# 📹 Video Tutorial: DIY Install
+- ⏺️ [Watch replay of guided tutorial](https://youtube.com/playlist?list=PL0ZEIUccq0tDV-gzv2GgjVr0Nwjpc2p-G&si=lccbmgSRxd9x8NeE )  
+- If you run into issues, hop into [Discord](https://discord.gg/gsdpMchCam).
+- Prefer live help? Get notified about upcoming guided tutorials, hosted online: https://lu.ma/justajobapp
+- Changed your mind about DIY Install? [Get JAJA(Pro)](https://app.formbricks.com/s/cmagfwkuu3f8bug01e340supq)
 
-You may run into issues - email help@justajobapp.com for help :)
-
+# 📝 Written Tutorial: DIY Install
 ## How can I install the app directly on my computer? [⬆️ Back to Table of Contents](#table-of-contents)
 **Estimated time to complete installation:** 25-50 minutes.
 *This is an estimate and can vary depending on your internet speed and familiarity with the tools. The first-time setup with Docker will take the longest.*
