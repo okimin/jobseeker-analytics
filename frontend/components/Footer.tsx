@@ -181,7 +181,12 @@ const Footer = () => {
 							>
 								Limit the Use Of My Sensitive Personal Information
 							</a>
-							<a href="#" className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors">Change My Consent Preferences</a>
+							<a
+								className="text-default-400 hover:text-default-600 dark:hover:text-default-200 transition-colors"
+								href="#"
+							>
+								Change My Consent Preferences
+							</a>
 						</div>
 					</div>
 					<p className="mt-2 text-amber-600 font-medium">© {new Date().getFullYear()} JustAJobApp LLC</p>
