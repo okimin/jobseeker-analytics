@@ -114,8 +114,8 @@ const Index = () => {
 									Career Coaches & Clients
 								</h3>
 								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Manage multiple searches or support clients? Use Coach.JustAJobApp.com to coordinate
-									dashboards, reviews, and prep in one workspace.
+									Managing multiple searches or working with a career coach? Use Coach.JustAJobApp.com
+									to streamline your collaboration.
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
