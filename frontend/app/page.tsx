@@ -64,20 +64,21 @@ const Index = () => {
 								</a>
 								<div>
 									<p className="mt-4 text-sm text-gray-500 text-left">
-										Beta testers: use the Login with Google button on this page to jump straight into your existing cloud seat.
-										<br></br><br></br>
+										Beta testers: use the Login with Google button on this page to jump straight
+										into your existing cloud seat.
+										<br />
+										<br />
 										<BetaLoginButton fullWidth />
 									</p>
-								
 								</div>
-								</div>
+							</div>
 							<p className="mt-4 text-sm text-gray-500">
 								Beta testers: use the Login with Google button on this page to jump straight into your
 								existing cloud seat.
-									</p>
-								</div>
-								</div>
+							</p>
 						</div>
+					</div>
+				</div>
 
 				<section className="bg-white dark:bg-gray-900 py-16 border-b border-amber-100/40 dark:border-emerald-900/40">
 					<div className="container mx-auto px-4 max-w-6xl">
@@ -96,8 +97,8 @@ const Index = () => {
 									New Job Seekers
 								</h3>
 								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Want access when we open more seats? Request an invite and get
-									ready for the inbox-powered tracker to take over the busywork.
+									Want access when we open more seats? Request an invite and get ready for the
+									inbox-powered tracker to take over the busywork.
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
@@ -125,7 +126,10 @@ const Index = () => {
 									Go to Coach.JustAJobApp.com
 								</a>
 							</div>
-							<div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-6 shadow-sm" id="beta-testers">
+							<div
+								className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-6 shadow-sm"
+								id="beta-testers"
+							>
 								<h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
 									Already a Beta Tester?
 								</h3>
@@ -425,8 +429,8 @@ const Index = () => {
 							Automate the "Second Job" of Job Searching.
 						</h2>
 						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-							Take back your time. End the spreadsheet madness. Automate your job search admin and focus on what{" "}
-							<em>actually</em> matters: landing the offer.
+							Take back your time. End the spreadsheet madness. Automate your job search admin and focus
+							on what <em>actually</em> matters: landing the offer.
 						</p>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
@@ -439,10 +443,12 @@ const Index = () => {
 							</p>
 							<div className="grid gap-4 md:grid-cols-3">
 								<div className="rounded-xl border border-amber-100 dark:border-amber-900/50 p-4">
-									<h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">New Job Seekers</h4>
+									<h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">
+										New Job Seekers
+									</h4>
 									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Want access when we reopen seats? Request an invite to get in
-										line for the inbox-powered tracker.
+										Want access when we reopen seats? Request an invite to get in line for the
+										inbox-powered tracker.
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
@@ -455,7 +461,7 @@ const Index = () => {
 								</div>
 								<div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
 									<h4 className="font-semibold text-emerald-800 dark:text-emerald-200 mb-2">
-									Career Coaches & Clients
+										Career Coaches & Clients
 									</h4>
 									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
 										Share progress and prep at Coach.JustAJobApp.com.

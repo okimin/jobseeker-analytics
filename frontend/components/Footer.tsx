@@ -105,12 +105,8 @@ const Footer = () => {
 					</div>
 
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-emerald-700">
-							Support Us
-						</h3>
-						<p className="text-default-500 mb-4">
-							Like the app? Buy us a coffee.
-						</p>
+						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Support Us</h3>
+						<p className="text-default-500 mb-4">Like the app? Buy us a coffee.</p>
 						<a
 							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
 							href="https://www.buymeacoffee.com/justajobapp"
@@ -125,8 +121,8 @@ const Footer = () => {
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Beta Testers</h3>
 						<p className="text-default-500 mb-4">Log In Below.</p>
 						<Button
-							id="beta-login"
 							className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+							id="beta-login"
 							startContent={<GoogleIcon size={16} />}
 							variant="bordered"
 							onPress={handleGoogleLogin}
