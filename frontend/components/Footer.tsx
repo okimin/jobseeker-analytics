@@ -100,17 +100,16 @@ const Footer = () => {
 			<div className="container mx-auto px-4">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Just A Job App</h3>
-						<p className="text-default-500 mb-4">Stop Dreading Your Job Search.</p>
+						<h3 className="text-lg font-semibold mb-4 text-emerald-700">JustAJobApp</h3>
+						<p className="text-default-500 mb-4">Automate the "Second Job" of Job Searching.</p>
 					</div>
 
 					<div>
 						<h3 className="text-lg font-semibold mb-4 text-emerald-700">
-							Get the System Behind a 3x Interview Rate.
+							Support Us
 						</h3>
 						<p className="text-default-500 mb-4">
-							Join 300+ ambitious professionals who want to take back their time and focus on what
-							actually matters: landing the offer.
+							Like the app? Buy us a coffee.
 						</p>
 						<a
 							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
@@ -123,9 +122,10 @@ const Footer = () => {
 						</a>
 					</div>
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Already a Beta Tester?</h3>
+						<h3 className="text-lg font-semibold mb-4 text-emerald-700">Beta Testers</h3>
 						<p className="text-default-500 mb-4">Log In Below.</p>
 						<Button
+							id="beta-login"
 							className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
 							startContent={<GoogleIcon size={16} />}
 							variant="bordered"
