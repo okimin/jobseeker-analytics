@@ -24,10 +24,10 @@ export const Navbar = () => {
 									/>
 									<div className="flex flex-col">
 										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
-											Just A Job App
+											JustAJobApp
 										</span>
 										<span className="text-xs text-default-500 -mt-1">
-											Stop Dreading Your Job Search.
+											Automate the "Second Job" of Job Searching.
 										</span>
 									</div>
 								</div>

@@ -1,13 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/Footer";
+import { GoogleIcon } from "@/components/icons";
 
 const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
 	const [popupImageSrc, setPopupImageSrc] = useState("");
+	const router = useRouter();
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+	const handleGoogleLogin = () => {
+		router.push(`${apiUrl}/login`);
+	};
+
+	const BetaLoginButton = ({
+		label = "Login with Google",
+		fullWidth = false
+	}: {
+		label?: string;
+		fullWidth?: boolean;
+	}) => (
+		<Button
+			className={`${fullWidth ? "w-full " : ""}bg-white border-gray-300 text-gray-700 hover:bg-gray-50`}
+			startContent={<GoogleIcon size={16} />}
+			variant="bordered"
+			onPress={handleGoogleLogin}
+		>
+			{label}
+		</Button>
+	);
 
 	return (
 		<div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -15,30 +41,106 @@ const Index = () => {
 				<Navbar />
 				<div className="w-full bg-gradient-to-b from-amber-50/60 to-transparent dark:from-gray-800/30 border-b border-amber-100/40 dark:border-emerald-900/30">
 					<div className="container mx-auto px-4 py-16 sm:py-24 max-w-5xl">
-						{/* Content continues */}
 						<div className="text-center">
 							<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-6 from-amber-600 to-emerald-600">
-								Get the System Behind a 3x Interview Rate.
+								Choose How You Access JustAJobApp.
 							</h1>
-							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								JustAJobApp.com connects to your inbox to <em>automatically</em> build your job search
-								dashboard. No more spreadsheets. No more manual data entry.
-							</p>
-							<div className="mt-10 flex items-center justify-center gap-x-6">
+							<div className="mt-10 grid gap-4 sm:grid-cols-3">
 								<a
-									className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
-									href="https://www.buymeacoffee.com/justajobapp"
+									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+									href="https://justajobapp-home.systeme.io/"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									<span className="mr-2">☕</span>
-									Buy us a coffee
+									New job seekers → Request access
 								</a>
+								<a
+									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600 transition-colors duration-200"
+									href="https://coach.justajobapp.com"
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Coaches & clients → Coach.JustAJobApp.com
+								</a>
+								<div>
+									<p className="mt-4 text-sm text-gray-500 text-left">
+										Beta testers: use the Login with Google button on this page to jump straight
+										into your existing cloud seat.
+										<br />
+										<br />
+										<BetaLoginButton fullWidth />
+									</p>
+								</div>
 							</div>
-							<p className="mt-4 text-sm text-gray-500">Support our project to help us launch faster.</p>
+							<p className="mt-4 text-sm text-gray-500">
+								Beta testers: use the Login with Google button on this page to jump straight into your
+								existing cloud seat.
+							</p>
 						</div>
 					</div>
 				</div>
+
+				<section className="bg-white dark:bg-gray-900 py-16 border-b border-amber-100/40 dark:border-emerald-900/40">
+					<div className="container mx-auto px-4 max-w-6xl">
+						<div className="text-center mb-12">
+							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+								Pick your job search path.
+							</h2>
+							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
+								Whether you're running your own search, partnering with a coach, or helping us test the
+								next release, there's a dedicated entry point for you.
+							</p>
+						</div>
+						<div className="grid gap-8 md:grid-cols-3">
+							<div className="rounded-2xl border border-amber-100 dark:border-amber-900/40 bg-gradient-to-b from-amber-50/70 to-white dark:from-amber-950/20 dark:to-gray-900 p-6 shadow-sm">
+								<h3 className="text-xl font-semibold mb-3 text-amber-800 dark:text-amber-200">
+									New Job Seekers
+								</h3>
+								<p className="text-gray-700 dark:text-gray-200 mb-6">
+									Want access when we open more seats? Request an invite and get ready for the
+									inbox-powered tracker to take over the busywork.
+								</p>
+								<a
+									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
+									href="https://justajobapp-home.systeme.io/"
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Join the waitlist
+								</a>
+							</div>
+							<div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-gradient-to-b from-emerald-50/70 to-white dark:from-emerald-950/20 dark:to-gray-900 p-6 shadow-sm">
+								<h3 className="text-xl font-semibold mb-3 text-emerald-800 dark:text-emerald-200">
+									Career Coaches & Clients
+								</h3>
+								<p className="text-gray-700 dark:text-gray-200 mb-6">
+									Managing multiple searches or working with a career coach? Use Coach.JustAJobApp.com
+									to streamline your collaboration.
+								</p>
+								<a
+									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+									href="https://coach.justajobapp.com"
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Go to Coach.JustAJobApp.com
+								</a>
+							</div>
+							<div
+								className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-6 shadow-sm"
+								id="beta-testers"
+							>
+								<h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
+									Already a Beta Tester?
+								</h3>
+								<p className="text-gray-700 dark:text-gray-200 mb-6">
+									If you're already part of the closed beta and using the app, login below.
+								</p>
+								<BetaLoginButton fullWidth />
+							</div>
+						</div>
+					</div>
+				</section>
 			</main>
 
 			{/* (Removed Social Proof Bar per spec) */}
@@ -324,36 +426,62 @@ const Index = () => {
 				<div className="max-w-4xl mx-auto">
 					<div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
 						<h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
-							Stop Dreading Your Job Search.
+							Automate the "Second Job" of Job Searching.
 						</h2>
 						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-							Take back your time. End the spreadsheet madness. Automate your job search and focus on what{" "}
-							<em>actually</em> matters: landing the offer.
+							Take back your time. End the spreadsheet madness. Automate your job search admin and focus
+							on what <em>actually</em> matters: landing the offer.
 						</p>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
 							<h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-								Help Us Launch Faster 🚀
+								Pick Your Access Path
 							</h3>
-							<p className="text-gray-600 dark:text-gray-300 mb-6">
-								JustAJobApp.com is currently blocked by Google's 100-user hard cap. To lift this cap and
-								make the app available to everyone, we must pass a one-time,{" "}
-								<strong>$3,000 mandatory security audit</strong>.
+							<p className="text-gray-600 dark:text-gray-300 mb-8">
+								Ready to plug in your search or support someone else's? Use the option that matches how
+								you plan to work with JustAJobApp today.
 							</p>
-							<p className="text-gray-600 dark:text-gray-300 mb-6">
-								Your support will directly fund this audit. It is the only thing standing between
-								JustAJobApp.com and helping thousands of job seekers.
-							</p>
-							<div className="flex justify-center">
-								<a
-									className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200 shadow-lg hover:shadow-xl"
-									href="https://www.buymeacoffee.com/justajobapp"
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									<span className="mr-3 text-xl">☕</span>
-									Buy us a coffee
-								</a>
+							<div className="grid gap-4 md:grid-cols-3">
+								<div className="rounded-xl border border-amber-100 dark:border-amber-900/50 p-4">
+									<h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">
+										New Job Seekers
+									</h4>
+									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+										Want access when we reopen seats? Request an invite to get in line for the
+										inbox-powered tracker.
+									</p>
+									<a
+										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
+										href="https://justajobapp-home.systeme.io/"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Join the waitlist
+									</a>
+								</div>
+								<div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
+									<h4 className="font-semibold text-emerald-800 dark:text-emerald-200 mb-2">
+										Career Coaches & Clients
+									</h4>
+									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+										Share progress and prep at Coach.JustAJobApp.com.
+									</p>
+									<a
+										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+										href="https://coach.justajobapp.com"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Coach.JustAJobApp.com
+									</a>
+								</div>
+								<div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+									<h4 className="font-semibold text-gray-900 dark:text-white mb-2">Beta Testers</h4>
+									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+										Already using the app? Login below.
+									</p>
+									<BetaLoginButton fullWidth />
+								</div>
 							</div>
 						</div>
 					</div>
