@@ -48,7 +48,7 @@ const Index = () => {
 							<div className="mt-10 grid gap-4 sm:grid-cols-3">
 								<a
 									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
-									href="https://justajobapp-home.systeme.io/"
+									href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_1"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -102,7 +102,7 @@ const Index = () => {
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-									href="https://justajobapp-home.systeme.io/"
+									href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_2"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -452,7 +452,7 @@ const Index = () => {
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-										href="https://justajobapp-home.systeme.io/"
+										href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_3"
 										rel="noopener noreferrer"
 										target="_blank"
 									>
