@@ -56,7 +56,7 @@ const Index = () => {
 								</a>
 								<a
 									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600 transition-colors duration-200"
-									href="https://coach.justajobapp.com"
+									href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_1"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -119,7 +119,7 @@ const Index = () => {
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-									href="https://coach.justajobapp.com"
+									href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_2"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -468,7 +468,7 @@ const Index = () => {
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-										href="https://coach.justajobapp.com"
+										href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_3"
 										rel="noopener noreferrer"
 										target="_blank"
 									>
