@@ -9,6 +9,7 @@ import JobApplicationsDashboard, { Application } from "@/components/JobApplicati
 import ResponseRateCard from "@/components/response_rate_card";
 import UniqueOpenRateChart from "@/components/response_rate_chart";
 import { checkAuth } from "@/utils/auth";
+import posthog from 'posthog-js';
 
 interface SankeyData {
 	nodes: { name: string }[];
@@ -32,6 +33,30 @@ export default function Dashboard() {
 	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
 
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+	// Identify user in PostHog once on mount
+	useEffect(() => {
+		const identifyUser = async () => {
+			try {
+				const isAuthenticated = await checkAuth(apiUrl);
+				if (!isAuthenticated) return;
+
+				const userResponse = await fetch(`${apiUrl}/me`, {
+					method: "GET",
+					credentials: "include"
+				});
+				if (userResponse.ok) {
+					const userData = await userResponse.json();
+					if (userData.user_id && typeof posthog !== 'undefined' && typeof posthog.identify === 'function') {
+						posthog.identify(userData.user_id);
+					}
+				}
+			} catch (error) {
+				// Silently fail PostHog identification - don't block the dashboard
+			}
+		};
+		identifyUser();
+	}, [apiUrl]);
 
 	const fetchData = async () => {
 		try {
