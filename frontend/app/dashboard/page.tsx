@@ -4,12 +4,12 @@ import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import React from "react";
 import { Sankey, ResponsiveContainer, Tooltip } from "recharts";
+import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
 import ResponseRateCard from "@/components/response_rate_card";
 import UniqueOpenRateChart from "@/components/response_rate_chart";
 import { checkAuth } from "@/utils/auth";
-import posthog from 'posthog-js';
 
 interface SankeyData {
 	nodes: { name: string }[];
@@ -47,7 +47,7 @@ export default function Dashboard() {
 				});
 				if (userResponse.ok) {
 					const userData = await userResponse.json();
-					if (userData.user_id && typeof posthog !== 'undefined' && typeof posthog.identify === 'function') {
+					if (userData.user_id && typeof posthog !== "undefined" && typeof posthog.identify === "function") {
 						posthog.identify(userData.user_id);
 					}
 				}
