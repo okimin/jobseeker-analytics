@@ -1,8 +1,11 @@
+import logging
 from fastapi import HTTPException, Depends, Request
 from sqlmodel import select, and_
 from database import DBSession
 from session.session_layer import validate_session
 from db.users import CoachClientLink, Users
+
+logger = logging.getLogger(__name__)
 
 def get_context_user_id(
     request: Request,
@@ -16,6 +19,10 @@ def get_context_user_id(
     """
     # Check if the caller wants to view a specific client's data
     target_client_id = request.query_params.get("view_as") or request.headers.get("X-View-As")
+    logger.info(
+        "get_context_user_id: authenticated_user_id=%s, target_client_id=%s, path=%s", 
+        authenticated_user_id, target_client_id, request.url.path
+    )
 
     if not target_client_id:
         return authenticated_user_id
@@ -31,7 +38,16 @@ def get_context_user_id(
         )
         relationship = db_session.exec(statement).first()
 
+        logger.info(
+            "get_context_user_id: relationship check result=%s for coach_id=%s client_id=%s", 
+            bool(relationship), authenticated_user_id, target_client_id
+        )
+
         if not relationship:
+            logger.warning(
+                "get_context_user_id: unauthorized coach access attempt coach_id=%s client_id=%s", 
+                authenticated_user_id, target_client_id
+            )
             raise HTTPException(
                 status_code=403, 
                 detail="Access denied: You are not an authorized coach."
