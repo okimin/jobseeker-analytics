@@ -135,7 +135,10 @@ export default function Dashboard() {
 					if (meData.role) {
 						setRole(meData.role);
 						if (meData.role === "coach") {
-							const clientsResp = await fetch(`${apiUrl}/coach/clients`, { method: "GET", credentials: "include" });
+							const clientsResp = await fetch(`${apiUrl}/coach/clients`, {
+								method: "GET",
+								credentials: "include"
+							});
 							if (clientsResp.ok) {
 								const list = await clientsResp.json();
 								setClients(list);
@@ -143,7 +146,9 @@ export default function Dashboard() {
 						}
 					}
 				}
-			} catch {/* ignore */}
+			} catch {
+				/* ignore */
+			}
 		};
 		init();
 	}, [apiUrl]);
@@ -512,33 +517,33 @@ export default function Dashboard() {
 				</div>
 			)}
 			<JobApplicationsDashboard
-			companyFilter={companyFilter}
-			currentPage={currentPage}
-			data={filteredData}
-			downloading={downloading}
-			hideApplicationConfirmations={hideApplicationConfirmations}
-			hideRejections={hideRejections}
-			loading={loading}
-			normalizedJobTitleFilter={normalizedJobTitleFilter}
-			responseRate={responseRateContent}
-			sankeyChart={sankeyChartContent}
-			searchTerm={searchTerm}
-			statusFilter={statusFilter}
-			totalPages={totalPages}
-			onCompanyFilterChange={setCompanyFilter}
-			onDownloadCsv={downloadCsv}
-			onDownloadSankey={downloadSankey}
-			onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
-			onHideRejectionsChange={setHideRejections}
-			onNextPage={nextPage}
-			onNormalizedJobTitleFilterChange={setNormalizedJobTitleFilter}
-			onPrevPage={prevPage}
-			onRefreshData={fetchData}
-			onRemoveItem={handleRemoveItem}
-			onSearchChange={setSearchTerm}
-			onStatusFilterChange={setStatusFilter}
-			readOnly={!!viewAs}
-		/>
+				companyFilter={companyFilter}
+				currentPage={currentPage}
+				data={filteredData}
+				downloading={downloading}
+				hideApplicationConfirmations={hideApplicationConfirmations}
+				hideRejections={hideRejections}
+				loading={loading}
+				normalizedJobTitleFilter={normalizedJobTitleFilter}
+				readOnly={!!viewAs}
+				responseRate={responseRateContent}
+				sankeyChart={sankeyChartContent}
+				searchTerm={searchTerm}
+				statusFilter={statusFilter}
+				totalPages={totalPages}
+				onCompanyFilterChange={setCompanyFilter}
+				onDownloadCsv={downloadCsv}
+				onDownloadSankey={downloadSankey}
+				onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
+				onHideRejectionsChange={setHideRejections}
+				onNextPage={nextPage}
+				onNormalizedJobTitleFilterChange={setNormalizedJobTitleFilter}
+				onPrevPage={prevPage}
+				onRefreshData={fetchData}
+				onRemoveItem={handleRemoveItem}
+				onSearchChange={setSearchTerm}
+				onStatusFilterChange={setStatusFilter}
+			/>
 		</>
 	);
 }

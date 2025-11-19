@@ -638,14 +638,14 @@ export default function JobApplicationsDashboard({
 					</Button>
 
 					{!readOnly && (
-					<Button
-						className="w-full sm:w-auto"
-						color="primary"
-						startContent={<PlusIcon />}
-						onPress={handleAddApplication}
-					>
-						Add Application
-					</Button>
+						<Button
+							className="w-full sm:w-auto"
+							color="primary"
+							startContent={<PlusIcon />}
+							onPress={handleAddApplication}
+						>
+							Add Application
+						</Button>
 					)}
 				</div>
 			</div>
@@ -699,35 +699,35 @@ export default function JobApplicationsDashboard({
 									<TableCell className="text-center">
 										<div className="flex justify-center gap-2">
 											{!readOnly && (
-											<>
-												<Tooltip content="Edit">
-													<Button
-														isIconOnly
-														size="sm"
-														variant="light"
-														onPress={() => {
-															setSelectedApplication(item);
-															setModalMode("edit");
-															setShowApplicationModal(true);
-														}}
-													>
-														<EditIcon className="text-gray-800 dark:text-gray-300" />
-													</Button>
-												</Tooltip>
-												<Tooltip content="Remove">
-													<Button
-														isIconOnly
-														size="sm"
-														variant="light"
-														onPress={() => {
-															setItemToRemove(item.id || null);
-															setShowDelete(true);
-														}}
-													>
-														<TrashIcon className="text-gray-800 dark:text-gray-300" />
-													</Button>
-												</Tooltip>
-											</>
+												<>
+													<Tooltip content="Edit">
+														<Button
+															isIconOnly
+															size="sm"
+															variant="light"
+															onPress={() => {
+																setSelectedApplication(item);
+																setModalMode("edit");
+																setShowApplicationModal(true);
+															}}
+														>
+															<EditIcon className="text-gray-800 dark:text-gray-300" />
+														</Button>
+													</Tooltip>
+													<Tooltip content="Remove">
+														<Button
+															isIconOnly
+															size="sm"
+															variant="light"
+															onPress={() => {
+																setItemToRemove(item.id || null);
+																setShowDelete(true);
+															}}
+														>
+															<TrashIcon className="text-gray-800 dark:text-gray-300" />
+														</Button>
+													</Tooltip>
+												</>
 											)}
 										</div>
 									</TableCell>
