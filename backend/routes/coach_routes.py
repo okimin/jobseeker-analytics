@@ -30,13 +30,20 @@ async def list_coach_clients(request: Request, db_session: database.DBSession, u
     if coach.role != "coach":
         raise HTTPException(status_code=403, detail="Access denied: not a coach")
 
-    statement = select(CoachClientLink).where(CoachClientLink.coach_id == user_id, CoachClientLink.end_date == None)
+    # NOTE: Use explicit == None comparison so SQLAlchemy generates IS NULL; avoid Python `is None` in the WHERE clause.
+    statement = select(CoachClientLink).where(
+        CoachClientLink.coach_id == user_id,
+        CoachClientLink.end_date == None  # noqa: E711
+    )
     links = db_session.exec(statement).all()
-    client_ids = [l.client_id for l in links]
+    logger.debug("/coach/clients coach_id=%s found_links=%s", user_id, [f"{link.coach_id}:{link.client_id}" for link in links])
+    client_ids = [link.client_id for link in links]
     if not client_ids:
         return []
 
-    clients = db_session.exec(select(Users).where(Users.user_id.in_(client_ids))).all()
+    clients_stmt = select(Users).where(Users.user_id.in_(client_ids))
+    clients = db_session.exec(clients_stmt).all()
+    logger.debug("/coach/clients resolved_clients=%s", [c.user_id for c in clients])
     return [
         {
             "user_id": c.user_id,

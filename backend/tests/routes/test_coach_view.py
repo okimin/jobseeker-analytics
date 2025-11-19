@@ -1,4 +1,3 @@
-from sqlmodel import select
 from db.user_emails import UserEmails
 
 def test_coach_list_clients(logged_in_coach_client, coach_client_link):
