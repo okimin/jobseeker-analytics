@@ -1,6 +1,6 @@
 import logging
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlmodel import select
 import database
 from session.session_layer import validate_session
@@ -21,7 +21,7 @@ class CoachClientResponse:
 
 @router.get("/coach/clients")
 @limiter.limit("10/minute")
-async def list_coach_clients(db_session: database.DBSession, user_id: str = Depends(validate_session)) -> List[dict]:
+async def list_coach_clients(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)) -> List[dict]:
     """Return active clients for authenticated coach."""
     # Verify caller is a coach
     coach = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
