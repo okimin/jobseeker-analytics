@@ -3,7 +3,7 @@ from fastapi import HTTPException, Depends, Request
 from sqlmodel import select, and_
 from database import DBSession
 from session.session_layer import validate_session
-from db.users import CoachClientLink, Users
+from db.users import CoachClientLink
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def get_context_user_id(
             and_(
                 CoachClientLink.coach_id == authenticated_user_id,
                 CoachClientLink.client_id == target_client_id,
-                CoachClientLink.end_date == None
+                CoachClientLink.end_date == None # noqa: E711
             )
         )
         relationship = db_session.exec(statement).first()
