@@ -22,10 +22,10 @@ class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"
     coach_id: str = Field(foreign_key="users.user_id", primary_key=True)
     client_id: str = Field(foreign_key="users.user_id", primary_key=True)
-    start_date: datetime = Field(default_factory=datetime.now(timezone.utc))
+    start_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     # If NULL, the relationship is currently active.
     end_date: Optional[datetime] = Field(default=None, nullable=True)
-    created: datetime = Field(default_factory=datetime.now(timezone.utc), nullable=False)
+    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
     updated: datetime = Field(
         sa_column_kwargs={"onupdate": sa.func.now()},
         default_factory=lambda: datetime.now(timezone.utc),
