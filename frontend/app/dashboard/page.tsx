@@ -6,7 +6,6 @@ import React from "react";
 import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
-import ResponseRateCard from "@/components/response_rate_card";
 import UniqueOpenRateChart from "@/components/response_rate_chart";
 import { checkAuth } from "@/utils/auth";
 
@@ -236,9 +235,6 @@ export default function Dashboard() {
 	const responseRateContent = (
 		<>
 			<div className="flex flex-col gap-4 mt-4 mb-6 md:flex-row">
-				<div className="w-full md:w-[30%]">
-					<ResponseRateCard />
-				</div>
 				<div className="md:w-[70%]">
 					<UniqueOpenRateChart />
 				</div>
