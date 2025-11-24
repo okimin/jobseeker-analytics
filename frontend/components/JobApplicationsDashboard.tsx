@@ -43,7 +43,6 @@ interface JobApplicationsDashboardProps {
 	onDownloadCsv: () => void;
 	onRemoveItem: (id: string) => void;
 	initialSortKey?: string;
-	responseRate?: React.ReactNode;
 	searchTerm?: string;
 	onSearchChange?: (term: string) => void;
 	statusFilter?: string;
@@ -109,7 +108,6 @@ export default function JobApplicationsDashboard({
 	onDownloadCsv,
 	onRemoveItem,
 	initialSortKey = "Date (Newest)",
-	responseRate,
 	searchTerm = "",
 	onSearchChange,
 	statusFilter = "",
@@ -386,7 +384,6 @@ export default function JobApplicationsDashboard({
 				</ModalContent>
 			</Modal>
 			<h1 className="text-2xl font-bold mt-0">{title}</h1>
-			{responseRate}
 			<div className="flex flex-wrap items-center justify-between gap-4 mb-4">
 				{/* Search and Filter Controls */}
 				<div className="flex flex-wrap items-center gap-4 flex-1">

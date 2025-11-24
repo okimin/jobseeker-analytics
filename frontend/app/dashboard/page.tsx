@@ -6,7 +6,6 @@ import React from "react";
 import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
-import UniqueOpenRateChart from "@/components/response_rate_chart";
 import { checkAuth } from "@/utils/auth";
 
 export default function Dashboard() {
@@ -232,16 +231,6 @@ export default function Dashboard() {
 		}
 	};
 
-	const responseRateContent = (
-		<>
-			<div className="flex flex-col gap-4 mt-4 mb-6 md:flex-row">
-				<div className="md:w-[70%]">
-					<UniqueOpenRateChart />
-				</div>
-			</div>
-		</>
-	);
-
 	return (
 		<JobApplicationsDashboard
 			companyFilter={companyFilter}
@@ -252,7 +241,6 @@ export default function Dashboard() {
 			hideRejections={hideRejections}
 			loading={loading}
 			normalizedJobTitleFilter={normalizedJobTitleFilter}
-			responseRate={responseRateContent}
 			searchTerm={searchTerm}
 			statusFilter={statusFilter}
 			totalPages={totalPages}
