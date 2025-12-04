@@ -107,7 +107,7 @@ const Footer = () => {
 							href="/contributors"
 						>
 							<span className="mr-2">👋</span>
-							Contributors
+							Join the Community
 						</a>
 					</div>
 
