@@ -1,13 +1,14 @@
 import sys
 import os
 import pytest
-from testcontainers.postgres import PostgresContainer
 import sqlalchemy as sa
+from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
 from fastapi.testclient import TestClient
 from fastapi import Request
 from datetime import datetime
 from unittest.mock import Mock
+from testcontainers.postgres import PostgresContainer
 
 # Add the parent directory to sys.path BEFORE any other imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -17,21 +18,43 @@ import database  # noqa: E402 DONT MOVE THIS
 import main  # noqa: E402
 from session.session_layer import validate_session  # noqa: E402
 from db.processing_tasks import STARTED, FINISHED, TaskRuns  # noqa: E402
-from db.users import Users # noqa: E402
+from db.users import Users  # noqa: E402
 
-# Use SQLite for GitHub CI pipeline
+# Use SQLite for GitHub CI pipeline and Docker environments
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+
+# Force SQLite mode - set this to True to always use SQLite instead of testcontainers
+FORCE_SQLITE = os.environ.get("FORCE_SQLITE", "true").lower() == "true"
+
+# Check if running in Docker container (consistent with database.py)
+IS_DOCKER_CONTAINER = bool(int(os.environ.get("IS_DOCKER_CONTAINER", 0)))
+
 
 @pytest.fixture(scope="session")
 def postgres_container():
-    with PostgresContainer("postgres:13") as postgres:
-        yield postgres
+    # Only use testcontainers if not running in Docker and not forced to use SQLite
+    if not FORCE_SQLITE and not IS_DOCKER_CONTAINER:
+        try:
+            with PostgresContainer("postgres:13") as postgres:
+                yield postgres
+        except Exception as e:
+            # If testcontainers fails, fall back to None
+            print(f"Testcontainers failed: {e}. Falling back to SQLite.")
+            yield None
+    else:
+        # Skip testcontainers when running in Docker or when forced to use SQLite
+        yield None
 
 
 @pytest.fixture
-def engine(postgres_container: PostgresContainer, monkeypatch):
-    test_engine = sa.create_engine(
-        sa.URL.create(
+def engine(monkeypatch, postgres_container):
+    if (
+        postgres_container is not None
+        and not FORCE_SQLITE
+        and not IS_DOCKER_CONTAINER
+    ):
+        # Use PostgreSQL with testcontainers when running locally
+        test_url = sa.URL.create(
             "postgresql",
             username=postgres_container.username,
             password=postgres_container.password,
@@ -39,20 +62,43 @@ def engine(postgres_container: PostgresContainer, monkeypatch):
             port=postgres_container.get_exposed_port(postgres_container.port),
             database=postgres_container.dbname,
         )
-    )
+        test_engine = sa.create_engine(test_url)
+        print("Using PostgreSQL testcontainer for tests")
+    else:
+        # Use SQLite when running in Docker, CI, or when forced
+        test_engine = sa.create_engine(
+            "sqlite:///:memory:",
+            poolclass=StaticPool,
+            connect_args={"check_same_thread": False},
+        )
+        print("Using SQLite in-memory database for tests")
 
     monkeypatch.setattr(database, "engine", test_engine)
-
     database.create_db_and_tables()
 
     yield test_engine
 
+    # Clean up all tables after each test
     with test_engine.begin() as transaction:
-        transaction.execute(
-            sa.text("SET session_replication_role = :role"), {"role": "replica"}
-        )
-        for table in SQLModel.metadata.tables.values():
-            transaction.execute(table.delete())
+        if (
+            postgres_container is not None
+            and not FORCE_SQLITE
+            and not IS_DOCKER_CONTAINER
+        ):
+            # For PostgreSQL, use TRUNCATE for faster cleanup
+            for table in reversed(SQLModel.metadata.sorted_tables):
+                try:
+                    transaction.execute(
+                        sa.text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE")
+                    )
+                except Exception as e:
+                    # Fallback to DELETE if TRUNCATE fails
+                    transaction.execute(table.delete())
+                    print("Exception cleaning up tables in test %s" % e)
+        else:
+            # For SQLite, use DELETE
+            for table in reversed(SQLModel.metadata.sorted_tables):
+                transaction.execute(table.delete())
 
 
 @pytest.fixture
@@ -111,8 +157,9 @@ def task_with_300_processed_emails(task_factory):
 def client_factory(db_session):
     def _make_client(user=None):
         main.app.dependency_overrides[database.request_session] = lambda: db_session
-        if user and user.user_id:
-            main.app.dependency_overrides[validate_session] = lambda: user.user_id
+        if user:
+            user_id = user.user_id
+            main.app.dependency_overrides[validate_session] = lambda: user_id
         else:
             # Simulate not logged in: validate_session returns empty string
             main.app.dependency_overrides[validate_session] = lambda: ""

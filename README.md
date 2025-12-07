@@ -2,7 +2,7 @@
 
 ## JustAJobApp.com connects to your inbox to automatically build your job search dashboard. No more spreadsheets. No more manual data entry.
 
-<img width="50%" height="50%" alt="Logo" src="frontend/public/homepage/Problem2.png" />
+<img width="50%" height="50%" alt="Graphic showing job search statistics: applications per hire have tripled since 2021, with 90% of candidates being rejected or ghosted" src="frontend/public/homepage/Problem2.png" />
 
 The job search is officially broken, and it's not just you. Applications per hire have tripled since early 2021, leaving even qualified candidates stuck in an endless cycle of submitting resumes into the void.
 
@@ -11,11 +11,23 @@ The job search is officially broken, and it's not just you. Applications per hir
 
 ## Get Started
 
-Choose your DIY Install path: 
-- Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install) 
-- More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
+```mermaid
+graph LR
+    A{Do you have a GitHub account?} -- No --> B[Reserve 50% off the official app at BuyMeACoffee.com/JustAJobApp];
+    A -- Yes --> C{Do you have a Gmail account?};
+    C -- Yes --> D[Continue with DIY Install];
+    C -- No --> E[Set up forwarding to a Gmail account];
+    E --> D;
+```
 
-No GitHub account? [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
+**Do you have a GitHub account?**
+
+* **Yes:** Choose your DIY Install path: 
+  * Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install)
+  * More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
+
+
+* **No:** [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
 
 ## Problem: The Job Search is Burning You Out
 
@@ -39,7 +51,7 @@ Unlike other job trackers (Huntr, Teal, Simplify) that force you to manually "cl
 
 Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an email-powered tracker designed for busy professionals who value efficiency and discretion.
 
-<img width="75%" height="75%" alt="Logo" src="frontend/public/homepage/Solution-Screenshot.png" />
+<img width="75%" height="75%" alt="Screenshot of JustAJobApp dashboard showing automated job application tracking with color-coded statuses, company names, and application timeline" src="frontend/public/homepage/Solution-Screenshot.png" />
 
 ## Why 100+ Beta Testers Ditched Their Spreadsheets
 
@@ -77,7 +89,7 @@ In July 2025, we secured a feature on GitHub's official YouTube channel, which h
 🎥 [Watch the full episode here](https://youtu.be/sbzKMVaYHZw?list=PL0ZEIUccq0tD_c7gV0lAMXDXl-xK4pxch&t=1260) 
 
 
-<img width="75%" height="75%" alt="GitHubFeatureYouTube" src="frontend/public/homepage/News.png" />
+<img width="75%" height="75%" alt="Screenshot of JustAJobApp featured on GitHub's official YouTube channel with over 500,000 subscribers" src="frontend/public/homepage/News.png" />
 
 
 ## Get Involved
@@ -96,5 +108,5 @@ Check out the page below to support us.
 ## Thank You to Our Contributors
 
 <a href="https://github.com/just-a-job-app/jobseeker-analytics/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />
+  <img alt="Grid of profile pictures showing all contributors to the jobseeker-analytics project" src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />
 </a>

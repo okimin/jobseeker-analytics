@@ -49,7 +49,7 @@ export async function createGitHubIssue(params: CreateIssueParams): Promise<GitH
 
 	try {
 		const response = await appOctokit.issues.create({
-			owner: "just-a-job-app",
+			owner: "JustAJobApp",
 			repo: "jobseeker-analytics",
 			title,
 			body,
@@ -58,6 +58,7 @@ export async function createGitHubIssue(params: CreateIssueParams): Promise<GitH
 
 		return { success: true, issueNumber: response.data.number };
 	} catch (error) {
+		console.error("Failed to create issue:", error);
 		return { success: false, error: "Failed to create issue" };
 	}
 }
