@@ -157,10 +157,10 @@ def message_data_with_list_values():
 
 
 @mock.patch('db.utils.user_email_utils.check_email_exists')
-def test_create_user_email_with_list_values(mock_check_email, mock_user, message_data_with_list_values, caplog):
+def test_create_user_email_with_list_values(mock_check_email, mock_user, message_data_with_list_values, db_session):
     """Test that create_user_email handles message_data_with_list_values correctly"""
     mock_check_email.return_value = False
-    result = user_email_utils.create_user_email(mock_user, message_data_with_list_values)
+    result = user_email_utils.create_user_email(mock_user, message_data_with_list_values, db_session)
     assert result is not None  # user email created successfully
 
 def test_clean_whitespace():
@@ -169,3 +169,6 @@ def test_clean_whitespace():
     assert email_utils.clean_whitespace("") == ""
     assert email_utils.clean_whitespace(None) == ""
     
+
+def test_decode_subject_line():
+    assert email_utils.decode_subject_line("=?UTF-8?Q?Deploy_APIs_at_Scale_=E2=80=93_Forward_?= =?UTF-8?Q?Deployed_Engineer_(SF_In-Person)?=") == "Deploy APIs at Scale – Forward Deployed Engineer (SF In-Person)"

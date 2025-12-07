@@ -48,7 +48,6 @@ const DeveloperInfo = () => {
 				});
 			}
 		} catch (error) {
-			console.error("Error requesting setup session:", error);
 			addToast({
 				title: "Connection error",
 				description: "Please check your network and try again.",
@@ -62,8 +61,8 @@ const DeveloperInfo = () => {
 	return (
 		<Card className="p-6 md:p-8" id="developerInfoCard">
 			<div className="space-y-4">
-				<div className="flex items-center gap-2 text-purple-600 font-semibold">
-					<span className="bg-purple-100 text-purple-800 p-1 rounded-full">
+				<div className="flex items-center gap-2 text-amber-600 font-semibold">
+					<span className="bg-amber-100 text-amber-800 p-1 rounded-full">
 						<CodeIcon size={16} />
 					</span>
 					Option 2: Run Locally
@@ -77,7 +76,7 @@ const DeveloperInfo = () => {
 
 				{/* Removed the background div that was causing issues */}
 				<div className="space-y-6 pt-2">
-					<div className="space-y-3 border-l-4 border-purple-500 pl-4">
+					<div className="space-y-3 border-l-4 border-amber-500 pl-4">
 						<h4 className="font-semibold">1. For beginners</h4>
 						<p className="text-sm text-default-500">
 							If you're not familiar with git, let us guide you through the installation process. Request
@@ -94,7 +93,7 @@ const DeveloperInfo = () => {
 								onChange={(e) => setEmail(e.target.value)}
 							/>
 							<Button
-								className="mt-2 w-full bg-purple-600 hover:bg-purple-700"
+								className="mt-2 w-full bg-amber-600 hover:bg-amber-700"
 								color="primary"
 								id="request-setup-session-button"
 								isDisabled={isSubmitting}
@@ -133,7 +132,7 @@ const DeveloperInfo = () => {
 						<a
 							aria-label="Join our Discord server"
 							className="flex items-center gap-2 text-sm text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-							href="https://discord.gg/5tTT6WVQyw"
+							href="https://discord.gg/gsdpMchCam"
 							rel="noopener noreferrer"
 							target="_blank"
 						>

@@ -5,6 +5,7 @@ from google.ai.generativelanguage_v1beta2 import GenerateTextResponse
 import logging
 
 from utils.config_utils import get_settings
+from utils.task_utils import processed_emails_exceeds_rate_limit
 
 settings = get_settings()
 
@@ -20,11 +21,15 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def process_email(email_text):
+def process_email(email_text: str, user_id: str, db_session):
+    logger.info(f"user_id:{user_id} Starting LLM processing of email content (length: {len(email_text)} chars)")
+    
     prompt = f"""
-        Extract the company name and job title (role) from the following email. 
+        First, extract the job application status from the following email using the labels below. 
+        If the status is 'False positive', only return the status as 'False positive' and do not extract company name or job title. 
+        If the status is not 'False positive', then extract the company name and job title as well.
         
-        Lastly, assign one of the following labels to job application status based on the main purpose or outcome of the message:
+        Assign one of the following labels to job application status based on the main purpose or outcome of the message:
         
         Application confirmation
         Rejection
@@ -32,6 +37,7 @@ def process_email(email_text):
         Information request
         Assessment sent
         Interview invitation
+        Referral - Action required
         Did not apply - inbound request
         Action required from company
         Hiring freeze notification
@@ -44,6 +50,10 @@ def process_email(email_text):
         Application confirmation
         Assign this label if the email confirms receipt of a job application.
         Examples: "We have received your application", "Thank you for applying", "Your application has been submitted".
+
+        Referral - Action required
+        Assign this label if the email is a referral from a current employee and you need to complete the application.
+        Examples: "referred you to a job", "been referred for", "thinks you would make a great addition", "Employee Referral Program"
 
         Rejection
         Use this label for emails explicitly stating that the candidate is not moving forward in the process.
@@ -66,8 +76,9 @@ def process_email(email_text):
         Examples: "We would like to invite you to interview", "Interview scheduled", "Please join us for an interview".
 
         Did not apply - inbound request
-        Assign this label if the company or recruiter reaches out to you first, and you did not apply for the position.
-        Examples: "We found your profile and would like to connect", "Are you interested in this opportunity?", "We came across your resume".
+        Assign this label if the company or recruiter reaches out to you first about a job or recruiting opportunity, and you did not apply for the position.
+        Examples: "We found your profile and would like to connect about a job", "Are you interested in this job opportunity?", "We came across your resume for a position".
+        Do NOT use this label for event invitations, newsletters, or marketing emails.
 
         Action required from company
         Use this label if the next step is pending from the company, and you are waiting for their response or action.
@@ -87,22 +98,27 @@ def process_email(email_text):
 
         False positive
         Use this label if the email is not related to job applications, recruitment, or hiring.
-        Examples: Newsletters, spam, unrelated notifications, or personal emails.
+        Examples: Newsletters, event invitations, conference invites, marketing emails, spam, unrelated notifications, or personal emails.
+        Example: "Join us for our annual conference" → False positive
+        Example: "Sign up for our upcoming event" → False positive
 
-        Provide the output in JSON format, for example:  "company_name": "company_name", "job_application_status": "status", "job_title": "job_title"
+        If the status is 'False positive', only return: {{"job_application_status": "False positive"}}
+        If the status is not 'False positive', return: {{"company_name": "company_name", "job_application_status": "status", "job_title": "job_title"}}
         Remove backticks. Only use double quotes. Enclose key and value pairs in a single pair of curly braces.
         Email: {email_text}
     """
-
+    
+    logger.debug(f"user_id:{user_id} LLM prompt prepared (length: {len(prompt)} chars)")
+    
     retries = 3  # Max retries
     delay = 60  # Initial delay
     for attempt in range(retries):
         try:
-            logger.info("Calling generate_content")
+            logger.info(f"user_id:{user_id} Calling generate_content (attempt {attempt + 1}/{retries})")
             response: GenerateTextResponse = model.generate_content(prompt)
             response.resolve()
             response_json: str = response.text
-            logger.info("Received response from model: %s", response_json)
+            logger.info(f"user_id:{user_id} Received response from model: %s", response_json)
             if response_json:
                 cleaned_response_json = (
                     response_json.replace("json", "")
@@ -116,17 +132,23 @@ def process_email(email_text):
                     .replace("'", '"')
                     .strip()
                 )
-                logger.info("Cleaned response: %s", cleaned_response_json)
-                return json.loads(cleaned_response_json)
+                logger.info(f"user_id:{user_id} Cleaned response: %s", cleaned_response_json)
+                result = json.loads(cleaned_response_json)
+                logger.info(f"user_id:{user_id} Successfully parsed JSON response")
+                return result
             else:
-                logger.error("Empty response received from the model.")
+                logger.error(f"user_id:{user_id} Empty response received from the model.")
                 return None
         except Exception as e:
-            if "429" in str(e):
+            daily_batch_exceeded = processed_emails_exceeds_rate_limit(user_id, db_session)
+            if "429" in str(e) and not daily_batch_exceeded:
                 logger.warning(
-                    f"Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
+                    f"user_id:{user_id} Rate limit hit. Retrying in {delay} seconds (attempt {attempt + 1})."
                 )
                 time.sleep(delay)
+            elif "429" in str(e) and daily_batch_exceeded:
+                logger.error("Daily rate limit exceeded. Not retrying.")
+                return None
             else:
                 logger.error(f"process_email exception: {e}")
                 return None

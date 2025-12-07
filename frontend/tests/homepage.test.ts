@@ -41,7 +41,7 @@ test.describe("Homepage Tests", () => {
 		await expect(discordCard).toBeVisible();
 
 		await discordCard.click();
-		await expect(page).toHaveURL("https://discord.com/invite/5tTT6WVQyw");
+		await expect(page).toHaveURL("https://discord.com/invite/gsdpMchCam");
 	});
 
 	test("Never Search Alone card is visible and clickable", async ({ page }) => {

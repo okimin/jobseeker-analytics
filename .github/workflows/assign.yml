@@ -5,6 +5,8 @@ on:
     # Runs daily at midnight UTC to check for inactive assigned issues.
     # Adjust cron schedule as needed (e.g., "0 0 * * *" for daily at midnight UTC).
     - cron: '0 0 * * *'
+  issue_comment:
+    types: [created]
   # Allows manual triggering for testing or immediate cleanup.
   workflow_dispatch:
 
@@ -24,6 +26,7 @@ jobs:
           days_until_unassign: 30
           # Enable the assignee ping
           enable_reminder: true
+          max_assignments: 1
           # Define 'X' days: Send reminder after 7 days of inactivity (halfway point of 14 days)
           # Set to 'auto' for (days_until_unassign / 2) or a specific number like '7'
           reminder_days: 14
@@ -49,6 +52,6 @@ jobs:
 
             Please let me know if you have any questions or if there's anything I can do to support you.
 
-            Need help? Message the #contributors channel in [Discord](https://discord.gg/5tTT6WVQyw). 
+            Need help? Message the #chat channel in [Discord](https://discord.gg/gsdpMchCam). 
             
             When asking for help, please include the issue number, what you're stuck on, and what you've already tried.

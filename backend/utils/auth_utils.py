@@ -6,7 +6,7 @@ from utils.file_utils import get_user_filepath
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
-
+from googleapiclient.discovery import build
 from utils.config_utils import get_settings
 
 logger = logging.getLogger(__name__)
@@ -22,11 +22,23 @@ class AuthenticatedUser:
     successfully authenticated with Google.
     """
 
-    def __init__(self, creds: Credentials, start_date=None):
+    def __init__(
+        self,
+        creds: Credentials,
+        start_date=None,
+        _user_id=None,
+        _user_email=None,
+        _service=None,
+    ):
         self.creds = creds
-        self.user_id, self.user_email = self.get_user_id_and_email()
+        self.user_id, self.user_email = (
+            (_user_id, _user_email)
+            if _user_id and _user_email
+            else self.get_user_id_and_email()
+        )
         self.filepath = get_user_filepath(self.user_id)
         self.start_date = start_date
+        self.service = _service if _service else build("gmail", "v1", credentials=creds)
 
     def get_user_id_and_email(self) -> tuple:
         """
@@ -51,7 +63,7 @@ class AuthenticatedUser:
                 raise ValueError("No ID token available after refresh.")
     
             decoded_token = id_token.verify_oauth2_token(
-                self.creds.id_token, Request(), audience=settings.GOOGLE_CLIENT_ID
+                self.creds.id_token, Request(), audience=self.creds.client_id
             )
             user_id = decoded_token["sub"]  # 'sub' is the unique user ID
             user_email = decoded_token.get("email")  # 'email' is the user's email address
@@ -80,3 +92,33 @@ class AuthenticatedUser:
             proxy_user_id = str(uuid.uuid4())
             logger.error("Could not verify ID token. Using proxy ID: %s", proxy_user_id)
             return proxy_user_id, None  # Generate a random ID and return None for email
+
+
+def get_google_authorization_url(flow, has_valid_creds: bool) -> tuple[str, str]:
+    """
+    Helper function to generate the Google OAuth2 authorization URL with appropriate prompt.
+    Use 'select_account' for returning users (with valid refresh tokens), or 'consent' for new/expired users.
+    
+    Args:
+        flow: Google OAuth2 flow object
+        has_valid_creds (bool): Whether the user has valid credentials (refresh token)
+        
+    Returns:
+        tuple[str, str]: (authorization_url, state) from the OAuth flow
+    """
+    if has_valid_creds:
+        # Returning user - use select_account (no consent screen)
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            prompt='select_account'
+        )
+        logger.info("Using select_account for returning user (skip consent)")
+    else:
+        # New user or user without refresh token - use consent
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            prompt='consent'
+        )
+        logger.info("Using consent for new user or user without refresh token")
+    
+    return authorization_url, state

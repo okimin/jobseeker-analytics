@@ -10,4 +10,5 @@ class UserEmails(SQLModel, table=True):
     received_at: datetime
     subject: str
     job_title: str
+    normalized_job_title: str = Field(default="")  # New field for normalized job titles
     email_from: str  # to avoid 'from' being a reserved key word

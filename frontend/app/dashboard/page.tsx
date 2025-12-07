@@ -1,12 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import React from "react";
+import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
-import ResponseRateCard from "@/components/response_rate_card";
-import UniqueOpenRateChart from "@/components/response_rate_chart";
 import { checkAuth } from "@/utils/auth";
 
 export default function Dashboard() {
@@ -17,49 +16,122 @@ export default function Dashboard() {
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [statusFilter, setStatusFilter] = useState("");
+	const [companyFilter, setCompanyFilter] = useState("");
+	const [hideRejections, setHideRejections] = useState<boolean>(true);
+	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(true);
+	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
+
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+	// Identify user in PostHog once on mount
 	useEffect(() => {
-		const fetchData = async () => {
+		const identifyUser = async () => {
 			try {
-				// Check if user is logged in
 				const isAuthenticated = await checkAuth(apiUrl);
-				if (!isAuthenticated) {
-					addToast({
-						title: "You need to be logged in to access this page.",
-						color: "warning"
-					});
-					router.push("/");
-					return;
-				}
+				if (!isAuthenticated) return;
 
-				// Fetch applicaions (if user is logged in)
-				const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}`, {
+				const userResponse = await fetch(`${apiUrl}/me`, {
 					method: "GET",
-					credentials: "include" // Include cookies for session management
+					credentials: "include"
 				});
-
-				if (!response.ok) {
-					if (response.status === 404) {
-						setError("No applications found");
-					} else {
-						throw new Error(`HTTP error! status: ${response.status}`);
+				if (userResponse.ok) {
+					const userData = await userResponse.json();
+					if (userData.user_id && typeof posthog !== "undefined" && typeof posthog.identify === "function") {
+						posthog.identify(userData.user_id);
 					}
 				}
-
-				const result = await response.json();
-				setTotalPages(result.totalPages);
-
-				setData(result);
-			} catch {
-				setError("Failed to load applications");
-			} finally {
-				setLoading(false);
+			} catch (error) {
+				// Silently fail PostHog identification - don't block the dashboard
 			}
 		};
+		identifyUser();
+	}, [apiUrl]);
 
+	const fetchData = async () => {
+		try {
+			setLoading(true);
+			// Check if user is logged in
+			const isAuthenticated = await checkAuth(apiUrl);
+			if (!isAuthenticated) {
+				addToast({
+					title: "You need to be logged in to access this page.",
+					color: "warning"
+				});
+				router.push("/");
+				return;
+			}
+
+			// Fetch applications (if user is logged in)
+			const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}`, {
+				method: "GET",
+				credentials: "include" // Include cookies for session management
+			});
+
+			if (!response.ok) {
+				if (response.status === 404) {
+					setError("No applications found");
+				} else {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+			}
+
+			const result = await response.json();
+			setTotalPages(result.totalPages);
+
+			setData(result);
+		} catch {
+			setError("Failed to load applications");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		fetchData();
 	}, [apiUrl, router, currentPage]);
+
+	// Filter data based on search term, status, company, and hide options
+	const filteredData = useMemo(() => {
+		return data.filter((item) => {
+			const matchesSearch =
+				!searchTerm ||
+				item.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(item.normalized_job_title &&
+					item.normalized_job_title.toLowerCase().includes(searchTerm.toLowerCase()));
+
+			const matchesStatus = !statusFilter || item.application_status === statusFilter;
+			const matchesCompany = !companyFilter || item.company_name === companyFilter;
+			const matchesNormalizedJobTitle =
+				!normalizedJobTitleFilter || item.normalized_job_title === normalizedJobTitleFilter;
+
+			const isNotRejection = !hideRejections || !item.application_status.toLowerCase().includes("reject");
+
+			const isNotApplicationConfirmation =
+				!hideApplicationConfirmations ||
+				!item.application_status.toLowerCase().includes("application confirmation");
+
+			return (
+				matchesSearch &&
+				matchesStatus &&
+				matchesCompany &&
+				matchesNormalizedJobTitle &&
+				isNotRejection &&
+				isNotApplicationConfirmation
+			);
+		});
+	}, [
+		data,
+		searchTerm,
+		statusFilter,
+		companyFilter,
+		normalizedJobTitleFilter,
+		hideRejections,
+		hideApplicationConfirmations
+	]);
 
 	const nextPage = () => {
 		if (currentPage < totalPages) {
@@ -131,53 +203,6 @@ export default function Dashboard() {
 		);
 	}
 
-	async function downloadSankey() {
-		setDownloading(true);
-		try {
-			const response = await fetch(`${apiUrl}/process-sankey`, {
-				method: "GET",
-				credentials: "include"
-			});
-
-			if (!response.ok) {
-				let description = "Something went wrong. Please try again.";
-
-				if (response.status === 429) {
-					description = "Download limit reached. Please wait before trying again.";
-				} else {
-					description = "Please try again or contact help@justajobapp.com if the issue persists.";
-				}
-
-				addToast({
-					title: "Failed to download Sankey Diagram",
-					description,
-					color: "danger"
-				});
-
-				return;
-			}
-
-			// Create a download link to trigger the file download
-			const blob = await response.blob();
-			const link = document.createElement("a");
-			const url = URL.createObjectURL(blob);
-			link.href = url;
-			link.download = `sankey_diagram_${new Date().toISOString().split("T")[0]}.png`;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-		} catch {
-			addToast({
-				title: "Something went wrong",
-				description: "Please try again",
-				color: "danger"
-			});
-		} finally {
-			setDownloading(false);
-		}
-	}
-
 	const handleRemoveItem = async (id: string) => {
 		try {
 			// Make a DELETE request to the backend
@@ -198,7 +223,6 @@ export default function Dashboard() {
 				color: "success"
 			});
 		} catch (error) {
-			console.error("Error deleting item:", error);
 			addToast({
 				title: "Failed to remove item",
 				description: "Please try again or contact support.",
@@ -207,32 +231,30 @@ export default function Dashboard() {
 		}
 	};
 
-	const responseRateContent = (
-		<>
-			<div className="flex flex-col gap-4 mt-4 mb-6 md:flex-row">
-				<div className="w-full md:w-[30%]">
-					<ResponseRateCard />
-				</div>
-				<div className="md:w-[70%]">
-					<UniqueOpenRateChart />
-				</div>
-			</div>
-		</>
-	);
-
 	return (
 		<JobApplicationsDashboard
+			companyFilter={companyFilter}
 			currentPage={currentPage}
-			data={data}
+			data={filteredData}
 			downloading={downloading}
+			hideApplicationConfirmations={hideApplicationConfirmations}
+			hideRejections={hideRejections}
 			loading={loading}
-			responseRate={responseRateContent}
+			normalizedJobTitleFilter={normalizedJobTitleFilter}
+			searchTerm={searchTerm}
+			statusFilter={statusFilter}
 			totalPages={totalPages}
+			onCompanyFilterChange={setCompanyFilter}
 			onDownloadCsv={downloadCsv}
-			onDownloadSankey={downloadSankey}
+			onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
+			onHideRejectionsChange={setHideRejections}
 			onNextPage={nextPage}
+			onNormalizedJobTitleFilterChange={setNormalizedJobTitleFilter}
 			onPrevPage={prevPage}
+			onRefreshData={fetchData}
 			onRemoveItem={handleRemoveItem}
+			onSearchChange={setSearchTerm}
+			onStatusFilterChange={setStatusFilter}
 		/>
 	);
 }

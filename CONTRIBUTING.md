@@ -1,45 +1,50 @@
 ## Table of Contents
 
-1. [Welcome!](#welcome)
-2. [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
-    - [Install the Prerequisites](#install-the-prerequisites)
-    - [Clone the repo](#clone-the-repo)
-    - [Get a Google AI API key](#get-a-google-ai-api-key)
-    - [Create a Google OAuth App](#create-a-google-oauth-app)
-    - [Set Up Environment Variables](#set-up-environment-variables)
-    - [Run the App: Two options](#run-the-app-two-options)
-        - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
-        - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
-    - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
-    - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
-3. [Submit Changes](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
+1. [Welcome to Do-It-Yourself (DIY) Install](#welcome-to-do-it-yourself-diy-install)
+2. [📹 Watch the Video](#-video-tutorial-diy-install)
+3. [📖 Read the Text](#-written-tutorial-diy-install)
+    - [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
+        - [Install the Prerequisites](#install-the-prerequisites)
+        - [Clone the repo](#clone-the-repo)
+        - [Get a Google AI API key](#get-a-google-ai-api-key)
+        - [Create a Google OAuth App](#create-a-google-oauth-app)
+        - [Set Up Environment Variables](#set-up-environment-variables)
+        - [Run the App: Two options](#run-the-app-two-options)
+            - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
+            - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
+        - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
+        - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
+4. [Submit Changes](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
     - The "One Diff, One Thesis" Principle
     - Keep Pull Requests Under 250 Lines of Code
     - Make your code testable
-4. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
+5. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
     - [How Do I Submit a (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
-5. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
+6. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
     - [Examples of positive behavior](#examples-of-behavior-that-contributes-to-positive-environment)
     - [Examples of unacceptable behavior](#examples-of-unacceptable-behavior)
 
 ---
 
-# Welcome!
+# Welcome to Do-It-Yourself (DIY) Install
 
 Whether this is your first time downloading code or the gazillionth time cloning a repo, we are happy to see you. 
 
 Here you will learn how to install the app directly on your personal computer. 
 
-Once the app is installed, you'll be able to gain full access to all the features. 
+Once the app is installed, you'll have full access to all the features.
 
-If you are a current or aspiring developer, you can pick up [open issues](https://github.com/jobba-help/jobseeker-analytics/issues), write code to fix them, and get your work reviewed and merged. Comment on an issue if you'd like to try resolving it.
+Choose your path: Video [📹](#-video-tutorial-diy-install) or Manual [📖](#-written-tutorial-diy-install)
 
-If you're not an aspiring developer, that's totally ok. 
+Note: If you are a current or aspiring developer, you can pick up [open issues](https://github.com/just-a-job-app/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee), write code to fix them, and get your work reviewed and merged. Comment on an issue if you'd like to try resolving it.
 
-Keep reading to install the app. 
+# 📹 Video Tutorial: DIY Install
+- ⏺️ [Watch replay of guided tutorial](https://youtube.com/playlist?list=PL0ZEIUccq0tDV-gzv2GgjVr0Nwjpc2p-G&si=lccbmgSRxd9x8NeE )  
+- If you run into issues, hop into [Discord](https://discord.gg/gsdpMchCam).
+- Prefer live help? Get notified about upcoming guided tutorials, hosted online: https://lu.ma/justajobapp
+- Changed your mind about DIY Install? [Get JAJA(Pro)](https://app.formbricks.com/s/cmagfwkuu3f8bug01e340supq)
 
-You may run into issues - email help@justajobapp.com for help :)
-
+# 📝 Written Tutorial: DIY Install
 ## How can I install the app directly on my computer? [⬆️ Back to Table of Contents](#table-of-contents)
 **Estimated time to complete installation:** 25-50 minutes.
 *This is an estimate and can vary depending on your internet speed and familiarity with the tools. The first-time setup with Docker will take the longest.*
@@ -71,12 +76,27 @@ git clone https://github.com/your-username/jobseeker-analytics.git
 cd jobseeker-analytics
 ```
 
+---
+
+### Set Up Environment Variables
+_Estimated time: 3-5 minutes_
+1. Copy `backend\.env.example` to `backend\.env`:
+   ```sh
+   cp backend/.env.example backend/.env
+   ```
+   **🔒 Never share your `.env` file or commit it to Git!**  
+2. Copy `frontend\.env.sample` to `frontend\.env`:
+   ```sh
+   cp frontend/.env.sample frontend/.env
+   ```
+---
+
 ### Get a Google AI API key
 _Estimated time: 2-3 minutes_
 1. Go to [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 2. Click **Create and API Key**
-3. Copy your API key and save it for later
-
+3. Copy the API key value
+4. Open `backend/.env` and replace value for `GOOGLE_API_KEY`
 ---
 
 ### Create a Google OAuth App
@@ -88,11 +108,13 @@ _Estimated time: 10-20 minutes_
 5. Set the application type to **Web Application**.  
 6. Under "Authorized redirect URIs," add the following and save to update:  
    - http://localhost:8000/login
-7. Copy the **Client ID** for later.  
-8. Next to Client Secret is a download button. Click it and save it to the `backend` folder with filename ```credentials.json```
-9. On the OAuth Consent Screen page, scroll to "Test Users" and add your gmail address.
-10. Click **Data Access** and then **Add or remove scopes**. 
-11. At the top of the list, check 
+7. Copy the **Client ID** under Additional information header
+8. In `backend/.env`, paste value for `GOOGLE_CLIENT_ID`
+9. Copy the **Client secret** under Client secrets header
+10. In `backend/.env`, paste value for `GOOGLE_CLIENT_SECRET`
+11. On the OAuth Consent Screen page, scroll to "Test Users" and add your gmail address.
+12. Click **Data Access** and then **Add or remove scopes**. 
+13. At the top of the list, check 
    - .../auth/userinfo.email  
    - openid
 
@@ -107,26 +129,6 @@ Don't forget to press **Save**. Twice.
 15. Check the box next to Gmail API | .../auth/gmail.readonly
 16. Click **Update**
 17. Click **Save**
-
----
-
-### Set Up Environment Variables
-_Estimated time: 3-5 minutes_
-1. Copy `backend\.env.example` to `backend\.env`:
-   ```sh
-   cp backend/.env.example backend/.env
-   ```
-2. Edit `backend/.env` to put in your own credentials, particularly 
-   - Google OAuth Client ID goes in `GOOGLE_CLIENT_ID`
-   - Google AI API key goes in `GOOGLE_API_KEY`
-   - Type a random string in `COOKIE_SECRET`
-
-   **🔒 Never share your `.env` file or commit it to Git!**  
-3. Copy `frontend\.env.sample` to `frontend\.env`:
-   ```sh
-   cp frontend/.env.sample frontend/.env
-   ```
----
 
 
 ### Run the App: Two options
@@ -288,78 +290,90 @@ To inspect your PostgreSQL database running in Docker, follow these steps:
    ```
 7. **Open a Pull Request** on GitHub. See tips below. Credit to Taro ([warning: you will make me money if you sign up through this link](https://www.jointaro.com/r/liannan073/))
 
-   #### 1. The "One Diff, One Thesis" Principle
-   
-       - Each code change should focus on a single purpose or goal.
-   
-      **What This Means:**
-      - Make each pull request about one specific improvement
-      - Address one feature, bug fix, or enhancement at a time
-      - Keep your changes focused and related to one objective
-      
-      **Why It Matters:**
-      When your changes have a single purpose, they're easier to review, understand, and test. If something goes wrong, it's also easier to identify and fix the problem.
-      
-      **Example:**
-      If you're working on a user profile page:
-      - ✅ GOOD PR: Add email validation to the registration form
-      - ❌ BAD PR: Add email validation, redesign the profile layout, and optimize database queries
-      
-      Think of each PR as a single chapter in a book, not the entire story.
-      
-      #### 2. Keep Pull Requests Under 250 Lines of Code
-      
-      Smaller code changes are easier to review and less likely to introduce bugs.
-      
-      **How to Stay Under the Limit:**
-      - Count only meaningful lines of code you've added or changed
-      - Break large features into a series of smaller, sequential changes
-      - Submit related changes in separate pull requests
-      
-      **Breaking Down Large Features:**
-      When implementing something complex, try this approach:
-      1. First PR: Set up the basic structure
-      2. Second PR: Implement core functionality
-      3. Third PR: Add refinements and advanced features
-      
-      **Example:**
-      Instead of one massive PR for a new search feature, create:
-      1. PR #1: Add search box to navigation
-      2. PR #2: Connect search box to backend
-      3. PR #3: Implement search results display
-      4. PR #4: Add filtering options
-      
-      #### 3. Make Your Code Testable
-      
-      Always include a way to verify your changes work correctly.
-      
-      **Verification Methods:**
-      - **Automated tests:** Write code that checks your changes automatically
-      - **Screenshots/Videos:** For visual changes, show before and after
-      - **Test instructions:** Provide clear steps for others to test your changes
-      
-      **What Good Testing Looks Like:**
-      - Tests cover both expected behavior and edge cases
-      - Instructions are specific enough that anyone could follow them
-      - Visual evidence clearly demonstrates the improvement
-      
-      **Example:**
-      For a login form improvement:
-      ```
-      Test Plan:
-      1. Try logging in with a correct username/password → Should succeed
-      2. Try logging in with an incorrect password → Should show error message
-      3. Try logging in with a blank password → Should prevent submission
-      
-      [Screenshots attached showing each scenario]
-      ```
-      
-      Remember: Good pull requests aren't just about the code you write—they're about making changes that others can understand, verify, and maintain.
-      
-      Lastly, do your best to follow the below coding style guides.
-      - Python: https://google.github.io/styleguide/pyguide.html
-      - TypeScript: https://google.github.io/styleguide/tsguide.html
-      - HTML/CSS: https://google.github.io/styleguide/htmlcssguide.html
+**Keeping Your Local Copy Up to Date**
+
+After your feature has been accepted and merged, it's important to ensure your local copy is up to date before starting any new work. Especially if you're about to begin work on a different feature, follow these steps:
+```sh
+git checkout main             # Switch back to the main branch
+git pull                      # Update your local copy with the latest changes
+git checkout -b new_branch_name  # Create a new branch for your next feature
+```
+This ensures you're always working on the latest version of the codebase.
+
+### Pull Request Methodology
+
+#### 1. The "One Diff, One Thesis" Principle
+
+- Each code change should focus on a single purpose or goal.
+
+**What This Means:**
+- Make each pull request about one specific improvement
+- Address one feature, bug fix, or enhancement at a time
+- Keep your changes focused and related to one objective
+
+**Why It Matters:**
+When your changes have a single purpose, they're easier to review, understand, and test. If something goes wrong, it's also easier to identify and fix the problem.
+
+**Example:**
+If you're working on a user profile page:
+- ✅ GOOD PR: Add email validation to the registration form
+- ❌ BAD PR: Add email validation, redesign the profile layout, and optimize database queries
+
+Think of each PR as a single chapter in a book, not the entire story.
+
+#### 2. Keep Pull Requests Under 250 Lines of Code
+
+Smaller code changes are easier to review and less likely to introduce bugs.
+
+**How to Stay Under the Limit:**
+- Count only meaningful lines of code you've added or changed
+- Break large features into a series of smaller, sequential changes
+- Submit related changes in separate pull requests
+
+**Breaking Down Large Features:**
+When implementing something complex, try this approach:
+1. First PR: Set up the basic structure
+2. Second PR: Implement core functionality
+3. Third PR: Add refinements and advanced features
+
+**Example:**
+Instead of one massive PR for a new search feature, create:
+1. PR #1: Add search box to navigation
+2. PR #2: Connect search box to backend
+3. PR #3: Implement search results display
+4. PR #4: Add filtering options
+
+#### 3. Make Your Code Testable
+
+Always include a way to verify your changes work correctly.
+
+**Verification Methods:**
+- **Automated tests:** Write code that checks your changes automatically
+- **Screenshots/Videos:** For visual changes, show before and after
+- **Test instructions:** Provide clear steps for others to test your changes
+
+**What Good Testing Looks Like:**
+- Tests cover both expected behavior and edge cases
+- Instructions are specific enough that anyone could follow them
+- Visual evidence clearly demonstrates the improvement
+
+**Example:**
+For a login form improvement:
+```
+Test Plan:
+1. Try logging in with a correct username/password → Should succeed
+2. Try logging in with an incorrect password → Should show error message
+3. Try logging in with a blank password → Should prevent submission
+
+[Screenshots attached showing each scenario]
+```
+
+Remember: Good pull requests aren't just about the code you write—they're about making changes that others can understand, verify, and maintain.
+
+Lastly, do your best to follow the below coding style guides.
+- Python: https://google.github.io/styleguide/pyguide.html
+- TypeScript: https://google.github.io/styleguide/tsguide.html
+- HTML/CSS: https://google.github.io/styleguide/htmlcssguide.html
 
 ---
 

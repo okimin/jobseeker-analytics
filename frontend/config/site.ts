@@ -1,8 +1,8 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-	name: "Just a Job App",
-	description: "Your job hunt made easy!",
+	name: "Just A Job App",
+	description: "Get the Unfair Advantage in Your Job Search.",
 	navItems: [
 		{
 			label: "Home",
@@ -11,48 +11,25 @@ export const siteConfig = {
 		{
 			label: "Dashboard",
 			href: "/dashboard"
-		},
-		{
-			label: "TestPage",
-			href: "/testpage"
 		}
 	],
 	navMenuItems: [
-		{
-			label: "Profile",
-			href: "/profile"
-		},
 		{
 			label: "Dashboard",
 			href: "/dashboard"
 		},
 		{
-			label: "Projects",
-			href: "/projects"
-		},
-		{
-			label: "Team",
-			href: "/team"
-		},
-		{
-			label: "Calendar",
-			href: "/calendar"
-		},
-		{
-			label: "Settings",
-			href: "/settings"
-		},
-		{
-			label: "Help & Feedback",
-			href: "/help-feedback"
-		},
-		{
 			label: "Logout",
 			href: "/logout"
+		},
+		{
+			label: "Login",
+			href: "/login"
 		}
 	],
 	links: {
-		github: "https://github.com/lnovitz/jobseeker-analytics",
+		github: "https://github.com/just-a-job-app/jobseeker-analytics",
+		discord: "https://discord.gg/gsdpMchCam",
 		sponsor: "https://github.com/sponsors/lnovitz"
 	}
 };
