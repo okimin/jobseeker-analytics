@@ -9,7 +9,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from guard import SecurityMiddleware, SecurityConfig, GeoIPHandler, IPInfoManager
+from guard import SecurityMiddleware, SecurityConfig, GeoIPHandler
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
 from database import create_db_and_tables
@@ -71,8 +71,7 @@ app.add_middleware(
 if settings.is_publicly_deployed:
     config = SecurityConfig(
     geo_ip_handler=GeoIPHandler,
-    #TODO Inf Lianna about IPInfoToken
-    #ipinfo_token="your_ipinfo_token_here",
+    ipinfo_token=settings.IPINFO_TOKEN,
     whitelist_countries=["US"]
     )
     app.add_middleware(SecurityMiddleware,config=config)
