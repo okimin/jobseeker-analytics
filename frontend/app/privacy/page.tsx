@@ -1,104 +1,144 @@
 import React from "react";
 
 const PrivacyPolicyPage = () => {
-    return (
-        <main className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
-            <h1 className="text-3xl font-bold mb-4">Privacy Notice</h1>
-            <p className="text-sm mb-8 italic">Effective Date: December 25, 2025</p>
+	return (
+		<main className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
+			<h1 className="text-3xl font-bold mb-4">Privacy Notice</h1>
+			<p className="text-sm mb-8 italic">Effective Date: December 25, 2025</p>
 
-            <section className="mb-8">
-                <p>
-                    This Privacy Notice for <strong>JustAJobApp LLC</strong> (doing business as <strong>JustAJobApp</strong>) 
-                    describes the protocols for the collection, storage, and processing of personal information when using 
-                    our services, including the web application hosted at <a href="https://justajobapp.com" className="text-blue-600 underline">justajobapp.com</a>.
-                </p>
-            </section>
+			<section className="mb-8">
+				<p>
+					This Privacy Notice for <strong>JustAJobApp LLC</strong> (doing business as{" "}
+					<strong>JustAJobApp</strong>) describes the protocols for the collection, storage, and processing of
+					personal information when using our services, including the web application hosted at{" "}
+					<a className="text-blue-600 underline" href="https://justajobapp.com">
+						justajobapp.com
+					</a>
+					.
+				</p>
+			</section>
 
-            {/* CALIFORNIA NOTICE AT COLLECTION - MANDATORY FOR CPRA */}
-            <h2 className="text-2xl font-semibold mb-4 mt-8 border-b pb-2">1. Notice at Collection: Categories of Information</h2>
-            <p className="mb-4">
-                In the preceding 12 months, JustAJobApp LLC has collected the following categories of personal information 
-                for the business purposes of automated job tracking and interview preparation:
-            </p>
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-300 mb-4 text-sm">
-                    <thead className="bg-gray-100 dark:bg-gray-800">
-                        <tr>
-                            <th className="border p-2 text-left">Category</th>
-                            <th className="border p-2 text-left">Specific Examples</th>
-                            <th className="border p-2 text-left">Retention Period</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="border p-2 font-semibold">Identifiers</td>
-                            <td className="border p-2">Legal name, email address, IP address, and account identifiers.</td>
-                            <td className="border p-2">Duration of active account.</td>
-                        </tr>
-                        <tr>
-                            <td className="border p-2 font-semibold">Sensitive Personal Information</td>
-                            <td className="border p-2">Contents of email messages (limited to job-search related metadata).</td>
-                            <td className="border p-2">Duration of active account.</td>
-                        </tr>
-                        <tr>
-                            <td className="border p-2 font-semibold">Commercial Data</td>
-                            <td className="border p-2">Transaction history via Stripe; payment instrument metadata.</td>
-                            <td className="border p-2">7 years (per IRS record-keeping guidance).</td>
-                        </tr>
-                        <tr>
-                            <td className="border p-2 font-semibold">Network Activity</td>
-                            <td className="border p-2">Browsing history, search history, and interaction with our web app.</td>
-                            <td className="border p-2">Duration of active account.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+			{/* CALIFORNIA NOTICE AT COLLECTION - MANDATORY FOR CPRA */}
+			<h2 className="text-2xl font-semibold mb-4 mt-8 border-b pb-2">
+				1. Notice at Collection: Categories of Information
+			</h2>
+			<p className="mb-4">
+				In the preceding 12 months, JustAJobApp LLC has collected the following categories of personal
+				information for the business purposes of automated job tracking and interview preparation:
+			</p>
+			<div className="overflow-x-auto">
+				<table className="min-w-full border border-gray-300 mb-4 text-sm">
+					<thead className="bg-gray-100 dark:bg-gray-800">
+						<tr>
+							<th className="border p-2 text-left">Category</th>
+							<th className="border p-2 text-left">Specific Examples</th>
+							<th className="border p-2 text-left">Retention Period</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td className="border p-2 font-semibold">Identifiers</td>
+							<td className="border p-2">
+								Legal name, email address, IP address, and account identifiers.
+							</td>
+							<td className="border p-2">Duration of active account.</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">Sensitive Personal Information</td>
+							<td className="border p-2">
+								Contents of email messages (limited to job-search related metadata).
+							</td>
+							<td className="border p-2">Duration of active account.</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">Commercial Data</td>
+							<td className="border p-2">Transaction history via Stripe; payment instrument metadata.</td>
+							<td className="border p-2">7 years (per IRS record-keeping guidance).</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">Network Activity</td>
+							<td className="border p-2">
+								Browsing history, search history, and interaction with our web app.
+							</td>
+							<td className="border p-2">Duration of active account.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">2. How We Process Your Information</h2>
-            <p>We process your information to fulfill the core service of <strong>Automated Job Tracking</strong>. This includes:</p>
-            <ul className="list-disc list-inside space-y-2 mt-2">
-                <li><strong>Metadata Extraction:</strong> Identifying "Company Name," "Job Title," and "Application Status" from your inbox.</li>
-                <li><strong>Interview Preparation:</strong> Extracting interviewer names and dates from authorized invitations.</li>
-                <li><strong>Security:</strong> Monitoring for fraud and protecting the user community from malicious job-related domains.</li>
-            </ul>
+			<h2 className="text-2xl font-semibold mb-4 mt-8">2. How We Process Your Information</h2>
+			<p>
+				We process your information to fulfill the core service of <strong>Automated Job Tracking</strong>. This
+				includes:
+			</p>
+			<ul className="list-disc list-inside space-y-2 mt-2">
+				<li>
+					<strong>Metadata Extraction:</strong> Identifying "Company Name," "Job Title," and "Application
+					Status" from your inbox.
+				</li>
+				<li>
+					<strong>Interview Preparation:</strong> Extracting interviewer names and dates from authorized
+					invitations.
+				</li>
+				<li>
+					<strong>Security:</strong> Monitoring for fraud and protecting the user community from malicious
+					job-related domains.
+				</li>
+			</ul>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">3. Google API & Limited Use Compliance</h2>
-            <p>
-                JustAJobApp’s use and transfer of information received from Google APIs adheres to the 
-                <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-blue-600 underline ml-1">
-                Google API Services User Data Policy
-                </a>, including the <strong>Limited Use</strong> requirements. 
-            </p>
-            <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic">
-                Data obtained via Google Workspace APIs is strictly prohibited from being used to train generalized 
-                AI or machine learning models. We do not transfer this data to third parties for targeted advertising.
-            </blockquote>
+			<h2 className="text-2xl font-semibold mb-4 mt-8">3. Google API & Limited Use Compliance</h2>
+			<p>
+				JustAJobApp’s use and transfer of information received from Google APIs adheres to the
+				<a
+					className="text-blue-600 underline ml-1"
+					href="https://developers.google.com/terms/api-services-user-data-policy"
+				>
+					Google API Services User Data Policy
+				</a>
+				, including the <strong>Limited Use</strong> requirements.
+			</p>
+			<blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic">
+				Data obtained via Google Workspace APIs is strictly prohibited from being used to train generalized AI
+				or machine learning models. We do not transfer this data to third parties for targeted advertising.
+			</blockquote>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">4. Your California Privacy Rights (CPRA)</h2>
-            <p>California residents possess the following statutory rights:</p>
-            <ul className="list-disc list-inside space-y-2 mt-2">
-                <li><strong>Right to Know:</strong> Disclosure of what specific data points we have collected.</li>
-                <li><strong>Right to Delete:</strong> Request deletion of data, subject to legal/tax exceptions.</li>
-                <li><strong>Right to Correct:</strong> Correction of inaccurate personal information.</li>
-                <li><strong>Right to Limit Use:</strong> You may limit the use of Sensitive Personal Information to only what is necessary to provide the service.</li>
-            </ul>
-            <p className="mt-4">
-                To exercise these rights, please submit a <strong>Data Subject Access Request</strong> to 
-                <a href="mailto:privacy@justajobapp.com" className="text-blue-600 underline ml-1">privacy@justajobapp.com</a>.
-            </p>
+			<h2 className="text-2xl font-semibold mb-4 mt-8">4. Your California Privacy Rights (CPRA)</h2>
+			<p>California residents possess the following statutory rights:</p>
+			<ul className="list-disc list-inside space-y-2 mt-2">
+				<li>
+					<strong>Right to Know:</strong> Disclosure of what specific data points we have collected.
+				</li>
+				<li>
+					<strong>Right to Delete:</strong> Request deletion of data, subject to legal/tax exceptions.
+				</li>
+				<li>
+					<strong>Right to Correct:</strong> Correction of inaccurate personal information.
+				</li>
+				<li>
+					<strong>Right to Limit Use:</strong> You may limit the use of Sensitive Personal Information to only
+					what is necessary to provide the service.
+				</li>
+			</ul>
+			<p className="mt-4">
+				To exercise these rights, please submit a <strong>Data Subject Access Request</strong> to
+				<a className="text-blue-600 underline ml-1" href="mailto:privacy@justajobapp.com">
+					privacy@justajobapp.com
+				</a>
+				.
+			</p>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">5. Do-Not-Track (DNT) Signals</h2>
-            <p>
-                As required by CalOPPA, we disclose that we do not currently respond to browser Do-Not-Track signals 
-                as no uniform technology standard for recognizing these signals has been finalized.
-            </p>
+			<h2 className="text-2xl font-semibold mb-4 mt-8">5. Do-Not-Track (DNT) Signals</h2>
+			<p>
+				As required by CalOPPA, we disclose that we do not currently respond to browser Do-Not-Track signals as
+				no uniform technology standard for recognizing these signals has been finalized.
+			</p>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">6. Children’s Privacy</h2>
-            <p>
-                We do not knowingly collect data from or market to children under <strong>18 years of age</strong>. 
-                By using the Services, you represent that you are at least 18. If we learn that personal information 
-                from a minor has been collected, we will deactivate the account and delete the data within 30 days.
-            </p>
+			<h2 className="text-2xl font-semibold mb-4 mt-8">6. Children’s Privacy</h2>
+			<p>
+				We do not knowingly collect data from or market to children under <strong>18 years of age</strong>. By
+				using the Services, you represent that you are at least 18. If we learn that personal information from a
+				minor has been collected, we will deactivate the account and delete the data within 30 days.
+			</p>
 
 			<p className="mt-2">
 				As used in this policy, “personal information” means information that would allow a party to identify
@@ -347,22 +387,26 @@ const PrivacyPolicyPage = () => {
 			</ul>
 			<h2 className="text-2xl font-semibold mb-2 mt-6">Changes and Updates to this Privacy Policy</h2>
 			<p>
-				We may occasionally update this Privacy Policy. When we do, we will also revise the Effective Date
-				at the top of this page. We encourage you to periodically review this Privacy Policy to stay informed about how we are
-				protecting the personal information we collect. Your continued use of the Websites constitutes your
-				agreement to this Privacy Policy and any updates.
+				We may occasionally update this Privacy Policy. When we do, we will also revise the Effective Date at
+				the top of this page. We encourage you to periodically review this Privacy Policy to stay informed about
+				how we are protecting the personal information we collect. Your continued use of the Websites
+				constitutes your agreement to this Privacy Policy and any updates.
 			</p>
-            <h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">7. Contact Information</h2>
-            <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                <p className="font-bold">JustAJobApp LLC</p>
-                <p>2108 N St, STE N</p>
-                <p>Sacramento, CA 95816</p>
-                <p>United States</p>
-                <p className="mt-2">Email: <a href="mailto:privacy@justajobapp.com" className="text-blue-600 underline">privacy@justajobapp.com</a></p>
-            </div>
-        </main>
-    );
+			<h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">7. Contact Information</h2>
+			<div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+				<p className="font-bold">JustAJobApp LLC</p>
+				<p>2108 N St, STE N</p>
+				<p>Sacramento, CA 95816</p>
+				<p>United States</p>
+				<p className="mt-2">
+					Email:{" "}
+					<a className="text-blue-600 underline" href="mailto:privacy@justajobapp.com">
+						privacy@justajobapp.com
+					</a>
+				</p>
+			</div>
+		</main>
+	);
 };
-
 
 export default PrivacyPolicyPage;
