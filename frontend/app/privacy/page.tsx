@@ -369,10 +369,12 @@ const PrivacyPolicyPage = () => {
 				<li>
 					<strong>Right to Limit Use:</strong> We restrict mailbox data usage to core service functions.
 				</li>
+				{/* 7. CALIFORNIA STATUTORY RIGHTS - UPDATED */}
 				<li>
-					<strong>Do-Not-Track:</strong> As required by CalOPPA, California law requires us to let you know
-					how we respond to web browser DNT signals. Because there currently is not an industry or legal
-					standard for recognizing or honoring DNT signals, we do not respond to them at this time.
+					<strong>Global Privacy Control (GPC):</strong> We honor Global Privacy Control (GPC) 
+					signals. If our system detects a GPC signal from your browser, we will automatically 
+					opt you out of the "sharing" of your personal information for cross-context 
+					behavioral advertising.
 				</li>
 			</ul>
 
