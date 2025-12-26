@@ -324,16 +324,16 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 6. GOOGLE LIMITED USE COMPLIANCE */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">6. Google API Limited Use Requirements</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">6. Compliance to the Google API Services User Data Policy</h2>
 			<p className="text-sm">
-				JustAJobApp adheres to the{" "}
+				JustAJobApp's use and transfer of data to any other app of information received from Google’s Accounts will adhere to the{" "}
 				<a
 					className="text-blue-600 underline ml-1"
 					href="https://developers.google.com/terms/api-services-user-data-policy"
 				>
 					Google API Services User Data Policy
 				</a>
-				.
+				including Limited Use requirements.
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 font-medium text-sm">
 				<li>NO Human Access to your data unless explicitly authorized by you for support.</li>
