@@ -16,7 +16,8 @@ const PrivacyPolicyPage = () => {
 						justajobapp.com
 					</a>
 					. Our operations prioritize transparency and data minimization. We do not request personal
-					information unless required for core service functionality, i.e. <strong>increasing job search productivity</strong>.
+					information unless required for core service functionality, i.e.{" "}
+					<strong>increasing job search productivity</strong>.
 				</p>
 			</section>
 
@@ -98,7 +99,7 @@ const PrivacyPolicyPage = () => {
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
 			<h2 className="text-2xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
 			<p className="mt-2 text-sm">
-				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong> 
+				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>
 				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 ml-4 text-sm">
@@ -137,7 +138,7 @@ const PrivacyPolicyPage = () => {
 						className="text-blue-600 underline"
 						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
 					>
-						llm_utils.py 
+						llm_utils.py
 					</a>
 					evaluates messages to discard newsletters and personal data unrelated to your job search.
 				</li>
