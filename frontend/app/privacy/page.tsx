@@ -99,8 +99,8 @@ const PrivacyPolicyPage = () => {
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
 			<h2 className="text-3xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
 			<p className="mt-2 text-sm">
-				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>
-				{" "}and the <strong>Gmail API</strong>. We utilize the following technical protocols:
+				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>{" "}
+				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 ml-4 text-sm">
 				<li>
