@@ -43,8 +43,7 @@ const PrivacyPolicyPage = () => {
 						<tr>
 							<td className="border p-2 font-semibold">A. Identifiers</td>
 							<td className="border p-2">
-								Contact details, real name, alias, postal address, telephone, unique personal
-								identifier, online identifier, IP address, email, account name
+								Email address and refresh token used for OAuth 2.0 authentication, IP addresses logged for security monitoring.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -53,8 +52,7 @@ const PrivacyPolicyPage = () => {
 								B. Personal Information (California Customer Records)
 							</td>
 							<td className="border p-2">
-								Name, contact information, education, employment, employment history, financial
-								information
+								Email address and/or refresh token used for OAuth 2.0 authentication, IP addresses logged for security monitoring, employment application history (company name, job title)
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -69,7 +67,7 @@ const PrivacyPolicyPage = () => {
 						<tr>
 							<td className="border p-2 font-semibold">D. Commercial Information</td>
 							<td className="border p-2">
-								Transaction information, purchase history, financial details, payment information
+								Subscription status, transaction timestamps, and payment metadata processed via Stripe for premium access.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -81,8 +79,7 @@ const PrivacyPolicyPage = () => {
 						<tr>
 							<td className="border p-2 font-semibold">F. Internet or Network Activity</td>
 							<td className="border p-2">
-								Browsing history, search history, online behavior, interest data, interactions with
-								websites and applications
+								Clickstream data, feature usage logs, and Session Replays (visual interaction logs) captured via PostHog.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -93,13 +90,13 @@ const PrivacyPolicyPage = () => {
 						</tr>
 						<tr>
 							<td className="border p-2 font-semibold">H. Audio, Electronic, Sensory Information</td>
-							<td className="border p-2">Images, audio, video, or call recordings</td>
+							<td className="border p-2">Visual Session Replays of website interactions captured via PostHog to analyze UI/UX friction points.</td>
 							<td className="border p-2">YES</td>
 						</tr>
 						<tr>
 							<td className="border p-2 font-semibold">I. Professional or Employment Information</td>
 							<td className="border p-2">
-								Business contact details, job title, work history, professional qualifications
+								Job titles, hiring company names, and application status extracted from processed emails.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -118,7 +115,7 @@ const PrivacyPolicyPage = () => {
 						<tr>
 							<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
 							<td className="border p-2">
-								Contents of email or text messages, account login information
+								Gmail mailbox contents; specifically, the metadata of messages identified by the applied_email_filter.yaml logic. Account login information.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
