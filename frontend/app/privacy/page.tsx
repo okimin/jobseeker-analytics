@@ -22,11 +22,13 @@ const PrivacyPolicyPage = () => {
 			</section>
 
 			{/* CATEGORIES OF PERSONAL INFORMATION WE COLLECT */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">Categories of Personal Information We Collect</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
+				Categories of Personal Information We Collect
+			</h2>
 			<p className="text-sm mb-4">
-				The table below shows the categories of personal information we have collected in the past twelve
-				(12) months. For a comprehensive inventory of all personal information we process, please refer to
-				the section "Notice at Collection: Categories of Information."
+				The table below shows the categories of personal information we have collected in the past twelve (12)
+				months. For a comprehensive inventory of all personal information we process, please refer to the
+				section "Notice at Collection: Categories of Information."
 			</p>
 			<div className="overflow-x-auto mb-6">
 				<table className="min-w-full border border-gray-300 text-sm">
@@ -57,9 +59,7 @@ const PrivacyPolicyPage = () => {
 							<td className="border p-2">YES</td>
 						</tr>
 						<tr>
-							<td className="border p-2 font-semibold">
-								C. Protected Classification Characteristics
-							</td>
+							<td className="border p-2 font-semibold">C. Protected Classification Characteristics</td>
 							<td className="border p-2">
 								Gender, age, date of birth, race, ethnicity, national origin, marital status,
 								demographic data
@@ -109,9 +109,7 @@ const PrivacyPolicyPage = () => {
 							<td className="border p-2">NO</td>
 						</tr>
 						<tr>
-							<td className="border p-2 font-semibold">
-								K. Inferences Drawn from Personal Information
-							</td>
+							<td className="border p-2 font-semibold">K. Inferences Drawn from Personal Information</td>
 							<td className="border p-2">
 								Inferences about preferences, characteristics, behavior, and interests
 							</td>
@@ -132,8 +130,8 @@ const PrivacyPolicyPage = () => {
 			<p className="text-sm mb-4">
 				We only collect sensitive personal information as defined by applicable privacy laws for purposes
 				allowed by law or with your consent. Sensitive personal information may be used or disclosed to a
-				service provider or contractor for additional, specified purposes. You may have the right to limit
-				the use or disclosure of your sensitive personal information. We do not collect or process sensitive
+				service provider or contractor for additional, specified purposes. You may have the right to limit the
+				use or disclosure of your sensitive personal information. We do not collect or process sensitive
 				personal information for the purpose of inferring characteristics about you.
 			</p>
 			<p className="text-sm mb-4">
@@ -150,8 +148,7 @@ const PrivacyPolicyPage = () => {
 					<strong>Category G (Geolocation):</strong> As long as the user has an account with us
 				</li>
 				<li>
-					<strong>Category I (Professional Information):</strong> As long as the user has an account with
-					us
+					<strong>Category I (Professional Information):</strong> As long as the user has an account with us
 				</li>
 				<li>
 					<strong>Category L (Sensitive Personal Information):</strong> As long as the user has an account
@@ -245,7 +242,9 @@ const PrivacyPolicyPage = () => {
 			</div>
 
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">3. Specialized Data Processing: Gmail Synchronization</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
+				3. Specialized Data Processing: Gmail Synchronization
+			</h2>
 			<p className="mt-2 text-sm">
 				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>{" "}
 				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
@@ -297,7 +296,9 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 5. UNITED STATES DATA PROCESSING */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">5. International Users: United States Processing</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
+				5. International Users: United States Processing
+			</h2>
 			<p className="text-sm">
 				JustAJobApp LLC is based in the United States and the Websites are hosted in the United States. If you
 				are accessing the Websites from the European Union, Asia, or any other region with laws governing data
@@ -333,7 +334,9 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 7. CALIFORNIA STATUTORY RIGHTS */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">7. Your California Privacy Rights (CPRA)</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">
+				7. Your California Privacy Rights (CPRA)
+			</h2>
 			<ul className="list-disc list-inside space-y-2 ml-4 text-sm">
 				<li>
 					<strong>Right to Know:</strong> Disclosure of what data points are collected.
