@@ -51,7 +51,7 @@ const PrivacyPolicyPage = () => {
 									Name, contact information, education, employment, employment history, financial
 									information
 								</td>
-								<td className="border p-2">NO</td>
+								<td className="border p-2">YES</td>
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">
