@@ -3,8 +3,8 @@ import React from "react";
 const PrivacyPolicyPage = () => {
 	return (
 		<main className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
-			<h1 className="text-3xl font-bold mb-4">Privacy Notice</h1>
-			<p className="text-sm mb-8 italic">Effective Date: December 25, 2025</p>
+			<h1 className="text-4xl font-bold mb-4">Privacy Notice</h1>
+			<p className="text-base mb-8 italic">Effective Date: December 25, 2025</p>
 
 			{/* GUIDING PRINCIPLES */}
 			<section className="mb-8">
@@ -22,7 +22,7 @@ const PrivacyPolicyPage = () => {
 			</section>
 
 			{/* 1. CALIFORNIA NOTICE AT COLLECTION */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8 border-b pb-2">
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
 				1. Notice at Collection: Categories of Information
 			</h2>
 			<div className="overflow-x-auto">
@@ -57,7 +57,7 @@ const PrivacyPolicyPage = () => {
 			</div>
 
 			{/* 2. THIRD-PARTY DISCLOSURES */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8">2. Third-Party Service Providers</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8">2. Third-Party Service Providers</h2>
 			<p className="mb-4 text-sm">
 				We utilize specific third-party vendors to maintain our infrastructure. These parties are contractually
 				prohibited from processing your data for any purpose other than those instructed by JustAJobApp LLC:
@@ -97,10 +97,10 @@ const PrivacyPolicyPage = () => {
 			</div>
 
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
 			<p className="mt-2 text-sm">
 				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>
-				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
+				{" "}and the <strong>Gmail API</strong>. We utilize the following technical protocols:
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 ml-4 text-sm">
 				<li>
@@ -118,7 +118,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 4. FILTERING & ANALYSIS */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8">4. Targeted Data Filtering</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8">4. Targeted Data Filtering</h2>
 			<p className="mt-2 text-sm">The Gmail API is filtered through three distinct layers to ensure privacy:</p>
 			<ul className="list-disc list-inside space-y-3 mt-3 ml-4 text-sm">
 				<li>
@@ -149,7 +149,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 5. UNITED STATES DATA PROCESSING (RESTORED) */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8">5. International Users: United States Processing</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8">5. International Users: United States Processing</h2>
 			<p className="text-sm">
 				JustAJobApp LLC is based in the United States and the Websites are hosted in the United States. If you
 				are accessing the Websites from the European Union, Asia, or any other region with laws governing data
@@ -163,7 +163,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 6. GOOGLE LIMITED USE COMPLIANCE */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8">6. Google API Limited Use Requirements</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8">6. Google API Limited Use Requirements</h2>
 			<p className="text-sm">
 				JustAJobApp adheres to the{" "}
 				<a
@@ -181,7 +181,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 7. CALIFORNIA STATUTORY RIGHTS */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">7. Your California Privacy Rights (CPRA)</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">7. Your California Privacy Rights (CPRA)</h2>
 			<ul className="list-disc list-inside space-y-2 ml-4 text-sm">
 				<li>
 					<strong>Right to Know:</strong> Disclosure of what data points are collected.
@@ -206,20 +206,20 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 8. ADMINISTRATIVE ACCESS & CONTACT */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">8. Administrative Access</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">8. Administrative Access</h2>
 			<p className="mb-6 text-sm">
 				Engineers may locate individual emails related to a Job Application only in response to a bug report,
 				authorized support request, or security investigation. All production data access must be specifically
 				authorized by JustAJobApp LLC.
 			</p>
-			<h2 className="text-2xl font-semibold mb-2 mt-6">9. Changes and Updates to this Privacy Policy</h2>
+			<h2 className="text-3xl font-semibold mb-2 mt-6">9. Changes and Updates to this Privacy Policy</h2>
 			<p>
 				We may occasionally update this Privacy Policy. When we do, we will also revise the Effective Date at
 				the top of this page. We encourage you to periodically review this Privacy Policy to stay informed about
 				how we are protecting the personal information we collect. Your continued use of the Websites
 				constitutes your agreement to this Privacy Policy and any updates.
 			</p>
-			<h2 className="text-2xl font-semibold mb-2 mt-6">10. Contact Information</h2>
+			<h2 className="text-3xl font-semibold mb-2 mt-6">10. Contact Information</h2>
 			<div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
 				<p className="font-bold">JustAJobApp LLC</p>
 				<p>2108 N St, STE N</p>
