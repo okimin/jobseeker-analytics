@@ -371,10 +371,9 @@ const PrivacyPolicyPage = () => {
 				</li>
 				{/* 7. CALIFORNIA STATUTORY RIGHTS - UPDATED */}
 				<li>
-					<strong>Global Privacy Control (GPC):</strong> We honor Global Privacy Control (GPC) 
-					signals. If our system detects a GPC signal from your browser, we will automatically 
-					opt you out of the "sharing" of your personal information for cross-context 
-					behavioral advertising.
+					<strong>Global Privacy Control (GPC):</strong> We honor Global Privacy Control (GPC) signals. If our
+					system detects a GPC signal from your browser, we will automatically opt you out of the "sharing" of
+					your personal information for cross-context behavioral advertising.
 				</li>
 			</ul>
 
