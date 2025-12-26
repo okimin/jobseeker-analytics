@@ -336,7 +336,7 @@ const PrivacyPolicyPage = () => {
 				>
 					Google API Services User Data Policy
 				</a>
-				including Limited Use requirements.
+				{" "}including Limited Use requirements.
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 font-medium text-sm">
 				<li>NO Human Access to your data unless explicitly authorized by you for support.</li>
