@@ -124,7 +124,13 @@ const PrivacyPolicyPage = () => {
 							<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
 							<td className="border p-2">
 								Gmail mailbox contents; specifically, the metadata of messages identified by the
-								applied_email_filter.yaml logic. Account login information.
+								{" "}
+					<a
+						className="text-blue-600 underline"
+						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml"
+					>
+						applied_email_filter.yaml
+					</a> logic. Account login information.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
