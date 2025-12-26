@@ -21,9 +21,9 @@ const PrivacyPolicyPage = () => {
 				</p>
 				<h2 className="text-3xl font-semibold mb-4">Categories of Personal Information We Collect</h2>
 				<p className="text-sm mb-4">
-					The table below shows the categories of personal information we have collected in the past twelve (12)
-					months. For a comprehensive inventory of all personal information we process, please refer to the section
-					"Notice at Collection: Categories of Information."
+					The table below shows the categories of personal information we have collected in the past twelve
+					(12) months. For a comprehensive inventory of all personal information we process, please refer to
+					the section "Notice at Collection: Categories of Information."
 				</p>
 				<div className="overflow-x-auto mb-6">
 					<table className="min-w-full border border-gray-300 text-sm">
@@ -37,22 +37,37 @@ const PrivacyPolicyPage = () => {
 						<tbody>
 							<tr>
 								<td className="border p-2 font-semibold">A. Identifiers</td>
-								<td className="border p-2">Contact details, real name, alias, postal address, telephone, unique personal identifier, online identifier, IP address, email, account name</td>
+								<td className="border p-2">
+									Contact details, real name, alias, postal address, telephone, unique personal
+									identifier, online identifier, IP address, email, account name
+								</td>
 								<td className="border p-2">YES</td>
 							</tr>
 							<tr>
-								<td className="border p-2 font-semibold">B. Personal Information (California Customer Records)</td>
-								<td className="border p-2">Name, contact information, education, employment, employment history, financial information</td>
+								<td className="border p-2 font-semibold">
+									B. Personal Information (California Customer Records)
+								</td>
+								<td className="border p-2">
+									Name, contact information, education, employment, employment history, financial
+									information
+								</td>
 								<td className="border p-2">NO</td>
 							</tr>
 							<tr>
-								<td className="border p-2 font-semibold">C. Protected Classification Characteristics</td>
-								<td className="border p-2">Gender, age, date of birth, race, ethnicity, national origin, marital status, demographic data</td>
+								<td className="border p-2 font-semibold">
+									C. Protected Classification Characteristics
+								</td>
+								<td className="border p-2">
+									Gender, age, date of birth, race, ethnicity, national origin, marital status,
+									demographic data
+								</td>
 								<td className="border p-2">NO</td>
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">D. Commercial Information</td>
-								<td className="border p-2">Transaction information, purchase history, financial details, payment information</td>
+								<td className="border p-2">
+									Transaction information, purchase history, financial details, payment information
+								</td>
 								<td className="border p-2">NO</td>
 							</tr>
 							<tr>
@@ -62,7 +77,10 @@ const PrivacyPolicyPage = () => {
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">F. Internet or Network Activity</td>
-								<td className="border p-2">Browsing history, search history, online behavior, interest data, interactions with websites and applications</td>
+								<td className="border p-2">
+									Browsing history, search history, online behavior, interest data, interactions with
+									websites and applications
+								</td>
 								<td className="border p-2">YES</td>
 							</tr>
 							<tr>
@@ -77,7 +95,9 @@ const PrivacyPolicyPage = () => {
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">I. Professional or Employment Information</td>
-								<td className="border p-2">Business contact details, job title, work history, professional qualifications</td>
+								<td className="border p-2">
+									Business contact details, job title, work history, professional qualifications
+								</td>
 								<td className="border p-2">YES</td>
 							</tr>
 							<tr>
@@ -86,13 +106,19 @@ const PrivacyPolicyPage = () => {
 								<td className="border p-2">NO</td>
 							</tr>
 							<tr>
-								<td className="border p-2 font-semibold">K. Inferences Drawn from Personal Information</td>
-								<td className="border p-2">Inferences about preferences, characteristics, behavior, and interests</td>
+								<td className="border p-2 font-semibold">
+									K. Inferences Drawn from Personal Information
+								</td>
+								<td className="border p-2">
+									Inferences about preferences, characteristics, behavior, and interests
+								</td>
 								<td className="border p-2">NO</td>
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
-								<td className="border p-2">Contents of email or text messages, account login information</td>
+								<td className="border p-2">
+									Contents of email or text messages, account login information
+								</td>
 								<td className="border p-2">YES</td>
 							</tr>
 						</tbody>
@@ -101,21 +127,33 @@ const PrivacyPolicyPage = () => {
 
 				<h3 className="text-xl font-semibold mb-3 mt-6">Use and Retention of Sensitive Personal Information</h3>
 				<p className="text-sm mb-4">
-					We only collect sensitive personal information as defined by applicable privacy laws for purposes allowed
-					by law or with your consent. Sensitive personal information may be used or disclosed to a service provider
-					or contractor for additional, specified purposes. You may have the right to limit the use or disclosure of
-					your sensitive personal information. We do not collect or process sensitive personal information for the
-					purpose of inferring characteristics about you.
+					We only collect sensitive personal information as defined by applicable privacy laws for purposes
+					allowed by law or with your consent. Sensitive personal information may be used or disclosed to a
+					service provider or contractor for additional, specified purposes. You may have the right to limit
+					the use or disclosure of your sensitive personal information. We do not collect or process sensitive
+					personal information for the purpose of inferring characteristics about you.
 				</p>
 				<p className="text-sm mb-4">
 					We will use and retain the collected personal information as needed to provide the Services or for:
 				</p>
 				<ul className="list-disc list-inside space-y-2 ml-4 text-sm mb-6">
-					<li><strong>Category A (Identifiers):</strong> As long as the user has an account with us</li>
-					<li><strong>Category F (Internet Activity):</strong> As long as the user has an account with us</li>
-					<li><strong>Category G (Geolocation):</strong> As long as the user has an account with us</li>
-					<li><strong>Category I (Professional Information):</strong> As long as the user has an account with us</li>
-					<li><strong>Category L (Sensitive Personal Information):</strong> As long as the user has an account with us</li>
+					<li>
+						<strong>Category A (Identifiers):</strong> As long as the user has an account with us
+					</li>
+					<li>
+						<strong>Category F (Internet Activity):</strong> As long as the user has an account with us
+					</li>
+					<li>
+						<strong>Category G (Geolocation):</strong> As long as the user has an account with us
+					</li>
+					<li>
+						<strong>Category I (Professional Information):</strong> As long as the user has an account with
+						us
+					</li>
+					<li>
+						<strong>Category L (Sensitive Personal Information):</strong> As long as the user has an account
+						with us
+					</li>
 				</ul>
 			</section>
 
@@ -141,12 +179,16 @@ const PrivacyPolicyPage = () => {
 							<td className="border p-2">Duration of active account.</td>
 						</tr>
 						<tr>
-							<td className="border p-2 font-semibold">Category L: Sensitive Personal Information (Mailbox Contents)</td>
+							<td className="border p-2 font-semibold">
+								Category L: Sensitive Personal Information (Mailbox Contents)
+							</td>
 							<td className="border p-2">Automated job tracking and status extraction.</td>
 							<td className="border p-2">Duration of active account.</td>
 						</tr>
 						<tr>
-							<td className="border p-2 font-semibold">Category D: Commercial Information (Transaction Records)</td>
+							<td className="border p-2 font-semibold">
+								Category D: Commercial Information (Transaction Records)
+							</td>
 							<td className="border p-2">Subscription processing via Stripe.</td>
 							<td className="border p-2">7 Years (IRS record-keeping).</td>
 						</tr>
@@ -276,7 +318,10 @@ const PrivacyPolicyPage = () => {
 				<li>NO Human Access to your data unless explicitly authorized by you for support.</li>
 				<li>NO Data Transfer to third parties for targeted advertising.</li>
 				<li>NO Use for AI Training: We do not use Google Workspace data to train generalized AI/ML models.</li>
-				<li>NO Sale or Share of Data for Minors: JustAJobApp LLC has no actual knowledge that it sells or shares the personal information of consumers under 16 years of age.</li>
+				<li>
+					NO Sale or Share of Data for Minors: JustAJobApp LLC has no actual knowledge that it sells or shares
+					the personal information of consumers under 16 years of age.
+				</li>
 			</ul>
 
 			{/* 7. CALIFORNIA STATUTORY RIGHTS */}
@@ -299,9 +344,9 @@ const PrivacyPolicyPage = () => {
 					<strong>Right to Limit Use:</strong> We restrict mailbox data usage to core service functions.
 				</li>
 				<li>
-					<strong>Do-Not-Track:</strong> As required by CalOPPA, California law requires us to let you know how we
-					respond to web browser DNT signals. Because there currently is not an industry or legal standard for
-					recognizing or honoring DNT signals, we do not respond to them at this time.
+					<strong>Do-Not-Track:</strong> As required by CalOPPA, California law requires us to let you know
+					how we respond to web browser DNT signals. Because there currently is not an industry or legal
+					standard for recognizing or honoring DNT signals, we do not respond to them at this time.
 				</li>
 			</ul>
 
@@ -319,15 +364,17 @@ const PrivacyPolicyPage = () => {
 				how we are protecting the personal information we collect. Your continued use of the Websites
 				constitutes your agreement to this Privacy Policy and any updates.
 			</p>
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">10. Do United States Residents Have Specific Privacy Rights?</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">
+				10. Do United States Residents Have Specific Privacy Rights?
+			</h2>
 			<p className="text-base mb-4">
-				<strong>In Short:</strong> If you are a resident of California, Colorado, Connecticut, Delaware, Florida,
-				Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, Nebraska, New Hampshire, New Jersey, Oregon,
-				Rhode Island, Tennessee, Texas, Utah, or Virginia, you may have the right to request access to and
-				receive details about the personal information we maintain about you and how we have processed it, correct
-				inaccuracies, get a copy of, or delete your personal information. You may also have the right to withdraw
-				your consent to our processing of your personal information. These rights may be limited in some
-				circumstances by applicable law.
+				<strong>In Short:</strong> If you are a resident of California, Colorado, Connecticut, Delaware,
+				Florida, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, Nebraska, New Hampshire, New Jersey,
+				Oregon, Rhode Island, Tennessee, Texas, Utah, or Virginia, you may have the right to request access to
+				and receive details about the personal information we maintain about you and how we have processed it,
+				correct inaccuracies, get a copy of, or delete your personal information. You may also have the right to
+				withdraw your consent to our processing of your personal information. These rights may be limited in
+				some circumstances by applicable law.
 			</p>
 
 			<h2 className="text-3xl font-semibold mb-2 mt-8">11. Contact Information</h2>
