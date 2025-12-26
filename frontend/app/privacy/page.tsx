@@ -100,31 +100,90 @@ const PrivacyPolicyPage = () => {
 				Policy will only be collected and used in accordance with the Principles.
 			</p>
 			<h2 className="text-2xl font-semibold mb-2 mt-6">Third-Party Email Synchronization</h2>
-			JustAJobApp allows you to connect your Google account specifically for the following purposes: * **Reading
-			and Analyzing your Mailbox to:** * Identify and extract information from job application-related emails. *
-			Automatically capture key details such as **Company Name**, **Job Title**, and **Application Status** (e.g.,
-			Applied, Interviewing, Rejected). * Aggregate received email statistics to provide a visual dashboard of
-			your job search progress. * Display structured summaries of emails related to your job applications within
-			the App. * **Background Synchronization:** * Periodically check for updates to your existing applications or
-			new submissions without requiring you to manually trigger a fetch. JustAJobApp requires the following
-			permissions for connected Google accounts: * **Read all your email from Gmail:** This allows our filters to
-			scan for relevant job-related headers and content to ensure no application update is missed. JustAJobApp
-			provides the functionality outlined above using the **Google OAuth2** framework and the **Gmail API**.
-			Rather than acting as a traditional, all-purpose email client like Outlook or Apple Mail, JustAJobApp serves
-			as a **specialized data processor** designed specifically to organize and analyze your job search history.
-			By utilizing secure, encrypted **refresh tokens** instead of your account password, the App maintains the
-			ability to check for updates in the background without requiring you to be actively logged in. The Gmail API
-			was selected specifically to allow for sophisticated, multi-layered filtering: * **Initial Discovery:** The
-			App first identifies potential job-related messages based on the keywords and criteria defined in our
-			[applied_email_filter.yaml](https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml).
-			* **Intelligent Analysis:** An intelligent analysis layer then evaluates these messages to discard "false
-			positives" (such as marketing newsletters) and ensure unrelated personal data is not processed. *
-			**Domain-Based Optimization:** Over time, as job applications are verified, future fetches may also rely on
-			**stored email domains** from these employers to ensure accurate and reliable tracking of your ongoing
-			communications. Google requires these specific API permissions to enable this secure, targeted
-			synchronization while maintaining the highest standards of data privacy. JustAJobApp will access your basic
-			profile information, including your name and email address, so we can properly synchronize with your account
-			and maintain your user session.
+			<p className="mt-2">
+				JustAJobApp allows you to connect your Google account specifically for the following purposes:
+			</p>
+			<ul className="list-disc list-inside space-y-2 mt-2">
+				<li>
+					<strong>Reading and Analyzing your Mailbox to:</strong>
+					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
+						<li>Identify and extract information from job application-related emails.</li>
+						<li>
+							Automatically capture key details such as <strong>Company Name</strong>, <strong>Job Title</strong>, and{" "}
+							<strong>Application Status</strong> (e.g., Applied, Interviewing, Rejected).
+						</li>
+						<li>Aggregate received email statistics to provide a visual dashboard of your job search progress.</li>
+						<li>Display structured summaries of emails related to your job applications within the App.</li>
+					</ul>
+				</li>
+				<li>
+					<strong>Background Synchronization:</strong>
+					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
+						<li>
+							Periodically check for updates to your existing applications or new submissions without requiring you to
+							manually trigger a fetch.
+						</li>
+					</ul>
+				</li>
+				<li>
+					<strong>Incremental Synchronization:</strong>
+					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
+						<li>
+							Reviews the timestamp of your last processed email by the App to only request messages received after that date. 
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<p className="mt-2">JustAJobApp requires the following permissions for connected Google accounts:</p>
+			<ul className="list-disc list-inside space-y-2 mt-2">
+				<li>
+					<strong>Read all your email from Gmail:</strong> This allows our filters to scan for relevant job-related headers
+					and content to ensure no application update is missed.
+				</li>
+			</ul>
+			<p className="mt-2">
+				JustAJobApp provides the functionality outlined above using the <strong>Google OAuth2</strong> framework and the{" "}
+				<strong>Gmail API</strong>. Rather than acting as a traditional, all-purpose email client like Outlook or Apple Mail,
+				JustAJobApp serves as a <strong>specialized data processor</strong> designed specifically to organize and analyze your
+				job search history. By utilizing secure, encrypted <strong>refresh tokens</strong> instead of your account password,
+				the App maintains the ability to check for updates in the background without requiring you to be actively logged in.
+			</p>
+			<p className="mt-2">
+				The Gmail API allows for filtering:
+			</p>
+			<ul className="list-disc list-inside space-y-2 mt-2">
+				<li>
+					<strong>Initial Discovery:</strong> The App first identifies potential job-related messages based on the keywords
+					and criteria defined in our{" "}
+					<a
+						className="text-blue-600 hover:underline"
+						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml"
+					>
+						applied_email_filter.yaml
+					</a>
+					.
+				</li>
+				<li>
+					<strong>Intelligent Analysis:</strong> An intelligent analysis layer defined in our {" "}
+					<a
+						className="text-blue-600 hover:underline"
+						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
+					>
+						llm_utils.py
+					</a> then evaluates these messages to discard "false
+					positives" (such as marketing newsletters) and ensure unrelated personal data is not processed.
+				</li>
+				<li>
+					<strong>Domain-Based Optimization:</strong> Over time, as job applications are verified, future fetches may also
+					rely on <strong>stored email domains</strong> from job-related emails to ensure accurate and reliable tracking of your
+					ongoing communications.
+				</li>
+			</ul>
+			<p className="mt-2">
+				Google requires these specific API permissions to enable this secure, targeted synchronization while maintaining the
+				highest standards of data privacy. JustAJobApp will access your basic profile information, including your name and
+				email address, so we can properly synchronize with your account and maintain your user session.
+			</p>
 			<h2 className="text-2xl font-semibold mb-2 mt-6">Compliance to the Google API Services User Data Policy</h2>
 			<p>
 				JustAJobApp’s use and transfer to any other app of information received from Google APIs will adhere to
@@ -166,45 +225,8 @@ const PrivacyPolicyPage = () => {
 					features.
 				</p>
 			</section>
-			<p className="mt-2">Regardless of the third-party email provider:</p>
+			<p className="mt-2">To provide support:</p>
 			<ul className="list-disc list-inside space-y-2 mt-2">
-				<li>
-					JustAJobApp periodically checks your mailbox for new messages using the Google Gmail API. Unlike
-					traditional email clients, the App does not store your password; instead, it uses a secure,
-					encrypted "refresh token" to maintain access solely for the purpose of identifying job application
-					updates.
-				</li>
-				<li>
-					To ensure efficiency and minimize data transfer, the App performs incremental synchronization. It
-					uses the timestamp of your last processed email to only request messages received after that date.
-					These emails are then retrieved via API and queued for intelligent processing.
-				</li>
-				<li>
-					As part of the post-synchronization phase, the App uses advanced processing to analyze the content
-					of newly discovered emails. This allows the application to automatically extract company names,
-					application statuses, and job titles, ensuring your dashboard remains up-to-date without requiring
-					manual entry.
-				</li>
-				<li>
-					This API-driven approach allows the synchronization to resume exactly where it left off in the event
-					of a network interruption, ensuring no data is lost or duplicated. To prioritize your privacy,
-					JustAJobApp initially retrieves emails matching a specific set of job-search criteria (such as
-					"application received" or "interview invitation"). The exact logic for these initial filters is
-					maintained transparently in our applied_email_filter.yaml configuration. While our filters are
-					highly specific, we recognize that unrelated emails may occasionally be captured. To account for
-					this, every fetched email undergoes a second layer of intelligent analysis. If this processor
-					identifies a "false positive"—such as a marketing newsletter or unrelated notification—the email is
-					immediately discarded and is not saved to your account. Emails that successfully pass this second
-					layer of analysis will have extracted subject lines, sender email, company name, job title, and
-					application status stored securely in your dashboard to provide the analytics and tracking features
-					of the App. This storage allows you to review your application history, status changes, and
-					communication timelines in one place. Once an email is verified as job-related, JustAJobApp may
-					extract and store the sender's company domain. For future synchronizations, the App can rely on
-					these verified domains to identify new messages directly. This transition from broad keyword
-					filtering to specific domain-based fetching improves accuracy and ensures that future communications
-					from potential employers are captured even if they use unconventional wording that might bypass
-					standard filters.
-				</li>
 				<li>
 					In some cases, our engineers may use internal support tools to help troubleshoot the mailbox
 					synchronization process. They may need to locate individual emails related to a Job Application or
