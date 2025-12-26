@@ -109,10 +109,14 @@ const PrivacyPolicyPage = () => {
 					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
 						<li>Identify and extract information from job application-related emails.</li>
 						<li>
-							Automatically capture key details such as <strong>Company Name</strong>, <strong>Job Title</strong>, and{" "}
-							<strong>Application Status</strong> (e.g., Applied, Interviewing, Rejected).
+							Automatically capture key details such as <strong>Company Name</strong>,{" "}
+							<strong>Job Title</strong>, and <strong>Application Status</strong> (e.g., Applied,
+							Interviewing, Rejected).
 						</li>
-						<li>Aggregate received email statistics to provide a visual dashboard of your job search progress.</li>
+						<li>
+							Aggregate received email statistics to provide a visual dashboard of your job search
+							progress.
+						</li>
 						<li>Display structured summaries of emails related to your job applications within the App.</li>
 					</ul>
 				</li>
@@ -120,8 +124,8 @@ const PrivacyPolicyPage = () => {
 					<strong>Background Synchronization:</strong>
 					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
 						<li>
-							Periodically check for updates to your existing applications or new submissions without requiring you to
-							manually trigger a fetch.
+							Periodically check for updates to your existing applications or new submissions without
+							requiring you to manually trigger a fetch.
 						</li>
 					</ul>
 				</li>
@@ -129,7 +133,8 @@ const PrivacyPolicyPage = () => {
 					<strong>Incremental Synchronization:</strong>
 					<ul className="list-disc list-inside space-y-1 mt-1 ml-4">
 						<li>
-							Reviews the timestamp of your last processed email by the App to only request messages received after that date. 
+							Reviews the timestamp of your last processed email by the App to only request messages
+							received after that date.
 						</li>
 					</ul>
 				</li>
@@ -137,24 +142,23 @@ const PrivacyPolicyPage = () => {
 			<p className="mt-2">JustAJobApp requires the following permissions for connected Google accounts:</p>
 			<ul className="list-disc list-inside space-y-2 mt-2">
 				<li>
-					<strong>Read all your email from Gmail:</strong> This allows our filters to scan for relevant job-related headers
-					and content to ensure no application update is missed.
+					<strong>Read all your email from Gmail:</strong> This allows our filters to scan for relevant
+					job-related headers and content to ensure no application update is missed.
 				</li>
 			</ul>
 			<p className="mt-2">
-				JustAJobApp provides the functionality outlined above using the <strong>Google OAuth2</strong> framework and the{" "}
-				<strong>Gmail API</strong>. Rather than acting as a traditional, all-purpose email client like Outlook or Apple Mail,
-				JustAJobApp serves as a <strong>specialized data processor</strong> designed specifically to organize and analyze your
-				job search history. By utilizing secure, encrypted <strong>refresh tokens</strong> instead of your account password,
-				the App maintains the ability to check for updates in the background without requiring you to be actively logged in.
+				JustAJobApp provides the functionality outlined above using the <strong>Google OAuth2</strong> framework
+				and the <strong>Gmail API</strong>. Rather than acting as a traditional, all-purpose email client like
+				Outlook or Apple Mail, JustAJobApp serves as a <strong>specialized data processor</strong> designed
+				specifically to organize and analyze your job search history. By utilizing secure, encrypted{" "}
+				<strong>refresh tokens</strong> instead of your account password, the App maintains the ability to check
+				for updates in the background without requiring you to be actively logged in.
 			</p>
-			<p className="mt-2">
-				The Gmail API allows for filtering:
-			</p>
+			<p className="mt-2">The Gmail API allows for filtering:</p>
 			<ul className="list-disc list-inside space-y-2 mt-2">
 				<li>
-					<strong>Initial Discovery:</strong> The App first identifies potential job-related messages based on the keywords
-					and criteria defined in our{" "}
+					<strong>Initial Discovery:</strong> The App first identifies potential job-related messages based on
+					the keywords and criteria defined in our{" "}
 					<a
 						className="text-blue-600 hover:underline"
 						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml"
@@ -164,25 +168,27 @@ const PrivacyPolicyPage = () => {
 					.
 				</li>
 				<li>
-					<strong>Intelligent Analysis:</strong> An intelligent analysis layer defined in our {" "}
+					<strong>Intelligent Analysis:</strong> An intelligent analysis layer defined in our{" "}
 					<a
 						className="text-blue-600 hover:underline"
 						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
 					>
 						llm_utils.py
-					</a> then evaluates these messages to discard "false
-					positives" (such as marketing newsletters) and ensure unrelated personal data is not processed.
+					</a>{" "}
+					then evaluates these messages to discard "false positives" (such as marketing newsletters) and
+					ensure unrelated personal data is not processed.
 				</li>
 				<li>
-					<strong>Domain-Based Optimization:</strong> Over time, as job applications are verified, future fetches may also
-					rely on <strong>stored email domains</strong> from job-related emails to ensure accurate and reliable tracking of your
-					ongoing communications.
+					<strong>Domain-Based Optimization:</strong> Over time, as job applications are verified, future
+					fetches may also rely on <strong>stored email domains</strong> from job-related emails to ensure
+					accurate and reliable tracking of your ongoing communications.
 				</li>
 			</ul>
 			<p className="mt-2">
-				Google requires these specific API permissions to enable this secure, targeted synchronization while maintaining the
-				highest standards of data privacy. JustAJobApp will access your basic profile information, including your name and
-				email address, so we can properly synchronize with your account and maintain your user session.
+				Google requires these specific API permissions to enable this secure, targeted synchronization while
+				maintaining the highest standards of data privacy. JustAJobApp will access your basic profile
+				information, including your name and email address, so we can properly synchronize with your account and
+				maintain your user session.
 			</p>
 			<h2 className="text-2xl font-semibold mb-2 mt-6">Compliance to the Google API Services User Data Policy</h2>
 			<p>
