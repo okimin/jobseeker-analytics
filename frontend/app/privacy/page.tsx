@@ -16,7 +16,7 @@ const PrivacyPolicyPage = () => {
 						justajobapp.com
 					</a>
 					. Our operations prioritize transparency and data minimization. We do not request personal
-					information unless required for core service functionality, i.e. increasing job search productivity.
+					information unless required for core service functionality, i.e. <strong>increasing job search productivity</strong>.
 				</p>
 			</section>
 
@@ -98,7 +98,7 @@ const PrivacyPolicyPage = () => {
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
 			<h2 className="text-2xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
 			<p className="mt-2 text-sm">
-				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>
+				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong> 
 				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
 			</p>
 			<ul className="list-disc list-inside space-y-2 mt-2 ml-4 text-sm">
@@ -137,12 +137,12 @@ const PrivacyPolicyPage = () => {
 						className="text-blue-600 underline"
 						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
 					>
-						llm_utils.py
+						llm_utils.py 
 					</a>
 					evaluates messages to discard newsletters and personal data unrelated to your job search.
 				</li>
 				<li>
-					<strong>Domain-Based Optimization:</strong> As applications are verified, future fetches rely on
+					<strong>Domain-Based Optimization:</strong> As applications are verified, future fetches may rely on
 					stored email domains from verified job-related emails to maintain tracking reliability.
 				</li>
 			</ul>
@@ -205,19 +205,20 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 8. ADMINISTRATIVE ACCESS & CONTACT */}
-			<h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">8. Administrative Access & Contact</h2>
+			<h2 className="text-2xl font-semibold mb-4 mt-8 border-t pt-4">8. Administrative Access</h2>
 			<p className="mb-6 text-sm">
 				Engineers may locate individual emails related to a Job Application only in response to a bug report,
 				authorized support request, or security investigation. All production data access must be specifically
 				authorized by JustAJobApp LLC.
 			</p>
-			<h2 className="text-2xl font-semibold mb-2 mt-6">Changes and Updates to this Privacy Policy</h2>
+			<h2 className="text-2xl font-semibold mb-2 mt-6">9. Changes and Updates to this Privacy Policy</h2>
 			<p>
 				We may occasionally update this Privacy Policy. When we do, we will also revise the Effective Date at
 				the top of this page. We encourage you to periodically review this Privacy Policy to stay informed about
 				how we are protecting the personal information we collect. Your continued use of the Websites
 				constitutes your agreement to this Privacy Policy and any updates.
 			</p>
+			<h2 className="text-2xl font-semibold mb-2 mt-6">10. Contact Information</h2>
 			<div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
 				<p className="font-bold">JustAJobApp LLC</p>
 				<p>2108 N St, STE N</p>
