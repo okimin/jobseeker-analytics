@@ -19,144 +19,145 @@ const PrivacyPolicyPage = () => {
 					information unless required for core service functionality, i.e.{" "}
 					<strong>increasing job search productivity</strong>.
 				</p>
-				<h2 className="text-3xl font-semibold mb-4">Categories of Personal Information We Collect</h2>
-				<p className="text-sm mb-4">
-					The table below shows the categories of personal information we have collected in the past twelve
-					(12) months. For a comprehensive inventory of all personal information we process, please refer to
-					the section "Notice at Collection: Categories of Information."
-				</p>
-				<div className="overflow-x-auto mb-6">
-					<table className="min-w-full border border-gray-300 text-sm">
-						<thead className="bg-gray-100 dark:bg-gray-800">
-							<tr>
-								<th className="border p-2 text-left">Category</th>
-								<th className="border p-2 text-left">Examples</th>
-								<th className="border p-2 text-left">Collected</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td className="border p-2 font-semibold">A. Identifiers</td>
-								<td className="border p-2">
-									Contact details, real name, alias, postal address, telephone, unique personal
-									identifier, online identifier, IP address, email, account name
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">
-									B. Personal Information (California Customer Records)
-								</td>
-								<td className="border p-2">
-									Name, contact information, education, employment, employment history, financial
-									information
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">
-									C. Protected Classification Characteristics
-								</td>
-								<td className="border p-2">
-									Gender, age, date of birth, race, ethnicity, national origin, marital status,
-									demographic data
-								</td>
-								<td className="border p-2">NO</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">D. Commercial Information</td>
-								<td className="border p-2">
-									Transaction information, purchase history, financial details, payment information
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">E. Biometric Information</td>
-								<td className="border p-2">Fingerprints, voiceprints</td>
-								<td className="border p-2">NO</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">F. Internet or Network Activity</td>
-								<td className="border p-2">
-									Browsing history, search history, online behavior, interest data, interactions with
-									websites and applications
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">G. Geolocation Data</td>
-								<td className="border p-2">Device location</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">H. Audio, Electronic, Sensory Information</td>
-								<td className="border p-2">Images, audio, video, or call recordings</td>
-								<td className="border p-2">NO</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">I. Professional or Employment Information</td>
-								<td className="border p-2">
-									Business contact details, job title, work history, professional qualifications
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">J. Education Information</td>
-								<td className="border p-2">Student records, directory information</td>
-								<td className="border p-2">NO</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">
-									K. Inferences Drawn from Personal Information
-								</td>
-								<td className="border p-2">
-									Inferences about preferences, characteristics, behavior, and interests
-								</td>
-								<td className="border p-2">NO</td>
-							</tr>
-							<tr>
-								<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
-								<td className="border p-2">
-									Contents of email or text messages, account login information
-								</td>
-								<td className="border p-2">YES</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<h3 className="text-xl font-semibold mb-3 mt-6">Use and Retention of Sensitive Personal Information</h3>
-				<p className="text-sm mb-4">
-					We only collect sensitive personal information as defined by applicable privacy laws for purposes
-					allowed by law or with your consent. Sensitive personal information may be used or disclosed to a
-					service provider or contractor for additional, specified purposes. You may have the right to limit
-					the use or disclosure of your sensitive personal information. We do not collect or process sensitive
-					personal information for the purpose of inferring characteristics about you.
-				</p>
-				<p className="text-sm mb-4">
-					We will use and retain the collected personal information as needed to provide the Services or for:
-				</p>
-				<ul className="list-disc list-inside space-y-2 ml-4 text-sm mb-6">
-					<li>
-						<strong>Category A (Identifiers):</strong> As long as the user has an account with us
-					</li>
-					<li>
-						<strong>Category F (Internet Activity):</strong> As long as the user has an account with us
-					</li>
-					<li>
-						<strong>Category G (Geolocation):</strong> As long as the user has an account with us
-					</li>
-					<li>
-						<strong>Category I (Professional Information):</strong> As long as the user has an account with
-						us
-					</li>
-					<li>
-						<strong>Category L (Sensitive Personal Information):</strong> As long as the user has an account
-						with us
-					</li>
-				</ul>
 			</section>
 
+			{/* CATEGORIES OF PERSONAL INFORMATION WE COLLECT */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">Categories of Personal Information We Collect</h2>
+			<p className="text-sm mb-4">
+				The table below shows the categories of personal information we have collected in the past twelve
+				(12) months. For a comprehensive inventory of all personal information we process, please refer to
+				the section "Notice at Collection: Categories of Information."
+			</p>
+			<div className="overflow-x-auto mb-6">
+				<table className="min-w-full border border-gray-300 text-sm">
+					<thead className="bg-gray-100 dark:bg-gray-800">
+						<tr>
+							<th className="border p-2 text-left">Category</th>
+							<th className="border p-2 text-left">Examples</th>
+							<th className="border p-2 text-left">Collected</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td className="border p-2 font-semibold">A. Identifiers</td>
+							<td className="border p-2">
+								Contact details, real name, alias, postal address, telephone, unique personal
+								identifier, online identifier, IP address, email, account name
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">
+								B. Personal Information (California Customer Records)
+							</td>
+							<td className="border p-2">
+								Name, contact information, education, employment, employment history, financial
+								information
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">
+								C. Protected Classification Characteristics
+							</td>
+							<td className="border p-2">
+								Gender, age, date of birth, race, ethnicity, national origin, marital status,
+								demographic data
+							</td>
+							<td className="border p-2">NO</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">D. Commercial Information</td>
+							<td className="border p-2">
+								Transaction information, purchase history, financial details, payment information
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">E. Biometric Information</td>
+							<td className="border p-2">Fingerprints, voiceprints</td>
+							<td className="border p-2">NO</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">F. Internet or Network Activity</td>
+							<td className="border p-2">
+								Browsing history, search history, online behavior, interest data, interactions with
+								websites and applications
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">G. Geolocation Data</td>
+							<td className="border p-2">Device location</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">H. Audio, Electronic, Sensory Information</td>
+							<td className="border p-2">Images, audio, video, or call recordings</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">I. Professional or Employment Information</td>
+							<td className="border p-2">
+								Business contact details, job title, work history, professional qualifications
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">J. Education Information</td>
+							<td className="border p-2">Student records, directory information</td>
+							<td className="border p-2">NO</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">
+								K. Inferences Drawn from Personal Information
+							</td>
+							<td className="border p-2">
+								Inferences about preferences, characteristics, behavior, and interests
+							</td>
+							<td className="border p-2">NO</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
+							<td className="border p-2">
+								Contents of email or text messages, account login information
+							</td>
+							<td className="border p-2">YES</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h3 className="text-xl font-semibold mb-3 mt-6">Use and Retention of Sensitive Personal Information</h3>
+			<p className="text-sm mb-4">
+				We only collect sensitive personal information as defined by applicable privacy laws for purposes
+				allowed by law or with your consent. Sensitive personal information may be used or disclosed to a
+				service provider or contractor for additional, specified purposes. You may have the right to limit
+				the use or disclosure of your sensitive personal information. We do not collect or process sensitive
+				personal information for the purpose of inferring characteristics about you.
+			</p>
+			<p className="text-sm mb-4">
+				We will use and retain the collected personal information as needed to provide the Services or for:
+			</p>
+			<ul className="list-disc list-inside space-y-2 ml-4 text-sm mb-6">
+				<li>
+					<strong>Category A (Identifiers):</strong> As long as the user has an account with us
+				</li>
+				<li>
+					<strong>Category F (Internet Activity):</strong> As long as the user has an account with us
+				</li>
+				<li>
+					<strong>Category G (Geolocation):</strong> As long as the user has an account with us
+				</li>
+				<li>
+					<strong>Category I (Professional Information):</strong> As long as the user has an account with
+					us
+				</li>
+				<li>
+					<strong>Category L (Sensitive Personal Information):</strong> As long as the user has an account
+					with us
+				</li>
+			</ul>
 			{/* 1. CALIFORNIA NOTICE AT COLLECTION */}
 			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
 				1. Notice at Collection: Categories of Information
@@ -204,7 +205,7 @@ const PrivacyPolicyPage = () => {
 			</div>
 
 			{/* 2. THIRD-PARTY DISCLOSURES */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8">2. Third-Party Service Providers</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">2. Third-Party Service Providers</h2>
 			<p className="mb-4 text-sm">
 				We utilize specific third-party vendors to maintain our infrastructure. These parties are contractually
 				prohibited from processing your data for any purpose other than those instructed by JustAJobApp LLC:
@@ -244,7 +245,7 @@ const PrivacyPolicyPage = () => {
 			</div>
 
 			{/* 3. EMAIL SYNCHRONIZATION & REFRESH TOKENS */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8">3. Specialized Data Processing: Gmail Synchronization</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">3. Specialized Data Processing: Gmail Synchronization</h2>
 			<p className="mt-2 text-sm">
 				JustAJobApp serves as a specialized data processor using the <strong>Google OAuth2 framework</strong>{" "}
 				and the <strong>Gmail API</strong>. We utilize the following technical protocols:
@@ -265,7 +266,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 4. FILTERING & ANALYSIS */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8">4. Targeted Data Filtering</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">4. Targeted Data Filtering</h2>
 			<p className="mt-2 text-sm">The Gmail API is filtered through three distinct layers to ensure privacy:</p>
 			<ul className="list-disc list-inside space-y-3 mt-3 ml-4 text-sm">
 				<li>
@@ -295,8 +296,8 @@ const PrivacyPolicyPage = () => {
 				</li>
 			</ul>
 
-			{/* 5. UNITED STATES DATA PROCESSING (RESTORED) */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8">5. International Users: United States Processing</h2>
+			{/* 5. UNITED STATES DATA PROCESSING */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">5. International Users: United States Processing</h2>
 			<p className="text-sm">
 				JustAJobApp LLC is based in the United States and the Websites are hosted in the United States. If you
 				are accessing the Websites from the European Union, Asia, or any other region with laws governing data
@@ -310,7 +311,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 6. GOOGLE LIMITED USE COMPLIANCE */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8">6. Google API Limited Use Requirements</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">6. Google API Limited Use Requirements</h2>
 			<p className="text-sm">
 				JustAJobApp adheres to the{" "}
 				<a
@@ -332,7 +333,7 @@ const PrivacyPolicyPage = () => {
 			</ul>
 
 			{/* 7. CALIFORNIA STATUTORY RIGHTS */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">7. Your California Privacy Rights (CPRA)</h2>
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">7. Your California Privacy Rights (CPRA)</h2>
 			<ul className="list-disc list-inside space-y-2 ml-4 text-sm">
 				<li>
 					<strong>Right to Know:</strong> Disclosure of what data points are collected.
@@ -357,21 +358,24 @@ const PrivacyPolicyPage = () => {
 				</li>
 			</ul>
 
-			{/* 8. ADMINISTRATIVE ACCESS & CONTACT */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">8. Administrative Access</h2>
+			{/* 8. ADMINISTRATIVE ACCESS */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">8. Administrative Access</h2>
 			<p className="mb-6 text-sm">
 				Engineers may locate individual emails related to a Job Application only in response to a bug report,
 				authorized support request, or security investigation. All production data access must be specifically
 				authorized by JustAJobApp LLC.
 			</p>
-			<h2 className="text-3xl font-semibold mb-2 mt-6">9. Changes and Updates to this Privacy Policy</h2>
+			{/* 9. CHANGES AND UPDATES */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8">9. Changes and Updates to this Privacy Policy</h2>
 			<p className="text-base">
 				We may occasionally update this Privacy Policy. When we do, we will also revise the Effective Date at
 				the top of this page. We encourage you to periodically review this Privacy Policy to stay informed about
 				how we are protecting the personal information we collect. Your continued use of the Websites
 				constitutes your agreement to this Privacy Policy and any updates.
 			</p>
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">
+
+			{/* 10. US RESIDENTS PRIVACY RIGHTS */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">
 				10. Do United States Residents Have Specific Privacy Rights?
 			</h2>
 			<p className="text-base mb-4">
@@ -384,7 +388,8 @@ const PrivacyPolicyPage = () => {
 				some circumstances by applicable law.
 			</p>
 
-			<h2 className="text-3xl font-semibold mb-2 mt-8">11. Contact Information</h2>
+			{/* 11. CONTACT INFORMATION */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">11. Contact Information</h2>
 			<div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
 				<p className="font-bold">JustAJobApp LLC</p>
 				<p>2108 N St, STE N</p>
