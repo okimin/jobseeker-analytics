@@ -140,7 +140,7 @@ const PrivacyPolicyPage = () => {
 					>
 						llm_utils.py
 					</a>
-					evaluates messages to discard newsletters and personal data unrelated to your job search.
+					 evaluates messages to discard newsletters and personal data unrelated to your job search.
 				</li>
 				<li>
 					<strong>Domain-Based Optimization:</strong> As applications are verified, future fetches may rely on
