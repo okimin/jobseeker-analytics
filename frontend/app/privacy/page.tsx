@@ -187,7 +187,9 @@ const PrivacyPolicyPage = () => {
 						</tr>
 						<tr>
 							<td className="border p-2 font-semibold">Category G: Geolocation Data</td>
-							<td className="border p-2">Device location tracking for user analytics and session management.</td>
+							<td className="border p-2">
+								Device location tracking for user analytics and session management.
+							</td>
 							<td className="border p-2">Duration of active account.</td>
 						</tr>
 						<tr>
