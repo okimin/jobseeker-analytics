@@ -68,7 +68,7 @@ const PrivacyPolicyPage = () => {
 								<td className="border p-2">
 									Transaction information, purchase history, financial details, payment information
 								</td>
-								<td className="border p-2">NO</td>
+								<td className="border p-2">YES</td>
 							</tr>
 							<tr>
 								<td className="border p-2 font-semibold">E. Biometric Information</td>
@@ -180,17 +180,22 @@ const PrivacyPolicyPage = () => {
 						</tr>
 						<tr>
 							<td className="border p-2 font-semibold">
-								Category L: Sensitive Personal Information (Mailbox Contents)
-							</td>
-							<td className="border p-2">Automated job tracking and status extraction.</td>
-							<td className="border p-2">Duration of active account.</td>
-						</tr>
-						<tr>
-							<td className="border p-2 font-semibold">
 								Category D: Commercial Information (Transaction Records)
 							</td>
 							<td className="border p-2">Subscription processing via Stripe.</td>
 							<td className="border p-2">7 Years (IRS record-keeping).</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">Category G: Geolocation Data</td>
+							<td className="border p-2">Device location tracking for user analytics and session management.</td>
+							<td className="border p-2">Duration of active account.</td>
+						</tr>
+						<tr>
+							<td className="border p-2 font-semibold">
+								Category L: Sensitive Personal Information (Mailbox Contents)
+							</td>
+							<td className="border p-2">Automated job tracking and status extraction.</td>
+							<td className="border p-2">Duration of active account.</td>
 						</tr>
 					</tbody>
 				</table>
