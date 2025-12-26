@@ -376,6 +376,27 @@ const PrivacyPolicyPage = () => {
 				</li>
 			</ul>
 
+			<h3 className="text-xl font-semibold mb-3 mt-6">Verification Process for Privacy Requests</h3>
+			<p className="text-sm mb-4">
+				Under the CPRA, we are required to verify the identity of consumers making privacy requests (including
+				requests to know, delete, or correct personal information). When you submit a privacy request, we will verify
+				your identity by matching the email address of the requester with the email address on file associated with
+				your JustAJobApp account. In some cases, we may require additional verification, including a signed
+				declaration under penalty of perjury, to ensure we are processing legitimate requests and protecting your
+				account security.
+			</p>
+
+			<h3 className="text-xl font-semibold mb-3 mt-6">Authorized Agents</h3>
+			<p className="text-sm mb-4">
+				California law requires us to allow consumers to designate an authorized agent to make requests on their
+				behalf. You may designate an authorized agent to submit a request on your behalf. We may require written
+				proof of the agent's permission and verify your identity directly. Please contact us at{" "}
+				<a className="text-blue-600 underline" href="mailto:privacy@justajobapp.com">
+					privacy@justajobapp.com
+				</a>{" "}
+				to designate an authorized agent.
+			</p>
+
 			{/* 8. ADMINISTRATIVE ACCESS */}
 			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t border-b pt-4 pb-2">8. Administrative Access</h2>
 			<p className="mb-6 text-sm">
@@ -406,8 +427,19 @@ const PrivacyPolicyPage = () => {
 				some circumstances by applicable law.
 			</p>
 
-			{/* 11. CONTACT INFORMATION */}
-			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">11. Contact Information</h2>
+			{/* 11. ACCESSIBILITY STATEMENT */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8">11. Accessibility Statement</h2>
+			<p className="text-sm mb-4">
+				The CCPA requires that privacy policies be accessible to consumers with disabilities. If you have a disability
+				and need to access this notice in an alternative format, please contact us at{" "}
+				<a className="text-blue-600 underline" href="mailto:privacy@justajobapp.com">
+					privacy@justajobapp.com
+				</a>
+				.
+			</p>
+
+			{/* 12. CONTACT INFORMATION */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-t pt-4">12. Contact Information</h2>
 			<div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
 				<p className="font-bold">JustAJobApp LLC</p>
 				<p>2108 N St, STE N</p>
