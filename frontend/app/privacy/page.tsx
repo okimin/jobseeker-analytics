@@ -139,8 +139,8 @@ const PrivacyPolicyPage = () => {
 						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
 					>
 						llm_utils.py
-					</a>
-					{" "}evaluates messages to discard newsletters and personal data unrelated to your job search.
+					</a>{" "}
+					evaluates messages to discard newsletters and personal data unrelated to your job search.
 				</li>
 				<li>
 					<strong>Domain-Based Optimization:</strong> As applications are verified, future fetches may rely on
