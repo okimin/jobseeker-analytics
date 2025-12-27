@@ -1,7 +1,6 @@
 "use client";
 
 import { Navbar } from "@/components/navbar";
-import Footer from "@/components/Footer";
 
 const CoachesPage = () => {
 	return (
@@ -46,7 +45,6 @@ const CoachesPage = () => {
 					</div>
 				</section>
 			</main>
-			<Footer />
 		</div>
 	);
 };

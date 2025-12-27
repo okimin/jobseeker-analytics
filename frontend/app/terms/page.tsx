@@ -207,10 +207,10 @@ export default function TermsPage() {
 
 				<p className="text-gray-700 dark:text-gray-300">
 					The formation, interpretation, and performance of this Agreement and any disputes arising out of it
-					shall be governed by the substantive and procedural laws of California, United States without regard
+					shall be governed by the substantive and procedural laws of Alameda County, California, United States without regard
 					to its rules on conflicts or choice of law and, to the extent applicable, the laws of United States.
 					The exclusive jurisdiction and venue for actions related to the subject matter hereof shall be the
-					courts located in California, United States, and you hereby submit to the personal jurisdiction of
+					courts located in Alameda County, California, United States, and you hereby submit to the personal jurisdiction of
 					such courts. You hereby waive any right to a jury trial in any proceeding arising out of or related
 					to this Agreement. The United Nations Convention on Contracts for the International Sale of Goods
 					does not apply to this Agreement.
