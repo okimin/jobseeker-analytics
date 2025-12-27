@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addToast, Progress } from "@heroui/react";
+import { addToast } from "@heroui/toast";
+import { Progress } from "@heroui/react";
 
 import Spinner from "../../components/spinner";
 
