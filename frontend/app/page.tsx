@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
-import Footer from "@/components/Footer";
 import { GoogleIcon } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 
@@ -457,8 +456,6 @@ const Index = () => {
 					</div>
 				</div>
 			</section>
-
-			<Footer />
 
 			{/* Image Popup Overlay */}
 			{showImagePopup && (
