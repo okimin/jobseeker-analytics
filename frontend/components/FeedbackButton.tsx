@@ -13,7 +13,7 @@ export default function FeedbackButton() {
 			target="_blank"
 		>
 			<Button isIconOnly aria-label="Feedback" className="shadow-lg hover:shadow-xl transition-shadow">
-				<Image alt="Feedback" height={100} src="/feedback-icon.png" width={100} />
+				<Image alt="Feedback" height={100} src="/chatbubble-monogram-logo.png" width={100} />
 			</Button>
 		</a>
 	);

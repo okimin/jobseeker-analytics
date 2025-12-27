@@ -2,8 +2,23 @@
 
 import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@heroui/react";
 import NextLink from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
+import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
+	const { theme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return null;
+	}
+
 	return (
 		<>
 			<HeroUINavbar
@@ -18,17 +33,19 @@ export const Navbar = () => {
 							<NextLink className="flex justify-start items-center gap-1" href="/">
 								<div className="flex items-center gap-3">
 									<img
-										alt="Shining Nuggets Logo"
+										alt="JustAJobApp Logo"
 										className="h-12 w-12 object-contain"
-										src="/logo.png"
+										src={
+											theme === "dark"
+												? "/justajobapp-square-dark-monogram-logo-favicon.png"
+												: "/justajobapp-circle-monogram-logo-social.png"
+										}
 									/>
 									<div className="flex flex-col">
-										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
-											JustAJobApp
+										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
+											{siteConfig.name}
 										</span>
-										<span className="text-xs text-default-500 -mt-1">
-											Automate the "Second Job" of Job Searching.
-										</span>
+										<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 									</div>
 								</div>
 							</NextLink>
@@ -55,14 +72,20 @@ export const Navbar = () => {
 					<NavbarBrand className="flex justify-center">
 						<NextLink className="flex justify-center items-center gap-1" href="/">
 							<div className="flex items-center gap-3">
-								<img alt="Shining Nuggets Logo" className="h-10 w-10 object-contain" src="/logo.png" />
+								<img
+									alt="JustAJobApp Logo"
+									className="h-10 w-10 object-contain"
+									src={
+										theme === "dark"
+											? "/justajobapp-square-dark-monogram-logo-favicon.png"
+											: "/justajobapp-circle-monogram-logo-social.png"
+									}
+								/>
 								<div className="flex flex-col">
-									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
-										Just A Job App
+									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
+										{siteConfig.name}
 									</span>
-									<span className="text-xs text-default-500 -mt-1">
-										Get the System Behind a 3x Interview Rate.
-									</span>
+									<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 								</div>
 							</div>
 						</NextLink>
