@@ -4,6 +4,7 @@ import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "
 import NextLink from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
 	const { theme, setTheme } = useTheme();
@@ -40,11 +41,11 @@ export const Navbar = () => {
 										}
 									/>
 									<div className="flex flex-col">
-										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
-											JustAJobApp
+										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
+											{siteConfig.name}
 										</span>
 										<span className="text-xs text-default-500 -mt-1">
-											Automate the "Second Job" of Job Searching.
+											{siteConfig.description}
 										</span>
 									</div>
 								</div>
@@ -78,15 +79,15 @@ export const Navbar = () => {
 									src={
 										theme === "dark"
 											? "/justajobapp-square-dark-monogram-logo-favicon.png"
-											: "/logo.png"
+											: "/justajobapp-circle-monogram-logo-social.png"
 									}
 								/>
 								<div className="flex flex-col">
-									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
-										Just A Job App
+									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
+										{siteConfig.name}
 									</span>
 									<span className="text-xs text-default-500 -mt-1">
-										Get the System Behind a 3x Interview Rate.
+										{siteConfig.description}
 									</span>
 								</div>
 							</div>
