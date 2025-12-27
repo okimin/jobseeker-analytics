@@ -2,8 +2,21 @@
 
 import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@heroui/react";
 import NextLink from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export const Navbar = () => {
+	const { theme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return null;
+	}
+
 	return (
 		<>
 			<HeroUINavbar
@@ -18,9 +31,13 @@ export const Navbar = () => {
 							<NextLink className="flex justify-start items-center gap-1" href="/">
 								<div className="flex items-center gap-3">
 									<img
-										alt="Shining Nuggets Logo"
+										alt="JustAJobApp Logo"
 										className="h-12 w-12 object-contain"
-										src="/logo.png"
+										src={
+											theme === "dark"
+												? "/justajobapp-square-dark-monogram-logo-favicon.png"
+												: "/justajobapp-circle-monogram-logo-social.png"
+										}
 									/>
 									<div className="flex flex-col">
 										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
@@ -55,7 +72,11 @@ export const Navbar = () => {
 					<NavbarBrand className="flex justify-center">
 						<NextLink className="flex justify-center items-center gap-1" href="/">
 							<div className="flex items-center gap-3">
-								<img alt="Shining Nuggets Logo" className="h-10 w-10 object-contain" src="/logo.png" />
+								<img
+									alt="JustAJobApp Logo"
+									className="h-10 w-10 object-contain"
+									src={theme === "dark" ? "/justajobapp-square-dark-monogram-logo-favicon.png" : "/logo.png"}
+								/>
 								<div className="flex flex-col">
 									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
 										Just A Job App
