@@ -75,7 +75,11 @@ export const Navbar = () => {
 								<img
 									alt="JustAJobApp Logo"
 									className="h-10 w-10 object-contain"
-									src={theme === "dark" ? "/justajobapp-square-dark-monogram-logo-favicon.png" : "/logo.png"}
+									src={
+										theme === "dark"
+											? "/justajobapp-square-dark-monogram-logo-favicon.png"
+											: "/logo.png"
+									}
 								/>
 								<div className="flex flex-col">
 									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600">
