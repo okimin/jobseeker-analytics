@@ -2,6 +2,7 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
 	name: "JustAJobApp",
+	legalName: "JustAJobApp LLC",
 	description: "Stop Giving a Click.",
 	navItems: [
 		{
