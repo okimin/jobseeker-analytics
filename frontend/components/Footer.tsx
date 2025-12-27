@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { GoogleIcon } from "@/components/icons";
+import { siteConfig } from "@/config/site";
 
 // Function to create a firework particle effect
 // Exported so it can be used from other components
@@ -100,8 +101,8 @@ const Footer = () => {
 			<div className="container mx-auto px-4">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-emerald-700">JustAJobApp</h3>
-						<p className="text-default-500 mb-4">Automate the "Second Job" of Job Searching.</p>
+						<h3 className="text-lg font-semibold mb-4 text-emerald-700">{siteConfig.name}</h3>
+						<p className="text-default-500 mb-4">{siteConfig.description}</p>
 						<a
 							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700 transition-colors duration-200"
 							href="/contributors"
