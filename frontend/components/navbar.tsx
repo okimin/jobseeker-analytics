@@ -4,6 +4,7 @@ import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "
 import NextLink from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+
 import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
@@ -44,9 +45,7 @@ export const Navbar = () => {
 										<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
 											{siteConfig.name}
 										</span>
-										<span className="text-xs text-default-500 -mt-1">
-											{siteConfig.description}
-										</span>
+										<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 									</div>
 								</div>
 							</NextLink>
@@ -86,9 +85,7 @@ export const Navbar = () => {
 									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
 										{siteConfig.name}
 									</span>
-									<span className="text-xs text-default-500 -mt-1">
-										{siteConfig.description}
-									</span>
+									<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 								</div>
 							</div>
 						</NextLink>
