@@ -47,8 +47,9 @@ const Index = () => {
 								A single lost email cost me $40,000.
 							</h1>
 							<p className="mt-4 text-lg max-w-3xl mx-auto text-gray-600 dark:text-gray-300">
-								After being laid off by email in 2024, I managed 46 interview pipelines from 129 applications. 
-								During a 9-interview week, a manual tracking error led to a missed interview for a role paying $40,000 more than the offers I received.
+								After being laid off by email in 2024, I managed 46 interview pipelines from 129
+								applications. During a 9-interview week, a manual tracking error led to a missed
+								interview for a role paying $40,000 more than the offers I received.
 							</p>
 							<div className="mt-10 flex justify-center">
 								<a
@@ -83,8 +84,7 @@ const Index = () => {
 								The Old Way Isn't Working.
 							</h2>
 							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								Spreadsheets and manual tracking are failing you. It's time for an
-								upgrade.
+								Spreadsheets and manual tracking are failing you. It's time for an upgrade.
 							</p>
 						</div>
 						<div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
@@ -111,9 +111,7 @@ const Index = () => {
 								<h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
 									Already a Beta Tester?
 								</h3>
-								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Login below.
-								</p>
+								<p className="text-gray-700 dark:text-gray-200 mb-6">Login below.</p>
 								<BetaLoginButton fullWidth />
 							</div>
 						</div>
@@ -124,15 +122,23 @@ const Index = () => {
 			{/* Problem/Agitation Section */}
 			<div className="bg-gray-50 dark:bg-gray-900/40">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center py-8">
-					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-						The Job Search Crisis
-					</h2>
+					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The Job Search Crisis</h2>
 					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						<li><strong>12x the Noise:</strong> Unemployed seekers do 12 times more work to find a job than people who already have one. This means 12 times more emails and links to track.</li>
-						<li><strong>3x More Applications:</strong> In 2024, it took 3 times as many applications to get a single hire compared to 2021. The sheer volume of "Thank you for applying" emails has tripled.</li>
-						<li><strong>1 Million People Laid Off:</strong> As of October 2025, 1 million U.S. workers are exposed to job searches with high email volume.</li>
+						<li>
+							<strong>12x the Noise:</strong> Unemployed seekers do 12 times more work to find a job than
+							people who already have one. This means 12 times more emails and links to track.
+						</li>
+						<li>
+							<strong>3x More Applications:</strong> In 2024, it took 3 times as many applications to get
+							a single hire compared to 2021. The sheer volume of "Thank you for applying" emails has
+							tripled.
+						</li>
+						<li>
+							<strong>1 Million People Laid Off:</strong> As of October 2025, 1 million U.S. workers are
+							exposed to job searches with high email volume.
+						</li>
 					</ul>
- 				</div>
+				</div>
 				{/* Placeholder for dashboard GIF */}
 				<div
 					className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
@@ -170,43 +176,49 @@ const Index = () => {
 						Spreadsheets and Notes Aren't Helping
 					</h2>
 					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						<li><strong>The 3-Tool Mess:</strong> 72% (16 of 22) of surveyed job seekers try to fix this by using 3 or more different apps at once.</li>
-						<li><strong>The Result:</strong> Moving data between emails, calendars, and spreadsheets manually is where the $40,000 mistakes happen.</li>
+						<li>
+							<strong>The 3-Tool Mess:</strong> 72% (16 of 22) of surveyed job seekers try to fix this by
+							using 3 or more different apps at once.
+						</li>
+						<li>
+							<strong>The Result:</strong> Moving data between emails, calendars, and spreadsheets
+							manually is where the $40,000 mistakes happen.
+						</li>
 					</ul>
 				</div>
 			</div>
 			{/* Placeholder for dashboard GIF */}
-				<div
-					className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-					onClick={() => {
-						setPopupImageSrc("homepage/Solution-Light.png");
-						setShowImagePopup(true);
-					}}
-				>
-					<div className="relative">
-						<img
-							alt="Clean, modern dashboard showing automated application tracking"
-							className="max-h-80 max-w-full object-contain"
-							src="homepage/Solution-Light.png"
-						/>
-						<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
-							<svg
-								className="h-12 w-12 text-white"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-								/>
-							</svg>
-						</div>
+			<div
+				className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+				onClick={() => {
+					setPopupImageSrc("homepage/Solution-Light.png");
+					setShowImagePopup(true);
+				}}
+			>
+				<div className="relative">
+					<img
+						alt="Clean, modern dashboard showing automated application tracking"
+						className="max-h-80 max-w-full object-contain"
+						src="homepage/Solution-Light.png"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
+						<svg
+							className="h-12 w-12 text-white"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+							/>
+						</svg>
 					</div>
-				</div>		
+				</div>
+			</div>
 			{/* Solution / Value Prop Section */}
 			<div className="bg-white dark:bg-gray-900 py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -216,7 +228,8 @@ const Index = () => {
 								Solution: An Email-Synced Zero-Click Interview Tracker
 							</h2>
 							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								JustAJobApp.com connects securely to your email inbox to automatically sync interviews from recruiter emails into a web dashboard.
+								JustAJobApp.com connects securely to your email inbox to automatically sync interviews
+								from recruiter emails into a web dashboard.
 							</p>
 						</div>
 						<div>
@@ -264,7 +277,8 @@ const Index = () => {
 						Stop Clicking. Start Automating.
 					</h2>
 					<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Unlike other job trackers that force you to literally click on every job with a browser extension, JustAJobApp.com is automated.
+						Unlike other job trackers that force you to literally click on every job with a browser
+						extension, JustAJobApp.com is automated.
 					</p>
 					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
 						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date.
@@ -378,16 +392,24 @@ const Index = () => {
 							Coming Soon: Instant Interview Prep
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Tracking your applications is just the beginning. The next feature on our roadmap is <strong>Instant Interview Prep.</strong> 
+							Tracking your applications is just the beginning. The next feature on our roadmap is{" "}
+							<strong>Instant Interview Prep.</strong>
 						</p>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Customer discovery with 32 job seekers in 2025 confirmed that 56% could not locate job descriptions or notes immediately before an interview.
+							Customer discovery with 32 job seekers in 2025 confirmed that 56% could not locate job
+							descriptions or notes immediately before an interview.
 						</p>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Upon detection of an emailed calendar invite, JustAJobApp will identify interviewers, draft company-specific questions, and map key talking points from your resume to the autosaved job description requirements. 
+							Upon detection of an emailed calendar invite, JustAJobApp will identify interviewers, draft
+							company-specific questions, and map key talking points from your resume to the autosaved job
+							description requirements.
 						</p>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Optionally, JustAJobApp will notify <a className="font-medium text-emerald-600 hover:text-emerald-500" href="/coaches">your career coach</a> of your upcoming interview to help you prepare.
+							Optionally, JustAJobApp will notify{" "}
+							<a className="font-medium text-emerald-600 hover:text-emerald-500" href="/coaches">
+								your career coach
+							</a>{" "}
+							of your upcoming interview to help you prepare.
 						</p>
 					</div>
 				</div>
@@ -414,8 +436,7 @@ const Index = () => {
 										New Job Seekers
 									</h4>
 									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Request an invite to get in line for the
-										inbox-powered tracker.
+										Request an invite to get in line for the inbox-powered tracker.
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
@@ -428,9 +449,7 @@ const Index = () => {
 								</div>
 								<div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
 									<h4 className="font-semibold text-gray-900 dark:text-white mb-2">Beta Testers</h4>
-									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Login below.
-									</p>
+									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Login below.</p>
 									<BetaLoginButton fullWidth />
 								</div>
 							</div>

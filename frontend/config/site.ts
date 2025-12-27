@@ -6,12 +6,12 @@ export const siteConfig = {
 	navItems: [
 		{
 			label: "Job Seekers",
-			href: "/",
+			href: "/"
 		},
 		{
 			label: "Coaches",
-			href: "/coaches",
-		},
+			href: "/coaches"
+		}
 	],
 	navMenuItems: [
 		{
