@@ -20,8 +20,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.add_column('users', sa.Column('is_active', sa.Boolean(), nullable=False, ))
-    op.add_column('users', sa.Column('stripe_customer_id', sqlmodel.sql.sqltypes.AutoString(), nullable=True, server_default='false'))
+    op.add_column('users', sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.text('true')))
+    op.add_column('users', sa.Column('stripe_customer_id', sqlmodel.sql.sqltypes.AutoString(), nullable=True))
+    # change server default so future users are added as inactive - stripe automation will change this value automatically
+    op.alter_column('users', 'server_default', server_default=sa.text('false'))
     # ### end Alembic commands ###
 
 
