@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
@@ -11,17 +10,12 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
-from database import create_db_and_tables
-from db.utils.dev_utils import clear_local_database  # noqa: F401
 
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    # Clear database in local development
-    # clear_local_database()  # uncomment to clear database in local development
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -65,9 +59,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 )
-
-# Set up Jinja2 templates
-templates = Jinja2Templates(directory="templates")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
