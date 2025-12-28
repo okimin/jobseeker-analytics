@@ -69,7 +69,14 @@ def downgrade() -> None:
         print(f"Skipping downgrade in {settings.ENV} environment.")
         return
     print("dropping tables!")
-    op.drop_table('processing_task_runs')
-    op.drop_table('user_emails')
-    op.drop_table('users')
-    op.drop_table('companies')
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+    if 'processing_task_runs' in existing_tables:
+        op.drop_table('processing_task_runs')
+    if 'user_emails' in existing_tables:
+        op.drop_table('user_emails')
+    if 'users' in existing_tables:
+        op.drop_table('users')
+    if 'companies' in existing_tables:
+        op.drop_table('companies')
