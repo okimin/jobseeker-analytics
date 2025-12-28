@@ -134,9 +134,15 @@ async def login(
         request.session["creds"] = new_creds_json
 
         # NOTE: change redirection once dashboard is completed
-        exists, last_fetched_date = user_exists(user, db_session)
-        logger.info("User exists: %s, Last fetched date: %s", exists, last_fetched_date)
-        if exists:
+        existing_user, last_fetched_date = user_exists(user, db_session)
+        logger.info("User exists: %s, Last fetched date: %s", existing_user, last_fetched_date)
+        if existing_user:
+            if not existing_user.is_active:
+                logger.warning("User %s is not active. Redirecting to inactive account page.", user.user_id)
+                return RedirectResponse(
+                    url=f"{settings.APP_URL}/errors?message=account_inactive",
+                    status_code=303,
+                )
             logger.info("User already exists in the database.")
             response = RedirectResponse(
                 url=f"{settings.APP_URL}/processing", status_code=303
@@ -158,11 +164,10 @@ async def login(
             )
             logger.info("Background task started for user_id: %s", user.user_id)
         else:
-            request.session["is_new_user"] = True
-            response = RedirectResponse(
-                url=f"{settings.APP_URL}/dashboard", status_code=303
-            )
-            print("User does not exist")
+            return RedirectResponse(
+                    url=f"{settings.APP_URL}/errors?message=account_inactive",
+                    status_code=303,
+                )
 
         response = set_conditional_cookie(
             key="Authorization", value=session_id, response=response

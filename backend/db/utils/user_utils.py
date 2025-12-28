@@ -1,4 +1,4 @@
-import logging
+from db.users import Users
 from typing import Optional, Tuple
 from db.user_emails import UserEmails
 from sqlmodel import select, func
@@ -21,7 +21,7 @@ def get_last_email_date(user_id: str, db_session) -> Optional[datetime]:
     logger.info("user_id: %s get_last_email_date: %s", user_id, row)
     return row
 
-def user_exists(user, db_session) -> Tuple[bool, Optional[datetime]]:
+def user_exists(user, db_session) -> Tuple[Optional[Users], Optional[datetime]]:
     """
     Checks if user is already in the database
     """
@@ -37,11 +37,11 @@ def user_exists(user, db_session) -> Tuple[bool, Optional[datetime]]:
     
     if not existing_user:
         logger.info("user_exists: user does not exist in the database")
-        return False, None
+        return None, None
     else:
         logger.info("user_exists: user exists in the database with user_id: %s", existing_user.user_id)
         last_fetched_date = get_last_email_date(user.user_id, db_session)
-        return True, last_fetched_date
+        return existing_user, last_fetched_date
 
 def add_user(user, request, db_session, start_date=None) -> Users:
     """

@@ -51,6 +51,18 @@ function ErrorContent() {
 						</a>{" "}
 					</>
 				);
+			} else if (msgParam === "account_inactive") {
+				setErrorMessage(
+					<>
+						It looks like you are trying to login with an unregistered account. Please{" "}
+						<a
+							className="text-blue-600 hover:underline font-semibold"
+							href={`mailto:help@justajobapp.com?subject=Login%20Credentials%20Error&body=${emailBody}`}
+						>
+							email our support team
+						</a>{" "}
+					</>
+				);
 			}
 		} catch (err) {
 			setErrorMessage(`Error page encountered an error: ${err instanceof Error ? err.message : String(err)}`);
