@@ -9,40 +9,9 @@ Tests verify that the SecurityMiddleware correctly:
 """
 
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-
-# Try to find the correct import path by checking the guard module structure
-try:
-    from guard.utils import extract_client_ip
-    print("Found extract_client_ip in guard.utils")
-except ImportError:
-    try:
-        from guard.core.utils import extract_client_ip
-        print("Found extract_client_ip in guard.core.utils")
-    except ImportError:
-        try:
-            from guard.middleware import extract_client_ip
-            print("Found extract_client_ip in guard.middleware")
-        except ImportError:
-            print("Could not find extract_client_ip function")
-
-# Add this debug test to see what's actually being called
-def test_debug_middleware_imports():
-    """Debug test to understand middleware imports."""
-    try:
-        from guard.middleware import SecurityMiddleware
-        import inspect
-        
-        # Get the source code of the middleware to see imports
-        source = inspect.getsource(SecurityMiddleware)
-        print("SecurityMiddleware source:")
-        print(source[:500])  # First 500 chars
-        
-    except Exception as e:
-        print(f"Could not inspect middleware: {e}")
-
 
 # Import the guard components - these should be available from fastapi-guard package
 try:
@@ -303,17 +272,16 @@ class TestFastAPIGuardMiddleware:
         mock_settings.COOKIE_SECRET = "test_secret"
         mock_settings.ORIGIN = "example.com"
         
-        # Test that the configuration would be created correctly
-        with patch('guard.SecurityConfig') as mock_config:
-            config = SecurityConfig(
-                geo_ip_handler=GeoIPHandler,
-                ipinfo_token="test_token",
-                whitelist_countries=["US"]
-            )
-            
-            # Verify the config can be created with expected parameters
-            assert config.ipinfo_token == "test_token"
-            assert config.whitelist_countries == ["US"]
+        # Test that the configuration can be created correctly
+        config = SecurityConfig(
+            geo_ip_handler=GeoIPHandler,
+            ipinfo_token="test_token",
+            whitelist_countries=["US"]
+        )
+        
+        # Verify the config can be created with expected parameters
+        assert config.ipinfo_token == "test_token"
+        assert config.whitelist_countries == ["US"]
 
     def test_main_app_middleware_configuration_local_dev(self):
         """Test that main.py does NOT add SecurityMiddleware in local development."""
