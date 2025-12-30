@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
-import Footer from "@/components/Footer";
 import { GoogleIcon } from "@/components/icons";
+import { siteConfig } from "@/config/site";
 
 const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
@@ -42,40 +42,36 @@ const Index = () => {
 				<div className="w-full bg-gradient-to-b from-amber-50/60 to-transparent dark:from-gray-800/30 border-b border-amber-100/40 dark:border-emerald-900/30">
 					<div className="container mx-auto px-4 py-16 sm:py-24 max-w-5xl">
 						<div className="text-center">
-							<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-6 from-amber-600 to-emerald-600">
-								Choose How You Access JustAJobApp.
+							<h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r pb-4 from-amber-600 to-emerald-600">
+								A single lost email cost me $40,000.
 							</h1>
-							<div className="mt-10 grid gap-4 sm:grid-cols-3">
+							<p className="mt-4 text-lg max-w-3xl mx-auto text-gray-600 dark:text-gray-300">
+								After being laid off by email in 2024, I managed 46 interview pipelines from 129
+								applications. During a 9-interview week, a manual tracking error led to a missed
+								interview for a role paying $40,000 more than the offers I received.
+							</p>
+							<div className="mt-10 flex justify-center">
 								<a
-									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+									className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
 									href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_1"
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									New job seekers → Request access
+									Join the waitlist and never miss an opportunity →
 								</a>
-								<a
-									className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600 transition-colors duration-200"
-									href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_1"
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									Coaches & clients → Coach.JustAJobApp.com
-								</a>
-								<div>
-									<p className="mt-4 text-sm text-gray-500 text-left">
-										Beta testers: use the Login with Google button on this page to jump straight
-										into your existing cloud seat.
-										<br />
-										<br />
-										<BetaLoginButton fullWidth />
-									</p>
-								</div>
 							</div>
-							<p className="mt-4 text-sm text-gray-500">
-								Beta testers: use the Login with Google button on this page to jump straight into your
-								existing cloud seat.
-							</p>
+							<div className="mt-8">
+								<p className="text-sm text-gray-500">
+									Already a beta tester?{" "}
+									<a
+										className="font-medium text-emerald-600 hover:text-emerald-500"
+										href="#beta-testers"
+									>
+										Login here
+									</a>
+									.
+								</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -84,21 +80,19 @@ const Index = () => {
 					<div className="container mx-auto px-4 max-w-6xl">
 						<div className="text-center mb-12">
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-								Pick your job search path.
+								The Old Way Isn't Working.
 							</h2>
 							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								Whether you're running your own search, partnering with a coach, or helping us test the
-								next release, there's a dedicated entry point for you.
+								Spreadsheets and manual tracking are failing you. It's time for an upgrade.
 							</p>
 						</div>
-						<div className="grid gap-8 md:grid-cols-3">
+						<div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
 							<div className="rounded-2xl border border-amber-100 dark:border-amber-900/40 bg-gradient-to-b from-amber-50/70 to-white dark:from-amber-950/20 dark:to-gray-900 p-6 shadow-sm">
 								<h3 className="text-xl font-semibold mb-3 text-amber-800 dark:text-amber-200">
 									New Job Seekers
 								</h3>
 								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Want access when we open more seats? Request an invite and get ready for the
-									inbox-powered tracker to take over the busywork.
+									Want access? Request an invite for the inbox-powered tracker.
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
@@ -109,23 +103,6 @@ const Index = () => {
 									Join the waitlist
 								</a>
 							</div>
-							<div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-gradient-to-b from-emerald-50/70 to-white dark:from-emerald-950/20 dark:to-gray-900 p-6 shadow-sm">
-								<h3 className="text-xl font-semibold mb-3 text-emerald-800 dark:text-emerald-200">
-									Career Coaches & Clients
-								</h3>
-								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Managing multiple searches or working with a career coach? Use Coach.JustAJobApp.com
-									to streamline your collaboration.
-								</p>
-								<a
-									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-									href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_2"
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									Go to Coach.JustAJobApp.com
-								</a>
-							</div>
 							<div
 								className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-6 shadow-sm"
 								id="beta-testers"
@@ -133,9 +110,7 @@ const Index = () => {
 								<h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
 									Already a Beta Tester?
 								</h3>
-								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									If you're already part of the closed beta and using the app, login below.
-								</p>
+								<p className="text-gray-700 dark:text-gray-200 mb-6">Login below.</p>
 								<BetaLoginButton fullWidth />
 							</div>
 						</div>
@@ -143,59 +118,117 @@ const Index = () => {
 				</section>
 			</main>
 
-			{/* (Removed Social Proof Bar per spec) */}
-
 			{/* Problem/Agitation Section */}
-			<div className="bg-gray-50 dark:bg-gray-900/40 py-24">
-				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
-					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-						The "Second Job" of Job Searching is Burning You Out.
-					</h2>
-					<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						The market is brutal. Applications per hire have <em>tripled</em> since 2021, and 90% of
-						candidates are rejected or ghosted.
-					</p>
-					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						No wonder 64% of job seekers report symptoms of burnout—feeling exhausted, stuck, and
-						overwhelmed.
-					</p>
-					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						You're already managing a full-time job. The last thing you have time for is:
-					</p>
+			<div className="bg-gray-50 dark:bg-gray-900/40">
+				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center py-8">
+					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The Job Search Crisis</h2>
 					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						<li>Manually copying and pasting job descriptions into a spreadsheet.</li>
 						<li>
-							Sifting through your inbox to find out <em>who</em> you heard back from.
+							<strong>12x the Noise:</strong> Unemployed seekers do 12 times more work to find a job than
+							people who already have one. This means 12 times more emails and links to track.
 						</li>
-						<li>Worrying you're missing critical recruiter emails in your spam folder.</li>
-						<li>Losing track of applications, deadlines, and follow-ups.</li>
+						<li>
+							<strong>3x More Applications:</strong> In 2024, it took 3 times as many applications to get
+							a single hire compared to 2021. The sheer volume of "Thank you for applying" emails has
+							tripled.
+						</li>
+						<li>
+							<strong>1 Million People Laid Off:</strong> As of October 2025, 1 million U.S. workers are
+							exposed to job searches with high email volume.
+						</li>
 					</ul>
-					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Your problem isn't your qualifications; it's the inefficient, time-consuming <em>process</em>.
-					</p>
+				</div>
+				{/* Placeholder for dashboard GIF */}
+				<div
+					className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+					onClick={() => {
+						setPopupImageSrc("homepage/Problem-Email.png");
+						setShowImagePopup(true);
+					}}
+				>
+					<div className="relative">
+						<img
+							alt="Clean, modern dashboard showing automated application tracking"
+							className="max-h-80 max-w-full object-contain"
+							src="homepage/Problem-Email.png"
+						/>
+						<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
+							<svg
+								className="h-12 w-12 text-white"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+								/>
+							</svg>
+						</div>
+					</div>
+				</div>
+				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center py-24">
+					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+						Spreadsheets and Notes Aren't Helping
+					</h2>
+					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						<li>
+							<strong>The 3-Tool Mess:</strong> 72% (16 of 22) of surveyed job seekers try to fix this by
+							using 3 or more different apps at once.
+						</li>
+						<li>
+							<strong>The Result:</strong> Moving data between emails, calendars, and spreadsheets
+							manually is where the $40,000 mistakes happen.
+						</li>
+					</ul>
 				</div>
 			</div>
-
+			{/* Placeholder for dashboard GIF */}
+			<div
+				className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+				onClick={() => {
+					setPopupImageSrc("homepage/Solution-Light.png");
+					setShowImagePopup(true);
+				}}
+			>
+				<div className="relative">
+					<img
+						alt="Clean, modern dashboard showing automated application tracking"
+						className="max-h-80 max-w-full object-contain"
+						src="homepage/Solution-Light.png"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity">
+						<svg
+							className="h-12 w-12 text-white"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+							/>
+						</svg>
+					</div>
+				</div>
+			</div>
 			{/* Solution / Value Prop Section */}
 			<div className="bg-white dark:bg-gray-900 py-24">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 						<div>
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-								Go from Inbox Chaos to Automated Clarity.
+								Solution: An Email-Synced Zero-Click Interview Tracker
 							</h2>
 							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								JustAJobApp.com connects securely to your email inbox.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								The moment you apply, it automatically parses your application confirmations,
-								rejections, and interview invitations. It builds a living, breathing dashboard of your
-								entire job search.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								You see the company, job title, application status, and contact date—all without lifting
-								a finger. Finally, you can focus on your current role while your job search runs
-								efficiently (and discreetly) in the background.
+								JustAJobApp.com connects securely to your email inbox to automatically sync interviews
+								from recruiter emails into a web dashboard.
 							</p>
 						</div>
 						<div>
@@ -240,22 +273,14 @@ const Index = () => {
 			<div className="py-24">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-						Stop "Clipping." Start Automating.
+						Stop Clicking. Start Automating.
 					</h2>
 					<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Unlike other job trackers (Huntr, Teal, Simplify) that force you to <em>manually "clip"</em>{" "}
-						every job with a browser extension, JustAJobApp.com is automated.
+						Unlike other job trackers that force you to literally click on every job with a browser
+						extension, JustAJobApp.com is automated.
 					</p>
 					<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an{" "}
-						<strong>email-powered</strong> tracker designed for busy professionals who value efficiency and
-						discretion.
-					</p>
-					<p className="mt-6 text-base text-gray-700 dark:text-gray-400">
-						<strong>
-							Our open-source project ("jobseeker-analytics") has a 48% star-to-download conversion rate
-						</strong>{" "}
-						— <em>3 times higher than the median</em> for other job search tools.
+						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date.
 					</p>
 				</div>
 			</div>
@@ -354,38 +379,6 @@ const Index = () => {
 								</div>
 							</div>
 						</div>
-						<div className="py-24 md:col-span-2">
-							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-								Built From Frustration. Proven by Results.
-							</h2>
-							<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								In 2024, after my role supporting clients like Netflix and Riot Games was eliminated by
-								email, I was thrown into the job market chaos. I submitted 118 tailored applications and
-								my inbox flooded with 70 rejections.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								Out of frustration, I built a system. <strong>It worked.</strong>
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								I turned those <strong>118 cold applications</strong> into{" "}
-								<strong>21 recruiter calls</strong>, achieving a <strong>17% interview rate</strong>
-								—triple the industry average. My LinkedIn profile attracted 10 recruiters, propelling me
-								to <strong>4 final rounds</strong> and <strong>2 offers</strong>.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								But even with this success, I was so overwhelmed I forgot to update my spreadsheet and
-								even <em>missed an interview</em>. The manual tracking was unsustainable.
-							</p>
-							<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-								I turned my system into an email-powered tool and shared it on GitHub. Over 25
-								developers and 100+ beta testers helped build what JustAJobApp.com is today. We've
-								tracked over 3,000 applications and 268 interview invites. I built this so you can get
-								the results without the burnout.
-							</p>
-							<p className="mt-4 font-semibold text-gray-900 dark:text-white">
-								– Lianna Novitz, Founder of Just A Job App
-							</p>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -395,24 +388,27 @@ const Index = () => {
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="mx-auto max-w-2xl lg:text-center">
 						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
-							The Future: From Automated Tracking to Effortless Prep
+							Coming Soon: Instant Interview Prep
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Tracking your applications is just the beginning. The next, most stressful step is preparing
-							for the interview.
+							Tracking your applications is just the beginning. The next feature on our roadmap is{" "}
+							<strong>Instant Interview Prep.</strong>
 						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							At my peak, I was managing 9 interviews in a single week. It was madness.
+						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+							Customer discovery with 32 job seekers in 2025 confirmed that 56% could not locate job
+							descriptions or notes immediately before an interview.
 						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							<strong>Coming Soon:</strong> Once JustAJobApp.com detects an interview in your inbox, it
-							will automatically spring into action. We're building a system to help you prepare by
-							identifying interviewers from the calendar invite, drafting company-specific questions, and
-							mapping key talking points from your resume to the job description.
+						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+							Upon detection of an emailed calendar invite, JustAJobApp will identify interviewers, draft
+							company-specific questions, and map key talking points from your resume to the autosaved job
+							description requirements.
 						</p>
-						<p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
-							Support our project today to help us launch the automated tracker and be the first to know
-							when interview prep is launched.
+						<p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+							Optionally, JustAJobApp will notify{" "}
+							<a className="font-medium text-emerald-600 hover:text-emerald-500" href="/coaches">
+								your career coach
+							</a>{" "}
+							of your upcoming interview to help you prepare.
 						</p>
 					</div>
 				</div>
@@ -426,29 +422,20 @@ const Index = () => {
 				<div className="max-w-4xl mx-auto">
 					<div className="bg-gradient-to-r from-amber-50 to-emerald-50 dark:from-amber-950/30 dark:to-emerald-950/30 rounded-xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/50 text-center transition-all">
 						<h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:from-amber-500 dark:to-emerald-400">
-							Automate the "Second Job" of Job Searching.
+							{siteConfig.description}
 						</h2>
 						<p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-							Take back your time. End the spreadsheet madness. Automate your job search admin and focus
-							on what <em>actually</em> matters: landing the offer.
+							Win your next interview without the out-of-date spreadsheet.
 						</p>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-								Pick Your Access Path
-							</h3>
-							<p className="text-gray-600 dark:text-gray-300 mb-8">
-								Ready to plug in your search or support someone else's? Use the option that matches how
-								you plan to work with JustAJobApp today.
-							</p>
-							<div className="grid gap-4 md:grid-cols-3">
+							<div className="grid gap-4 md:grid-cols-2 justify-center">
 								<div className="rounded-xl border border-amber-100 dark:border-amber-900/50 p-4">
 									<h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">
 										New Job Seekers
 									</h4>
 									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Want access when we reopen seats? Request an invite to get in line for the
-										inbox-powered tracker.
+										Request an invite to get in line for the inbox-powered tracker.
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
@@ -459,27 +446,9 @@ const Index = () => {
 										Join the waitlist
 									</a>
 								</div>
-								<div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
-									<h4 className="font-semibold text-emerald-800 dark:text-emerald-200 mb-2">
-										Career Coaches & Clients
-									</h4>
-									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Share progress and prep at Coach.JustAJobApp.com.
-									</p>
-									<a
-										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-										href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_3"
-										rel="noopener noreferrer"
-										target="_blank"
-									>
-										Coach.JustAJobApp.com
-									</a>
-								</div>
 								<div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
 									<h4 className="font-semibold text-gray-900 dark:text-white mb-2">Beta Testers</h4>
-									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Already using the app? Login below.
-									</p>
+									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Login below.</p>
 									<BetaLoginButton fullWidth />
 								</div>
 							</div>
@@ -487,8 +456,6 @@ const Index = () => {
 					</div>
 				</div>
 			</section>
-
-			<Footer />
 
 			{/* Image Popup Overlay */}
 			{showImagePopup && (

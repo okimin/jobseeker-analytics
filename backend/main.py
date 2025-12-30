@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
@@ -12,17 +11,12 @@ from slowapi.middleware import SlowAPIMiddleware
 from guard import SecurityMiddleware, SecurityConfig, GeoIPHandler
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
-from database import create_db_and_tables
-from db.utils.dev_utils import clear_local_database  # noqa: F401
 
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    # Clear database in local development
-    # clear_local_database()  # uncomment to clear database in local development
     yield
 
 app = FastAPI(lifespan=lifespan)

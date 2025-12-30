@@ -1,26 +1,27 @@
 ## Table of Contents
 
 1. [Welcome to Do-It-Yourself (DIY) Install](#welcome-to-do-it-yourself-diy-install)
-2. [📹 Watch the Video](#-video-tutorial-diy-install)
-3. [📖 Read the Text](#-written-tutorial-diy-install)
-    - [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
-        - [Install the Prerequisites](#install-the-prerequisites)
-        - [Clone the repo](#clone-the-repo)
-        - [Get a Google AI API key](#get-a-google-ai-api-key)
-        - [Create a Google OAuth App](#create-a-google-oauth-app)
-        - [Set Up Environment Variables](#set-up-environment-variables)
-        - [Run the App: Two options](#run-the-app-two-options)
-            - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
-            - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
-        - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
-        - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
-4. [Submit Changes](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
+    - [📹 Watch the Video](#-video-tutorial-diy-install)
+    - [📖 Read the Text](#-written-tutorial-diy-install)
+      - [How can I install the app directly on my computer?](#how-can-i-install-the-app-directly-on-my-computer-%EF%B8%8F-back-to-table-of-contents)
+         - [Install the Prerequisites](#install-the-prerequisites)
+         - [Clone the repo](#clone-the-repo)
+         - [Get a Google AI API key](#get-a-google-ai-api-key)
+         - [Create a Google OAuth App](#create-a-google-oauth-app)
+         - [Set Up Environment Variables](#set-up-environment-variables)
+         - [Run the App: Two options](#run-the-app-two-options)
+               - [Option 1: Docker Compose (Preferred Option)](#option-1-docker-compose-preferred-option-%EF%B8%8F-back-to-table-of-contents)
+               - [Option 2: Virtual Environment](#option-2-virtual-environment-%EF%B8%8F-back-to-table-of-contents)
+         - [Inspect the Database with DBeaver](#inspect-the-database-with-dbeaver-%EF%B8%8F-back-to-table-of-contents)
+         - [Troubleshooting Tips](#troubleshooting-tips-%EF%B8%8F-back-to-table-of-contents)
+2. [How to Change the Database](#how-to-change-the-database)
+3. [How to Submit Changes to GitHub](#submit-changes-%EF%B8%8F-back-to-table-of-contents)
     - The "One Diff, One Thesis" Principle
     - Keep Pull Requests Under 250 Lines of Code
     - Make your code testable
-5. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
+4. [Report a Bug](#report-a-bug-%EF%B8%8F-back-to-table-of-contents)
     - [How Do I Submit a (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
-6. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
+5. [Code of Conduct](#code-of-conduct-%EF%B8%8F-back-to-table-of-contents)
     - [Examples of positive behavior](#examples-of-behavior-that-contributes-to-positive-environment)
     - [Examples of unacceptable behavior](#examples-of-unacceptable-behavior)
 
@@ -247,6 +248,69 @@ To inspect your PostgreSQL database running in Docker, follow these steps:
 #### When do I need to rebuild Docker? 
 - if you change `.env` variables, you'll need to `docker compose down` and `docker compose up --build`
 ---
+
+### How to Change the Database
+
+We use **SQLModel** to define our database schema and **Alembic** to manage migrations. Because our services run in Docker, all Alembic commands must be executed within the backend container.
+
+#### Why We Use Migrations [⬆️ Back to Table of Contents](#table-of-contents)
+
+Migrations allow us to update the database schema (adding columns, creating tables) across different environments without losing existing data. Our current schema includes a "Gatekeeper" system to manage beta access:
+
+* **`is_active`**: A boolean flag determining if a user can log in. In production, this defaults to `False` to restrict access during our security review.
+* **`stripe_customer_id`**: An optional field for future payment integration.
+
+#### Common Commands
+
+* **Check Migration Status**: See which version your local database is currently on.
+```bash
+docker compose exec backend alembic current
+
+```
+
+
+* **Update Your Database**: Run this after pulling new code to apply the latest schema changes.
+```bash
+docker compose exec backend alembic upgrade head
+
+```
+
+
+* **Roll Back**: Undo the last migration.
+```bash
+docker compose exec backend alembic downgrade -1
+
+```
+
+
+
+#### Workflow for Altering the Database
+
+If you are implementing a feature or bug fix that requires a schema change:
+
+1. **Modify the Model**: Update the relevant file in `backend/db/` (e.g., `backend/db/users.py`).
+2. **Generate a Script**: Alembic will compare your code to the database and generate a migration file.
+```bash
+docker compose exec backend alembic revision --autogenerate -m "description of change"
+
+```
+
+
+3. **Review the Script**: Inspect the new file in `backend/alembic/versions/`. Ensure the `upgrade()` and `downgrade()` functions accurately reflect your changes.
+4. **Apply Locally**: Run `upgrade head` as shown above to update your local DB.
+
+#### Automation for Development
+
+To make onboarding easier for contributors, we have automated the `is_active` flag in development environments.
+
+* **Automated Activation**: New users created in a development environment are automatically set to `is_active = True`.
+* **Lifespan Seed**: Every time the backend starts in dev mode, it ensures existing users are active so you aren't locked out of your own local environment.
+
+#### Rules for Migration Maintenance
+
+* **When to EDIT**: Only edit a migration file if it is local to your branch and has not been merged into `main`. Once shared, editing a file causes history desync for other developers.
+* **When to DELETE**: Never delete a migration file that has been merged into `main`. This breaks the migration chain for everyone else. If you made a mistake in a merged migration, the correct fix is to create a **new** migration that reverses or corrects it.
+
 
 ### Submit Changes [⬆️ Back to Table of Contents](#table-of-contents)  
 1. **Fork** this repository.  

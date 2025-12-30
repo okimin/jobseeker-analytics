@@ -18,10 +18,21 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		if (posthogKey) {
+			// Check for GPC signal
+			const hasGPCSignal = () => {
+				// Check navigator.globalPrivacyControl (standard GPC signal)
+				if ("globalPrivacyControl" in navigator) {
+					return (navigator as Navigator & { globalPrivacyControl: boolean }).globalPrivacyControl === true;
+				}
+				return false;
+			};
+
 			posthog.init(posthogKey, {
 				api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
 				person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-				capture_pageview: false // Disable automatic pageview capture, as we capture manually
+				capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+				opt_out_capturing_by_default: hasGPCSignal(), // Respect GPC signals
+				respect_dnt: true // Also respect Do Not Track signals
 			});
 		}
 	}, [posthogKey]);

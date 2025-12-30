@@ -12,3 +12,6 @@ class Users(SQLModel, table=True):
     user_id: str = Field(default = None, primary_key = True)
     user_email: str = Field(nullable=False)                      
     start_date: datetime = Field(nullable=False) # Start date for job applications
+    # Billing fields
+    is_active: bool = Field(default=False, nullable=False)
+    stripe_customer_id: str | None = Field(default=None, nullable=True)
