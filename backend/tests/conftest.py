@@ -121,11 +121,11 @@ def task_factory(db_session, logged_in_user):
 
 
 @pytest.fixture
-def user_factory(db_session):
+def user_factory(db_session, is_active=True):
     def _create_user(
-        user_id="123", user_email="user@example.com", start_date=datetime(2000, 1, 1)
+        user_id="123", user_email="user@example.com", start_date=datetime(2000, 1, 1), is_active=is_active
     ):
-        user = Users(user_id=user_id, user_email=user_email, start_date=start_date)
+        user = Users(user_id=user_id, user_email=user_email, start_date=start_date, is_active=is_active)
         db_session.add(user)
         db_session.commit()
         return user
@@ -137,6 +137,9 @@ def user_factory(db_session):
 def logged_in_user(user_factory):
     return user_factory()
 
+@pytest.fixture
+def inactive_user(user_factory):
+    return user_factory(is_active=False)
 
 @pytest.fixture
 def started_task(task_factory):
@@ -157,7 +160,7 @@ def task_with_300_processed_emails(task_factory):
 def client_factory(db_session):
     def _make_client(user=None):
         main.app.dependency_overrides[database.request_session] = lambda: db_session
-        if user:
+        if user and user.is_active:
             user_id = user.user_id
             main.app.dependency_overrides[validate_session] = lambda: user_id
         else:
