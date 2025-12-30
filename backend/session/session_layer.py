@@ -58,7 +58,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         user = db_session.exec(select(Users).where(Users.user_id == user_id))
-        if not user:
+        if not user or not user.is_active:
             clear_session(request, user_id)
             logger.info("validate_session deleting user_id: %s", user_id)
             return ""
