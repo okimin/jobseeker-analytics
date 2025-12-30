@@ -70,9 +70,6 @@ if settings.is_publicly_deployed:
     )
     app.add_middleware(SecurityMiddleware,config=config)
 
-# Set up Jinja2 templates
-templates = Jinja2Templates(directory="templates")
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
