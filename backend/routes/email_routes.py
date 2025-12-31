@@ -37,7 +37,7 @@ APP_URL = settings.APP_URL
 router = APIRouter()
 
 
-@router.get("/processing", response_class=HTMLResponse)
+@router.get("/processing")
 async def processing(
     request: Request,
     db_session: database.DBSession,
