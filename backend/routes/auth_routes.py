@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
-from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status
+from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds
 from session.session_layer import create_random_session_string, validate_session
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
@@ -52,37 +52,9 @@ async def login(
                 flow, has_refresh_token
             )
             return RedirectResponse(url=authorization_url)
-        logger.info("Authorization code received, exchanging for token...")
-        try:
-            flow.fetch_token(code=code)
-        except Exception as e:
-            logger.error("Failed to fetch token: %s", e)
-            return RedirectResponse(
-                url=f"{settings.APP_URL}/errors?message=permissions_error",
-                status_code=303,
-            )
-        try:
-            creds = flow.credentials
-            logger.info(
-                "Credentials received - has refresh_token: %s",
-                bool(creds.refresh_token),
-            )
-        except Exception as e:
-            logger.error("Failed to fetch credentials: %s", e)
-            return RedirectResponse(
-                url=f"{settings.APP_URL}/errors?message=credentials_error",
-                status_code=303,
-            )
-
-        if not creds.valid:
-            try:
-                creds.refresh(Request())
-            except Exception as e:
-                logger.error("Failed to refresh credentials: %s", e)
-                # Clear expired credentials from session
-                request.session.pop("creds", None)
-                return RedirectResponse("/login", status_code=303)
-
+        creds = get_creds(request=request, code=code, flow=flow)
+        if type(creds, RedirectResponse):
+            return creds
         user = AuthenticatedUser(creds)
         # Preserve existing session_id or create new one if none exists
         session_id = request.session.get("session_id") or create_random_session_string()

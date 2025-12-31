@@ -2,8 +2,12 @@ import json
 import logging
 import uuid
 
+
+from fastapi.responses import RedirectResponse
+
 from utils.file_utils import get_user_filepath
 
+from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
@@ -132,3 +136,42 @@ def get_refresh_token_status(creds: object):
         except json.JSONDecodeError:
             logger.info("Trouble loading credentials from user session.")
     return False
+
+
+def get_creds(request, code, flow: Flow):
+    """
+    Get credentials from token authentication. Handles redirects as needed to get user permission.
+    This will be simplified when we start storing the refresh tokens in persistent storage.
+    """
+    logger.info("Authorization code received, exchanging for token...")
+    # fetch token
+    try:
+        flow.fetch_token(code=code)
+    except Exception as e:
+        logger.error("Failed to fetch token: %s", e)
+        return RedirectResponse(
+            url=f"{settings.APP_URL}/errors?message=permissions_error",
+            status_code=303,
+        )
+    # fetch creds, check if valid, else, refresh creds
+    try:
+        creds = flow.credentials
+        logger.info(
+            "Credentials received - returning creds, has_refresh_token: %s",
+            bool(creds.refresh_token),
+        )
+        if not creds.valid:
+            logger.info("Invalid credentials")
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                logger.info("Trouble refreshing creds")
+                request.session.pop("creds", None)
+                return RedirectResponse("/login", status_code=303)
+        return creds
+    except Exception as e:
+        logger.error("Failed to fetch credentials: %s", e)
+        return RedirectResponse(
+            url=f"{settings.APP_URL}/errors?message=credentials_error",
+            status_code=303,
+        )
