@@ -1,7 +1,7 @@
 # app/session/session_layer.py
 import logging
 import secrets
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import Request
 from utils.config_utils import get_settings
 import database
@@ -87,7 +87,7 @@ def is_token_expired(iso_expiry: str) -> bool:
     if iso_expiry:
         datetime_expiry = datetime.fromisoformat(iso_expiry)  # UTC time
         difference_in_minutes = (
-            datetime_expiry - datetime.utcnow()
+            datetime_expiry - datetime.now(timezone.utc)
         ).total_seconds() / 60
         return difference_in_minutes <= 0
 
