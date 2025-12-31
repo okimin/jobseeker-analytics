@@ -67,6 +67,17 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
     return user_id
 
 
+def get_token_expiry(creds) -> str:
+    try:
+        token_expiry = creds.expiry.isoformat()
+    except Exception as e:
+        logger.error("Failed to parse token expiry: %s", e)
+        token_expiry = (
+            datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        ).isoformat()
+    return token_expiry
+
+
 def is_token_expired(iso_expiry: str) -> bool:
     """
     Converts ISO format timestamp (which serves as the expiry time of the token) to datetime.

@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds
-from session.session_layer import create_random_session_string, validate_session
+from session.session_layer import create_random_session_string, validate_session, get_token_expiry
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
 from routes.email_routes import fetch_emails_to_db
@@ -61,15 +61,7 @@ async def login(
         request.session["session_id"] = session_id
 
         # Set session details
-        try:
-            token_expiry = creds.expiry.isoformat()
-        except Exception as e:
-            logger.error("Failed to parse token expiry: %s", e)
-            token_expiry = (
-                datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            ).isoformat()
-
-        request.session["token_expiry"] = token_expiry
+        request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id
         request.session["access_token"] = creds.token
 
