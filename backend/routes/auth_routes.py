@@ -37,18 +37,9 @@ async def login(
 ):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
-    client_config = {
-        "web": {
-            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-            "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-            "redirect_uris": json.loads(os.getenv("GOOGLE_CLIENT_REDIRECT_URI")),
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
-    }
 
     flow = Flow.from_client_config(
-        client_config,
+        settings.GOOGLE_OAUTH2_CONFIG,
         settings.GOOGLE_SCOPES,
         redirect_uri=settings.REDIRECT_URI,
     )
