@@ -165,7 +165,7 @@ def get_creds(request, code, flow: Flow):
             try:
                 creds.refresh(Request())
             except Exception as e:
-                logger.info("Trouble refreshing creds")
+                logger.info("Trouble refreshing creds: %s", e)
                 request.session.pop("creds", None)
                 return RedirectResponse("/login", status_code=303)
         return creds
