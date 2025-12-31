@@ -9,13 +9,22 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
+from utils.dev_utils import seed_dev_user
 from contextlib import asynccontextmanager
-
+import database
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # 2. Seed dev users if not in production
+    settings = get_settings()
+    if not settings.is_publicly_deployed:
+        db = database.get_session()
+        try:
+            seed_dev_user(db)
+        finally:
+            db.close()
     yield
 
 app = FastAPI(lifespan=lifespan)

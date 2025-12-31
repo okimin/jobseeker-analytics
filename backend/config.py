@@ -29,6 +29,8 @@ class Settings(BaseSettings):
         "postgresql://postgres:postgres@db:5432/jobseeker_analytics"
     )
     BATCH_SIZE: int = 10000
+    DEV_USER_GMAIL: str = "insert-your-email-here@gmail.com"
+    DEV_USER_IS_ACTIVE: bool = True
 
     @field_validator("GOOGLE_SCOPES", mode="before")
     @classmethod
