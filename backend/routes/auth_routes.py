@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
@@ -13,7 +13,6 @@ from routes.email_routes import fetch_emails_to_db
 import database
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-import os
 
 limiter = Limiter(key_func=get_remote_address)
 
