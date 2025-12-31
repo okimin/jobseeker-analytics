@@ -1,0 +1,32 @@
+# backend/utils/redirect_utils.py
+from fastapi.responses import RedirectResponse
+from utils.config_utils import get_settings
+
+settings = get_settings()
+
+class Redirects:
+    @staticmethod
+    def to_frontend(path: str = "") -> RedirectResponse:
+        """Base redirect to the frontend application."""
+        return RedirectResponse(url=f"{settings.APP_URL}{path}", status_code=303)
+
+    @staticmethod
+    def to_dashboard() -> RedirectResponse:
+        return Redirects.to_frontend("/dashboard")
+
+    @staticmethod
+    def to_processing() -> RedirectResponse:
+        return Redirects.to_frontend("/processing")
+
+    @staticmethod
+    def to_error(reason: str) -> RedirectResponse:
+        return Redirects.to_frontend(f"/errors?message={reason}")
+
+    @staticmethod
+    def to_waitlist(status: str = "pending") -> RedirectResponse:
+        return Redirects.to_frontend(f"/?status={status}")
+
+    @staticmethod
+    def to_logout() -> RedirectResponse:
+        # Internal backend redirect
+        return RedirectResponse(url="/logout", status_code=303)

@@ -8,6 +8,7 @@ from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, ge
 from session.session_layer import create_random_session_string, validate_session, get_token_expiry
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
+from utils.redirect_utils import Redirects
 from routes.email_routes import fetch_emails_to_db
 import database
 from slowapi import Limiter
@@ -65,25 +66,8 @@ async def login(
         request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
 
         existing_user, last_fetched_date = user_exists(user, db_session)
-        logger.info("User exists: %s, Last fetched date: %s", existing_user, last_fetched_date)
-        if existing_user:
-            if not existing_user.is_active:
-                logger.warning("User %s is not active. Redirecting to inactive account page.", user.user_id)
-                return RedirectResponse(
-                    url=f"{settings.APP_URL}/errors?message=account_inactive",
-                    status_code=303,
-                )
-            logger.info("User already exists in the database.")
-            response = RedirectResponse(
-                url=f"{settings.APP_URL}/processing", status_code=303
-            )
-            logger.info(
-                "Settings.is_publicly_deployed: %s", settings.is_publicly_deployed
-            )
-            logger.info(
-                "IS_DOCKER_CONTAINER: %s", os.environ.get("IS_DOCKER_CONTAINER")
-            )
-
+        if existing_user and existing_user.is_active:
+            response = Redirects.to_processing()
             background_tasks.add_task(
                 fetch_emails_to_db,
                 user,
@@ -94,20 +78,16 @@ async def login(
             )
             logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         else:
-            return RedirectResponse(
-                    url=f"{settings.APP_URL}/errors?message=account_inactive",
-                    status_code=303,
-                )
+            logger.warning("user_id: %s is not active. Redirecting to inactive account page.", user.user_id)
+            return Redirects.to_error("account_inactive")
 
         response = set_conditional_cookie(
             key="Authorization", value=session_id, response=response
         )
-
         return response
     except Exception as e:
-        logger.error("Login error: %s", e)
-        return HTMLResponse(content="An error occurred, sorry!", status_code=500)
-
+        logger.error("Catchall login error: %s", e)
+        return Redirects.to_error("oops")
 
 @router.get("/logout")
 async def logout(request: Request, response: RedirectResponse):
