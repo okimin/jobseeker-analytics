@@ -1,3 +1,4 @@
+import json
 import logging
 import uuid
 
@@ -12,7 +13,6 @@ from utils.config_utils import get_settings
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
-
 
 class AuthenticatedUser:
     """
@@ -122,3 +122,13 @@ def get_google_authorization_url(flow, has_valid_creds: bool) -> tuple[str, str]
         logger.info("Using consent for new user or user without refresh token")
     
     return authorization_url, state
+
+
+def get_refresh_token_status(creds: object):
+    if creds:
+        try:
+            creds_dict = json.loads(creds)
+            return bool(creds_dict.get("refresh_token"))  # TODO: this seems redundant, shouldn't we directly save the token?
+        except json.JSONDecodeError:
+            logger.info("Trouble loading credentials from user session.")
+    return False

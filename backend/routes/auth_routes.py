@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
-from utils.auth_utils import AuthenticatedUser, get_google_authorization_url
+from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status
 from session.session_layer import create_random_session_string, validate_session
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
@@ -47,15 +47,8 @@ async def login(
     try:
         if not code:
             # Check if we have a refresh token in session
-            has_refresh_token = False
-            if creds_json := request.session.get("creds"):
-                try:
-                    creds_dict = json.loads(creds_json)
-                    has_refresh_token = bool(creds_dict.get("refresh_token"))
-                except json.JSONDecodeError:
-                    logger.info("Trouble loading credentials from user session.")
-
-            authorization_url, state = get_google_authorization_url(
+            has_refresh_token = get_refresh_token_status(request.session.get("creds"))
+            authorization_url, _ = get_google_authorization_url(
                 flow, has_refresh_token
             )
             return RedirectResponse(url=authorization_url)
