@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
-from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds
+from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
 from session.session_layer import create_random_session_string, validate_session, get_token_expiry
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
@@ -64,24 +64,8 @@ async def login(
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id
         request.session["access_token"] = creds.token
+        request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
 
-        # Preserve old refresh token if new credentials don't have one
-        new_creds_json = creds.to_json()
-        if not creds.refresh_token and (old_creds := request.session.get("creds")):
-            try:
-                old_dict = json.loads(old_creds)
-                if old_dict.get("refresh_token"):
-                    new_dict = json.loads(new_creds_json)
-                    new_dict["refresh_token"] = old_dict["refresh_token"]
-                    new_creds_json = json.dumps(new_dict)
-            except json.JSONDecodeError as e:
-                logger.warning(
-                    "Failed to preserve refresh token from old credentials: %s", str(e)
-                )
-
-        request.session["creds"] = new_creds_json
-
-        # NOTE: change redirection once dashboard is completed
         existing_user, last_fetched_date = user_exists(user, db_session)
         logger.info("User exists: %s, Last fetched date: %s", existing_user, last_fetched_date)
         if existing_user:

@@ -175,3 +175,19 @@ def get_creds(request, code, flow: Flow):
             url=f"{settings.APP_URL}/errors?message=credentials_error",
             status_code=303,
         )
+
+
+def get_latest_refresh_token(old_creds, new_creds):
+    new_creds_json = new_creds.to_json()
+    if not new_creds.refresh_token and old_creds:
+        try:
+            old_dict = json.loads(old_creds)
+            if old_dict.get("refresh_token"):
+                new_dict = json.loads(new_creds_json)
+                new_dict["refresh_token"] = old_dict["refresh_token"]
+                new_creds_json = json.dumps(new_dict)
+        except json.JSONDecodeError as e:
+            logger.warning(
+                "Failed to preserve refresh token from old credentials: %s", str(e)
+            )
+    return new_creds_json
