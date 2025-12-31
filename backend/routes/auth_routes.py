@@ -1,6 +1,4 @@
-import datetime
 import logging
-import json
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse, HTMLResponse
 from google_auth_oauthlib.flow import Flow
