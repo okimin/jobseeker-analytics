@@ -45,7 +45,31 @@ function ErrorContent() {
 						Failed to fetch credentials from Google. Please{" "}
 						<a
 							className="text-blue-600 hover:underline font-semibold"
-							href={`mailto:help@justajobapp.com?subject=Login%20Credentials%20Error&body=${emailBody}`}
+							href={`mailto:help@justajobapp.com?subject=Google%20Credentials%20Error&body=${emailBody}`}
+						>
+							email our support team
+						</a>{" "}
+					</>
+				);
+			} else if (msgParam === "account_inactive") {
+				setErrorMessage(
+					<>
+						It looks like you are trying to login with an unregistered account. Please{" "}
+						<a
+							className="text-blue-600 hover:underline font-semibold"
+							href={`mailto:help@justajobapp.com?subject=Inactive%20Account%20Error&body=${emailBody}`}
+						>
+							email our support team
+						</a>{" "}
+					</>
+				);
+			} else {
+				setErrorMessage(
+					<>
+						Uh oh, sorry about that. Please{" "}
+						<a
+							className="text-blue-600 hover:underline font-semibold"
+							href={`mailto:help@justajobapp.com?subject=Login%20Error&body=${emailBody}`}
 						>
 							email our support team
 						</a>{" "}

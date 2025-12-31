@@ -85,7 +85,8 @@ _Estimated time: 3-5 minutes_
    ```sh
    cp backend/.env.example backend/.env
    ```
-   **🔒 Never share your `.env` file or commit it to Git!**  
+   **🔒 Never share your `.env` file or commit it to Git!**
+   - Open `backend/.env` and replace value for `DEV_USER_GMAIL` with your gmail address in quotes.
 2. Copy `frontend\.env.sample` to `frontend\.env`:
    ```sh
    cp frontend/.env.sample frontend/.env

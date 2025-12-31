@@ -29,6 +29,8 @@ class Settings(BaseSettings):
         "postgresql://postgres:postgres@db:5432/jobseeker_analytics"
     )
     BATCH_SIZE: int = 10000
+    DEV_USER_GMAIL: str = "insert-your-email-here@gmail.com"
+    DEV_USER_IS_ACTIVE: bool = True
 
     @field_validator("GOOGLE_SCOPES", mode="before")
     @classmethod
@@ -50,5 +52,18 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="allow"
     )
 
+class ConfigSettings(Settings):
+    @property
+    def google_oauth2_config(self):
+        obj = {
+            "web": {
+                "client_id": self.GOOGLE_CLIENT_ID,
+                "client_secret": self.GOOGLE_CLIENT_SECRET,
+                "redirect_uris": json.loads(self.GOOGLE_CLIENT_REDIRECT_URI),
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+        }
+        return obj
 
-settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
+settings = ConfigSettings(_env_file=".env", _env_file_encoding="utf-8")
