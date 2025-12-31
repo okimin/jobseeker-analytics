@@ -37,11 +37,10 @@ async def login(
     code = request.query_params.get("code")
 
     flow = Flow.from_client_config(
-        settings.GOOGLE_OAUTH2_CONFIG,
+        settings.google_oauth2_config,
         settings.GOOGLE_SCOPES,
         redirect_uri=settings.REDIRECT_URI,
     )
-
     try:
         if not code:
             # Check if we have a refresh token in session
@@ -51,7 +50,7 @@ async def login(
             )
             return RedirectResponse(url=authorization_url)
         creds = get_creds(request=request, code=code, flow=flow)
-        if type(creds, RedirectResponse):
+        if isinstance(creds, RedirectResponse):
             return creds
         user = AuthenticatedUser(creds)
         # Preserve existing session_id or create new one if none exists

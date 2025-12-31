@@ -1,7 +1,7 @@
 # app/session/session_layer.py
 import logging
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import Request
 from utils.config_utils import get_settings
 import database
@@ -72,9 +72,7 @@ def get_token_expiry(creds) -> str:
         token_expiry = creds.expiry.isoformat()
     except Exception as e:
         logger.error("Failed to parse token expiry: %s", e)
-        token_expiry = (
-            datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-        ).isoformat()
+        token_expiry = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
     return token_expiry
 
 
@@ -86,6 +84,8 @@ def is_token_expired(iso_expiry: str) -> bool:
     """
     if iso_expiry:
         datetime_expiry = datetime.fromisoformat(iso_expiry)  # UTC time
+        if datetime_expiry.tzinfo is None:
+            datetime_expiry = datetime_expiry.replace(tzinfo=timezone.utc)
         difference_in_minutes = (
             datetime_expiry - datetime.now(timezone.utc)
         ).total_seconds() / 60

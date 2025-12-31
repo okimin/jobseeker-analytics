@@ -45,10 +45,15 @@ class Settings(BaseSettings):
         return (
             self.BATCH_SIZE if self.is_publicly_deployed else 200
         )  # corresponds to Gemini API rate limit per day (200)
-    
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="allow"
+    )
+
+class ConfigSettings(Settings):
     @property
-    def GOOGLE_OAUTH2_CONFIG(self) -> dict: 
-        return {
+    def google_oauth2_config(self):
+        obj = {
             "web": {
                 "client_id": self.GOOGLE_CLIENT_ID,
                 "client_secret": self.GOOGLE_CLIENT_SECRET,
@@ -57,10 +62,6 @@ class Settings(BaseSettings):
                 "token_uri": "https://oauth2.googleapis.com/token",
             }
         }
+        return obj
 
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="allow"
-    )
-
-
-settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
+settings = ConfigSettings(_env_file=".env", _env_file_encoding="utf-8")
