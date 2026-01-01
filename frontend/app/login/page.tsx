@@ -12,7 +12,7 @@ import { checkAuth } from "@/utils/auth";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
-    const [isVerified, setIsVerified] = useState(false);
+	const [isVerified, setIsVerified] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const router = useRouter();
@@ -38,14 +38,13 @@ export default function LoginPage() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ email })
 			});
-            const data = await response.json();
-            if (data.is_active == "True") {
-                setIsVerified(true);                      
-            } else {                                                                         
-                setIsVerified(false);
-		    }
-        } 
-        catch (err) {
+			const data = await response.json();
+			if (data.is_active == "True") {
+				setIsVerified(true);
+			} else {
+				setIsVerified(false);
+			}
+		} catch (err) {
 			setError("Verification failed. Please try again.");
 		} finally {
 			setLoading(false);
@@ -63,7 +62,17 @@ export default function LoginPage() {
 				<Card className="max-w-md w-full">
 					<CardHeader className="flex flex-col gap-1 items-center py-8">
 						<h1 className="text-2xl font-bold">Welcome back!</h1>
-						{!isVerified && <p className="text-sm text-gray-500">If you need help, email <a href="mailto:help@justajobapp.com?subject=Beta%20Login%20Page%20Help" target="_blank">help@justajobapp.com</a></p>}
+						{!isVerified && (
+							<p className="text-sm text-gray-500">
+								If you need help, email{" "}
+								<a
+									href="mailto:help@justajobapp.com?subject=Beta%20Login%20Page%20Help"
+									target="_blank"
+								>
+									help@justajobapp.com
+								</a>
+							</p>
+						)}
 					</CardHeader>
 					<CardBody className="pb-8">
 						{!isVerified ? (
@@ -79,7 +88,16 @@ export default function LoginPage() {
 								<Button className="w-full bg-emerald-600 text-white" isLoading={loading} type="submit">
 									Continue
 								</Button>
-                                <span className="block text-sm text-gray-500 text-center">Not in the official beta? Join the waitlist <a className="text-emerald-600 hover:underline text-sm" href="https://its.justajobapp.com/" target="_blank">here.</a></span>
+								<span className="block text-sm text-gray-500 text-center">
+									Not in the official beta? Join the waitlist{" "}
+									<a
+										className="text-emerald-600 hover:underline text-sm"
+										href="https://its.justajobapp.com/"
+										target="_blank"
+									>
+										here.
+									</a>
+								</span>
 							</form>
 						) : (
 							<div className="space-y-4 text-center">

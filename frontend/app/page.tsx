@@ -54,10 +54,7 @@ const Index = () => {
 							<div className="mt-8">
 								<p className="text-sm text-gray-500">
 									Already a beta tester?{" "}
-									<a
-										className="font-medium text-emerald-600 hover:text-emerald-500"
-										href="/login"
-									>
+									<a className="font-medium text-emerald-600 hover:text-emerald-500" href="/login">
 										Login here
 									</a>
 									.
