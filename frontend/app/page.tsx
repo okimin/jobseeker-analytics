@@ -56,7 +56,7 @@ const Index = () => {
 									Already a beta tester?{" "}
 									<a
 										className="font-medium text-emerald-600 hover:text-emerald-500"
-										href="#beta-testers"
+										href="/login"
 									>
 										Login here
 									</a>

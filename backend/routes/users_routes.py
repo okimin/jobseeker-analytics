@@ -40,9 +40,9 @@ async def verify_beta_email(request: Request, db_session: database.DBSession):
     user = db_session.exec(select(Users).where(Users.user_email == email)).first()
     
     if user and user.is_active:
-        return {"is_active": True}
+        return {"is_active": "True"}
     
-    return {"is_active": False}
+    return {"is_active": "Truee"}
 
 
 @router.get("/get-response-rate")   
