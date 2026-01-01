@@ -82,7 +82,7 @@ function ErrorContent() {
 	}, [searchParams]);
 
 	const handleTryAgain = () => {
-		window.location.href = `${apiUrl}/login`;
+		window.location.href = `${apiUrl}/auth/google`;
 	};
 
 	return (

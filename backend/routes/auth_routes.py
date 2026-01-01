@@ -28,7 +28,7 @@ router = APIRouter()
 APP_URL = settings.APP_URL
 
 
-@router.get("/login")
+@router.get("/auth/google")
 @limiter.limit("10/minute")
 async def login(
     request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession
@@ -45,7 +45,7 @@ async def login(
         if not code:
             # Check if we have a refresh token in session
             has_refresh_token = get_refresh_token_status(request.session.get("creds"))
-            authorization_url, _ = get_google_authorization_url(
+            authorization_url, state = get_google_authorization_url(
                 flow, has_refresh_token
             )
             return RedirectResponse(url=authorization_url)

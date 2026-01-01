@@ -12,10 +12,9 @@ const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
 	const [popupImageSrc, setPopupImageSrc] = useState("");
 	const router = useRouter();
-	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 	const handleGoogleLogin = () => {
-		router.push(`${apiUrl}/login`);
+		router.push(`/login`);
 	};
 
 	const BetaLoginButton = ({
