@@ -225,13 +225,9 @@ def fetch_emails_to_db(
                 settings.batch_size_by_env,
                 extra={"user_id": user_id},
             )
-            return JSONResponse(
-                content={
-                    "message": "Processing complete",
-                    "processed_emails": process_task_run.processed_emails,
-                    "total_emails": process_task_run.total_emails,
-                }
-            )
+            process_task_run.status = task_models.FINISHED
+            db_session.commit()
+            return {"message": "Processing complete"}
 
     process_task_run.status = task_models.STARTED
 
