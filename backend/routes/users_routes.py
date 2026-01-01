@@ -23,6 +23,28 @@ api_call_finished = False
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
+
+# backend/routes/users_routes.py
+
+from db.users import Users # Ensure this is imported
+
+@router.post("/verify-beta-email")
+@limiter.limit("5/hour")
+async def verify_beta_email(request: Request, db_session: database.DBSession):
+    data = await request.json()
+    email = data.get("email")
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+        
+    user = db_session.exec(select(Users).where(Users.user_email == email)).first()
+    
+    if user and user.is_active:
+        return {"is_active": True}
+    
+    return {"is_active": False}
+
+
 @router.get("/get-response-rate")   
 @limiter.limit("2/minute")    
 def response_rate_by_job_title(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):

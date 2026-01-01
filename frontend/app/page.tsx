@@ -13,12 +13,12 @@ const Index = () => {
 	const [popupImageSrc, setPopupImageSrc] = useState("");
 	const router = useRouter();
 
-	const handleGoogleLogin = () => {
+	const handleLogin = () => {
 		router.push(`/login`);
 	};
 
 	const BetaLoginButton = ({
-		label = "Login with Google",
+		label = "Login",
 		fullWidth = false
 	}: {
 		label?: string;
@@ -26,9 +26,8 @@ const Index = () => {
 	}) => (
 		<Button
 			className={`${fullWidth ? "w-full " : ""}bg-white border-gray-300 text-gray-700 hover:bg-gray-50`}
-			startContent={<GoogleIcon size={16} />}
 			variant="bordered"
-			onPress={handleGoogleLogin}
+			onPress={handleLogin}
 		>
 			{label}
 		</Button>
