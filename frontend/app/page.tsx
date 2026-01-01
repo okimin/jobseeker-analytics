@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
-import { GoogleIcon } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 
 const Index = () => {
@@ -17,13 +16,7 @@ const Index = () => {
 		router.push(`/login`);
 	};
 
-	const BetaLoginButton = ({
-		label = "Login",
-		fullWidth = false
-	}: {
-		label?: string;
-		fullWidth?: boolean;
-	}) => (
+	const BetaLoginButton = ({ label = "Login", fullWidth = false }: { label?: string; fullWidth?: boolean }) => (
 		<Button
 			className={`${fullWidth ? "w-full " : ""}bg-white border-gray-300 text-gray-700 hover:bg-gray-50`}
 			variant="bordered"
