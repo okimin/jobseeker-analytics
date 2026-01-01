@@ -1,13 +1,14 @@
 import logging
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlmodel import select
-from db.user_emails import UserEmails
-from utils.config_utils import get_settings
-from session.session_layer import validate_session
-from routes.email_routes import query_emails
 import database
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from db.user_emails import UserEmails
+from db.users import Users # Ensure this is imported
+from utils.config_utils import get_settings
+from session.session_layer import validate_session
+from routes.email_routes import query_emails
 from utils.job_utils import normalize_job_title
 
 # Logger setup
@@ -24,12 +25,8 @@ router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
 
-# backend/routes/users_routes.py
-
-from db.users import Users # Ensure this is imported
-
 @router.post("/verify-beta-email")
-@limiter.limit("5/hour")
+@limiter.limit("10/hour")
 async def verify_beta_email(request: Request, db_session: database.DBSession):
     data = await request.json()
     email = data.get("email")
