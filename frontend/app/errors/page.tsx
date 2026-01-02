@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 // Wrapper component that uses useSearchParams
@@ -55,7 +56,8 @@ function ErrorContent() {
 			} else if (msgParam === "session_mismatch") {
 				setErrorMessage(
 					<>
-						Your security session has expired or is invalid. This can happen if the login process took too long. Please try logging in again.
+						Your security session has expired or is invalid. This can happen if the login process took too
+						long. Please try logging in again.
 					</>
 				);
 			} else if (msgParam === "account_inactive") {
@@ -104,9 +106,7 @@ function ErrorContent() {
 			)}
 
 			{/* Only show the login button for permissions_error */}
-			{(errorType === "permissions_error" || errorType === "session_mismatch") && (
-				<GoogleLoginButton/>
-			)}
+			{(errorType === "permissions_error" || errorType === "session_mismatch") && <GoogleLoginButton />}
 
 			<a className="mt-4 text-blue-600 hover:underline" href="/">
 				Return to home page

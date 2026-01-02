@@ -100,7 +100,7 @@ export default function LoginPage() {
 								</span>
 							</form>
 						) : (
-							<GoogleLoginButton/>
+							<GoogleLoginButton />
 						)}
 					</CardBody>
 				</Card>
