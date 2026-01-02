@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
-import { GoogleIcon } from "@/components/icons";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { checkAuth } from "@/utils/auth";
 
 export default function LoginPage() {
@@ -100,16 +100,7 @@ export default function LoginPage() {
 								</span>
 							</form>
 						) : (
-							<div className="space-y-4 text-center">
-								<Button
-									className="w-full bg-white border-gray-300 text-gray-700"
-									startContent={<GoogleIcon size={20} />}
-									variant="bordered"
-									onPress={handleGoogleLogin}
-								>
-									Login with Google
-								</Button>
-							</div>
+							<GoogleLoginButton/>
 						)}
 					</CardBody>
 				</Card>
