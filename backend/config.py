@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     REDIRECT_URI: str = "http://localhost:8000/auth/google"
     GOOGLE_API_KEY: str
     COOKIE_SECRET: str
+    STRIPE_SECRET_KEY: str
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
