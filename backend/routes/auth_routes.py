@@ -39,7 +39,7 @@ async def login(
     flow = Flow.from_client_config(
         settings.google_oauth2_config,
         settings.GOOGLE_SCOPES,
-        redirect_uri=settings.REDIRECT_URI,
+        redirect_uri=settings.GOOGLE_CLIENT_REDIRECT_URI,
     )
     try:
         if not code:

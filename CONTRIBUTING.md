@@ -240,7 +240,7 @@ To inspect your PostgreSQL database running in Docker, follow these steps:
 
 ### Troubleshooting Tips [⬆️ Back to Table of Contents](#table-of-contents)
 - **Not redirected after login?**  
-  Double-check your `REDIRECT_URI` in both `.env` and Google Cloud settings.  
+  Double-check your `GOOGLE_CLIENT_REDIRECT_URI` in both `.env` and Google Cloud settings.  
 - **Invalid API key errors?**  
   Some Google APIs require API key restrictions—try generating a new unrestricted key for local testing.  
 - **Cannot Build Docker Image?**

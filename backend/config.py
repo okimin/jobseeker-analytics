@@ -12,14 +12,13 @@ logger = logging.getLogger(__name__)
 class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = "default-for-local"
     GOOGLE_CLIENT_SECRET: str = "default-for-local"
-    REDIRECT_URI: str = "http://localhost:8000/auth/google"
+    GOOGLE_CLIENT_REDIRECT_URI: str = "http://localhost:8000/auth/google"
     GOOGLE_API_KEY: str
     COOKIE_SECRET: str
     STRIPE_SECRET_KEY: str
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
-    GOOGLE_CLIENT_REDIRECT_URI: str = '["http://localhost:8000/auth/google"]'
     GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
@@ -60,7 +59,7 @@ class ConfigSettings(Settings):
             "web": {
                 "client_id": self.GOOGLE_CLIENT_ID,
                 "client_secret": self.GOOGLE_CLIENT_SECRET,
-                "redirect_uris": json.loads(self.GOOGLE_CLIENT_REDIRECT_URI),
+                "redirect_uris": [self.GOOGLE_CLIENT_REDIRECT_URI],
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                 "token_uri": "https://oauth2.googleapis.com/token",
             }
