@@ -295,14 +295,11 @@ export default function Dashboard() {
 				loading={loading}
 				normalizedJobTitleFilter={normalizedJobTitleFilter}
 				readOnly={!!viewAs}
-				responseRate={responseRateContent}
-				sankeyChart={sankeyChartContent}
 				searchTerm={searchTerm}
 				statusFilter={statusFilter}
 				totalPages={totalPages}
 				onCompanyFilterChange={setCompanyFilter}
 				onDownloadCsv={downloadCsv}
-				onDownloadSankey={downloadSankey}
 				onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
 				onHideRejectionsChange={setHideRejections}
 				onNextPage={nextPage}
