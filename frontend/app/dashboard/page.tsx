@@ -96,26 +96,6 @@ export default function Dashboard() {
 		fetchData();
 	}, [apiUrl, router, currentPage, viewAs]);
 
-	useEffect(() => {
-		// Fetch Sankey data
-		const fetchSankey = async () => {
-			try {
-				const viewParam = viewAs ? `?view_as=${encodeURIComponent(viewAs)}` : "";
-				const response = await fetch(`${apiUrl}/get-sankey-data${viewParam}`, {
-					method: "GET",
-					credentials: "include"
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setSankeyData(result);
-				}
-			} catch {
-				// ignore for now
-			}
-		};
-		fetchSankey();
-	}, [apiUrl, router, currentPage, viewAs]);
-
 	// Fetch role and clients if coach
 	useEffect(() => {
 		const init = async () => {
