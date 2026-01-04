@@ -1,8 +1,8 @@
 # app/session/session_layer.py
 import logging
 import secrets
-from datetime import datetime
-from fastapi import Request
+from datetime import datetime, timezone, timedelta
+from fastapi import Request, Response
 from utils.config_utils import get_settings
 import database
 from db.users import Users
@@ -17,10 +17,21 @@ def create_random_session_string() -> str:
     return secrets.token_urlsafe(32)  # Generates a random URL-safe string
 
 
-def clear_session(request: Request, user_id: str) -> None:
-    logger.info("user_id: %s clear_session" % user_id)
-    request.cookies.clear()
+def clear_session(request: Request, response: Response) -> None:
+    # 1. Clear the Starlette/FastAPI session storage
+    request.session.clear() 
 
+    # 2. Delete the primary auth cookies
+    # We delete both the prefixed and non-prefixed versions to be safe 
+    # across dev/prod environments
+    response.delete_cookie(key="Authorization")
+    response.delete_cookie(key="__Secure-Authorization", domain=settings.ORIGIN)
+    response.delete_cookie(key="__Host-Authorization")
+    
+    # 3. Also clear the SessionMiddleware cookie itself
+    response.delete_cookie(key="session", domain=settings.ORIGIN)
+
+    logger.warning("Session and cookies cleared for security.")
 
 def validate_session(request: Request, db_session: database.DBSession) -> str:
     """Retrieves Authorization, session_id, access_token and token_expiry
@@ -57,14 +68,23 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         logger.info("validate_session found user_id: %s", user_id)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
-        user = db_session.exec(select(Users).where(Users.user_id == user_id))
-        if not user:
+        user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+        if not user or not user.is_active:
             clear_session(request, user_id)
             logger.info("validate_session deleting user_id: %s", user_id)
             return ""
 
     logger.info("Valid Session, Access granted.")
     return user_id
+
+
+def get_token_expiry(creds) -> str:
+    try:
+        token_expiry = creds.expiry.isoformat()
+    except Exception as e:
+        logger.error("Failed to parse token expiry: %s", e)
+        token_expiry = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+    return token_expiry
 
 
 def is_token_expired(iso_expiry: str) -> bool:
@@ -75,8 +95,10 @@ def is_token_expired(iso_expiry: str) -> bool:
     """
     if iso_expiry:
         datetime_expiry = datetime.fromisoformat(iso_expiry)  # UTC time
+        if datetime_expiry.tzinfo is None:
+            datetime_expiry = datetime_expiry.replace(tzinfo=timezone.utc)
         difference_in_minutes = (
-            datetime_expiry - datetime.utcnow()
+            datetime_expiry - datetime.now(timezone.utc)
         ).total_seconds() / 60
         return difference_in_minutes <= 0
 

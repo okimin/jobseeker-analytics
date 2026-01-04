@@ -8,7 +8,7 @@ import { Providers, PostHogProvider } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import ConditionalFeedbackButton from "@/components/ConditionalFeedbackButton";
+import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 	},
 	description: siteConfig.description,
 	icons: {
-		icon: "/favicon.svg"
+		icon: "/favicon.ico"
 	}
 };
 
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 						<div className="relative flex h-screen flex-col">
 							<main className="container mx-auto flex-grow max-w-7xl px-6 pt-16">{children}</main>
-							<ConditionalFeedbackButton />
+							<Footer />
 						</div>
 					</Providers>
 				</PostHogProvider>

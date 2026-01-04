@@ -38,7 +38,7 @@ APP_URL = settings.APP_URL
 router = APIRouter()
 
 
-@router.get("/processing", response_class=HTMLResponse)
+@router.get("/processing")
 async def processing(
     request: Request,
     db_session: database.DBSession,
@@ -227,13 +227,9 @@ def fetch_emails_to_db(
                 settings.batch_size_by_env,
                 extra={"user_id": user_id},
             )
-            return JSONResponse(
-                content={
-                    "message": "Processing complete",
-                    "processed_emails": process_task_run.processed_emails,
-                    "total_emails": process_task_run.total_emails,
-                }
-            )
+            process_task_run.status = task_models.CANCELLED
+            db_session.commit()
+            return JSONResponse(content={"message": "Processing complete"}, status_code=429)
 
     process_task_run.status = task_models.STARTED
 
@@ -356,6 +352,8 @@ def fetch_emails_to_db(
 
         # Update the task status in the database after each email
         logger.debug(f"user_id:{user_id} updating task status after processing email {idx + 1}")
+        db_session.add(process_task_run) 
+        db_session.commit()
 
     # batch insert all records at once
     if email_records:

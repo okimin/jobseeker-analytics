@@ -1,9 +1,9 @@
-import logging
+from db.users import Users
 from typing import Optional, Tuple
 from db.user_emails import UserEmails
 from sqlmodel import select, func
-from db.users import Users 
-from datetime import datetime, timedelta, timezone 
+from datetime import datetime, timedelta, timezone
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -21,27 +21,34 @@ def get_last_email_date(user_id: str, db_session) -> Optional[datetime]:
     logger.info("user_id: %s get_last_email_date: %s", user_id, row)
     return row
 
-def user_exists(user, db_session) -> Tuple[bool, Optional[datetime]]:
+
+def user_exists(user, db_session) -> Tuple[Optional[Users], Optional[datetime]]:
     """
     Checks if user is already in the database
     """
     # Use provided session for fresh data
     logger.info("user_exists Looking for user_id: %s", user.user_id)
-    
+
     # Force a fresh query by expiring any cached data
     db_session.expire_all()
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
-    
-    existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
+
+    existing_user = db_session.exec(
+        select(Users).where(Users.user_id == user.user_id)
+    ).first()
     logger.info("user_exists Query result: %s", existing_user)
-    
+
     if not existing_user:
         logger.info("user_exists: user does not exist in the database")
-        return False, None
+        return None, None
     else:
-        logger.info("user_exists: user exists in the database with user_id: %s", existing_user.user_id)
+        logger.info(
+            "user_exists: user exists in the database with user_id: %s",
+            existing_user.user_id,
+        )
         last_fetched_date = get_last_email_date(user.user_id, db_session)
-        return True, last_fetched_date
+        return existing_user, last_fetched_date
+
 
 def add_user(user, request, db_session, start_date=None) -> Users:
     """
@@ -51,10 +58,14 @@ def add_user(user, request, db_session, start_date=None) -> Users:
     # Use provided session
     db_session.expire_all()
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
-    existing_user = db_session.exec(select(Users).where(Users.user_id == user.user_id)).first()
+    existing_user = db_session.exec(
+        select(Users).where(Users.user_id == user.user_id)
+    ).first()
 
     if not existing_user:
-        start_date = getattr(user, "start_date", None) or (datetime.now(timezone.utc) - timedelta(days=90))
+        start_date = getattr(user, "start_date", None) or (
+            datetime.now(timezone.utc) - timedelta(days=90)
+        )
 
         if isinstance(start_date, datetime):
             start_date = start_date.strftime("%Y-%m-%d")

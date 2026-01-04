@@ -41,11 +41,8 @@ interface JobApplicationsDashboardProps {
 	loading: boolean;
 	downloading: boolean;
 	onDownloadCsv: () => void;
-	onDownloadSankey: () => void;
 	onRemoveItem: (id: string) => void;
 	initialSortKey?: string;
-	responseRate?: React.ReactNode;
-	sankeyChart?: React.ReactNode;
 	searchTerm?: string;
 	onSearchChange?: (term: string) => void;
 	statusFilter?: string;
@@ -110,11 +107,8 @@ export default function JobApplicationsDashboard({
 	loading,
 	downloading,
 	onDownloadCsv,
-	onDownloadSankey,
 	onRemoveItem,
 	initialSortKey = "Date (Newest)",
-	responseRate,
-	sankeyChart,
 	searchTerm = "",
 	onSearchChange,
 	statusFilter = "",
@@ -392,13 +386,11 @@ export default function JobApplicationsDashboard({
 				</ModalContent>
 			</Modal>
 			<h1 className="text-2xl font-bold mt-0">{title}</h1>
-			{responseRate}
-			{sankeyChart && <div className="mb-6">{sankeyChart}</div>}
 			<div className="flex flex-wrap items-center justify-between gap-4 mb-4">
 				{/* Search and Filter Controls */}
 				<div className="flex flex-wrap items-center gap-4 flex-1">
 					{/* Search Input */}
-					<div className="flex-1 max-w-md">
+					<div className="max-w-md">
 						<input
 							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
 							placeholder="Company"

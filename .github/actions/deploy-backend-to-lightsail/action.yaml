@@ -32,6 +32,9 @@ inputs:
   google-api-key:
     description: Google API Key
     required: true
+  stripe-secret-key:
+    description: Stripe Secret Key to read Promo codes
+    required: true
   origin:
     description: Origin
     required: true
@@ -47,10 +50,10 @@ runs:
       echo "::add-mask::${{ inputs.google-credentials-file-content }}"
       echo "::add-mask::${{ inputs.cookie-secret }}"
       echo "::add-mask::${{ inputs.google-api-key }}"
+      echo "::add-mask::${{ inputs.stripe-secret-key }}"
       echo "::add-mask::${{ inputs.google-client-id }}"
       echo "::add-mask::${{ inputs.google-client-secret }}"
-      echo "::add-mask::${{ inputs.google-client-redirect-uris }}"
-      echo "::add-mask::${{ inputs.redirect-uri }}"
+      echo "::add-mask::${{ inputs.google-client-redirect-uri }}"
       echo "::add-mask::${{ inputs.ls-database-name }}"
       echo "::add-mask::${{ inputs.origin }}"
 
@@ -172,9 +175,9 @@ runs:
       CONTAINER_PORT: 8000
       PUBLIC_PORT: 80
       DATABASE_URL: ${{ steps.get_db_info.outputs.database_url }}
-      REDIRECT_URI: ${{ inputs.redirect-uri }}
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
       GOOGLE_API_KEY: ${{ inputs.google-api-key }}
+      STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
       GOOGLE_CLIENT_ID: ${{ inputs.google-client-id }}
       GOOGLE_CLIENT_SECRET: ${{ inputs.google-client-secret }}
       GOOGLE_CLIENT_REDIRECT_URI: ${{ inputs.google-client-redirect-uri }}
@@ -186,17 +189,13 @@ runs:
       # Mask env vars before use
       echo "::add-mask::${COOKIE_SECRET}"
       echo "::add-mask::${GOOGLE_API_KEY}"
+      echo "::add-mask::${STRIPE_SECRET_KEY}"
       echo "::add-mask::${GOOGLE_CLIENT_ID}"
       echo "::add-mask::${GOOGLE_CLIENT_SECRET}"
       echo "::add-mask::${GOOGLE_CLIENT_REDIRECT_URI}"
       echo "::add-mask::${DATABASE_URL}"
-      echo "::add-mask::${REDIRECT_URI}"
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
-
-      # Escape environment variables for JSON
-      ESCAPED_GOOGLE_CLIENT_REDIRECT_URI=$(printf '%s' "${GOOGLE_CLIENT_REDIRECT_URI}" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | tr -d '\n\r')
-      echo "::add-mask::${ESCAPED_GOOGLE_CLIENT_REDIRECT_URI}"
 
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
@@ -207,12 +206,12 @@ runs:
           \"${CONTAINER_NAME}\": {
             \"image\": \":${LIGHTSAIL_SERVICE_NAME}.${CONTAINER_NAME}.latest\",
             \"environment\": {
-              \"REDIRECT_URI\": \"${REDIRECT_URI}\",
+              \"GOOGLE_CLIENT_REDIRECT_URI\": \"${GOOGLE_CLIENT_REDIRECT_URI}\",
               \"GOOGLE_API_KEY\": \"${GOOGLE_API_KEY}\",
               \"GOOGLE_CLIENT_ID\": \"${GOOGLE_CLIENT_ID}\",
               \"GOOGLE_CLIENT_SECRET\": \"${GOOGLE_CLIENT_SECRET}\",
-              \"GOOGLE_CLIENT_REDIRECT_URI\": \"${ESCAPED_GOOGLE_CLIENT_REDIRECT_URI}\",
               \"COOKIE_SECRET\": \"${COOKIE_SECRET}\",
+              \"STRIPE_SECRET_KEY\": \"${STRIPE_SECRET_KEY}\",
               \"APP_URL\": \"${APP_URL}\",
               \"API_URL\": \"${API_URL}\",
               \"ENV\": \"prod\",

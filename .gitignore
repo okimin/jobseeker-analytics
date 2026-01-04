@@ -71,3 +71,6 @@ frontend/test-results
 
 # Production
 /build
+
+# Training Data
+training_*

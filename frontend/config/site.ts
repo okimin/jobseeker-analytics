@@ -1,16 +1,17 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-	name: "Just A Job App",
-	description: "Get the Unfair Advantage in Your Job Search.",
+	name: "JustAJobApp",
+	legalName: "JustAJobApp LLC",
+	description: "Stop Giving a Click.",
 	navItems: [
 		{
-			label: "Home",
+			label: "Job Seekers",
 			href: "/"
 		},
 		{
-			label: "Dashboard",
-			href: "/dashboard"
+			label: "Coaches",
+			href: "/coaches"
 		}
 	],
 	navMenuItems: [
@@ -30,6 +31,14 @@ export const siteConfig = {
 	links: {
 		github: "https://github.com/just-a-job-app/jobseeker-analytics",
 		discord: "https://discord.gg/gsdpMchCam",
-		sponsor: "https://github.com/sponsors/lnovitz"
+		sponsor: "https://github.com/sponsors/lnovitz",
+		privacyPolicy: "/privacy",
+		termsAndConditions: "/terms",
+		cookiePolicy: "/cookies",
+		dataRequests: "/dsar",
+		community: "/contributors",
+		coffee: "https://buymeacoffee.com/justajobapp",
+		feedback: "https://forms.gle/aGeT11NYJpcSBEix8",
+		support: "mailto:help@justajobapp.com"
 	}
 };
