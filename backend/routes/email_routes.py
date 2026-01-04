@@ -350,6 +350,8 @@ def fetch_emails_to_db(
 
         # Update the task status in the database after each email
         logger.debug(f"user_id:{user_id} updating task status after processing email {idx + 1}")
+        db_session.add(process_task_run) 
+        db_session.commit()
 
     # batch insert all records at once
     if email_records:
