@@ -32,6 +32,9 @@ inputs:
   google-api-key:
     description: Google API Key
     required: true
+  stripe-secret-key:
+    description: Stripe Secret Key to read Promo codes
+    required: true
   origin:
     description: Origin
     required: true
@@ -47,6 +50,7 @@ runs:
       echo "::add-mask::${{ inputs.google-credentials-file-content }}"
       echo "::add-mask::${{ inputs.cookie-secret }}"
       echo "::add-mask::${{ inputs.google-api-key }}"
+      echo "::add-mask::${{ inputs.stripe-secret-key }}"
       echo "::add-mask::${{ inputs.google-client-id }}"
       echo "::add-mask::${{ inputs.google-client-secret }}"
       echo "::add-mask::${{ inputs.google-client-redirect-uris }}"
@@ -175,6 +179,7 @@ runs:
       REDIRECT_URI: ${{ inputs.redirect-uri }}
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
       GOOGLE_API_KEY: ${{ inputs.google-api-key }}
+      STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
       GOOGLE_CLIENT_ID: ${{ inputs.google-client-id }}
       GOOGLE_CLIENT_SECRET: ${{ inputs.google-client-secret }}
       GOOGLE_CLIENT_REDIRECT_URI: ${{ inputs.google-client-redirect-uri }}
@@ -186,6 +191,7 @@ runs:
       # Mask env vars before use
       echo "::add-mask::${COOKIE_SECRET}"
       echo "::add-mask::${GOOGLE_API_KEY}"
+      echo "::add-mask::${STRIPE_SECRET_KEY}"
       echo "::add-mask::${GOOGLE_CLIENT_ID}"
       echo "::add-mask::${GOOGLE_CLIENT_SECRET}"
       echo "::add-mask::${GOOGLE_CLIENT_REDIRECT_URI}"
@@ -213,6 +219,7 @@ runs:
               \"GOOGLE_CLIENT_SECRET\": \"${GOOGLE_CLIENT_SECRET}\",
               \"GOOGLE_CLIENT_REDIRECT_URI\": \"${ESCAPED_GOOGLE_CLIENT_REDIRECT_URI}\",
               \"COOKIE_SECRET\": \"${COOKIE_SECRET}\",
+              \"STRIPE_SECRET_KEY\": \"${STRIPE_SECRET_KEY}\",
               \"APP_URL\": \"${APP_URL}\",
               \"API_URL\": \"${API_URL}\",
               \"ENV\": \"prod\",

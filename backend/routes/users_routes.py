@@ -1,13 +1,13 @@
 import logging
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlmodel import select
+import database
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from db.user_emails import UserEmails
 from utils.config_utils import get_settings
 from session.session_layer import validate_session
 from routes.email_routes import query_emails
-import database
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from utils.job_utils import normalize_job_title
 
 # Logger setup
@@ -22,6 +22,7 @@ api_call_finished = False
 # FastAPI router for email routes
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
+
 
 @router.get("/get-response-rate")   
 @limiter.limit("2/minute")    
