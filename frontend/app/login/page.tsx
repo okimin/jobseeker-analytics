@@ -12,6 +12,7 @@ import { checkAuth } from "@/utils/auth";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
+	const [code, setCode] = useState("");
 	const [isVerified, setIsVerified] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -26,6 +27,7 @@ export default function LoginPage() {
 			}
 		});
 	}, [apiUrl, router]);
+	
 
 	const handleVerifyEmail = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -33,26 +35,21 @@ export default function LoginPage() {
 		setError("");
 
 		try {
-			const response = await fetch(`${apiUrl}/verify-beta-email`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email })
+			const response = await fetch(`${apiUrl}/billing/promos/${code}?email=${encodeURIComponent(email)}`, {
+					method: "GET",
+					credentials: "include"
 			});
-			const data = await response.json();
-			if (data.is_active == "True") {
+			let data = await response.json();
+			if (data.status_code == 200) {
 				setIsVerified(true);
 			} else {
 				setIsVerified(false);
 			}
 		} catch (err) {
-			setError("Verification failed. Please try again.");
+			setError("Code verification failed. Please try again.");
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const handleGoogleLogin = () => {
-		window.location.href = `${apiUrl}/auth/google`; // Initiate OAuth
 	};
 
 	return (
@@ -61,7 +58,7 @@ export default function LoginPage() {
 			<main className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
 				<Card className="max-w-md w-full">
 					<CardHeader className="flex flex-col gap-1 items-center py-8">
-						<h1 className="text-2xl font-bold">Welcome back!</h1>
+						<h1 className="text-2xl font-bold">Welcome!</h1>
 						{!isVerified && (
 							<p className="text-sm text-gray-500">
 								If you need help, email{" "}
@@ -75,7 +72,7 @@ export default function LoginPage() {
 						)}
 					</CardHeader>
 					<CardBody className="pb-8">
-						{!isVerified ? (
+						{isVerified == false ? (
 							<form className="space-y-4" onSubmit={handleVerifyEmail}>
 								<Input
 									required
@@ -84,6 +81,14 @@ export default function LoginPage() {
 									type="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
+								/>
+								<Input
+									required
+									label="Access Code"
+									placeholder="ABC-123"
+									type="text"
+									value={code}
+									onChange={(e) => setCode(e.target.value)}
 								/>
 								<Button className="w-full bg-emerald-600 text-white" isLoading={loading} type="submit">
 									Continue

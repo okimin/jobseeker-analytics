@@ -68,7 +68,7 @@ async def login(
 
             return response
 
-        creds = get_creds(request=request, code=code, flow=flow, state=query_params_state)
+        creds = get_creds(request=request, code=code, flow=flow)
         if isinstance(creds, RedirectResponse):
             return creds
         user = AuthenticatedUser(creds)

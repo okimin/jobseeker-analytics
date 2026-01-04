@@ -2,6 +2,7 @@ import json
 import logging
 
 import stripe
+from fastapi.concurrency import run_in_threadpool
 
 from utils.config_utils import get_stripe_key
 
@@ -13,7 +14,9 @@ async def check_promo_is_valid(user_input_promo: str) -> bool:
     user_input_promo = user_input_promo.strip()[:16]
     get_stripe_key()
     try:
-        promo = await stripe.PromotionCode.list(code=user_input_promo, active=True)
+        promo = await run_in_threadpool(
+            stripe.PromotionCode.list, code=user_input_promo, active=True
+        )
         return len(promo.data) > 0
     except stripe.error.StripeError as e:
         logger.error("Error retrieving promocode %s" % e)
