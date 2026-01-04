@@ -27,7 +27,6 @@ export default function LoginPage() {
 			}
 		});
 	}, [apiUrl, router]);
-	
 
 	const handleVerifyEmail = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -36,10 +35,10 @@ export default function LoginPage() {
 
 		try {
 			const response = await fetch(`${apiUrl}/billing/promos/${code}?email=${encodeURIComponent(email)}`, {
-					method: "GET",
-					credentials: "include"
+				method: "GET",
+				credentials: "include"
 			});
-			let data = await response.json();
+			const data = await response.json();
 			if (data.status_code == 200) {
 				setIsVerified(true);
 			} else {
