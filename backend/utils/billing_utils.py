@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+
 async def check_promo_is_valid(user_input_promo: str) -> bool:
     user_input_promo = user_input_promo.strip()[:16]
     if not settings.is_publicly_deployed:
