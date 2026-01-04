@@ -19,7 +19,9 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.get("/billing/promos/{promo_id}")
 @limiter.limit("10/hour")
-async def check_valid_promo(request: Request, promo_id: str, email: Optional[str] = None):
+async def check_valid_promo(
+    request: Request, promo_id: str, email: Optional[str] = None
+):
     log_message = f"check_valid_promo {promo_id}"
     if email:
         log_message += f" for user {email}"
