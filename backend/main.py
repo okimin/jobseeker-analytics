@@ -65,7 +65,7 @@ app.add_middleware(SlowAPIMiddleware)
 if settings.is_publicly_deployed:
     app.add_middleware(
         CORSMiddleware,
-        allow_origin_regex=r"(.*\.)?justajobapp\.com",
+        allow_origin_regex=r"https://.*\.justajobapp\.com",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
