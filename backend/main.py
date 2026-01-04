@@ -62,13 +62,22 @@ app.state.limiter = limiter  # Ensure limiter is assigned
 app.add_middleware(SlowAPIMiddleware)
 
 # Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[settings.APP_URL, settings.API_URL],
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
+if settings.is_publicly_deployed:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"(.*\.)?justajobapp\.com",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.APP_URL, settings.API_URL],
+        allow_credentials=True,
+        allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+        allow_headers=["*"],  # Allow all headers
+    )
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
