@@ -6,7 +6,6 @@ from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
 from fastapi.testclient import TestClient
 from fastapi import Request
-from datetime import datetime
 from unittest.mock import Mock
 from testcontainers.postgres import PostgresContainer
 

@@ -1,10 +1,6 @@
 import logging
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import JSONResponse, HTMLResponse
-from db.utils.user_utils import add_user
-import json
-from utils.auth_utils import AuthenticatedUser
-from google.oauth2.credentials import Credentials
 from session.session_layer import validate_session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
