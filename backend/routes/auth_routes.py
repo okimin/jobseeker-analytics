@@ -86,10 +86,22 @@ async def login(
         request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
 
         existing_user, last_fetched_date = user_exists(user, db_session)
+        
+        # Default to False for existing users, will be overwritten if needed
+        request.session["is_new_user"] = False 
+
         if existing_user and existing_user.is_active:
-            if existing_user.role == "coach":
+            if existing_user.start_date is None:
+                request.session["is_new_user"] = True
+            # Now set the start_date in session if it exists in the user record
+            if existing_user.start_date is not None:
+                request.session["start_date"] = existing_user.start_date.strftime("%Y/%m/%d")
+
+            if existing_user.role == "coach" or existing_user.start_date is None:
+                # new users need to pick their start date on the dashboard
+                # coaches dont need to see processing page  #TODO: remove processing page
                 response = Redirects.to_dashboard()
-            else:
+            else: # Jobseeker
                 response = Redirects.to_processing()
                 background_tasks.add_task(
                     fetch_emails_to_db,
@@ -101,7 +113,7 @@ async def login(
                 )
                 logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         else:
-            logger.warning("user_id: %s is not active. Redirecting to inactive account page.", user.user_id)
+            logger.warning("user_id: %s is not active or does not exist. Redirecting to inactive account page.", user.user_id)
             return Redirects.to_error("account_inactive")
 
         response = set_conditional_cookie(
