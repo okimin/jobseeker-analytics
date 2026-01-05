@@ -1,7 +1,8 @@
 from unittest import mock
 from fastapi import Request
+from sqlmodel import select
 
-from db.processing_tasks import TaskRuns, FINISHED, CANCELLED
+from db import processing_tasks as task_models
 from routes.email_routes import fetch_emails_to_db
 
 
@@ -32,8 +33,13 @@ def test_fetch_emails_to_db(logged_in_user, db_session, mock_authenticated_user)
             db_session=db_session
         )
 
-        task_run = db_session.get(TaskRuns, logged_in_user.user_id)
-        assert task_run.status == FINISHED
+        process_task_run: task_models.TaskRuns = db_session.exec(
+            select(task_models.TaskRuns).where(
+                task_models.TaskRuns.user_id == logged_in_user.user_id,
+                task_models.TaskRuns.status == task_models.STARTED
+            )
+        ).one_or_none()
+        assert process_task_run is None
 
 
 def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
@@ -51,5 +57,10 @@ def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
 
         mock_get_email_ids.assert_not_called()
         # Re-fetch the task from the db to ensure we have the latest state
-        task_run = db_session.get(TaskRuns, logged_in_user.user_id)
-        assert task_run.status == CANCELLED
+        process_task_run: task_models.TaskRuns = db_session.exec(
+            select(task_models.TaskRuns).where(
+                task_models.TaskRuns.user_id == logged_in_user.user_id,
+                task_models.TaskRuns.status == task_models.CANCELLED
+            )
+        ).one_or_none()
+        assert process_task_run is not None

@@ -49,9 +49,12 @@ async def processing(
         logger.info("user_id: not found, redirecting to login")
         return RedirectResponse("/logout", status_code=303)
 
-    process_task_run: task_models.TaskRuns = db_session.get(
-        task_models.TaskRuns, user_id
-    )
+    process_task_run: task_models.TaskRuns = db_session.exec(
+        select(task_models.TaskRuns).where(
+            task_models.TaskRuns.user_id == user_id,
+            task_models.TaskRuns.status == task_models.STARTED
+        )
+    ).one_or_none()
 
     if not process_task_run:
         raise HTTPException(status_code=404, detail="Processing has not started.")
@@ -201,11 +204,14 @@ def fetch_emails_to_db(
 
     # we track starting and finishing fetching of emails for each user
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
-    process_task_run = db_session.exec(
-        select(task_models.TaskRuns).filter_by(user_id=user_id)
+    process_task_run: task_models.TaskRuns = db_session.exec(
+        select(task_models.TaskRuns).where(
+            task_models.TaskRuns.user_id == user_id,
+            task_models.TaskRuns.status == task_models.STARTED
+        )
     ).one_or_none()
     if process_task_run is None:
-        # if this is the first time running the task for the user, create a record
+        # if there are no STARTED tasks, create a new task record
         process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
         db_session.add(process_task_run)
         db_session.commit()
@@ -262,9 +268,18 @@ def fetch_emails_to_db(
 
     if not messages:
         logger.info(f"user_id:{user_id} No job application emails found.")
-        process_task_run = db_session.get(task_models.TaskRuns, user_id)
-        process_task_run.status = task_models.FINISHED
-        db_session.commit()
+        process_task_run: task_models.TaskRuns = db_session.exec(
+            select(task_models.TaskRuns).where(
+                task_models.TaskRuns.user_id == user_id,
+                task_models.TaskRuns.status == task_models.STARTED
+            )
+        ).one_or_none()
+        if process_task_run:
+            process_task_run.status = task_models.FINISHED
+            process_task_run.total_emails = 0
+            process_task_run.processed_emails = 0
+            db_session.add(process_task_run)
+            db_session.commit()
         return
 
     logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")

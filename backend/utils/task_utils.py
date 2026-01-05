@@ -9,9 +9,14 @@ settings = get_settings()
 
 def processed_emails_exceeds_rate_limit(user_id, db_session):
     logger.info(f"Fetching processed task count for user_id: {user_id}")
-    process_task_run = db_session.exec(
-        select(task_models.TaskRuns).filter_by(user_id=user_id)
+
+    process_task_run: task_models.TaskRuns = db_session.exec(
+        select(task_models.TaskRuns).where(
+            task_models.TaskRuns.user_id == user_id,
+            task_models.TaskRuns.status == task_models.STARTED
+        )
     ).one_or_none()
+
     if process_task_run is None:
         logger.info(f"No task run found for user_id: {user_id}")
         return False
