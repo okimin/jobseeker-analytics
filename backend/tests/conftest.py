@@ -121,9 +121,9 @@ def task_factory(db_session, logged_in_user):
 
 
 @pytest.fixture
-def user_factory(db_session, is_active=True):
+def user_factory(db_session, is_active=True, start_date=None):
     def _create_user(
-        user_id="123", user_email="user@example.com", start_date=datetime(2000, 1, 1), is_active=is_active, role="jobseeker"
+        user_id="123", user_email="user@example.com", start_date=start_date, is_active=is_active, role="jobseeker"
     ):
         user = Users(user_id=user_id, user_email=user_email, start_date=start_date, is_active=is_active, role=role)
         db_session.add(user)
