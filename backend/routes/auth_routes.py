@@ -87,16 +87,19 @@ async def login(
 
         existing_user, last_fetched_date = user_exists(user, db_session)
         if existing_user and existing_user.is_active:
-            response = Redirects.to_processing()
-            background_tasks.add_task(
-                fetch_emails_to_db,
-                user,
-                request,
-                last_fetched_date,
-                user_id=user.user_id,
-                db_session=db_session,
-            )
-            logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
+            if existing_user.role == "coach":
+                response = Redirects.to_dashboard()
+            else:
+                response = Redirects.to_processing()
+                background_tasks.add_task(
+                    fetch_emails_to_db,
+                    user,
+                    request,
+                    last_fetched_date,
+                    user_id=user.user_id,
+                    db_session=db_session,
+                )
+                logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         else:
             logger.warning("user_id: %s is not active. Redirecting to inactive account page.", user.user_id)
             return Redirects.to_error("account_inactive")
