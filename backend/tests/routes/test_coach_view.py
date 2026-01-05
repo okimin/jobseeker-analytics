@@ -1,4 +1,5 @@
 from db.user_emails import UserEmails
+from datetime import datetime
 
 def test_coach_list_clients(logged_in_coach_client, coach_client_link):
     resp = logged_in_coach_client.get("/coach/clients")
@@ -14,7 +15,7 @@ def test_coach_view_client_emails(logged_in_coach_client, coach_client_link, db_
         user_id=client_user.user_id,
         company_name="Acme Corp",
         application_status="application confirmation",
-        received_at=client_user.start_date,
+        received_at=datetime.now(),
         subject="Your application",
         job_title="Software Engineer",
         email_from="hr@acme.com"
@@ -35,7 +36,7 @@ def test_coach_cannot_delete_client_email(logged_in_coach_client, coach_client_l
         user_id=client_user.user_id,
         company_name="Beta Inc",
         application_status="application confirmation",
-        received_at=client_user.start_date,
+        received_at=datetime.now(),
         subject="We got it",
         job_title="Designer",
         email_from="hr@beta.com"

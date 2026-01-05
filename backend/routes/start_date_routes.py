@@ -9,6 +9,8 @@ from session.session_layer import validate_session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 import database
+from db.users import Users
+from datetime import datetime
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -24,34 +26,29 @@ router = APIRouter()
 @limiter.limit("5/minute")
 async def set_start_date(request: Request, db_session: database.DBSession, start_date: str = Form(...), user_id: str = Depends(validate_session)):
     """Updates the user's job search start date in the database."""
-    user_id = request.session.get("user_id")
-
     if not user_id:
         return HTMLResponse(content="Invalid request. Please log in again.", status_code=400)
 
-    # Retrieve stored credentials
-    creds_json = request.session.get("creds")
-    if not creds_json:
-        logger.error(f"user_id:{user_id} missing credentials /set-start-date")
-        return HTMLResponse(content="User not authenticated. Please log in again.", status_code=401)
-
     try:
-        # Convert JSON string back to Credentials object
-        creds_dict = json.loads(creds_json)
-        creds = Credentials.from_authorized_user_info(creds_dict)  # Convert dict to Credentials
-        user = AuthenticatedUser(creds, start_date)  # Corrected: Now passing Credentials object
+        # Fetch user from DB
+        user_record = db_session.get(Users, user_id)
+        if not user_record:
+             return HTMLResponse(content="User not found.", status_code=404)
+        
+        # Update start date in DB
+        user_record.start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        db_session.add(user_record)
+        db_session.commit()
 
-        # Save start date in DB
-        add_user(user, request, db_session, start_date)
-
-        # Update session to remove "new user" status
+        # Update session
+        request.session["start_date"] = start_date.replace("-", "/")
         request.session["is_new_user"] = False
 
-        logger.info(f"user_id:{user_id} added start date {start_date}")
+        logger.info(f"user_id:{user_id} updated start date to {start_date}")
 
         return JSONResponse(content={"message": "Start date updated successfully"}, status_code=200)
     except Exception as e:
-        logger.error(f"Error reconstructing credentials: {e}")
+        logger.error(f"Error setting start date: {e}")
         return HTMLResponse(content="Failed to save start date. Try again.", status_code=500)
     
 def get_start_date(request: Request, user_id: str = Depends(validate_session)) -> str:
