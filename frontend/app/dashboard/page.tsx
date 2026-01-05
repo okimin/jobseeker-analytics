@@ -113,6 +113,9 @@ export default function Dashboard() {
 							if (clientsResp.ok) {
 								const list = await clientsResp.json();
 								setClients(list);
+								if (list.length > 0) {
+									setViewAs(list[0].user_id);
+								}
 							}
 						}
 					}
