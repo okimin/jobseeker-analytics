@@ -18,6 +18,7 @@ def create_random_session_string() -> str:
 
 
 def clear_session(request: Request, response: Response) -> None:
+    logger.info("clear_session called")
     # 1. Clear the Starlette/FastAPI session storage
     request.session.clear() 
 
@@ -48,6 +49,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
     session_access_token = request.session.get("access_token")
     token_exp = request.session.get("token_expiry")
     user_id = request.session.get("user_id")
+    user_email = request.session.get("user_email")
 
     if not session_authorization and not session_access_token:
         logger.info(
@@ -68,7 +70,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         logger.info("validate_session found user_id: %s", user_id)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
-        user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+        user = db_session.exec(select(Users).where(Users.user_email == user_email)).first()
         if not user or not user.is_active:
             clear_session(request, user_id)
             logger.info("validate_session deleting user_id: %s", user_id)

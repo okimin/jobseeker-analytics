@@ -34,7 +34,7 @@ def user_exists(user, db_session) -> Tuple[Optional[Users], Optional[datetime]]:
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
 
     existing_user = db_session.exec(
-        select(Users).where(Users.user_id == user.user_id)
+        select(Users).where(Users.user_email == user.user_email)
     ).first()
     logger.info("user_exists Query result: %s", existing_user)
 
@@ -46,6 +46,14 @@ def user_exists(user, db_session) -> Tuple[Optional[Users], Optional[datetime]]:
             "user_exists: user exists in the database with user_id: %s",
             existing_user.user_id,
         )
+        if existing_user.user_id != user.user_id or not existing_user.user_id:
+            logger.info(
+            "user_exists: updating user_id with proper google oauth id: %s",
+            user.user_id,
+        )
+            existing_user.user_id = user.user_id
+            db_session.add(existing_user)
+            db_session.commit()
         last_fetched_date = get_last_email_date(user.user_id, db_session)
         return existing_user, last_fetched_date
 

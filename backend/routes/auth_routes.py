@@ -1,6 +1,7 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse
+from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 
 from db.utils.user_utils import user_exists
@@ -79,23 +80,40 @@ async def login(
         # Set session details
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id
+        if user.user_email:
+            request.session["user_email"] = user.user_email
         request.session["access_token"] = creds.token
         request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
 
         existing_user, last_fetched_date = user_exists(user, db_session)
+        
+        # Default to False for existing users, will be overwritten if needed
+        request.session["is_new_user"] = False 
+
         if existing_user and existing_user.is_active:
-            response = Redirects.to_processing()
-            background_tasks.add_task(
-                fetch_emails_to_db,
-                user,
-                request,
-                last_fetched_date,
-                user_id=user.user_id,
-                db_session=db_session,
-            )
-            logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
+            if existing_user.start_date is None:
+                request.session["is_new_user"] = True
+            # Now set the start_date in session if it exists in the user record
+            if existing_user.start_date is not None:
+                request.session["start_date"] = existing_user.start_date.strftime("%Y/%m/%d")
+
+            if existing_user.role == "coach" or existing_user.start_date is None:
+                # new users need to pick their start date on the dashboard
+                # coaches dont need to see processing page  #TODO: remove processing page
+                response = Redirects.to_dashboard()
+            else: # Jobseeker
+                response = Redirects.to_processing()
+                background_tasks.add_task(
+                    fetch_emails_to_db,
+                    user,
+                    request,
+                    last_fetched_date,
+                    user_id=user.user_id,
+                    db_session=db_session,
+                )
+                logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         else:
-            logger.warning("user_id: %s is not active. Redirecting to inactive account page.", user.user_id)
+            logger.warning("user_id: %s is not active or does not exist. Redirecting to inactive account page.", user.user_id)
             return Redirects.to_error("account_inactive")
 
         response = set_conditional_cookie(
@@ -109,14 +127,16 @@ async def login(
 @router.get("/logout")
 async def logout(request: Request, response: RedirectResponse):
     logger.info("Logging out")
-    request.session.clear()
-    response.delete_cookie(key="__Secure-Authorization")
-    response.delete_cookie(key="Authorization")
+    clear_session(request, response)
     return RedirectResponse(f"{APP_URL}", status_code=303)
 
 
 @router.get("/me")
-async def getUser(request: Request, user_id: str = Depends(validate_session)):
+async def getUser(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     if not user_id:
         raise HTTPException(status_code=401, detail="No user id found in session")
-    return {"user_id": user_id}
+    # Fetch role for user
+    from db.users import Users
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    role = user.role if user else "jobseeker"
+    return {"user_id": user_id, "role": role}

@@ -60,6 +60,7 @@ interface JobApplicationsDashboardProps {
 	currentPage: number;
 	totalPages: number;
 	onRefreshData?: () => void;
+	readOnly?: boolean;
 }
 
 // Load sort key from localStorage or use default
@@ -121,6 +122,7 @@ export default function JobApplicationsDashboard({
 	hideApplicationConfirmations = true,
 	onHideApplicationConfirmationsChange,
 	onRefreshData,
+	readOnly = false,
 	...props
 }: JobApplicationsDashboardProps) {
 	const [sortedData, setSortedData] = useState<Application[]>([]);
@@ -166,7 +168,9 @@ export default function JobApplicationsDashboard({
 		if (!selectedDate) return alert("Please select a start date");
 
 		setIsSaving(true);
-		const formattedDate = `${selectedDate.year}-${String(selectedDate.month).padStart(2, "0")}-${String(selectedDate.day).padStart(2, "0")}`;
+		const formattedDate = `${selectedDate.year}-${String(selectedDate.month).padStart(2, "0")}-${String(
+			selectedDate.day
+		).padStart(2, "0")}`;
 		// Step 1: Save the start date
 		const response = await fetch(`${apiUrl}/set-start-date`, {
 			method: "POST",
@@ -175,15 +179,19 @@ export default function JobApplicationsDashboard({
 			credentials: "include"
 		});
 
-		if (!response.ok) throw new Error("Failed to save start date");
+		if (!response.ok) {
+			setIsSaving(false);
+			// You might want to show an error message to the user here
+			return;
+		}
 
-		// Step 2: Start background task (fetch emails)
+		// Always start the background task after saving the date
 		startFetchEmailsBackgroundTask();
 
-		// Step 3: Navigate to processing page
+		// Navigate to processing page.
 		setIsNewUser(false); // Hide the modal after saving
 		setShowModal(false);
-		router.push("/processing"); // Navigate to the processing page
+		router.push("/processing"); // Navigate to the dashboard page
 	};
 
 	const startFetchEmailsBackgroundTask = async () => {
@@ -626,15 +634,25 @@ export default function JobApplicationsDashboard({
 					>
 						Download CSV
 					</Button>
-
 					<Button
 						className="w-full sm:w-auto"
-						color="primary"
-						startContent={<PlusIcon />}
-						onPress={handleAddApplication}
+						color="secondary"
+						variant="bordered"
+						onPress={() => setShowModal(true)}
 					>
-						Add Application
+						Change Start Date
 					</Button>
+
+					{!readOnly && (
+						<Button
+							className="w-full sm:w-auto"
+							color="primary"
+							startContent={<PlusIcon />}
+							onPress={handleAddApplication}
+						>
+							Add Application
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -686,33 +704,37 @@ export default function JobApplicationsDashboard({
 									</TableCell>
 									<TableCell className="text-center">
 										<div className="flex justify-center gap-2">
-											<Tooltip content="Edit">
-												<Button
-													isIconOnly
-													size="sm"
-													variant="light"
-													onPress={() => {
-														setSelectedApplication(item);
-														setModalMode("edit");
-														setShowApplicationModal(true);
-													}}
-												>
-													<EditIcon className="text-gray-800 dark:text-gray-300" />
-												</Button>
-											</Tooltip>
-											<Tooltip content="Remove">
-												<Button
-													isIconOnly
-													size="sm"
-													variant="light"
-													onPress={() => {
-														setItemToRemove(item.id || null);
-														setShowDelete(true);
-													}}
-												>
-													<TrashIcon className="text-gray-800 dark:text-gray-300" />
-												</Button>
-											</Tooltip>
+											{!readOnly && (
+												<>
+													<Tooltip content="Edit">
+														<Button
+															isIconOnly
+															size="sm"
+															variant="light"
+															onPress={() => {
+																setSelectedApplication(item);
+																setModalMode("edit");
+																setShowApplicationModal(true);
+															}}
+														>
+															<EditIcon className="text-gray-800 dark:text-gray-300" />
+														</Button>
+													</Tooltip>
+													<Tooltip content="Remove">
+														<Button
+															isIconOnly
+															size="sm"
+															variant="light"
+															onPress={() => {
+																setItemToRemove(item.id || null);
+																setShowDelete(true);
+															}}
+														>
+															<TrashIcon className="text-gray-800 dark:text-gray-300" />
+														</Button>
+													</Tooltip>
+												</>
+											)}
 										</div>
 									</TableCell>
 								</TableRow>

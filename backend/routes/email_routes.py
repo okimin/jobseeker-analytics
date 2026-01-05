@@ -13,6 +13,7 @@ from utils.llm_utils import process_email
 from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
 from session.session_layer import validate_session
+from utils.admin_utils import get_context_user_id
 import database
 from google.oauth2.credentials import Credentials
 import json
@@ -41,16 +42,18 @@ router = APIRouter()
 async def processing(
     request: Request,
     db_session: database.DBSession,
-    user_id: str = Depends(validate_session),
+    user_id: str = Depends(get_context_user_id),
 ):
     logging.info("user_id:%s processing", user_id)
     if not user_id:
         logger.info("user_id: not found, redirecting to login")
         return RedirectResponse("/logout", status_code=303)
 
-    process_task_run: task_models.TaskRuns = db_session.get(
-        task_models.TaskRuns, user_id
-    )
+    process_task_run: task_models.TaskRuns = db_session.exec(
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .order_by(task_models.TaskRuns.updated.desc())  # TODO: pass task_id between frontend / backend
+    ).first()
 
     if not process_task_run:
         raise HTTPException(status_code=404, detail="Processing has not started.")
@@ -86,7 +89,7 @@ async def processing(
 
 @router.get("/get-emails", response_model=List[UserEmails])
 @limiter.limit("5/minute")
-def query_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)) -> None:
+def query_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)) -> None:
     try:
         logger.info(f"query_emails for user_id: {user_id}")
         # Query emails sorted by date (newest first)
@@ -96,6 +99,8 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         user_emails = db_session.exec(statement).all()
 
         for email in user_emails:
+            logger.info("email id %s" % email.id)
+            logger.info("email subject %s" % email.subject)
             new_job_title = normalize_job_title(email.job_title)
             if email.normalized_job_title != new_job_title:
                 email.normalized_job_title = new_job_title
@@ -143,11 +148,12 @@ async def delete_email(request: Request, db_session: database.DBSession, email_i
         logger.info(f"Email with id {email_id} deleted successfully for user_id {user_id}")
         return {"message": "Item deleted successfully"}
 
+    except HTTPException as e:
+        # Propagate explicit HTTP errors (e.g., 404) without converting to 500
+        raise e
     except Exception as e:
         logger.error(f"Error deleting email with id {email_id} for user_id {user_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to delete email: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to delete email: {str(e)}")
         
 
 @router.post("/fetch-emails")
@@ -194,16 +200,18 @@ def fetch_emails_to_db(
     user_id: str,
     db_session,
 ) -> None:
-    logger.info(f"Fetching emails to db for user_id: {user_id}")
+    logger.info(f"fetch_emails_to_db for user_id: {user_id}")
     gmail_instance = user.service
 
     # we track starting and finishing fetching of emails for each user
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
-    process_task_run = db_session.exec(
-        select(task_models.TaskRuns).filter_by(user_id=user_id)
-    ).one_or_none()
+    process_task_run: task_models.TaskRuns = db_session.exec(
+        select(task_models.TaskRuns).where(
+            task_models.TaskRuns.user_id == user_id
+        ).order_by(task_models.TaskRuns.updated.desc())
+    ).first()
     if process_task_run is None:
-        # if this is the first time running the task for the user, create a record
+        # if there are no STARTED tasks, create a new task record
         process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
         db_session.add(process_task_run)
         db_session.commit()
@@ -260,9 +268,18 @@ def fetch_emails_to_db(
 
     if not messages:
         logger.info(f"user_id:{user_id} No job application emails found.")
-        process_task_run = db_session.get(task_models.TaskRuns, user_id)
-        process_task_run.status = task_models.FINISHED
-        db_session.commit()
+        process_task_run: task_models.TaskRuns = db_session.exec(
+            select(task_models.TaskRuns).where(
+                task_models.TaskRuns.user_id == user_id,
+                task_models.TaskRuns.status == task_models.STARTED
+            )
+        ).one_or_none()
+        if process_task_run:
+            process_task_run.status = task_models.FINISHED
+            process_task_run.total_emails = 0
+            process_task_run.processed_emails = 0
+            db_session.add(process_task_run)
+            db_session.commit()
         return
 
     logger.info(f"user_id:{user.user_id} Found {len(messages)} emails.")
