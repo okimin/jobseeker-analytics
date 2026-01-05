@@ -112,9 +112,7 @@ async def login(
 @router.get("/logout")
 async def logout(request: Request, response: RedirectResponse):
     logger.info("Logging out")
-    request.session.clear()
-    response.delete_cookie(key="__Secure-Authorization")
-    response.delete_cookie(key="Authorization")
+    clear_session(request, response)
     return RedirectResponse(f"{APP_URL}", status_code=303)
 
 

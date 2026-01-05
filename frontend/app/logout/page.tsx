@@ -12,7 +12,7 @@ export default function LogoutPage() {
 			try {
 				// Call your logout API endpoint
 				await fetch(`${apiUrl}/logout`, {
-					method: "POST",
+					method: "GET",
 					credentials: "include"
 				});
 			} finally {
