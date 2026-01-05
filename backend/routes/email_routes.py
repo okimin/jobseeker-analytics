@@ -50,11 +50,10 @@ async def processing(
         return RedirectResponse("/logout", status_code=303)
 
     process_task_run: task_models.TaskRuns = db_session.exec(
-        select(task_models.TaskRuns).where(
-            task_models.TaskRuns.user_id == user_id,
-            task_models.TaskRuns.status == task_models.STARTED
-        )
-    ).one_or_none()
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .order_by(task_models.TaskRuns.updated.desc())  # TODO: pass task_id between frontend / backend
+    ).first()
 
     if not process_task_run:
         raise HTTPException(status_code=404, detail="Processing has not started.")
@@ -100,6 +99,8 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         user_emails = db_session.exec(statement).all()
 
         for email in user_emails:
+            logger.info("email id %s" % email.id)
+            logger.info("email subject %s" % email.subject)
             new_job_title = normalize_job_title(email.job_title)
             if email.normalized_job_title != new_job_title:
                 email.normalized_job_title = new_job_title
@@ -206,10 +207,9 @@ def fetch_emails_to_db(
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
     process_task_run: task_models.TaskRuns = db_session.exec(
         select(task_models.TaskRuns).where(
-            task_models.TaskRuns.user_id == user_id,
-            task_models.TaskRuns.status == task_models.STARTED
-        )
-    ).one_or_none()
+            task_models.TaskRuns.user_id == user_id
+        ).order_by(task_models.TaskRuns.updated.desc())
+    ).first()
     if process_task_run is None:
         # if there are no STARTED tasks, create a new task record
         process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
