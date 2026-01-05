@@ -34,7 +34,7 @@ def user_exists(user, db_session) -> Tuple[Optional[Users], Optional[datetime]]:
     db_session.commit()  # Commit pending changes to ensure the database is in latest state
 
     existing_user = db_session.exec(
-        select(Users).where(Users.user_id == user.user_id)
+        select(Users).where(Users.user_email == user.user_email)
     ).first()
     logger.info("user_exists Query result: %s", existing_user)
 
