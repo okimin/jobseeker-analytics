@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Optional
 import sqlalchemy as sa
+import uuid
 
 class UserData(BaseModel):
     user_id: str
@@ -11,8 +12,8 @@ class UserData(BaseModel):
 
 class Users(SQLModel, table=True):
     __tablename__ = "users"
-    user_id: str = Field(default = None, primary_key = True)
-    user_email: str = Field(nullable=False)                      
+    user_id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key = True)
+    user_email: str = Field(nullable=False)
     start_date: datetime = Field(nullable=True) # Start date for job applications
     # Billing fields
     is_active: bool = Field(default=False, nullable=False)
