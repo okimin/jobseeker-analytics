@@ -635,14 +635,14 @@ export default function JobApplicationsDashboard({
 						Download CSV
 					</Button>
 					{!readOnly && (
-					<Button
-						className="w-full sm:w-auto"
-						color="secondary"
-						variant="bordered"
-						onPress={() => setShowModal(true)}
-					>
-						Change Start Date
-					</Button>
+						<Button
+							className="w-full sm:w-auto"
+							color="secondary"
+							variant="bordered"
+							onPress={() => setShowModal(true)}
+						>
+							Change Start Date
+						</Button>
 					)}
 					{!readOnly && (
 						<Button
