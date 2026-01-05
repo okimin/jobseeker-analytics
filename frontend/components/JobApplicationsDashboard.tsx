@@ -634,6 +634,7 @@ export default function JobApplicationsDashboard({
 					>
 						Download CSV
 					</Button>
+					{!readOnly && (
 					<Button
 						className="w-full sm:w-auto"
 						color="secondary"
@@ -642,7 +643,7 @@ export default function JobApplicationsDashboard({
 					>
 						Change Start Date
 					</Button>
-
+					)}
 					{!readOnly && (
 						<Button
 							className="w-full sm:w-auto"
