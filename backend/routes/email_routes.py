@@ -196,7 +196,7 @@ def fetch_emails_to_db(
     user_id: str,
     db_session,
 ) -> None:
-    logger.info(f"Fetching emails to db for user_id: {user_id}")
+    logger.info(f"fetch_emails_to_db for user_id: {user_id}")
     gmail_instance = user.service
 
     # we track starting and finishing fetching of emails for each user
