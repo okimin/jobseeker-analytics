@@ -16,14 +16,14 @@ def processed_emails_exceeds_rate_limit(user_id, db_session):
         logger.info(f"No task run found for user_id: {user_id}")
         return False
     
-    # Check if the task was completed on a different day
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).date()
-    task_date = process_task_run.updated.date() if process_task_run.updated else None
-    
-    # If the task was completed on a different day, don't apply rate limiting
-    if task_date and task_date < today:
-        logger.info(f"Task was completed on {task_date}, not applying rate limit for today")
+    # Check if the task was completed more than an hour ago
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    task_datetime = process_task_run.updated if process_task_run.updated else None
+
+    # If the task was completed more than an hour ago, don't apply rate limiting
+    if task_datetime and (now - task_datetime) > timedelta(hours=1):
+        logger.info(f"Task was completed at {task_datetime}, not applying rate limit")
         return False
     
     total_processed_tasks = process_task_run.processed_emails or 0
