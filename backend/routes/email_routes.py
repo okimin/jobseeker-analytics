@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlmodel import select, desc
 from db.user_emails import UserEmails
 from db import processing_tasks as task_models
+from db.users import Users
 from db.utils.user_email_utils import create_user_email
 from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
@@ -241,7 +242,13 @@ def fetch_emails_to_db(
         start_date = request.session.get("start_date")
         logger.info(f"start_date: {start_date}")
         start_date_query = get_start_date_email_filter(start_date)
-        start_date_updated = request.session.get("start_date_updated", False)
+        start_date_updated = False
+        existing_user = db_session.exec(
+            select(Users).where(Users.user_id == user_id)
+        ).first()
+        if existing_user and existing_user.start_date and start_date != existing_user.strftime('%Y/%m/%d'):
+            logger.info(f"start_date {start_date} != user.start_date {existing_user.start_date.strftime('%Y/%m/%d')}")
+            start_date_updated = True
 
         query = start_date_query
         # check for users last updated email
@@ -256,10 +263,6 @@ def fetch_emails_to_db(
             logger.info(f"user_id:{user_id} Fetching emails after {additional_time}")
         else:
             logger.info(f"user_id:{user_id} Fetching all emails with start date: {start_date}")
-
-        if start_date_updated:
-            request.session["start_date_updated"] = False
-
 
         messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
         # Update session to remove "new user" status
