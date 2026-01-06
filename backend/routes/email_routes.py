@@ -246,7 +246,7 @@ def fetch_emails_to_db(
         existing_user = db_session.exec(
             select(Users).where(Users.user_id == user_id)
         ).first()
-        if existing_user and existing_user.start_date and start_date != existing_user.strftime('%Y/%m/%d'):
+        if existing_user and existing_user.start_date and start_date != existing_user.start_date.strftime('%Y/%m/%d'):
             logger.info(f"start_date {start_date} != user.start_date {existing_user.start_date.strftime('%Y/%m/%d')}")
             start_date_updated = True
 
