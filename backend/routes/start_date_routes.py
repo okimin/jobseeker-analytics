@@ -32,13 +32,22 @@ async def set_start_date(request: Request, db_session: database.DBSession, start
              return HTMLResponse(content="User not found.", status_code=404)
         
         # Update start date in DB
-        user_record.start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        if isinstance(start_date, datetime):
+            start_date = start_date.strftime("%Y-%m-%d")
+        
+        if not isinstance(start_date, str):
+            start_date = start_date.isoformat()
+            request.session["start_date"] = start_date.isoformat()  # Convert only if it's a datetime object
+
+        # update start date in DB
+        user_record.start_date = start_date
         db_session.add(user_record)
         db_session.commit()
 
-        # Update session
-        request.session["start_date"] = start_date.replace("-", "/")
+        # update session
+        request.session["start_date"] = start_date
         request.session["is_new_user"] = False
+        request.session["start_date_updated"] = True
 
         logger.info(f"user_id:{user_id} updated start date to {start_date}")
 

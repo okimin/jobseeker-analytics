@@ -26,6 +26,9 @@ def processed_emails_exceeds_rate_limit(user_id, db_session):
     now = datetime.now(timezone.utc)
     task_datetime = process_task_run.updated if process_task_run.updated else None
 
+    if task_datetime and task_datetime.tzinfo is None:
+        task_datetime = task_datetime.replace(tzinfo=timezone.utc)
+
     # If the task was completed more than an hour ago, don't apply rate limiting
     if task_datetime and (now - task_datetime) > timedelta(hours=1):
         logger.info(f"Task was completed at {task_datetime}, not applying rate limit")

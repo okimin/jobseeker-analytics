@@ -9,13 +9,22 @@ logger = logging.getLogger(__name__)
 
 def parse_email_date(date_str: str) -> datetime:
     """
-    Converts an email date string into a Python datetime object
+    Converts an email date string into a Python datetime object, ensuring it's timezone-aware (UTC).
     """
     dt = email.utils.parsedate_to_datetime(date_str)
     if dt is None:
-        # default to current UTC datetime
-        dt = datetime.now(timezone.utc)
-    return dt
+        # Default to current UTC datetime if parsing fails
+        logger.info("dt is None")
+        return datetime.now(timezone.utc)
+    
+    if dt.tzinfo is None:
+        logger.info("dt.tzinfo is None")
+        # If the datetime is naive, assume it's in UTC
+        return dt.replace(tzinfo=timezone.utc)
+    else:
+        logger.info("already timezone-aware")
+        # If it's already timezone-aware, convert it to UTC
+        return dt.astimezone(timezone.utc)
 
 
 def check_email_exists(user_id: str, email_id: str, db_session) -> bool:
