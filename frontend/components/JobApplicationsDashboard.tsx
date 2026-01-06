@@ -392,7 +392,7 @@ export default function JobApplicationsDashboard({
 				</ModalContent>
 			</Modal>
 			<h1 className="text-2xl font-bold mt-0">{title}</h1>
-			<br></br>
+			<br />
 			<div className="flex flex-wrap items-center justify-between gap-4 mb-4">
 				{/* Search and Filter Controls */}
 				<div className="flex flex-wrap items-center gap-4 flex-1">
