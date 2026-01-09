@@ -9,6 +9,7 @@ import { Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { Navbar } from "@/components/navbar";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { checkAuth } from "@/utils/auth";
+import { siteConfig } from "@/config/site";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
@@ -96,7 +97,7 @@ export default function LoginPage() {
 									Not in the official beta? Join the waitlist{" "}
 									<a
 										className="text-emerald-600 hover:underline text-sm"
-										href="https://its.justajobapp.com/"
+										href={siteConfig.links.waitlist}
 										target="_blank"
 									>
 										here.

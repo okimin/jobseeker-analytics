@@ -10,8 +10,12 @@ export const siteConfig = {
 			href: "/"
 		},
 		{
-			label: "Coaches",
+			label: "Career Coaches",
 			href: "/coaches"
+		},
+		{
+			label: "FAQ",
+			href: "/faq"
 		}
 	],
 	navMenuItems: [
@@ -39,6 +43,7 @@ export const siteConfig = {
 		community: "/contributors",
 		coffee: "https://buymeacoffee.com/justajobapp",
 		feedback: "https://forms.gle/aGeT11NYJpcSBEix8",
-		support: "mailto:help@justajobapp.com"
+		support: "mailto:help@justajobapp.com",
+		waitlist: "https://its.justajobapp.com"
 	}
 };

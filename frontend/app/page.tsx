@@ -6,6 +6,7 @@ import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
+import { PrivacyFirst } from "@/components/PrivacyFirst";
 
 const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
@@ -27,9 +28,9 @@ const Index = () => {
 	);
 
 	return (
-		<div className="flex flex-col min-h-screen overflow-x-hidden">
+		<div className="flex flex-col min-h-screen">
+			<Navbar />
 			<main className="flex-grow bg-gradient-to-b from-background to-background/95">
-				<Navbar />
 				<div className="w-full bg-gradient-to-b from-amber-50/60 to-transparent dark:from-gray-800/30 border-b border-amber-100/40 dark:border-emerald-900/30">
 					<div className="container mx-auto px-4 py-16 sm:py-24 max-w-5xl">
 						<div className="text-center">
@@ -44,7 +45,10 @@ const Index = () => {
 							<div className="mt-10 flex justify-center">
 								<a
 									className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
-									href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_1"
+									href={
+										siteConfig.links.waitlist +
+										"/?utm_source=homepage&utm_campaign=new_job_seekers_1"
+									}
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -63,7 +67,6 @@ const Index = () => {
 						</div>
 					</div>
 				</div>
-
 				<section className="bg-white dark:bg-gray-900 py-16 border-b border-amber-100/40 dark:border-emerald-900/40">
 					<div className="container mx-auto px-4 max-w-6xl">
 						<div className="text-center mb-12">
@@ -84,7 +87,10 @@ const Index = () => {
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-									href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_2"
+									href={
+										siteConfig.links.waitlist +
+										"/?utm_source=homepage&utm_campaign=new_job_seekers_2"
+									}
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -105,6 +111,7 @@ const Index = () => {
 					</div>
 				</section>
 			</main>
+			<PrivacyFirst />
 
 			{/* Problem/Agitation Section */}
 			<div className="bg-gray-50 dark:bg-gray-900/40">
@@ -336,7 +343,7 @@ const Index = () => {
 						<div className="md:col-span-2">
 							{/* Founder Image with click functionality */}
 							<div
-								className="bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+								className="bg-gray-200 dark:bg-gray-700 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
 								onClick={() => {
 									setPopupImageSrc("homepage/News.png");
 									setShowImagePopup(true);
@@ -427,7 +434,10 @@ const Index = () => {
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-										href="https://its.justajobapp.com/?utm_source=homepage&utm_campaign=new_job_seekers_3"
+										href={
+											siteConfig.links.waitlist +
+											"/?utm_source=homepage&utm_campaign=new_job_seekers_3"
+										}
 										rel="noopener noreferrer"
 										target="_blank"
 									>
@@ -474,7 +484,7 @@ const Index = () => {
 								/>
 							</svg>
 						</button>
-						<div className="bg-white flex justify-center dark:bg-gray-800 p-6 rounded-lg shadow-2xl overflow-hidden">
+						<div className="bg-white flex justify-center dark:bg-gray-800 p-6 rounded-lg shadow-2xl">
 							<img
 								alt="Enlarged image"
 								className="h-auto"
