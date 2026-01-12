@@ -104,16 +104,15 @@ function SignupContent() {
 								<p className="font-semibold text-emerald-700 dark:text-emerald-300">
 									{tierInfo.name} - {tierInfo.price}
 								</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-									{tierInfo.description}
-								</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tierInfo.description}</p>
 							</div>
 						)}
 					</CardHeader>
 					<CardBody className="pb-8 space-y-6">
 						<div className="space-y-4">
 							<p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-								Sign up with your Google account to get started. We only need your email address to create your account.
+								Sign up with your Google account to get started. We only need your email address to
+								create your account.
 							</p>
 							<GoogleSignupButton />
 						</div>

@@ -65,9 +65,9 @@ function LoginContent() {
 								<br />
 								Need help?{" "}
 								<a
+									className="text-emerald-600 hover:underline"
 									href="mailto:help@justajobapp.com?subject=Beta%20Login%20Page%20Help"
 									target="_blank"
-									className="text-emerald-600 hover:underline"
 								>
 									help@justajobapp.com
 								</a>
@@ -98,10 +98,7 @@ function LoginContent() {
 								</Button>
 								<span className="block text-sm text-gray-500 text-center">
 									New user?{" "}
-									<a
-										className="text-emerald-600 hover:underline text-sm"
-										href="/pricing"
-									>
+									<a className="text-emerald-600 hover:underline text-sm" href="/pricing">
 										View pricing and sign up
 									</a>
 								</span>

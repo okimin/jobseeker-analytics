@@ -112,11 +112,15 @@ export default function PricingTable({
 							<ul className="space-y-2 mb-6">
 								{tier.features.map((feature, idx) => (
 									<li key={idx} className="flex items-center gap-2 text-sm">
-										<svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+										<svg
+											className="w-4 h-4 text-emerald-500 flex-shrink-0"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
 											<path
-												fillRule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
 												clipRule="evenodd"
+												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+												fillRule="evenodd"
 											/>
 										</svg>
 										{feature}
@@ -127,14 +131,14 @@ export default function PricingTable({
 							{tier.id === "custom" && (
 								<div className="mb-4">
 									<Input
-										type="number"
+										errorMessage={error}
+										isInvalid={error !== "" && selectedTier === "custom"}
 										label="Amount ($)"
-										placeholder="5"
 										min={1}
+										placeholder="5"
+										type="number"
 										value={customAmount}
 										onChange={(e) => setCustomAmount(e.target.value)}
-										isInvalid={error !== "" && selectedTier === "custom"}
-										errorMessage={error}
 									/>
 								</div>
 							)}
@@ -142,9 +146,9 @@ export default function PricingTable({
 							<Button
 								className={`w-full ${tier.highlight ? "bg-emerald-600 text-white" : ""}`}
 								color={tier.highlight ? "success" : "default"}
-								variant={tier.highlight ? "solid" : "bordered"}
-								isLoading={isLoading && selectedTier === tier.id}
 								isDisabled={isLoading}
+								isLoading={isLoading && selectedTier === tier.id}
+								variant={tier.highlight ? "solid" : "bordered"}
 								onPress={() => handleSelect(tier.id)}
 							>
 								{tier.price === 0 ? "Get Started Free" : "Select Plan"}
