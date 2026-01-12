@@ -66,6 +66,22 @@ export default function Dashboard() {
 				return;
 			}
 
+			// Check onboarding and email sync status
+			const onboardingResp = await fetch(`${apiUrl}/api/users/onboarding-status`, {
+				credentials: "include"
+			});
+			if (onboardingResp.ok) {
+				const data = await onboardingResp.json();
+				if (!data.has_completed_onboarding) {
+					router.push("/onboarding");
+					return;
+				}
+				if (!data.has_email_sync_configured) {
+					router.push("/email-sync-setup");
+					return;
+				}
+			}
+
 			// Fetch applications (if user is logged in)
 			const viewParam = viewAs ? `&view_as=${encodeURIComponent(viewAs)}` : "";
 			const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}${viewParam}`, {
@@ -74,6 +90,13 @@ export default function Dashboard() {
 			});
 
 			if (!response.ok) {
+				if (response.status === 403) {
+					const onboardingRequired = response.headers.get("X-Onboarding-Required");
+					if (onboardingRequired === "true") {
+						router.push("/onboarding");
+						return;
+					}
+				}
 				if (response.status === 404) {
 					setError("No applications found");
 				} else {

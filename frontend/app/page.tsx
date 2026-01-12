@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
 import { PrivacyFirst } from "@/components/PrivacyFirst";
+import { checkAuth } from "@/utils/auth";
 
 const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
 	const [popupImageSrc, setPopupImageSrc] = useState("");
 	const router = useRouter();
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+	// Check if user is authenticated and redirect to dashboard
+	useEffect(() => {
+		checkAuth(apiUrl).then((authenticated) => {
+			if (authenticated) {
+				router.push("/dashboard");
+			}
+		});
+	}, [apiUrl, router]);
 
 	const handleLogin = () => {
 		router.push(`/login`);
@@ -45,14 +56,9 @@ const Index = () => {
 							<div className="mt-10 flex justify-center">
 								<a
 									className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
-									href={
-										siteConfig.links.waitlist +
-										"/?utm_source=homepage&utm_campaign=new_job_seekers_1"
-									}
-									rel="noopener noreferrer"
-									target="_blank"
+									href="/pricing"
 								>
-									Join the waitlist and never miss an opportunity →
+									Get Started - Never Miss an Opportunity →
 								</a>
 							</div>
 							<div className="mt-8">
@@ -83,18 +89,13 @@ const Index = () => {
 									New Job Seekers
 								</h3>
 								<p className="text-gray-700 dark:text-gray-200 mb-6">
-									Want access? Request an invite for the inbox-powered tracker.
+									Get started with the inbox-powered job tracker.
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-									href={
-										siteConfig.links.waitlist +
-										"/?utm_source=homepage&utm_campaign=new_job_seekers_2"
-									}
-									rel="noopener noreferrer"
-									target="_blank"
+									href="/pricing"
 								>
-									Join the waitlist
+									View Pricing
 								</a>
 							</div>
 							<div
@@ -430,18 +431,13 @@ const Index = () => {
 										New Job Seekers
 									</h4>
 									<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-										Request an invite to get in line for the inbox-powered tracker.
+										Get started with the inbox-powered job tracker.
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-										href={
-											siteConfig.links.waitlist +
-											"/?utm_source=homepage&utm_campaign=new_job_seekers_3"
-										}
-										rel="noopener noreferrer"
-										target="_blank"
+										href="/pricing"
 									>
-										Join the waitlist
+										View Pricing
 									</a>
 								</div>
 								<div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">

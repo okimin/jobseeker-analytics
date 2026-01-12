@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 
-from db.utils.user_utils import user_exists
+from db.utils.user_utils import user_exists, add_user
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
 from session.session_layer import create_random_session_string, validate_session, get_token_expiry, clear_session
 from utils.config_utils import get_settings
@@ -97,11 +97,31 @@ async def login(
             if existing_user.start_date is not None:
                 request.session["start_date"] = existing_user.start_date.strftime("%Y/%m/%d")
 
-            if existing_user.role == "coach" or existing_user.start_date is None:
-                # new users need to pick their start date on the dashboard
-                # coaches dont need to see processing page  #TODO: remove processing page
+            # Redirect based on user status
+            if existing_user.role == "coach":
+                # Coaches go directly to dashboard
                 response = Redirects.to_dashboard()
-            else: # Jobseeker
+            elif not existing_user.has_completed_onboarding:
+                # Beta user coming through /auth/google (beta access code flow)
+                # Auto-complete onboarding as subsidized user
+                existing_user.has_completed_onboarding = True
+                existing_user.subscription_tier = "subsidized"
+                db_session.add(existing_user)
+                db_session.commit()
+                logger.info("Auto-completed onboarding for beta user_id: %s", user.user_id)
+
+                if not existing_user.has_email_sync_configured:
+                    response = Redirects.to_email_sync_setup()
+                else:
+                    response = Redirects.to_dashboard()
+            elif not existing_user.has_email_sync_configured:
+                # User completed onboarding but hasn't set up email sync
+                response = Redirects.to_email_sync_setup()
+            elif existing_user.start_date is None:
+                # User needs to pick start date
+                response = Redirects.to_dashboard()
+            else:
+                # Returning user with everything configured - trigger email sync in background
                 response = Redirects.to_processing()
                 background_tasks.add_task(
                     fetch_emails_to_db,
@@ -134,8 +154,209 @@ async def logout(request: Request, response: RedirectResponse):
 async def getUser(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     if not user_id:
         raise HTTPException(status_code=401, detail="No user id found in session")
-    # Fetch role for user
+    # Fetch user data
     from db.users import Users
     user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
-    role = user.role if user else "jobseeker"
-    return {"user_id": user_id, "role": role}
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "user_id": user_id,
+        "role": user.role,
+        "has_completed_onboarding": user.has_completed_onboarding,
+        "subscription_tier": user.subscription_tier,
+        "has_email_sync_configured": user.has_email_sync_configured,
+        "sync_email_address": user.sync_email_address
+    }
+
+
+@router.get("/auth/google/signup")
+@limiter.limit("10/minute")
+async def signup(request: Request, db_session: database.DBSession):
+    """
+    Google OAuth2 signup flow with BASIC scopes only (no email read access).
+    Used for new users coming from the pricing page.
+    After successful auth, redirects to /onboarding.
+    """
+    code = request.query_params.get("code")
+
+    # Use basic scopes (openid + email only, no gmail.readonly)
+    flow = Flow.from_client_config(
+        settings.google_oauth2_config,
+        settings.GOOGLE_SCOPES_BASIC,
+        redirect_uri=f"{settings.API_URL}/auth/google/signup",
+    )
+    try:
+        if not code:
+            has_refresh_token = get_refresh_token_status(request.session.get("creds"))
+            authorization_url, state = get_google_authorization_url(
+                flow, has_refresh_token
+            )
+            request.session["oauth_state"] = state
+            return RedirectResponse(url=authorization_url)
+
+        # OAuth callback - verify state
+        saved_state = request.session.pop("oauth_state", None)
+        query_params_state = request.query_params.get("state")
+
+        if not saved_state or saved_state != query_params_state:
+            logger.error("CSRF attack detected: session state mismatch or missing.")
+            response = Redirects.to_error("session_mismatch")
+            clear_session(request, response)
+            response.delete_cookie(key="__Secure-Authorization", domain=settings.ORIGIN)
+            response.delete_cookie(key="Authorization")
+            return response
+
+        creds = get_creds(request=request, code=code, flow=flow)
+        if isinstance(creds, RedirectResponse):
+            return creds
+        user = AuthenticatedUser(creds)
+
+        session_id = request.session.get("session_id") or create_random_session_string()
+        request.session["session_id"] = session_id
+        request.session["token_expiry"] = get_token_expiry(creds)
+        request.session["user_id"] = user.user_id
+        if user.user_email:
+            request.session["user_email"] = user.user_email
+        request.session["access_token"] = creds.token
+        request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
+
+        existing_user, _ = user_exists(user, db_session)
+
+        if existing_user and existing_user.is_active:
+            # Existing active user - redirect based on their status
+            if existing_user.has_completed_onboarding:
+                if existing_user.has_email_sync_configured:
+                    response = Redirects.to_dashboard()
+                else:
+                    response = Redirects.to_email_sync_setup()
+            else:
+                # Not onboarded yet - go to checkout to process payment
+                response = Redirects.to_checkout()
+        elif existing_user and not existing_user.is_active:
+            # Existing but inactive user - activate them since they're coming through pricing
+            existing_user.is_active = True
+            db_session.add(existing_user)
+            db_session.commit()
+            logger.info("Activated existing user_id: %s through signup flow", user.user_id)
+            response = Redirects.to_checkout()
+        else:
+            # New user - create account and redirect to checkout
+            from db.users import Users
+            new_user = Users(
+                user_id=user.user_id,
+                user_email=user.user_email,
+                is_active=True,  # Active since coming through pricing page
+                start_date=None  # Will be set later
+            )
+            db_session.add(new_user)
+            db_session.commit()
+            logger.info("Created new user_id: %s through signup flow", user.user_id)
+            request.session["is_new_user"] = True
+            response = Redirects.to_checkout()
+
+        response = set_conditional_cookie(
+            key="Authorization", value=session_id, response=response
+        )
+        return response
+    except Exception as e:
+        logger.error("Catchall signup error: %s", e)
+        return Redirects.to_error("oops")
+
+
+@router.get("/auth/google/email-sync")
+@limiter.limit("10/minute")
+async def email_sync_auth(
+    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession
+):
+    """
+    Google OAuth2 for email sync with FULL scopes (gmail.readonly).
+    Used after payment to connect a Gmail account for email syncing.
+    Can be a different Google account than the signup account.
+    Requires user to be authenticated already.
+    """
+    from db.users import Users
+
+    code = request.query_params.get("code")
+
+    # Use full scopes including gmail.readonly
+    flow = Flow.from_client_config(
+        settings.google_oauth2_config,
+        settings.GOOGLE_SCOPES,
+        redirect_uri=f"{settings.API_URL}/auth/google/email-sync",
+    )
+
+    try:
+        if not code:
+            # Check if user is authenticated
+            user_id = request.session.get("user_id")
+            if not user_id:
+                logger.warning("Email sync auth attempted without session. Redirecting to login.")
+                return Redirects.to_error("auth_required")
+
+            has_refresh_token = get_refresh_token_status(request.session.get("email_sync_creds"))
+            authorization_url, state = get_google_authorization_url(
+                flow, has_refresh_token
+            )
+            request.session["email_sync_oauth_state"] = state
+            return RedirectResponse(url=authorization_url)
+
+        # OAuth callback - verify state
+        saved_state = request.session.pop("email_sync_oauth_state", None)
+        query_params_state = request.query_params.get("state")
+
+        if not saved_state or saved_state != query_params_state:
+            logger.error("CSRF attack detected in email sync: session state mismatch or missing.")
+            return Redirects.to_error("session_mismatch")
+
+        # Get authenticated user
+        user_id = request.session.get("user_id")
+        if not user_id:
+            logger.warning("Email sync callback without user_id in session.")
+            return Redirects.to_error("auth_required")
+
+        creds = get_creds(request=request, code=code, flow=flow)
+        if isinstance(creds, RedirectResponse):
+            return creds
+
+        # Create AuthenticatedUser for the email sync account (may be different from signup account)
+        sync_user = AuthenticatedUser(creds)
+
+        # Store email sync credentials separately
+        request.session["email_sync_creds"] = get_latest_refresh_token(
+            old_creds=request.session.get("email_sync_creds"),
+            new_creds=creds
+        )
+        # Also update main creds so email fetching works
+        request.session["creds"] = request.session["email_sync_creds"]
+        request.session["token_expiry"] = get_token_expiry(creds)
+        request.session["access_token"] = creds.token
+
+        # Update user record with email sync info
+        user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+        if user:
+            user.has_email_sync_configured = True
+            user.sync_email_address = sync_user.user_email
+            db_session.add(user)
+            db_session.commit()
+            logger.info("Email sync configured for user_id: %s with email: %s", user_id, sync_user.user_email)
+
+            # Get last fetched date for incremental sync
+            from db.utils.user_utils import get_last_email_date
+            last_fetched_date = get_last_email_date(user_id, db_session)
+
+            # Trigger email fetch in background
+            background_tasks.add_task(
+                fetch_emails_to_db,
+                sync_user,
+                request,
+                last_fetched_date,
+                user_id=user_id,
+            )
+            logger.info("fetch_emails_to_db task started for user_id: %s", user_id)
+
+        response = Redirects.to_processing()
+        return response
+
+    except Exception as e:
+        logger.error("Catchall email sync auth error: %s", e)
+        return Redirects.to_error("oops")

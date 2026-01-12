@@ -30,3 +30,15 @@ class Redirects:
     def to_logout() -> RedirectResponse:
         # Internal backend redirect
         return RedirectResponse(url="/logout", status_code=303)
+
+    @staticmethod
+    def to_onboarding() -> RedirectResponse:
+        return Redirects.to_frontend("/onboarding")
+
+    @staticmethod
+    def to_email_sync_setup() -> RedirectResponse:
+        return Redirects.to_frontend("/email-sync-setup")
+
+    @staticmethod
+    def to_checkout() -> RedirectResponse:
+        return Redirects.to_frontend("/checkout")

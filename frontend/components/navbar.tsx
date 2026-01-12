@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
+import { checkAuth } from "@/utils/auth";
 
 export const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const pathname = usePathname();
 	const { theme } = useTheme();
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+	useEffect(() => {
+		checkAuth(apiUrl).then((authenticated) => {
+			setIsAuthenticated(authenticated);
+		});
+	}, [apiUrl]);
 
 	return (
 		<nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
@@ -54,15 +63,30 @@ export const Navbar = () => {
 							</div>
 						</div>
 					</div>
-					<div className="hidden md:block">
-						<a
-							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
-							href={siteConfig.links.waitlist}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Sign up
-						</a>
+					<div className="hidden md:flex items-center space-x-4">
+						{isAuthenticated ? (
+							<NextLink
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700"
+								href="/dashboard"
+							>
+								Dashboard
+							</NextLink>
+						) : (
+							<>
+								<NextLink
+									className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600"
+									href="/login"
+								>
+									Login
+								</NextLink>
+								<NextLink
+									className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
+									href="/pricing"
+								>
+									Sign up
+								</NextLink>
+							</>
+						)}
 					</div>
 					<div className="-mr-2 flex md:hidden">
 						<button
@@ -128,6 +152,35 @@ export const Navbar = () => {
 								{item.label}
 							</NextLink>
 						))}
+						{/* Auth buttons for mobile */}
+						<div className="pt-4 border-t border-gray-700">
+							{isAuthenticated ? (
+								<NextLink
+									className="block px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+									href="/dashboard"
+									onClick={() => setIsOpen(false)}
+								>
+									Dashboard
+								</NextLink>
+							) : (
+								<>
+									<NextLink
+										className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-700 hover:text-white"
+										href="/login"
+										onClick={() => setIsOpen(false)}
+									>
+										Login
+									</NextLink>
+									<NextLink
+										className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-black bg-yellow-400 hover:bg-yellow-500"
+										href="/pricing"
+										onClick={() => setIsOpen(false)}
+									>
+										Sign up
+									</NextLink>
+								</>
+							)}
+						</div>
 					</div>
 				</div>
 			)}

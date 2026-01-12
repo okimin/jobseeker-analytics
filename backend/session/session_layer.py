@@ -72,8 +72,9 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         user = db_session.exec(select(Users).where(Users.user_email == user_email)).first()
         if not user or not user.is_active:
-            clear_session(request, user_id)
-            logger.info("validate_session deleting user_id: %s", user_id)
+            # Clear session data (can't delete cookies here since we don't have response)
+            request.session.clear()
+            logger.info("validate_session clearing session for inactive/missing user_id: %s", user_id)
             return ""
 
     logger.info("Valid Session, Access granted.")

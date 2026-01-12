@@ -44,6 +44,6 @@ export const siteConfig = {
 		coffee: "https://buymeacoffee.com/justajobapp",
 		feedback: "https://forms.gle/aGeT11NYJpcSBEix8",
 		support: "mailto:help@justajobapp.com",
-		waitlist: "https://its.justajobapp.com"
+		waitlist: "/pricing"
 	}
 };

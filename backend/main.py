@@ -13,7 +13,7 @@ from utils.dev_utils import seed_dev_user
 from contextlib import asynccontextmanager
 import database
 # Import routes
-from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes
+from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes, onboarding_routes, stripe_webhook_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -55,6 +55,8 @@ app.include_router(start_date_routes.router)
 app.include_router(job_applications_routes.router)
 app.include_router(coach_routes.router)
 app.include_router(billing_routes.router)
+app.include_router(onboarding_routes.router)
+app.include_router(stripe_webhook_routes.router)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter  # Ensure limiter is assigned

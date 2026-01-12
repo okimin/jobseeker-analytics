@@ -2,7 +2,7 @@ import logging
 from fastapi import HTTPException, Depends, Request
 from sqlmodel import select, and_
 from database import DBSession
-from session.session_layer import validate_session
+from utils.onboarding_utils import require_onboarding_complete
 from db.users import CoachClientLink
 
 logger = logging.getLogger(__name__)
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def get_context_user_id(
     request: Request,
     db_session: DBSession,
-    authenticated_user_id: str = Depends(validate_session)
+    authenticated_user_id: str = Depends(require_onboarding_complete)
 ) -> str:
     """
     Determines the target user_id for the query.

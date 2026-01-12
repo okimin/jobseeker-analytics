@@ -14,6 +14,7 @@ from utils.llm_utils import process_email
 from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
 from session.session_layer import validate_session
+from utils.onboarding_utils import require_onboarding_complete
 from utils.admin_utils import get_context_user_id
 import database
 from google.oauth2.credentials import Credentials
@@ -122,7 +123,7 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         
 
 @router.delete("/delete-email/{email_id}")
-async def delete_email(request: Request, db_session: database.DBSession, email_id: str, user_id: str = Depends(validate_session)):
+async def delete_email(request: Request, db_session: database.DBSession, email_id: str, user_id: str = Depends(require_onboarding_complete)):
     """
     Delete an email record by its ID for the authenticated user.
     """

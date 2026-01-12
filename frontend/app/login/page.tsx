@@ -2,16 +2,16 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { checkAuth } from "@/utils/auth";
-import { siteConfig } from "@/config/site";
+import Spinner from "@/components/spinner";
 
-export default function LoginPage() {
+function LoginContent() {
 	const [email, setEmail] = useState("");
 	const [code, setCode] = useState("");
 	const [isVerified, setIsVerified] = useState(false);
@@ -58,13 +58,16 @@ export default function LoginPage() {
 			<main className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
 				<Card className="max-w-md w-full">
 					<CardHeader className="flex flex-col gap-1 items-center py-8">
-						<h1 className="text-2xl font-bold">Welcome!</h1>
+						<h1 className="text-2xl font-bold">Beta Tester Login</h1>
 						{!isVerified && (
 							<p className="text-sm text-gray-500">
-								If you need help, email{" "}
+								Enter your beta access code to continue.
+								<br />
+								Need help?{" "}
 								<a
 									href="mailto:help@justajobapp.com?subject=Beta%20Login%20Page%20Help"
 									target="_blank"
+									className="text-emerald-600 hover:underline"
 								>
 									help@justajobapp.com
 								</a>
@@ -94,13 +97,12 @@ export default function LoginPage() {
 									Continue
 								</Button>
 								<span className="block text-sm text-gray-500 text-center">
-									Not in the official beta? Join the waitlist{" "}
+									New user?{" "}
 									<a
 										className="text-emerald-600 hover:underline text-sm"
-										href={siteConfig.links.waitlist}
-										target="_blank"
+										href="/pricing"
 									>
-										here.
+										View pricing and sign up
 									</a>
 								</span>
 							</form>
@@ -111,5 +113,22 @@ export default function LoginPage() {
 				</Card>
 			</main>
 		</div>
+	);
+}
+
+export default function LoginPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex flex-col min-h-screen">
+					<Navbar />
+					<main className="flex-grow flex items-center justify-center">
+						<Spinner />
+					</main>
+				</div>
+			}
+		>
+			<LoginContent />
+		</Suspense>
 	);
 }
