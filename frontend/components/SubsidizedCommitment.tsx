@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-	Modal,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	Button
-} from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
 
 interface SubsidizedCommitmentProps {
 	isOpen: boolean;
@@ -16,11 +9,7 @@ interface SubsidizedCommitmentProps {
 	onCancel: () => void;
 }
 
-export default function SubsidizedCommitment({
-	isOpen,
-	onConfirm,
-	onCancel
-}: SubsidizedCommitmentProps) {
+export default function SubsidizedCommitment({ isOpen, onConfirm, onCancel }: SubsidizedCommitmentProps) {
 	const [goodFaithChecked, setGoodFaithChecked] = useState(false);
 	const [payItForwardChecked, setPayItForwardChecked] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -47,13 +36,11 @@ export default function SubsidizedCommitment({
 			}}
 		>
 			<ModalContent>
-				<ModalHeader className="flex flex-col gap-1">
-					Community Solidarity Commitment
-				</ModalHeader>
+				<ModalHeader className="flex flex-col gap-1">Community Solidarity Commitment</ModalHeader>
 				<ModalBody>
 					<p className="text-gray-600 dark:text-gray-300 mb-4">
-						This slot is made possible by the contributions of job seekers who came before you.
-						To keep this sustainable and prevent abuse, we ask for your commitment to the community.
+						This slot is made possible by the contributions of job seekers who came before you. To keep this
+						sustainable and prevent abuse, we ask for your commitment to the community.
 					</p>
 
 					<div className="space-y-4">
@@ -66,12 +53,9 @@ export default function SubsidizedCommitment({
 								type="checkbox"
 								onChange={(e) => setGoodFaithChecked(e.target.checked)}
 							/>
-							<label
-								className="text-sm text-gray-700 dark:text-gray-300"
-								htmlFor="good-faith"
-							>
-								<span className="font-medium">Good Faith Use:</span> I confirm I am using this
-								service in good faith as an active job seeker.
+							<label className="text-sm text-gray-700 dark:text-gray-300" htmlFor="good-faith">
+								<span className="font-medium">Good Faith Use:</span> I confirm I am using this service
+								in good faith as an active job seeker.
 							</label>
 						</div>
 
@@ -84,23 +68,15 @@ export default function SubsidizedCommitment({
 								type="checkbox"
 								onChange={(e) => setPayItForwardChecked(e.target.checked)}
 							/>
-							<label
-								className="text-sm text-gray-700 dark:text-gray-300"
-								htmlFor="pay-it-forward"
-							>
-								<span className="font-medium">Pay It Forward:</span> I commit to contributing
-								back to the community when I am able.
+							<label className="text-sm text-gray-700 dark:text-gray-300" htmlFor="pay-it-forward">
+								<span className="font-medium">Pay It Forward:</span> I commit to contributing back to
+								the community when I am able.
 							</label>
 						</div>
 					</div>
 				</ModalBody>
 				<ModalFooter>
-					<Button
-						color="default"
-						isDisabled={isLoading}
-						variant="light"
-						onPress={onCancel}
-					>
+					<Button color="default" isDisabled={isLoading} variant="light" onPress={onCancel}>
 						Cancel
 					</Button>
 					<Button

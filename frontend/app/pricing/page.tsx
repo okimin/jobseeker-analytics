@@ -125,7 +125,7 @@ export default function PricingPage() {
 			<Navbar />
 			<main className="flex-grow bg-gradient-to-b from-background to-background/95 py-16">
 				<div className="container mx-auto px-4">
-					<PricingTable onSelectTier={handleSelectTier} isLoading={isLoading} />
+					<PricingTable isLoading={isLoading} onSelectTier={handleSelectTier} />
 				</div>
 			</main>
 			<SubsidizedCommitment
