@@ -7,6 +7,7 @@ import { addToast } from "@heroui/toast";
 import { Navbar } from "@/components/navbar";
 import PricingTable from "@/components/PricingTable";
 import Spinner from "@/components/spinner";
+import SubsidizedCommitment from "@/components/SubsidizedCommitment";
 import { checkAuth } from "@/utils/auth";
 
 function OnboardingContent() {
@@ -16,6 +17,7 @@ function OnboardingContent() {
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+	const [showCommitmentModal, setShowCommitmentModal] = useState(false);
 
 	// Get preselected tier from URL params or localStorage (preserved through OAuth)
 	const [preselectedTier, setPreselectedTier] = useState<string | undefined>(undefined);
@@ -31,6 +33,10 @@ function OnboardingContent() {
 			if (urlAmount) {
 				setPreselectedAmount(parseInt(urlAmount));
 			}
+			// Auto-trigger modal for subsidized tier from URL
+			if (urlTier === "subsidized") {
+				setShowCommitmentModal(true);
+			}
 		} else {
 			// Check localStorage for tier selection made before OAuth
 			const storedTier = localStorage.getItem("pendingTier");
@@ -43,6 +49,10 @@ function OnboardingContent() {
 				// Clear localStorage after reading
 				localStorage.removeItem("pendingTier");
 				localStorage.removeItem("pendingAmount");
+				// Auto-trigger modal for subsidized tier from localStorage
+				if (storedTier === "subsidized") {
+					setShowCommitmentModal(true);
+				}
 			}
 		}
 	}, [searchParams]);
@@ -120,23 +130,10 @@ function OnboardingContent() {
 
 		try {
 			if (tier === "subsidized") {
-				// Direct completion for $0 tier
-				const response = await fetch(`${apiUrl}/api/users/complete-onboarding`, {
-					method: "POST",
-					credentials: "include",
-					headers: { "Content-Type": "application/json" }
-				});
-
-				if (response.ok) {
-					addToast({
-						title: "Account ready! Now let's connect your email.",
-						color: "success"
-					});
-					router.push("/email-sync-setup");
-				} else {
-					const data = await response.json();
-					throw new Error(data.detail || "Failed to complete onboarding");
-				}
+				// Show commitment modal for $0 tier
+				setIsLoading(false);
+				setShowCommitmentModal(true);
+				return;
 			} else {
 				// Create Stripe checkout session for paid tiers
 				const response = await fetch(`${apiUrl}/api/billing/create-checkout-session`, {
@@ -170,6 +167,39 @@ function OnboardingContent() {
 		}
 	};
 
+	const handleSubsidizedConfirm = async () => {
+		try {
+			const response = await fetch(`${apiUrl}/api/users/complete-onboarding`, {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" }
+			});
+
+			if (response.ok) {
+				addToast({
+					title: "Account ready! Now let's connect your email.",
+					color: "success"
+				});
+				router.push("/email-sync-setup");
+			} else {
+				const data = await response.json();
+				throw new Error(data.detail || "Failed to complete onboarding");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			addToast({
+				title: "Something went wrong",
+				description: error instanceof Error ? error.message : "Please try again.",
+				color: "danger"
+			});
+			setShowCommitmentModal(false);
+		}
+	};
+
+	const handleSubsidizedCancel = () => {
+		setShowCommitmentModal(false);
+	};
+
 	if (isCheckingAuth) {
 		return (
 			<div className="flex flex-col min-h-screen">
@@ -200,6 +230,11 @@ function OnboardingContent() {
 					/>
 				</div>
 			</main>
+			<SubsidizedCommitment
+				isOpen={showCommitmentModal}
+				onCancel={handleSubsidizedCancel}
+				onConfirm={handleSubsidizedConfirm}
+			/>
 		</div>
 	);
 }

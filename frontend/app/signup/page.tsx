@@ -68,7 +68,11 @@ function SignupContent() {
 								router.push("/email-sync-setup");
 							}
 						} else {
-							router.push("/onboarding");
+							// Pass tier as URL param to ensure it's not lost
+							const params = new URLSearchParams();
+							if (tier) params.set("tier", tier);
+							if (amount) params.set("amount", amount);
+							router.push(`/onboarding?${params.toString()}`);
 						}
 					})
 					.catch(() => {

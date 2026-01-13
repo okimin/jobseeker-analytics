@@ -6,12 +6,14 @@ import { addToast } from "@heroui/toast";
 
 import { Navbar } from "@/components/navbar";
 import Spinner from "@/components/spinner";
+import SubsidizedCommitment from "@/components/SubsidizedCommitment";
 import { checkAuth } from "@/utils/auth";
 
 function CheckoutContent() {
 	const router = useRouter();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 	const [status, setStatus] = useState("Processing your selection...");
+	const [showCommitmentModal, setShowCommitmentModal] = useState(false);
 
 	useEffect(() => {
 		const initiateCheckout = async () => {
@@ -43,24 +45,35 @@ function CheckoutContent() {
 
 			try {
 				if (tier === "subsidized") {
-					// Complete onboarding for $0 tier
-					setStatus("Setting up your free account...");
-					const response = await fetch(`${apiUrl}/api/users/complete-onboarding`, {
-						method: "POST",
-						credentials: "include",
-						headers: { "Content-Type": "application/json" }
-					});
+					// Check if commitment was already confirmed on pricing page
+					const commitmentConfirmed = localStorage.getItem("subsidizedCommitmentConfirmed");
+					localStorage.removeItem("subsidizedCommitmentConfirmed");
 
-					if (response.ok) {
-						addToast({
-							title: "Account ready! Now let's connect your email.",
-							color: "success"
+					if (commitmentConfirmed) {
+						// Already confirmed - complete onboarding directly
+						setStatus("Setting up your free account...");
+						const response = await fetch(`${apiUrl}/api/users/complete-onboarding`, {
+							method: "POST",
+							credentials: "include",
+							headers: { "Content-Type": "application/json" }
 						});
-						router.push("/email-sync-setup");
-					} else {
-						const data = await response.json();
-						throw new Error(data.detail || "Failed to complete signup");
+
+						if (response.ok) {
+							addToast({
+								title: "Account ready! Now let's connect your email.",
+								color: "success"
+							});
+							router.push("/email-sync-setup");
+						} else {
+							const data = await response.json();
+							throw new Error(data.detail || "Failed to complete signup");
+						}
+						return;
 					}
+
+					// Show commitment modal for $0 tier
+					setShowCommitmentModal(true);
+					return; // Don't continue - modal will handle the rest
 				} else {
 					// Create Stripe checkout session for paid tiers
 					setStatus("Redirecting to payment...");
@@ -98,13 +111,57 @@ function CheckoutContent() {
 		initiateCheckout();
 	}, [apiUrl, router]);
 
+	const handleSubsidizedConfirm = async () => {
+		try {
+			const response = await fetch(`${apiUrl}/api/users/complete-onboarding`, {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" }
+			});
+
+			if (response.ok) {
+				addToast({
+					title: "Account ready! Now let's connect your email.",
+					color: "success"
+				});
+				router.push("/email-sync-setup");
+			} else {
+				const data = await response.json();
+				throw new Error(data.detail || "Failed to complete signup");
+			}
+		} catch (error) {
+			console.error("Checkout error:", error);
+			addToast({
+				title: "Something went wrong",
+				description: error instanceof Error ? error.message : "Please try again.",
+				color: "danger"
+			});
+			setShowCommitmentModal(false);
+			router.push("/onboarding");
+		}
+	};
+
+	const handleSubsidizedCancel = () => {
+		setShowCommitmentModal(false);
+		router.push("/pricing");
+	};
+
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
 			<main className="flex-grow flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-				<Spinner />
-				<p className="mt-4 text-gray-600 dark:text-gray-300">{status}</p>
+				{!showCommitmentModal && (
+					<>
+						<Spinner />
+						<p className="mt-4 text-gray-600 dark:text-gray-300">{status}</p>
+					</>
+				)}
 			</main>
+			<SubsidizedCommitment
+				isOpen={showCommitmentModal}
+				onCancel={handleSubsidizedCancel}
+				onConfirm={handleSubsidizedConfirm}
+			/>
 		</div>
 	);
 }
