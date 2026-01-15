@@ -6,7 +6,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 import database
 from db.users import Users
-from datetime import datetime
+from datetime import datetime, timezone
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -32,13 +32,16 @@ async def set_start_date(request: Request, db_session: database.DBSession, start
              return HTMLResponse(content="User not found.", status_code=404)
         
         # Update start date in DB
-        user_record.start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        # Convert the string to a timezone-aware datetime object (UTC)
+        parsed_start_date = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        user_record.start_date = parsed_start_date
         db_session.add(user_record)
         db_session.commit()
 
         # Update session
-        request.session["start_date"] = start_date.replace("-", "/")
+        request.session["start_date"] = parsed_start_date.strftime("%Y/%m/%d")
         request.session["is_new_user"] = False
+        request.session["start_date_updated"] = True
 
         logger.info(f"user_id:{user_id} updated start date to {start_date}")
 
@@ -47,12 +50,6 @@ async def set_start_date(request: Request, db_session: database.DBSession, start
         logger.error(f"Error setting start date: {e}")
         return HTMLResponse(content="Failed to save start date. Try again.", status_code=500)
     
-def get_start_date(request: Request, user_id: str = Depends(validate_session)) -> str:
-    """Fetches the user's job search start date from the database."""
-    # Query the database for the user's start date
-    logger.info(f"Getting start date for user_id: {user_id}")
-    return request.session.get("start_date")
-
 
 @router.get("/api/session-data")
 @limiter.limit("5/minute")

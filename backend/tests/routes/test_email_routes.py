@@ -29,8 +29,7 @@ def test_fetch_emails_to_db(logged_in_user, db_session, mock_authenticated_user)
         fetch_emails_to_db(
             mock_authenticated_user,
             Request({"type": "http", "session": {}}),
-            user_id=logged_in_user.user_id,
-            db_session=db_session
+            user_id=logged_in_user.user_id
         )
 
         process_task_run: task_models.TaskRuns = db_session.exec(
@@ -51,8 +50,7 @@ def test_fetch_emails_to_db_in_progress_rate_limited_no_processing(
         fetch_emails_to_db(
             mock_authenticated_user,
             Request({"type": "http", "session": {}}),
-            user_id=logged_in_user.user_id,
-            db_session=db_session
+            user_id=logged_in_user.user_id
         )
 
         mock_get_email_ids.assert_not_called()

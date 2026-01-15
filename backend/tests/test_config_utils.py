@@ -89,8 +89,7 @@ def test_batch_size_ends_email_processing_early(
         result = fetch_emails_to_db(
             mock_authenticated_user,
             request=mock_request,
-            user_id=user.user_id,
-            db_session=db_session,
+            user_id=user.user_id
         )
         # Should return a JSONResponse with processing complete message
         assert isinstance(result, JSONResponse)

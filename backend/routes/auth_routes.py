@@ -109,7 +109,6 @@ async def login(
                     request,
                     last_fetched_date,
                     user_id=user.user_id,
-                    db_session=db_session,
                 )
                 logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         else:
