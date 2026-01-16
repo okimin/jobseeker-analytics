@@ -6,7 +6,6 @@ from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
 from fastapi.testclient import TestClient
 from fastapi import Request
-from datetime import datetime
 from unittest.mock import Mock
 from testcontainers.postgres import PostgresContainer
 
@@ -18,7 +17,7 @@ import database  # noqa: E402 DONT MOVE THIS
 import main  # noqa: E402
 from session.session_layer import validate_session  # noqa: E402
 from db.processing_tasks import STARTED, FINISHED, TaskRuns  # noqa: E402
-from db.users import Users  # noqa: E402
+from db.users import Users, CoachClientLink  # noqa: E402
 
 # Use SQLite for GitHub CI pipeline and Docker environments
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
@@ -121,11 +120,11 @@ def task_factory(db_session, logged_in_user):
 
 
 @pytest.fixture
-def user_factory(db_session):
+def user_factory(db_session, is_active=True, start_date=None):
     def _create_user(
-        user_id="123", user_email="user@example.com", start_date=datetime(2000, 1, 1)
+        user_id="123", user_email="user@example.com", start_date=start_date, is_active=is_active, role="jobseeker"
     ):
-        user = Users(user_id=user_id, user_email=user_email, start_date=start_date)
+        user = Users(user_id=user_id, user_email=user_email, start_date=start_date, is_active=is_active, role=role)
         db_session.add(user)
         db_session.commit()
         return user
@@ -136,6 +135,29 @@ def user_factory(db_session):
 @pytest.fixture
 def logged_in_user(user_factory):
     return user_factory()
+
+@pytest.fixture
+def inactive_user(user_factory):
+    return user_factory(is_active=False)
+
+@pytest.fixture
+def coach_user(user_factory):
+    return user_factory(user_id="coach123", user_email="coach@example.com", role="coach")
+
+@pytest.fixture
+def client_user(user_factory):
+    return user_factory(user_id="client123", user_email="client@example.com", role="jobseeker")
+
+@pytest.fixture
+def coach_client_link(coach_user, client_user, db_session):
+    link = CoachClientLink(coach_id=coach_user.user_id, client_id=client_user.user_id)
+    db_session.add(link)
+    db_session.commit()
+    return link
+
+@pytest.fixture
+def logged_in_coach_client(client_factory, coach_user):
+    return client_factory(user=coach_user)
 
 
 @pytest.fixture
@@ -157,7 +179,7 @@ def task_with_300_processed_emails(task_factory):
 def client_factory(db_session):
     def _make_client(user=None):
         main.app.dependency_overrides[database.request_session] = lambda: db_session
-        if user:
+        if user and user.is_active:
             user_id = user.user_id
             main.app.dependency_overrides[validate_session] = lambda: user_id
         else:

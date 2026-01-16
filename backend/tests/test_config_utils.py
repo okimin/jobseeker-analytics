@@ -15,7 +15,7 @@ def setup_static_directory():
         os.makedirs(static_dir)
 
 
-@patch("utils.config_utils.config.Settings")
+@patch("utils.config_utils.config.ConfigSettings")
 def test_get_settings_only_called_once_with_lru(mock_settings_call):
     get_settings.cache_clear()
     get_settings()
@@ -89,14 +89,13 @@ def test_batch_size_ends_email_processing_early(
         result = fetch_emails_to_db(
             mock_authenticated_user,
             request=mock_request,
-            user_id=user.user_id,
-            db_session=db_session,
+            user_id=user.user_id
         )
         # Should return a JSONResponse with processing complete message
         assert isinstance(result, JSONResponse)
         assert (
             result.body.decode()
-            == '{"message":"Processing complete","processed_emails":300,"total_emails":0}'
+            == '{"message":"Processing complete"}'
         )
         # The get_email_ids function should not be called because we return early due to batch size limit
         assert mock_get_email_ids.call_count == 0

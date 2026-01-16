@@ -10,13 +10,22 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from guard import SecurityMiddleware, SecurityConfig, GeoIPHandler
 from utils.config_utils import get_settings
+from utils.dev_utils import seed_dev_user
 from contextlib import asynccontextmanager
-
+import database
 # Import routes
-from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes
+from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # 2. Seed dev users if not in production
+    settings = get_settings()
+    if not settings.is_publicly_deployed:
+        db = database.get_session()
+        try:
+            seed_dev_user(db)
+        finally:
+            db.close()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -45,6 +54,8 @@ app.include_router(file_routes.router)
 app.include_router(users_routes.router)
 app.include_router(start_date_routes.router)
 app.include_router(job_applications_routes.router)
+app.include_router(coach_routes.router)
+app.include_router(billing_routes.router)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter  # Ensure limiter is assigned
@@ -53,13 +64,22 @@ app.state.limiter = limiter  # Ensure limiter is assigned
 app.add_middleware(SlowAPIMiddleware)
 
 # Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[settings.APP_URL, settings.API_URL],
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
+if settings.is_publicly_deployed:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https://.*\.justajobapp\.com",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.APP_URL, settings.API_URL],
+        allow_credentials=True,
+        allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+        allow_headers=["*"],  # Allow all headers
+    )
 
 #Add FastApi-Guard middleware for whitelisting only US IPs
 if settings.is_publicly_deployed:

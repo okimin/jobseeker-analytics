@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+
 // Wrapper component that uses useSearchParams
 function ErrorContent() {
 	const searchParams = useSearchParams();
@@ -45,7 +47,38 @@ function ErrorContent() {
 						Failed to fetch credentials from Google. Please{" "}
 						<a
 							className="text-blue-600 hover:underline font-semibold"
-							href={`mailto:help@justajobapp.com?subject=Login%20Credentials%20Error&body=${emailBody}`}
+							href={`mailto:help@justajobapp.com?subject=Google%20Credentials%20Error&body=${emailBody}`}
+						>
+							email our support team
+						</a>{" "}
+					</>
+				);
+			} else if (msgParam === "session_mismatch") {
+				setErrorMessage(
+					<>
+						Your security session has expired or is invalid. This can happen if the login process took too
+						long. Please try logging in again.
+					</>
+				);
+			} else if (msgParam === "account_inactive") {
+				setErrorMessage(
+					<>
+						It looks like you are trying to login with an unregistered account. Please{" "}
+						<a
+							className="text-blue-600 hover:underline font-semibold"
+							href={`mailto:help@justajobapp.com?subject=Inactive%20Account%20Error&body=${emailBody}`}
+						>
+							email our support team
+						</a>{" "}
+					</>
+				);
+			} else {
+				setErrorMessage(
+					<>
+						Uh oh, sorry about that. Please{" "}
+						<a
+							className="text-blue-600 hover:underline font-semibold"
+							href={`mailto:help@justajobapp.com?subject=Login%20Error&body=${emailBody}`}
 						>
 							email our support team
 						</a>{" "}
@@ -58,7 +91,7 @@ function ErrorContent() {
 	}, [searchParams]);
 
 	const handleTryAgain = () => {
-		window.location.href = `${apiUrl}/login`;
+		window.location.href = `${apiUrl}/auth/google`;
 	};
 
 	return (
@@ -72,12 +105,8 @@ function ErrorContent() {
 				</div>
 			)}
 
-			{/* Only show the button for permissions_error */}
-			{errorType === "permissions_error" && (
-				<button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={handleTryAgain}>
-					Try again with Google Login
-				</button>
-			)}
+			{/* Only show the login button for permissions_error */}
+			{(errorType === "permissions_error" || errorType === "session_mismatch") && <GoogleLoginButton />}
 
 			<a className="mt-4 text-blue-600 hover:underline" href="/">
 				Return to home page

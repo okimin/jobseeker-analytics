@@ -9,7 +9,8 @@ services:
     environment:
       - IS_DOCKER_CONTAINER=1
     depends_on:
-      - db  # Ensure the database service is started before the backend
+      db:
+        condition: service_healthy
     restart: always  # Restart container if it crashes
 
   frontend:
@@ -29,6 +30,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: jobseeker_analytics
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d jobseeker_analytics"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data  # Persist database data
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql

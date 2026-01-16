@@ -85,7 +85,8 @@ _Estimated time: 3-5 minutes_
    ```sh
    cp backend/.env.example backend/.env
    ```
-   **🔒 Never share your `.env` file or commit it to Git!**  
+   **🔒 Never share your `.env` file or commit it to Git!**
+   - Open `backend/.env` and replace value for `DEV_USER_GMAIL` with your gmail address in quotes.
 2. Copy `frontend\.env.sample` to `frontend\.env`:
    ```sh
    cp frontend/.env.sample frontend/.env
@@ -108,7 +109,7 @@ _Estimated time: 10-20 minutes_
 4. Click **Create Credentials** → **OAuth 2.0 Client IDs**.  
 5. Set the application type to **Web Application**.  
 6. Under "Authorized redirect URIs," add the following and save to update:  
-   - http://localhost:8000/login
+   - http://localhost:8000/auth/google
 7. Copy the **Client ID** under Additional information header
 8. In `backend/.env`, paste value for `GOOGLE_CLIENT_ID`
 9. Copy the **Client secret** under Client secrets header
@@ -239,7 +240,7 @@ To inspect your PostgreSQL database running in Docker, follow these steps:
 
 ### Troubleshooting Tips [⬆️ Back to Table of Contents](#table-of-contents)
 - **Not redirected after login?**  
-  Double-check your `REDIRECT_URI` in both `.env` and Google Cloud settings.  
+  Double-check your `GOOGLE_CLIENT_REDIRECT_URI` in both `.env` and Google Cloud settings.  
 - **Invalid API key errors?**  
   Some Google APIs require API key restrictions—try generating a new unrestricted key for local testing.  
 - **Cannot Build Docker Image?**

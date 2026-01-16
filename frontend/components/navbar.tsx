@@ -13,7 +13,7 @@ export const Navbar = () => {
 	const { theme } = useTheme();
 
 	return (
-		<nav className="bg-white dark:bg-gray-800 shadow-md">
+		<nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between h-16">
 					<div className="flex items-center">
@@ -57,12 +57,11 @@ export const Navbar = () => {
 					<div className="hidden md:block">
 						<a
 							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
-							href="https://www.buymeacoffee.com/justajobapp"
+							href={siteConfig.links.waitlist}
 							rel="noopener noreferrer"
 							target="_blank"
 						>
-							<span className="mr-2">☕</span>
-							Buy us a coffee
+							Sign up
 						</a>
 					</div>
 					<div className="-mr-2 flex md:hidden">
@@ -129,16 +128,6 @@ export const Navbar = () => {
 								{item.label}
 							</NextLink>
 						))}
-						<a
-							className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-700 hover:text-white"
-							href="https://www.buymeacoffee.com/justajobapp"
-							rel="noopener noreferrer"
-							target="_blank"
-							onClick={() => setIsOpen(false)}
-						>
-							<span className="mr-2">☕</span>
-							Buy us a coffee
-						</a>
 					</div>
 				</div>
 			)}

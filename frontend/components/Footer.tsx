@@ -40,32 +40,12 @@ const Footer = () => {
 						{" | "}
 						<a
 							className="text-sm text-primary-500 hover:underline"
-							href={siteConfig.links.community}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							<span className="mr-1">👋</span>
-							Community
-						</a>
-						{" | "}
-						<a
-							className="text-sm text-primary-500 hover:underline"
-							href={siteConfig.links.coffee}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							<span className="mr-1">☕</span>
-							Buy Us a Coffee
-						</a>
-						{" | "}
-						<a
-							className="text-sm text-primary-500 hover:underline"
 							href={siteConfig.links.feedback}
 							rel="noopener noreferrer"
 							target="_blank"
 						>
 							<span className="mr-1">💬</span>
-							Feedback
+							Give Feedback
 						</a>
 					</div>
 				</div>
