@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
+import { ThemeSwitch } from "@/components/theme-switch";
 
 export const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -53,14 +54,18 @@ export const Navbar = () => {
 						</div>
 					</div>
 					<div className="hidden md:block">
-						<a
-							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
-							href={siteConfig.links.waitlist}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Sign up
-						</a>
+						<div className="flex items-center space-x-4">
+							<ThemeSwitch />
+
+							<a
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
+								href={siteConfig.links.waitlist}
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								Sign up
+							</a>
+						</div>
 					</div>
 					<div className="-mr-2 flex md:hidden">
 						<button
