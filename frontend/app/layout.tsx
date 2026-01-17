@@ -38,7 +38,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html suppressHydrationWarning lang="en">
 			<body
-				className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable, inter.className)}
+				className={clsx(
+					"min-h-screen bg-gray-50 dark:bg-gray-900/40 font-sans antialiased",
+					fontSans.variable,
+					inter.className
+				)}
 			>
 				<PostHogProvider>
 					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
