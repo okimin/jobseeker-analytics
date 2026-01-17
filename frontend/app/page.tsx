@@ -115,7 +115,7 @@ const Index = () => {
 			<PrivacyFirst />
 
 			{/* Problem/Agitation Section */}
-			<div className="bg-content1 dark:bg-content1">
+			<div className="bg-gray-50 dark:bg-gray-900/40">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center py-8">
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						The Job Search Crisis
@@ -268,7 +268,7 @@ const Index = () => {
 			</div>
 
 			{/* Differentiator Section */}
-			<div className="py-24 bg-content2 dark:bg-content2">
+			<div className="py-24 bg-gray-50 dark:bg-gray-900/40">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						Stop Clicking. Start Automating.
@@ -418,10 +418,7 @@ const Index = () => {
 
 			{/* Final Call to Action Section */}
 
-			<section
-				className="w-full px-4 py-16 bg-gradient-to-br from-primary-100/40 to-content2 dark:from-content3 dark:to-content2"
-				id="waitlist"
-			>
+			<section className="w-full px-4 py-16" id="waitlist">
 				<div className="max-w-4xl mx-auto">
 					<div className="bg-background/80 dark:bg-content1/80 backdrop-blur-sm rounded-xl p-6 sm:p-8 border-2 border-primary/30 dark:border-primary/20 text-center transition-all shadow-xl">
 						<h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">

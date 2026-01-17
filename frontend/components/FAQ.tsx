@@ -54,7 +54,7 @@ export const FAQ = () => {
 					startContent={<EmailIcon className="text-success h-5 w-5" />}
 					title="What data from my email do you store on your servers?"
 				>
-					<div className="flex flex-col gap-3 pb-4 text-default-200">
+					<div className="flex flex-col gap-3 pb-4 text-default-600">
 						<p>We only store the metadata necessary to build your dashboard. This includes:</p>
 						<p>
 							<strong>Sender</strong> (e.g. 'Rando Recruiter' recruiter@company.com)
