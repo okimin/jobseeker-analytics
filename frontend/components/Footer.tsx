@@ -7,7 +7,7 @@ const Footer = () => {
 		<footer className="w-full border-t border-divider bg-content1 dark:bg-content1 p-6">
 			<div className="container mx-auto max-w-7xl">
 				<div className="flex flex-col items-center justify-center gap-4 md:flex-row">
-					<p className="text-sm text-foreground/70">
+					<p className="text-sm text-default-500">
 						© {new Date().getFullYear()} {siteConfig.legalName}
 					</p>
 					<div className="flex flex-wrap justify-center gap-x-4 gap-y-2">

@@ -31,7 +31,7 @@ export const Navbar = () => {
 								/>
 								<div className="flex flex-col">
 									<span className="text-xl font-bold text-foreground">{siteConfig.name}</span>
-									<span className="text-xs text-foreground/60 -mt-1">{siteConfig.description}</span>
+									<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 								</div>
 							</NextLink>
 						</div>

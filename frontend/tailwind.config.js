@@ -21,67 +21,70 @@ export default {
 			themes: {
 				dark: {
 					colors: {
-						background: "#0B2918",
-						foreground: "#F5F7F4", // Increased brightness for better contrast (WCAG AA)
+						background: "#0B2918", // Aztec - Main page background
+						foreground: "#F3F6F2", // Snow Drift - Main body text
 						primary: {
 							50: "#FFF8E6",
 							100: "#FFEDB3",
 							200: "#FFE180",
 							300: "#FFD54D",
 							400: "#FFC91A",
-							500: "#FFBD00", // Slightly brighter for better contrast
-							600: "#CC9700",
-							700: "#997100",
-							800: "#664C00",
-							900: "#332600",
-							DEFAULT: "#FFBD00",
-							foreground: "#1A1A1A" // Dark text on primary for 7:1+ contrast
+							500: "#FFAC00", // Sun - Buttons, Active states, Links
+							600: "#CC8A00",
+							700: "#996700",
+							800: "#664500",
+							900: "#332200",
+							DEFAULT: "#FFAC00",
+							foreground: "#0B2918" // Dark text on primary for contrast
 						},
-						content1: "#1A4530", // Lightened for better text contrast
-						content2: "#245A3D", // Lightened for better text contrast
-						content3: "#2E6D4A",
-						content4: "#3A8058",
-						focus: "#FFBD00",
+						content1: "#143522", // Elevated Aztec - Cards
+						content2: "#1c412c", // Custom - Sidebars / Input fields
+						content3: "#245A3D",
+						content4: "#2E6D4A",
+						focus: "#FFAC00",
 						divider: "#3A8058",
 						default: {
 							50: "#F5F7F4",
 							100: "#E8ECE6",
 							200: "#D4DCD0",
 							300: "#B8C7B2",
-							400: "#8FA886",
-							500: "#6B8A60",
-							600: "#4A6B40",
-							700: "#3A5432",
-							800: "#2A3D24",
-							900: "#1A2616",
-							DEFAULT: "#3A5432",
-							foreground: "#F5F7F4"
+							400: "#A3BFA0",
+							500: "#92AB90", // Envy - Secondary text / Metadata
+							600: "#748A72",
+							700: "#5A6B58",
+							800: "#3F4A3E",
+							900: "#252A24",
+							DEFAULT: "#92AB90",
+							foreground: "#F3F6F2"
 						}
 					}
 				},
 				light: {
 					colors: {
 						background: "#FFFFFF",
-						foreground: "#1A1A1A", // High contrast dark text
+						foreground: "#1A1A1A",
 						primary: {
 							50: "#FFF8E6",
 							100: "#FFEDB3",
 							200: "#FFE180",
 							300: "#FFD54D",
 							400: "#FFC91A",
-							500: "#D49A00", // Darkened for better contrast on light backgrounds
-							600: "#A67800",
-							700: "#785600",
-							800: "#4A3500",
-							900: "#1C1400",
-							DEFAULT: "#D49A00",
+							500: "#CC8A00", // Darkened Sun for light mode contrast
+							600: "#A67000",
+							700: "#805600",
+							800: "#5A3C00",
+							900: "#332200",
+							DEFAULT: "#CC8A00",
 							foreground: "#1A1A1A"
 						},
 						content1: "#FAFAFA",
 						content2: "#F5F5F5",
 						content3: "#EEEEEE",
 						content4: "#E0E0E0",
-						focus: "#D49A00"
+						focus: "#CC8A00",
+						default: {
+							500: "#6B8A60"
+						}
 					}
 				}
 			}
