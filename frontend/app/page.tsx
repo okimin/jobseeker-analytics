@@ -56,7 +56,7 @@ const Index = () => {
 								</a>
 							</div>
 							<div className="mt-8">
-								<p className="text-sm text-foreground/60">
+								<p className="text-sm text-default-500">
 									Already a beta tester?{" "}
 									<a
 										className="font-medium text-primary hover:text-primary-600 underline"
