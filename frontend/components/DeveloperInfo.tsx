@@ -72,7 +72,7 @@ const DeveloperInfo = () => {
 				</div>
 
 				<h3 className="text-2xl font-bold text-foreground">Use the app right away on your computer</h3>
-				<p className="text-foreground/75">
+				<p className="text-foreground/90">
 					Don't want to wait? You can install the application directly on your personal computer by following
 					these steps:
 				</p>
@@ -81,7 +81,7 @@ const DeveloperInfo = () => {
 				<div className="space-y-6 pt-2">
 					<div className="space-y-3 border-l-4 border-primary pl-4 bg-primary-50/30 dark:bg-content3/50 p-4 rounded-r-lg">
 						<h4 className="font-semibold text-foreground">1. For beginners</h4>
-						<p className="text-sm text-foreground/75">
+						<p className="text-sm text-foreground/90">
 							If you're not familiar with git, let us guide you through the installation process. Request
 							a setup session and our team will help you get started.
 						</p>
@@ -110,7 +110,7 @@ const DeveloperInfo = () => {
 
 					<div className="space-y-3 border-l-4 border-content4 dark:border-content4 pl-4 bg-content2/50 dark:bg-content3/30 p-4 rounded-r-lg">
 						<h4 className="font-semibold text-foreground">2. For experienced developers</h4>
-						<p className="text-sm text-foreground/75">
+						<p className="text-sm text-foreground/90">
 							If you're familiar with git, the CONTRIBUTING.md file in our repository contains setup
 							instructions.
 						</p>

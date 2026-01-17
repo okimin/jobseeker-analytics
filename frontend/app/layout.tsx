@@ -26,8 +26,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
 	width: "device-width",
 	initialScale: 1,
-	maximumScale: 1,
-	userScalable: false,
+	maximumScale: 5,
 	themeColor: [
 		{ media: "(prefers-color-scheme: light)", color: "white" },
 		{ media: "(prefers-color-scheme: dark)", color: "black" }
@@ -38,11 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html suppressHydrationWarning lang="en">
 			<body
-				className={clsx(
-					"min-h-screen bg-gray-50 dark:bg-gray-900/40 font-sans antialiased",
-					fontSans.variable,
-					inter.className
-				)}
+				className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable, inter.className)}
 			>
 				<PostHogProvider>
 					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>

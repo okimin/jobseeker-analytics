@@ -37,7 +37,7 @@ const Index = () => {
 							<h1 className="text-4xl font-bold tracking-tight sm:text-6xl text-foreground pb-4">
 								A single lost email cost me $40,000.
 							</h1>
-							<p className="mt-4 text-lg max-w-3xl mx-auto text-foreground/80">
+							<p className="mt-4 text-lg max-w-3xl mx-auto text-foreground/90">
 								After being laid off by email in 2024, I managed 46 interview pipelines from 129
 								applications. During a 9-interview week, a manual tracking error led to a missed
 								interview for a role paying $40,000 more than the offers I received.
@@ -76,7 +76,7 @@ const Index = () => {
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 								The Old Way Isn't Working.
 							</h2>
-							<p className="mt-4 text-lg leading-8 text-foreground/70">
+							<p className="mt-4 text-lg leading-8 text-foreground/85">
 								Spreadsheets and manual tracking are failing you. It's time for an upgrade.
 							</p>
 						</div>
@@ -120,7 +120,7 @@ const Index = () => {
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						The Job Search Crisis
 					</h2>
-					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-foreground/75">
+					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-foreground/90">
 						<li>
 							<strong>12x the Noise:</strong> Unemployed seekers do 12 times more work to find a job than
 							people who already have one. This means 12 times more emails and links to track.
@@ -172,7 +172,7 @@ const Index = () => {
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						Spreadsheets and Notes Aren't Helping
 					</h2>
-					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-foreground/75">
+					<ul className="mt-4 list-disc list-inside space-y-2 text-lg leading-8 text-foreground/90">
 						<li>
 							<strong>The 3-Tool Mess:</strong> 72% (16 of 22) of surveyed job seekers try to fix this by
 							using 3 or more different apps at once.
@@ -224,7 +224,7 @@ const Index = () => {
 							<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 								Solution: An Email-Synced Zero-Click Interview Tracker
 							</h2>
-							<p className="mt-6 text-lg leading-8 text-foreground/75">
+							<p className="mt-6 text-lg leading-8 text-foreground/90">
 								JustAJobApp.com connects securely to your email inbox to automatically sync interviews
 								from recruiter emails into a web dashboard.
 							</p>
@@ -268,16 +268,16 @@ const Index = () => {
 			</div>
 
 			{/* Differentiator Section */}
-			<div className="py-24 bg-content3 dark:bg-content3">
+			<div className="py-24 bg-content2 dark:bg-content2">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						Stop Clicking. Start Automating.
 					</h2>
-					<p className="mt-6 text-lg leading-8 text-foreground/80">
+					<p className="mt-6 text-lg leading-8 text-foreground">
 						Unlike other job trackers that force you to literally click on every job with a browser
 						extension, JustAJobApp.com is automated.
 					</p>
-					<p className="mt-4 text-lg leading-8 text-foreground/80">
+					<p className="mt-4 text-lg leading-8 text-foreground">
 						Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date.
 					</p>
 				</div>
@@ -433,10 +433,10 @@ const Index = () => {
 
 						<div className="grid gap-4 md:grid-cols-2 justify-center">
 							<div className="rounded-xl border-2 border-primary/40 dark:border-primary/30 bg-gradient-to-br from-primary-50/30 to-transparent dark:from-content3/50 dark:to-transparent p-4">
-								<h4 className="font-semibold text-primary-700 dark:text-primary mb-2">
+								<h3 className="font-semibold text-primary-700 dark:text-primary mb-2">
 									New Job Seekers
-								</h4>
-								<p className="text-sm text-foreground/75 mb-4">
+								</h3>
+								<p className="text-sm text-foreground/85 mb-4">
 									Request an invite to get in line for the inbox-powered tracker.
 								</p>
 								<a
@@ -452,8 +452,8 @@ const Index = () => {
 								</a>
 							</div>
 							<div className="rounded-xl border-2 border-content3 dark:border-content4 bg-gradient-to-br from-content1 to-transparent dark:from-content2/50 dark:to-transparent p-4">
-								<h4 className="font-semibold text-foreground mb-2">Beta Testers</h4>
-								<p className="text-sm text-foreground/75 mb-4">Login below.</p>
+								<h3 className="font-semibold text-foreground mb-2">Beta Testers</h3>
+								<p className="text-sm text-foreground/85 mb-4">Login below.</p>
 								<BetaLoginButton fullWidth />
 							</div>
 						</div>

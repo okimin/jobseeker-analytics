@@ -11,13 +11,13 @@ const CoachesPage = () => {
 					<h1 className="text-4xl font-bold tracking-tight sm:text-6xl text-foreground pb-6">
 						For Career Coaches
 					</h1>
-					<p className="mt-6 text-xl leading-8 text-foreground/80">
+					<p className="mt-6 text-xl leading-8 text-foreground/90">
 						Keep in the loop of upcoming interviews without hurting your thumbs.
 					</p>
-					<p className="mt-4 text-xl leading-8 text-foreground/80">
+					<p className="mt-4 text-xl leading-8 text-foreground/90">
 						Get real-time access to your clients' job search activity, such as:
 					</p>
-					<ul className="list-disc list-inside text-xl leading-8 text-foreground/75 mt-4 space-y-2">
+					<ul className="list-disc list-inside text-xl leading-8 text-foreground/90 mt-4 space-y-2">
 						<li>Upcoming interviews</li>
 						<li>Referrals</li>
 						<li>Recruiter inbounds via InMail</li>
@@ -30,7 +30,7 @@ const CoachesPage = () => {
 							<h3 className="text-2xl font-semibold mb-4 text-primary-700 dark:text-primary">
 								Career Coaches & Clients
 							</h3>
-							<p className="text-foreground/80 mb-6 text-lg">Sign up at Coach.JustAJobApp.com</p>
+							<p className="text-foreground/90 mb-6 text-lg">Sign up at Coach.JustAJobApp.com</p>
 							<a
 								className="inline-flex w-full items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
 								href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_2"
