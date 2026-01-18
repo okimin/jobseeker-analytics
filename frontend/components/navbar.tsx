@@ -42,7 +42,7 @@ export const Navbar = () => {
 										key={item.href}
 										className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 											pathname === item.href
-												? "bg-primary text-primary-foreground"
+												? "bg-primary hover:bg-primary-600 text-primary-foreground"
 												: "text-foreground/80 hover:bg-content2 hover:text-foreground"
 										}`}
 										href={item.href}
@@ -58,7 +58,7 @@ export const Navbar = () => {
 							<ThemeSwitch />
 
 							<a
-								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-primary hover:bg-primary-600"
 								href={siteConfig.links.waitlist}
 								rel="noopener noreferrer"
 								target="_blank"
