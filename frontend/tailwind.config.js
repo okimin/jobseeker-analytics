@@ -37,6 +37,20 @@ export default {
 							DEFAULT: "#FFAC00",
 							foreground: "#0B2918" // Dark text on primary for contrast
 						},
+						secondary: {
+							50: "#FDF5EE",
+							100: "#F9E6D4",
+							200: "#F3CDA9",
+							300: "#ECB47E",
+							400: "#C99060",
+							500: "#A26B3B", // Cape Palliser - Accent color
+							600: "#8B5530",
+							700: "#744126",
+							800: "#5D2F1D",
+							900: "#4D2217",
+							DEFAULT: "#A26B3B",
+							foreground: "#FFFFFF"
+						},
 						content1: "#143522", // Elevated Aztec - Cards
 						content2: "#1c412c", // Custom - Sidebars / Input fields
 						content3: "#245A3D",
@@ -69,13 +83,27 @@ export default {
 							200: "#FFE180",
 							300: "#FFD54D",
 							400: "#FFC91A",
-							500: "#CC8A00", // Darkened Sun for light mode contrast
+							500: "#FFAC00", // Sun for light mode contrast
 							600: "#A67000",
 							700: "#805600",
 							800: "#5A3C00",
 							900: "#332200",
-							DEFAULT: "#CC8A00",
+							DEFAULT: "#FFAC00",
 							foreground: "#1A1A1A"
+						},
+						secondary: {
+							50: "#FDF5EE",
+							100: "#F9E6D4",
+							200: "#F3CDA9",
+							300: "#ECB47E",
+							400: "#C99060",
+							500: "#A26B3B", // Cape Palliser - Accent color
+							600: "#8B5530",
+							700: "#744126",
+							800: "#5D2F1D",
+							900: "#4D2217",
+							DEFAULT: "#A26B3B",
+							foreground: "#FFFFFF"
 						},
 						content1: "#FAFAFA",
 						content2: "#F5F5F5",
