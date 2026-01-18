@@ -232,7 +232,7 @@ const Index = () => {
 						<div>
 							{/* Placeholder for dashboard GIF */}
 							<div
-								className="bg-gray-200 dark:bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+								className="h-96 w-full rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
 								onClick={() => {
 									setPopupImageSrc("homepage/Solution-Screenshot.png");
 									setShowImagePopup(true);
