@@ -98,11 +98,8 @@ export default function Dashboard() {
 			});
 
 			if (response.status === 401) {
-				const data = await response.json();
-				if (data.detail === "token_expired") {
-					setShowSessionExpired(true);
-					posthog.capture("token_expired_shown");
-				}
+				setShowSessionExpired(true);
+				posthog.capture("session_expired_shown");
 			} else if (response.status === 403) {
 				const data = await response.json();
 				if (data.detail === "gmail_scope_missing") {
@@ -198,12 +195,9 @@ export default function Dashboard() {
 			});
 
 			if (response.status === 401) {
-				const errorData = await response.json();
-				if (errorData.detail === "token_expired") {
-					setShowStartDateModal(false);
-					setShowSessionExpired(true);
-					posthog.capture("token_expired_shown");
-				}
+				setShowStartDateModal(false);
+				setShowSessionExpired(true);
+				posthog.capture("session_expired_shown");
 			} else if (response.ok) {
 				const result = await response.json();
 				setStartDate(result.start_date);
