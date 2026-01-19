@@ -16,7 +16,8 @@ class Redirects:
 
     @staticmethod
     def to_processing() -> RedirectResponse:
-        return Redirects.to_frontend("/processing")
+        # Redirect to dashboard - ProcessingBanner will show processing status
+        return Redirects.to_frontend("/dashboard")
 
     @staticmethod
     def to_error(reason: str) -> RedirectResponse:
@@ -42,3 +43,7 @@ class Redirects:
     @staticmethod
     def to_checkout() -> RedirectResponse:
         return Redirects.to_frontend("/checkout")
+
+    @staticmethod
+    def to_signup() -> RedirectResponse:
+        return Redirects.to_frontend("/login?signup=true")

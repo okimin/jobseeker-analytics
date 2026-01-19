@@ -81,7 +81,7 @@ export const Navbar = () => {
 								</NextLink>
 								<NextLink
 									className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
-									href="/pricing"
+									href="/login?signup=true"
 								>
 									Sign up
 								</NextLink>
@@ -173,7 +173,7 @@ export const Navbar = () => {
 									</NextLink>
 									<NextLink
 										className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-black bg-yellow-400 hover:bg-yellow-500"
-										href="/pricing"
+										href="/login?signup=true"
 										onClick={() => setIsOpen(false)}
 									>
 										Sign up

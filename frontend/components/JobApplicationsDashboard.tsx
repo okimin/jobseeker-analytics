@@ -2,9 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/table";
-import { DatePicker } from "@heroui/react";
-import { CalendarDate } from "@internationalized/date";
-import { useRouter } from "next/navigation";
 import {
 	Button,
 	Dropdown,
@@ -127,12 +124,7 @@ export default function JobApplicationsDashboard({
 }: JobApplicationsDashboardProps) {
 	const [sortedData, setSortedData] = useState<Application[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState(new Set([getInitialSortKey(initialSortKey)]));
-	const [showModal, setShowModal] = useState(false);
-	const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(null);
-	const [isSaving, setIsSaving] = useState(false);
-	const [isNewUser, setIsNewUser] = useState(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-	const router = useRouter();
 	const [showDelete, setShowDelete] = useState(false);
 	const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
@@ -163,68 +155,6 @@ export default function JobApplicationsDashboard({
 	}, [data]);
 
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
-
-	const handleSave = async () => {
-		if (!selectedDate) return alert("Please select a start date");
-
-		setIsSaving(true);
-		const formattedDate = `${selectedDate.year}-${String(selectedDate.month).padStart(2, "0")}-${String(
-			selectedDate.day
-		).padStart(2, "0")}`;
-		// Step 1: Save the start date
-		const response = await fetch(`${apiUrl}/set-start-date`, {
-			method: "POST",
-			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body: new URLSearchParams({ start_date: formattedDate.toString() }),
-			credentials: "include"
-		});
-
-		if (!response.ok) {
-			setIsSaving(false);
-			// You might want to show an error message to the user here
-			return;
-		}
-
-		// Always start the background task after saving the date
-		startFetchEmailsBackgroundTask();
-
-		// Navigate to processing page.
-		setIsNewUser(false); // Hide the modal after saving
-		setShowModal(false);
-		router.push("/processing"); // Navigate to the dashboard page
-	};
-
-	const startFetchEmailsBackgroundTask = async () => {
-		// Example background task: Start fetching emails
-		const response = await fetch(`${apiUrl}/fetch-emails`, {
-			method: "POST", // or GET, depending on your API
-			credentials: "include"
-		});
-
-		if (!response.ok) {
-			return;
-		}
-	};
-
-	useEffect(() => {
-		setShowModal(isNewUser);
-	}, [isNewUser]);
-
-	useEffect(() => {
-		async function fetchSessionData() {
-			const response = await fetch(`${apiUrl}/api/session-data`, {
-				method: "GET",
-				credentials: "include"
-			});
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const data = await response.json();
-			setIsNewUser(!!data.is_new_user); // Set the new user flag
-			setShowModal(!!data.is_new_user); // Show modal if new user
-		}
-		fetchSessionData();
-	}, []);
 
 	// Sort data based on selected key
 	useEffect(() => {
@@ -344,20 +274,6 @@ export default function JobApplicationsDashboard({
 
 	return (
 		<div className="p-6">
-			{/* Modal for New User */}
-			<Modal isOpen={showModal} onOpenChange={setShowModal}>
-				<ModalContent>
-					<ModalHeader>Select Your Job Search Start Date</ModalHeader>
-					<ModalBody>
-						<DatePicker value={selectedDate} onChange={setSelectedDate} />
-					</ModalBody>
-					<ModalFooter>
-						<Button color="primary" isLoading={isSaving} onPress={handleSave}>
-							Save and Continue
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
 			<Modal isOpen={showDelete} onOpenChange={(isOpen) => setShowDelete(isOpen)}>
 				<ModalContent>
 					{(onClose) => (
@@ -635,16 +551,6 @@ export default function JobApplicationsDashboard({
 					>
 						Download CSV
 					</Button>
-					{!readOnly && (
-						<Button
-							className="w-full sm:w-auto"
-							color="secondary"
-							variant="bordered"
-							onPress={() => setShowModal(true)}
-						>
-							Change Start Date
-						</Button>
-					)}
 					{!readOnly && (
 						<Button
 							className="w-full sm:w-auto"

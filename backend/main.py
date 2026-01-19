@@ -9,22 +9,14 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
-from utils.dev_utils import seed_dev_user
 from contextlib import asynccontextmanager
 import database
 # Import routes
-from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes, onboarding_routes, stripe_webhook_routes
+from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes, onboarding_routes, stripe_webhook_routes, payment_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 2. Seed dev users if not in production
-    settings = get_settings()
-    if not settings.is_publicly_deployed:
-        db = database.get_session()
-        try:
-            seed_dev_user(db)
-        finally:
-            db.close()
+    # App startup - no dev user seeding (use real OAuth flow for testing)
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -57,6 +49,7 @@ app.include_router(coach_routes.router)
 app.include_router(billing_routes.router)
 app.include_router(onboarding_routes.router)
 app.include_router(stripe_webhook_routes.router)
+app.include_router(payment_routes.router)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter  # Ensure limiter is assigned

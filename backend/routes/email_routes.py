@@ -89,6 +89,149 @@ async def processing(
         )
 
 
+@router.get("/processing/status")
+@limiter.limit("30/minute")
+async def processing_status(
+    request: Request,
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session),
+):
+    """Get current email processing status for dashboard polling.
+
+    Returns a structured response with:
+    - status: 'idle', 'processing', or 'complete'
+    - total_emails: Total emails to process
+    - processed_emails: Emails processed so far
+    - applications_found: Number of applications extracted
+    - last_scan_at: ISO timestamp of last completed scan (null if never scanned)
+    - should_rescan: True if >24 hours since last scan
+    """
+    from sqlmodel import func
+    from datetime import timezone, timedelta
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Get latest task run
+    process_task_run = db_session.exec(
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .order_by(task_models.TaskRuns.updated.desc())
+    ).first()
+
+    if not process_task_run:
+        return {
+            "status": "idle",
+            "total_emails": 0,
+            "processed_emails": 0,
+            "applications_found": 0,
+            "last_scan_at": None,
+            "should_rescan": True  # Never scanned, should scan
+        }
+
+    # Count applications found so far
+    applications_found = db_session.exec(
+        select(func.count(UserEmails.id)).where(
+            UserEmails.user_id == user_id
+        )
+    ).one()
+
+    # Determine status
+    if process_task_run.status == task_models.FINISHED:
+        status = "complete"
+    elif process_task_run.status == task_models.STARTED:
+        status = "processing"
+    else:
+        status = "idle"
+
+    # Calculate last_scan_at and should_rescan
+    last_scan_at = None
+    should_rescan = False
+
+    if process_task_run.status == task_models.FINISHED and process_task_run.updated:
+        last_scan_at = process_task_run.updated.isoformat()
+        hours_since_scan = (datetime.now(timezone.utc) - process_task_run.updated).total_seconds() / 3600
+        should_rescan = hours_since_scan > 24
+
+    return {
+        "status": status,
+        "total_emails": process_task_run.total_emails or 0,
+        "processed_emails": process_task_run.processed_emails or 0,
+        "applications_found": applications_found,
+        "last_scan_at": last_scan_at,
+        "should_rescan": should_rescan
+    }
+
+
+@router.post("/processing/start")
+@limiter.limit("5/minute")
+async def start_processing(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session),
+):
+    """Manually trigger email scan (refresh button).
+
+    Returns 401 if the user's OAuth token has expired.
+    Returns 409 if a scan is already in progress.
+    Returns 200 if scan started successfully.
+    """
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if credentials are still valid
+    creds_json = request.session.get("creds")
+    if not creds_json:
+        raise HTTPException(
+            status_code=401,
+            detail="token_expired"
+        )
+
+    # Check if already processing
+    active_task = db_session.exec(
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .where(task_models.TaskRuns.status == task_models.STARTED)
+    ).first()
+
+    if active_task:
+        raise HTTPException(
+            status_code=409,
+            detail="already_processing"
+        )
+
+    # Reconstruct credentials and start processing
+    try:
+        creds_dict = json.loads(creds_json)
+        creds = Credentials.from_authorized_user_info(creds_dict)
+
+        # Check if user has Gmail read scope
+        gmail_scope = "https://www.googleapis.com/auth/gmail.readonly"
+        if not creds.scopes or gmail_scope not in creds.scopes:
+            raise HTTPException(
+                status_code=403,
+                detail="gmail_scope_missing"
+            )
+
+        auth_user = AuthenticatedUser(creds)
+
+        # Get the last email date for incremental fetching
+        last_updated = get_last_email_date(user_id, db_session)
+
+        background_tasks.add_task(fetch_emails_to_db, auth_user, request, last_updated, user_id=user_id)
+
+        logger.info(f"Manual scan started for user {user_id}")
+        return {"message": "Processing started"}
+    except Exception as e:
+        logger.error(f"Error starting scan for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to start processing")
+
+
 @router.get("/get-emails", response_model=List[UserEmails])
 @limiter.limit("5/minute")
 def query_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)) -> None:
@@ -199,6 +342,34 @@ def fetch_emails_to_db(
     user_id: str,
 ) -> None:
     logger.info(f"fetch_emails_to_db for user_id: {user_id}")
+    try:
+        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id)
+    except Exception as e:
+        logger.error(f"Error in fetch_emails_to_db for user_id {user_id}: {e}")
+        # Mark the task as cancelled so it doesn't stay stuck in "processing"
+        try:
+            with database.get_session() as db_session:
+                process_task_run = db_session.exec(
+                    select(task_models.TaskRuns).where(
+                        task_models.TaskRuns.user_id == user_id,
+                        task_models.TaskRuns.status == task_models.STARTED
+                    )
+                ).first()
+                if process_task_run:
+                    process_task_run.status = task_models.CANCELLED
+                    db_session.commit()
+                    logger.info(f"Marked task as CANCELLED for user_id {user_id}")
+        except Exception as cleanup_error:
+            logger.error(f"Error cleaning up task for user_id {user_id}: {cleanup_error}")
+
+
+def _fetch_emails_to_db_impl(
+    user: AuthenticatedUser,
+    request: Request,
+    last_updated: Optional[datetime] = None,
+    *,
+    user_id: str,
+) -> None:
     with database.get_session() as db_session:
         gmail_instance = user.service
 

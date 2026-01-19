@@ -56,7 +56,7 @@ const Index = () => {
 							<div className="mt-10 flex justify-center">
 								<a
 									className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
-									href="/pricing"
+									href="/login?signup=true"
 								>
 									Get Started - Never Miss an Opportunity →
 								</a>
@@ -93,9 +93,9 @@ const Index = () => {
 								</p>
 								<a
 									className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-									href="/pricing"
+									href="/login?signup=true"
 								>
-									View Pricing
+									Get Started Free
 								</a>
 							</div>
 							<div
@@ -435,7 +435,7 @@ const Index = () => {
 									</p>
 									<a
 										className="inline-flex w-full items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-										href="/pricing"
+										href="/login?signup=true"
 									>
 										View Pricing
 									</a>

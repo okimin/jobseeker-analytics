@@ -122,9 +122,25 @@ def task_factory(db_session, logged_in_user):
 @pytest.fixture
 def user_factory(db_session, is_active=True, start_date=None):
     def _create_user(
-        user_id="123", user_email="user@example.com", start_date=start_date, is_active=is_active, role="jobseeker"
+        user_id="123",
+        user_email="user@example.com",
+        start_date=start_date,
+        is_active=is_active,
+        role="jobseeker",
+        has_completed_onboarding=False,
+        has_email_sync_configured=False,
+        subscription_tier=None,
     ):
-        user = Users(user_id=user_id, user_email=user_email, start_date=start_date, is_active=is_active, role=role)
+        user = Users(
+            user_id=user_id,
+            user_email=user_email,
+            start_date=start_date,
+            is_active=is_active,
+            role=role,
+            has_completed_onboarding=has_completed_onboarding,
+            has_email_sync_configured=has_email_sync_configured,
+            subscription_tier=subscription_tier,
+        )
         db_session.add(user)
         db_session.commit()
         return user
@@ -142,7 +158,12 @@ def inactive_user(user_factory):
 
 @pytest.fixture
 def coach_user(user_factory):
-    return user_factory(user_id="coach123", user_email="coach@example.com", role="coach")
+    return user_factory(
+        user_id="coach123",
+        user_email="coach@example.com",
+        role="coach",
+        has_completed_onboarding=True,  # Coaches need this to access protected endpoints
+    )
 
 @pytest.fixture
 def client_user(user_factory):
@@ -158,6 +179,58 @@ def coach_client_link(coach_user, client_user, db_session):
 @pytest.fixture
 def logged_in_coach_client(client_factory, coach_user):
     return client_factory(user=coach_user)
+
+
+@pytest.fixture
+def jobseeker_complete_setup(user_factory):
+    """Jobseeker with all onboarding steps complete"""
+    from datetime import datetime
+    return user_factory(
+        user_id="complete123",
+        user_email="complete@example.com",
+        role="jobseeker",
+        has_completed_onboarding=True,
+        has_email_sync_configured=True,
+        start_date=datetime.now(),
+        subscription_tier="standard",
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_email_sync(user_factory):
+    """Jobseeker with onboarding complete but no email sync"""
+    return user_factory(
+        user_id="noemail123",
+        user_email="noemail@example.com",
+        role="jobseeker",
+        has_completed_onboarding=True,
+        has_email_sync_configured=False,
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_onboarding(user_factory):
+    """Jobseeker who hasn't completed onboarding"""
+    return user_factory(
+        user_id="newuser123",
+        user_email="new@example.com",
+        role="jobseeker",
+        has_completed_onboarding=False,
+        has_email_sync_configured=False,
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_start_date(user_factory):
+    """Jobseeker with onboarding and email sync complete but no start date"""
+    return user_factory(
+        user_id="nostart123",
+        user_email="nostart@example.com",
+        role="jobseeker",
+        has_completed_onboarding=True,
+        has_email_sync_configured=True,
+        start_date=None,
+    )
 
 
 @pytest.fixture

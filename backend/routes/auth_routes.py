@@ -91,8 +91,22 @@ async def login(
         request.session["is_new_user"] = False 
 
         if existing_user and existing_user.is_active:
+            # Auto-set start_date from earliest email if not set
             if existing_user.start_date is None:
-                request.session["is_new_user"] = True
+                from db.user_emails import UserEmails
+                from sqlmodel import func
+                earliest_email = db_session.exec(
+                    select(func.min(UserEmails.received_at))
+                    .where(UserEmails.user_id == user.user_id)
+                ).first()
+                if earliest_email:
+                    existing_user.start_date = earliest_email
+                    db_session.add(existing_user)
+                    db_session.commit()
+                    logger.info("Auto-set start_date for user_id: %s to %s", user.user_id, earliest_email)
+                else:
+                    request.session["is_new_user"] = True
+
             # Now set the start_date in session if it exists in the user record
             if existing_user.start_date is not None:
                 request.session["start_date"] = existing_user.start_date.strftime("%Y/%m/%d")
@@ -102,18 +116,28 @@ async def login(
                 # Coaches go directly to dashboard
                 response = Redirects.to_dashboard()
             elif not existing_user.has_completed_onboarding:
-                # Beta user coming through /auth/google (beta access code flow)
-                # Auto-complete onboarding as subsidized user
-                existing_user.has_completed_onboarding = True
-                existing_user.subscription_tier = "subsidized"
-                db_session.add(existing_user)
-                db_session.commit()
-                logger.info("Auto-completed onboarding for beta user_id: %s", user.user_id)
+                # Check if user has any emails in user_emails table
+                earliest_email = db_session.exec(
+                    select(func.min(UserEmails.received_at))
+                    .where(UserEmails.user_id == user.user_id)
+                ).first()
 
-                if not existing_user.has_email_sync_configured:
-                    response = Redirects.to_email_sync_setup()
+                if earliest_email:
+                    # User has emails - auto-complete onboarding using earliest email date as start_date
+                    existing_user.has_completed_onboarding = True
+                    existing_user.subscription_tier = "subsidized"
+                    existing_user.start_date = earliest_email
+                    db_session.add(existing_user)
+                    db_session.commit()
+                    logger.info("Auto-completed onboarding for beta user_id: %s with start_date: %s", user.user_id, earliest_email)
+
+                    if not existing_user.has_email_sync_configured:
+                        response = Redirects.to_email_sync_setup()
+                    else:
+                        response = Redirects.to_dashboard()
                 else:
-                    response = Redirects.to_dashboard()
+                    # No emails - send user through onboarding flow
+                    response = Redirects.to_onboarding()
             elif not existing_user.has_email_sync_configured:
                 # User completed onboarding but hasn't set up email sync
                 response = Redirects.to_email_sync_setup()
@@ -131,9 +155,14 @@ async def login(
                     user_id=user.user_id,
                 )
                 logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
+        elif existing_user and not existing_user.is_active:
+            # Existing but inactive user - redirect to signup to reactivate
+            logger.info("user_id: %s is inactive. Redirecting to signup flow.", user.user_id)
+            return Redirects.to_signup()
         else:
-            logger.warning("user_id: %s is not active or does not exist. Redirecting to inactive account page.", user.user_id)
-            return Redirects.to_error("account_inactive")
+            # New user trying to login - redirect to signup flow
+            logger.info("user_id: %s does not exist. Redirecting to signup flow.", user.user_id)
+            return Redirects.to_signup()
 
         response = set_conditional_cookie(
             key="Authorization", value=session_id, response=response
@@ -230,29 +259,29 @@ async def signup(request: Request, db_session: database.DBSession):
                 else:
                     response = Redirects.to_email_sync_setup()
             else:
-                # Not onboarded yet - go to checkout to process payment
-                response = Redirects.to_checkout()
+                # Not onboarded yet - go to onboarding
+                response = Redirects.to_onboarding()
         elif existing_user and not existing_user.is_active:
-            # Existing but inactive user - activate them since they're coming through pricing
+            # Existing but inactive user - activate them and send to onboarding
             existing_user.is_active = True
             db_session.add(existing_user)
             db_session.commit()
             logger.info("Activated existing user_id: %s through signup flow", user.user_id)
-            response = Redirects.to_checkout()
+            response = Redirects.to_onboarding()
         else:
-            # New user - create account and redirect to checkout
+            # New user - create account and redirect to onboarding
             from db.users import Users
             new_user = Users(
                 user_id=user.user_id,
                 user_email=user.user_email,
-                is_active=True,  # Active since coming through pricing page
+                is_active=True,
                 start_date=None  # Will be set later
             )
             db_session.add(new_user)
             db_session.commit()
             logger.info("Created new user_id: %s through signup flow", user.user_id)
             request.session["is_new_user"] = True
-            response = Redirects.to_checkout()
+            response = Redirects.to_onboarding()
 
         response = set_conditional_cookie(
             key="Authorization", value=session_id, response=response
