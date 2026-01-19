@@ -19,15 +19,19 @@ function LoginContent() {
 
 	// Check if this is a new user signup (from signup=true param)
 	const isSignup = searchParams.get("signup") === "true";
+	// Check if this is a reconnect flow (session expired, user wants to reconnect Gmail)
+	const isReconnect = searchParams.get("reconnect") === "true";
 
 	useEffect(() => {
-		// On load, check for existing session
-		checkAuth(apiUrl).then((authenticated) => {
-			if (authenticated) {
-				router.push("/dashboard");
-			}
-		});
-	}, [apiUrl, router]);
+		// On load, check for existing session (but skip redirect if reconnecting)
+		if (!isReconnect) {
+			checkAuth(apiUrl).then((authenticated) => {
+				if (authenticated) {
+					router.push("/dashboard");
+				}
+			});
+		}
+	}, [apiUrl, router, isReconnect]);
 
 	return (
 		<div className="flex flex-col min-h-screen">
@@ -35,9 +39,19 @@ function LoginContent() {
 			<main className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
 				<Card className="max-w-md w-full">
 					<CardHeader className="flex flex-col gap-1 items-center py-8">
-						<h1 className="text-2xl font-bold">{isSignup ? "Get Started Free" : "Welcome Back"}</h1>
+						<h1 className="text-2xl font-bold">
+							{isReconnect ? "Reconnect to Gmail" : isSignup ? "Get Started Free" : "Welcome Back"}
+						</h1>
 						<p className="text-sm text-gray-500 text-center">
-							{isSignup ? (
+							{isReconnect ? (
+								<>
+									Your session has expired. Sign in again to scan for new applications.
+									<br />
+									<span className="text-emerald-600 font-medium">
+										Your existing data is still available.
+									</span>
+								</>
+							) : isSignup ? (
 								<>
 									Connect your Gmail and we&apos;ll automatically find your job applications.
 									<br />
@@ -51,12 +65,19 @@ function LoginContent() {
 						</p>
 					</CardHeader>
 					<CardBody className="pb-8">
-						{isSignup ? <GoogleSignupButton /> : <GoogleLoginButton />}
+						{isReconnect ? <GoogleLoginButton /> : isSignup ? <GoogleSignupButton /> : <GoogleLoginButton />}
 
 						<Divider className="my-6" />
 
 						<p className="text-xs text-gray-500 text-center">
-							{isSignup ? (
+							{isReconnect ? (
+								<>
+									Changed your mind?{" "}
+									<a className="text-emerald-600 hover:underline" href="/dashboard">
+										Back to dashboard
+									</a>
+								</>
+							) : isSignup ? (
 								<>
 									Already have an account?{" "}
 									<a className="text-emerald-600 hover:underline" href="/login">

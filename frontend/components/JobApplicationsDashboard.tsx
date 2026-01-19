@@ -384,8 +384,6 @@ export default function JobApplicationsDashboard({
 					)}
 				</ModalContent>
 			</Modal>
-			<h1 className="text-2xl font-bold mt-0">{title}</h1>
-			<br />
 			{/* Filter Row */}
 			<div className="flex flex-wrap items-center gap-3 mb-4">
 				{/* Search Input */}

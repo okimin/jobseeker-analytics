@@ -1,28 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
 import { PrivacyFirst } from "@/components/PrivacyFirst";
-import { checkAuth } from "@/utils/auth";
 
 const Index = () => {
 	const [showImagePopup, setShowImagePopup] = useState(false);
 	const [popupImageSrc, setPopupImageSrc] = useState("");
 	const router = useRouter();
-	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
-
-	// Check if user is authenticated and redirect to dashboard
-	useEffect(() => {
-		checkAuth(apiUrl).then((authenticated) => {
-			if (authenticated) {
-				router.push("/dashboard");
-			}
-		});
-	}, [apiUrl, router]);
 
 	const handleLogin = () => {
 		router.push(`/login`);

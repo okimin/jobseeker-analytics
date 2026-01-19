@@ -11,6 +11,7 @@ import ContributorBadge from "@/components/ContributorBadge";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
 import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
+import { Navbar } from "@/components/navbar";
 import { checkAuth } from "@/utils/auth";
 
 // Processing status response type
@@ -355,10 +356,10 @@ export default function Dashboard() {
 			const isAuthenticated = await checkAuth(apiUrl);
 			if (!isAuthenticated) {
 				addToast({
-					title: "You need to be logged in to access this page.",
+					title: "Session expired. Please sign in again.",
 					color: "warning"
 				});
-				router.push("/");
+				router.push("/login?reconnect=true");
 				return;
 			}
 
@@ -591,6 +592,7 @@ export default function Dashboard() {
 
 	return (
 		<>
+			<Navbar defaultCollapsed />
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner

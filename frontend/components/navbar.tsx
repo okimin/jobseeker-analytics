@@ -8,8 +8,13 @@ import { useTheme } from "next-themes";
 import { siteConfig } from "@/config/site";
 import { checkAuth } from "@/utils/auth";
 
-export const Navbar = () => {
+interface NavbarProps {
+	defaultCollapsed?: boolean;
+}
+
+export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const pathname = usePathname();
 	const { theme } = useTheme();
@@ -20,6 +25,51 @@ export const Navbar = () => {
 			setIsAuthenticated(authenticated);
 		});
 	}, [apiUrl]);
+
+	// Collapsed navbar - just logo and expand button
+	if (isCollapsed) {
+		return (
+			<nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="flex items-center justify-between h-12">
+						<NextLink className="flex items-center gap-2" href="/">
+							<img
+								alt="JustAJobApp Logo"
+								className="h-8 w-8 object-contain"
+								src={
+									theme === "dark"
+										? "/justajobapp-square-dark-monogram-logo-favicon.png"
+										: "/justajobapp-circle-monogram-logo-social.png"
+								}
+							/>
+							<span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
+								{siteConfig.name}
+							</span>
+						</NextLink>
+						<button
+							className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+							title="Expand navbar"
+							onClick={() => setIsCollapsed(false)}
+						>
+							<svg
+								className="h-5 w-5"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									d="M19 9l-7 7-7-7"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+								/>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</nav>
+		);
+	}
 
 	return (
 		<nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
@@ -65,12 +115,20 @@ export const Navbar = () => {
 					</div>
 					<div className="hidden md:flex items-center space-x-4">
 						{isAuthenticated ? (
-							<NextLink
-								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700"
-								href="/dashboard"
-							>
-								Dashboard
-							</NextLink>
+							<>
+								<NextLink
+									className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700"
+									href="/dashboard"
+								>
+									Dashboard
+								</NextLink>
+								<NextLink
+									className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+									href="/logout"
+								>
+									Log out
+								</NextLink>
+							</>
 						) : (
 							<>
 								<NextLink
@@ -87,6 +145,25 @@ export const Navbar = () => {
 								</NextLink>
 							</>
 						)}
+						<button
+							className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+							title="Collapse navbar"
+							onClick={() => setIsCollapsed(true)}
+						>
+							<svg
+								className="h-5 w-5"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									d="M5 15l7-7 7 7"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+								/>
+							</svg>
+						</button>
 					</div>
 					<div className="-mr-2 flex md:hidden">
 						<button
@@ -155,13 +232,22 @@ export const Navbar = () => {
 						{/* Auth buttons for mobile */}
 						<div className="pt-4 border-t border-gray-700">
 							{isAuthenticated ? (
-								<NextLink
-									className="block px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
-									href="/dashboard"
-									onClick={() => setIsOpen(false)}
-								>
-									Dashboard
-								</NextLink>
+								<>
+									<NextLink
+										className="block px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+										href="/dashboard"
+										onClick={() => setIsOpen(false)}
+									>
+										Dashboard
+									</NextLink>
+									<NextLink
+										className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+										href="/logout"
+										onClick={() => setIsOpen(false)}
+									>
+										Log out
+									</NextLink>
+								</>
 							) : (
 								<>
 									<NextLink
