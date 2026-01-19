@@ -601,7 +601,7 @@ export default function Dashboard() {
 
 	return (
 		<>
-			<Navbar defaultCollapsed onDonateClick={handleDonateClick} />
+			<Navbar onDonateClick={handleDonateClick} />
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner
