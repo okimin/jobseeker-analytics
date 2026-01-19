@@ -107,7 +107,7 @@ async def processing_status(
     - should_rescan: True if >24 hours since last scan
     """
     from sqlmodel import func
-    from datetime import timezone, timedelta
+    from datetime import timezone
 
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authenticated")

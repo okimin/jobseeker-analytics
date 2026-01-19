@@ -15,7 +15,7 @@ from datetime import datetime, timezone, timedelta
 from sqlmodel import select
 from google.oauth2.credentials import Credentials
 from utils.auth_utils import AuthenticatedUser
-from routes.email_routes import fetch_emails_to_db, get_last_email_date
+from routes.email_routes import fetch_emails_to_db
 
 limiter = Limiter(key_func=get_remote_address)
 

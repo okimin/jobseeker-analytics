@@ -10,9 +10,6 @@ pages after OAuth authentication:
 - Inactive users → /error?type=account_inactive
 """
 
-import pytest
-from unittest.mock import Mock, patch
-from datetime import datetime
 
 
 class TestCoachLoginFlow:

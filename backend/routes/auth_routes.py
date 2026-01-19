@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 
-from db.utils.user_utils import user_exists, add_user
+from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
 from session.session_layer import create_random_session_string, validate_session, get_token_expiry, clear_session
 from utils.config_utils import get_settings

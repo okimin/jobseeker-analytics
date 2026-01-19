@@ -1,15 +1,14 @@
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from pydantic import BaseModel
-from sqlmodel import select, func
+from sqlmodel import select
 import stripe
 
 from db.users import Users
 from db.payment_asks import PaymentAsks
-from db.contributions import Contributions
 from db.processing_tasks import TaskRuns, FINISHED
 from session.session_layer import validate_session
 from utils.config_utils import get_settings, get_stripe_key

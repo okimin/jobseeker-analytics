@@ -10,7 +10,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
-import database
+import database  # noqa: F401 - used for dependency injection
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes, onboarding_routes, stripe_webhook_routes, payment_routes
 
