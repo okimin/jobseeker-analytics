@@ -67,7 +67,9 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										: "/justajobapp-circle-monogram-logo-social.png"
 								}
 							/>
-							<span className="text-lg font-semibold text-gray-900 dark:text-white">{siteConfig.name}</span>
+							<span className="text-lg font-semibold text-gray-900 dark:text-white">
+								{siteConfig.name}
+							</span>
 						</NextLink>
 						<button
 							className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white rounded-md"
@@ -100,7 +102,9 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										: "/justajobapp-circle-monogram-logo-social.png"
 								}
 							/>
-							<span className="text-xl font-semibold text-gray-900 dark:text-white">{siteConfig.name}</span>
+							<span className="text-xl font-semibold text-gray-900 dark:text-white">
+								{siteConfig.name}
+							</span>
 						</NextLink>
 					</div>
 
@@ -111,7 +115,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
 								About
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+									<path
+										d="M19 9l-7 7-7-7"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+									/>
 								</svg>
 							</button>
 							<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
@@ -143,7 +152,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
 								Contribute
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+									<path
+										d="M19 9l-7 7-7-7"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+									/>
 								</svg>
 							</button>
 							<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
@@ -170,7 +184,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 								<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
 									Dashboard
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+										<path
+											d="M19 9l-7 7-7-7"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+										/>
 									</svg>
 								</button>
 								<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
@@ -268,7 +287,10 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 			{/* Mobile menu */}
 			{isOpen && (
-				<div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800" id="mobile-menu">
+				<div
+					className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800"
+					id="mobile-menu"
+				>
 					<div className="px-2 pt-2 pb-3 space-y-1">
 						{/* About section */}
 						<div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
