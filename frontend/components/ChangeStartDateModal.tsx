@@ -84,9 +84,7 @@ export default function ChangeStartDateModal({
 					</div>
 
 					{/* Warning */}
-					<p className="text-sm text-amber-600 dark:text-amber-400">
-						Changing this will rescan your inbox.
-					</p>
+					<p className="text-sm text-amber-600 dark:text-amber-400">Changing this will rescan your inbox.</p>
 				</ModalBody>
 				<ModalFooter>
 					<Button color="default" disabled={isLoading} variant="light" onPress={onClose}>
