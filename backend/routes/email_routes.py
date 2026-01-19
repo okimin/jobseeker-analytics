@@ -145,13 +145,37 @@ async def processing_status(
         status = "idle"
 
     # Calculate last_scan_at and should_rescan
+    # Find the most recent FINISHED task to get last successful scan time
     last_scan_at = None
-    should_rescan = False
+    should_rescan = True  # Default to true if never completed
 
-    if process_task_run.status == task_models.FINISHED and process_task_run.updated:
-        last_scan_at = process_task_run.updated.isoformat()
-        hours_since_scan = (datetime.now(timezone.utc) - process_task_run.updated).total_seconds() / 3600
+    last_finished_task = db_session.exec(
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .where(task_models.TaskRuns.status == task_models.FINISHED)
+        .order_by(task_models.TaskRuns.updated.desc())
+    ).first()
+
+    if last_finished_task and last_finished_task.updated:
+        task_updated = last_finished_task.updated
+        # Make timezone-aware if naive
+        if task_updated.tzinfo is None:
+            task_updated = task_updated.replace(tzinfo=timezone.utc)
+        last_scan_at = task_updated.isoformat()
+        hours_since_scan = (datetime.now(timezone.utc) - task_updated).total_seconds() / 3600
         should_rescan = hours_since_scan > 24
+    elif applications_found > 0:
+        # No finished task but have emails - use most recent email date
+        most_recent_email = db_session.exec(
+            select(func.max(UserEmails.received_at)).where(UserEmails.user_id == user_id)
+        ).first()
+        if most_recent_email:
+            # Make timezone-aware if naive
+            if most_recent_email.tzinfo is None:
+                most_recent_email = most_recent_email.replace(tzinfo=timezone.utc)
+            last_scan_at = most_recent_email.isoformat()
+            hours_since_scan = (datetime.now(timezone.utc) - most_recent_email).total_seconds() / 3600
+            should_rescan = hours_since_scan > 24
 
     return {
         "status": status,
@@ -227,6 +251,9 @@ async def start_processing(
 
         logger.info(f"Manual scan started for user {user_id}")
         return {"message": "Processing started"}
+    except HTTPException:
+        # Re-raise HTTP exceptions (like gmail_scope_missing) as-is
+        raise
     except Exception as e:
         logger.error(f"Error starting scan for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to start processing")

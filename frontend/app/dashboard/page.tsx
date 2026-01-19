@@ -10,6 +10,7 @@ import PaymentAsk from "@/components/PaymentAsk";
 import ContributorBadge from "@/components/ContributorBadge";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
+import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
 import { checkAuth } from "@/utils/auth";
 
 // Processing status response type
@@ -101,6 +102,14 @@ export default function Dashboard() {
 				if (data.detail === "token_expired") {
 					setShowSessionExpired(true);
 					posthog.capture("token_expired_shown");
+				}
+			} else if (response.status === 403) {
+				const data = await response.json();
+				if (data.detail === "gmail_scope_missing") {
+					// User needs to re-auth with Gmail scope - show the reconnect modal
+					// They can still view their existing data
+					setShowSessionExpired(true);
+					posthog.capture("gmail_scope_missing_shown");
 				}
 			} else if (response.status === 409) {
 				// Already processing, just refresh status
@@ -710,30 +719,26 @@ export default function Dashboard() {
 			{/* Session expired modal */}
 			{showSessionExpired && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-					<div className="bg-white dark:bg-gray-800 rounded-lg max-w-sm w-full mx-4 p-6 text-center">
-						<h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Session expired</h2>
-						<p className="text-gray-600 dark:text-gray-300 mb-6">
-							To refresh your applications, please sign in again.
+					<div className="bg-white dark:bg-gray-800 rounded-lg max-w-sm w-full mx-4 p-6">
+						<h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white text-center">Reconnect to refresh</h2>
+						<p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
+							Your existing data is still available. Sign in again to scan for new applications.
 						</p>
-						<div className="flex gap-3">
-							<button
-								className="flex-1 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-								onClick={() => {
-									setShowSessionExpired(false);
-								}}
-							>
-								Cancel
-							</button>
-							<a
-								className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center"
-								href="/auth/google"
-								onClick={() => {
-									posthog.capture("token_expired_reauth");
-								}}
-							>
-								Sign in with Google
-							</a>
+						<div
+							onClick={() => {
+								posthog.capture("token_expired_reauth");
+							}}
+						>
+							<GoogleEmailSyncButton />
 						</div>
+						<button
+							className="w-full mt-3 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm"
+							onClick={() => {
+								setShowSessionExpired(false);
+							}}
+						>
+							Cancel
+						</button>
 					</div>
 				</div>
 			)}
