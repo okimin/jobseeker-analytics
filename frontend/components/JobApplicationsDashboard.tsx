@@ -491,22 +491,27 @@ export default function JobApplicationsDashboard({
 				<Dropdown>
 					<DropdownTrigger>
 						<Button
-							color={(hideRejections || hideApplicationConfirmations) ? "primary" : "default"}
+							color={hideRejections || hideApplicationConfirmations ? "primary" : "default"}
 							isDisabled={!data || data.length === 0}
 							size="sm"
-							variant={(hideRejections || hideApplicationConfirmations) ? "solid" : "bordered"}
+							variant={hideRejections || hideApplicationConfirmations ? "solid" : "bordered"}
 						>
-							Hide{(hideRejections || hideApplicationConfirmations) ? ` (${(hideRejections ? 1 : 0) + (hideApplicationConfirmations ? 1 : 0)})` : ""}
+							Hide
+							{hideRejections || hideApplicationConfirmations
+								? ` (${(hideRejections ? 1 : 0) + (hideApplicationConfirmations ? 1 : 0)})`
+								: ""}
 						</Button>
 					</DropdownTrigger>
 					<DropdownMenu
 						aria-label="Hide options"
 						closeOnSelect={false}
+						selectedKeys={
+							new Set([
+								...(hideRejections ? ["rejections"] : []),
+								...(hideApplicationConfirmations ? ["confirmations"] : [])
+							])
+						}
 						selectionMode="multiple"
-						selectedKeys={new Set([
-							...(hideRejections ? ["rejections"] : []),
-							...(hideApplicationConfirmations ? ["confirmations"] : [])
-						])}
 						onSelectionChange={(keys) => {
 							const selectedKeys = Array.from(keys) as string[];
 							onHideRejectionsChange?.(selectedKeys.includes("rejections"));
@@ -577,14 +582,16 @@ export default function JobApplicationsDashboard({
 										value={newRowData.company_name}
 										onChange={(e) => setNewRowData({ ...newRowData, company_name: e.target.value })}
 										onKeyDown={(e) => {
-										if (e.key === "Enter") handleSaveNewRow();
-										if (e.key === "Escape") resetNewRow();
-									}}
+											if (e.key === "Enter") handleSaveNewRow();
+											if (e.key === "Escape") resetNewRow();
+										}}
 									/>
 									<select
 										className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
 										value={newRowData.application_status}
-										onChange={(e) => setNewRowData({ ...newRowData, application_status: e.target.value })}
+										onChange={(e) =>
+											setNewRowData({ ...newRowData, application_status: e.target.value })
+										}
 										onKeyDown={(e) => {
 											if (e.key === "Enter") handleSaveNewRow();
 											if (e.key === "Escape") resetNewRow();
@@ -592,7 +599,9 @@ export default function JobApplicationsDashboard({
 									>
 										<option value="">Status</option>
 										{STATUS_OPTIONS.map((s) => (
-											<option key={s} value={s}>{s}</option>
+											<option key={s} value={s}>
+												{s}
+											</option>
 										))}
 									</select>
 									<input
@@ -620,7 +629,9 @@ export default function JobApplicationsDashboard({
 											className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
 											placeholder="Who (name)"
 											value={newRowData.email_from}
-											onChange={(e) => setNewRowData({ ...newRowData, email_from: e.target.value })}
+											onChange={(e) =>
+												setNewRowData({ ...newRowData, email_from: e.target.value })
+											}
 											onKeyDown={(e) => {
 												if (e.key === "Enter") handleSaveNewRow();
 												if (e.key === "Escape") resetNewRow();
@@ -636,11 +647,7 @@ export default function JobApplicationsDashboard({
 									>
 										Add
 									</Button>
-									<Button
-										size="sm"
-										variant="light"
-										onPress={resetNewRow}
-									>
+									<Button size="sm" variant="light" onPress={resetNewRow}>
 										Cancel
 									</Button>
 								</div>

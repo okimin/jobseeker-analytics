@@ -720,7 +720,9 @@ export default function Dashboard() {
 			{showSessionExpired && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 					<div className="bg-white dark:bg-gray-800 rounded-lg max-w-sm w-full mx-4 p-6">
-						<h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white text-center">Reconnect to refresh</h2>
+						<h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white text-center">
+							Reconnect to refresh
+						</h2>
 						<p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
 							Your existing data is still available. Sign in again to scan for new applications.
 						</p>
