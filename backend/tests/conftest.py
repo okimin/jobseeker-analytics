@@ -48,11 +48,7 @@ def postgres_container():
 
 @pytest.fixture
 def engine(monkeypatch, postgres_container):
-    if (
-        postgres_container is not None
-        and not FORCE_SQLITE
-        and not IS_DOCKER_CONTAINER
-    ):
+    if postgres_container is not None and not FORCE_SQLITE and not IS_DOCKER_CONTAINER:
         # Use PostgreSQL with testcontainers when running locally
         test_url = sa.URL.create(
             "postgresql",
@@ -153,9 +149,11 @@ def user_factory(db_session, is_active=True, start_date=None):
 def logged_in_user(user_factory):
     return user_factory(has_completed_onboarding=True)
 
+
 @pytest.fixture
 def inactive_user(user_factory):
     return user_factory(is_active=False)
+
 
 @pytest.fixture
 def coach_user(user_factory):
@@ -166,9 +164,13 @@ def coach_user(user_factory):
         has_completed_onboarding=True,  # Coaches need this to access protected endpoints
     )
 
+
 @pytest.fixture
 def client_user(user_factory):
-    return user_factory(user_id="client123", user_email="client@example.com", role="jobseeker")
+    return user_factory(
+        user_id="client123", user_email="client@example.com", role="jobseeker"
+    )
+
 
 @pytest.fixture
 def coach_client_link(coach_user, client_user, db_session):
@@ -176,6 +178,7 @@ def coach_client_link(coach_user, client_user, db_session):
     db_session.add(link)
     db_session.commit()
     return link
+
 
 @pytest.fixture
 def logged_in_coach_client(client_factory, coach_user):
@@ -186,6 +189,7 @@ def logged_in_coach_client(client_factory, coach_user):
 def jobseeker_complete_setup(user_factory):
     """Jobseeker with all onboarding steps complete"""
     from datetime import datetime
+
     return user_factory(
         user_id="complete123",
         user_email="complete@example.com",
