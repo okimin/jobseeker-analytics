@@ -16,6 +16,7 @@ os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import database  # noqa: E402 DONT MOVE THIS
 import main  # noqa: E402
 from session.session_layer import validate_session  # noqa: E402
+from utils.onboarding_utils import require_onboarding_complete  # noqa: E402
 from db.processing_tasks import STARTED, FINISHED, TaskRuns  # noqa: E402
 from db.users import Users, CoachClientLink  # noqa: E402
 
@@ -150,7 +151,7 @@ def user_factory(db_session, is_active=True, start_date=None):
 
 @pytest.fixture
 def logged_in_user(user_factory):
-    return user_factory()
+    return user_factory(has_completed_onboarding=True)
 
 @pytest.fixture
 def inactive_user(user_factory):
@@ -255,9 +256,11 @@ def client_factory(db_session):
         if user and user.is_active:
             user_id = user.user_id
             main.app.dependency_overrides[validate_session] = lambda: user_id
+            main.app.dependency_overrides[require_onboarding_complete] = lambda: user_id
         else:
             # Simulate not logged in: validate_session returns empty string
             main.app.dependency_overrides[validate_session] = lambda: ""
+            main.app.dependency_overrides[require_onboarding_complete] = lambda: ""
         return TestClient(main.app)
 
     return _make_client

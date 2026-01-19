@@ -21,6 +21,7 @@ def test_processing_404(logged_in_client):
 
 def test_processing_redirect(incognito_client):
     resp = incognito_client.get("/processing", follow_redirects=False)
+    # Unauthenticated users get redirected to logout
     assert resp.status_code == 303
 
 
