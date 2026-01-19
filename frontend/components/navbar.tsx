@@ -112,11 +112,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										className="inline-flex items-center px-3 py-2 border border-amber-500 text-sm font-medium rounded-md text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
 										onClick={onDonateClick}
 									>
-										<svg
-											className="w-4 h-4 mr-1.5"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
+										<svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
 											<path
 												clipRule="evenodd"
 												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
@@ -241,11 +237,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 												onDonateClick();
 											}}
 										>
-											<svg
-												className="w-4 h-4 mr-2"
-												fill="currentColor"
-												viewBox="0 0 20 20"
-											>
+											<svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
 												<path
 													clipRule="evenodd"
 													d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
