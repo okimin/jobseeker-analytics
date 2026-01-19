@@ -268,7 +268,7 @@ const Index = () => {
 			</div>
 
 			{/* Differentiator Section */}
-			<div className="py-24 bg-gray-50 dark:bg-gray-900/40">
+			<div className="py-24">
 				<div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
 					<h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
 						Stop Clicking. Start Automating.
