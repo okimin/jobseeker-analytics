@@ -39,7 +39,7 @@ export default function Dashboard() {
 	const [statusFilter, setStatusFilter] = useState("");
 	const [companyFilter, setCompanyFilter] = useState("");
 	const [hideRejections, setHideRejections] = useState<boolean>(true);
-	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(true);
+	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(false);
 	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
 
 	// Payment ask state
@@ -342,10 +342,14 @@ export default function Dashboard() {
 		}
 	}, [apiUrl, paymentAskChecked]);
 
-	// Check payment ask after data is loaded
+	// Check payment ask after data is loaded and rendered
 	useEffect(() => {
 		if (!loading && data.length > 0 && !paymentAskChecked) {
-			checkPaymentAsk();
+			// Small delay to ensure data is rendered on screen before showing modal
+			const timer = setTimeout(() => {
+				checkPaymentAsk();
+			}, 500);
+			return () => clearTimeout(timer);
 		}
 	}, [loading, data.length, paymentAskChecked, checkPaymentAsk]);
 
@@ -590,9 +594,14 @@ export default function Dashboard() {
 		setShowPaymentAsk(false);
 	};
 
+	const handleDonateClick = () => {
+		setPaymentTriggerType("navbar_donate");
+		setShowPaymentAsk(true);
+	};
+
 	return (
 		<>
-			<Navbar defaultCollapsed />
+			<Navbar defaultCollapsed onDonateClick={handleDonateClick} />
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner

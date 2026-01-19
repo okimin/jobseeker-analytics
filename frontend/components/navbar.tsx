@@ -10,9 +10,10 @@ import { checkAuth } from "@/utils/auth";
 
 interface NavbarProps {
 	defaultCollapsed?: boolean;
+	onDonateClick?: () => void;
 }
 
-export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
+export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -106,6 +107,25 @@ export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
 					<div className="hidden md:flex items-center space-x-4">
 						{isAuthenticated ? (
 							<>
+								{onDonateClick && (
+									<button
+										className="inline-flex items-center px-3 py-2 border border-amber-500 text-sm font-medium rounded-md text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+										onClick={onDonateClick}
+									>
+										<svg
+											className="w-4 h-4 mr-1.5"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												clipRule="evenodd"
+												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+												fillRule="evenodd"
+											/>
+										</svg>
+										Donate
+									</button>
+								)}
 								<NextLink
 									className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700"
 									href="/dashboard"
@@ -213,8 +233,30 @@ export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
 						<div className="pt-4 border-t border-gray-700">
 							{isAuthenticated ? (
 								<>
+									{onDonateClick && (
+										<button
+											className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-amber-600 dark:text-amber-400 border border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+											onClick={() => {
+												setIsOpen(false);
+												onDonateClick();
+											}}
+										>
+											<svg
+												className="w-4 h-4 mr-2"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+											>
+												<path
+													clipRule="evenodd"
+													d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+													fillRule="evenodd"
+												/>
+											</svg>
+											Donate
+										</button>
+									)}
 									<NextLink
-										className="block px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+										className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
 										href="/dashboard"
 										onClick={() => setIsOpen(false)}
 									>
