@@ -65,7 +65,13 @@ function LoginContent() {
 						</p>
 					</CardHeader>
 					<CardBody className="pb-8">
-						{isReconnect ? <GoogleLoginButton /> : isSignup ? <GoogleSignupButton /> : <GoogleLoginButton />}
+						{isReconnect ? (
+							<GoogleLoginButton />
+						) : isSignup ? (
+							<GoogleSignupButton />
+						) : (
+							<GoogleLoginButton />
+						)}
 
 						<Divider className="my-6" />
 

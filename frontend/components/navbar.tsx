@@ -51,18 +51,8 @@ export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
 							title="Expand navbar"
 							onClick={() => setIsCollapsed(false)}
 						>
-							<svg
-								className="h-5 w-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									d="M19 9l-7 7-7-7"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-								/>
+							<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
 							</svg>
 						</button>
 					</div>
@@ -150,18 +140,8 @@ export const Navbar = ({ defaultCollapsed = false }: NavbarProps) => {
 							title="Collapse navbar"
 							onClick={() => setIsCollapsed(true)}
 						>
-							<svg
-								className="h-5 w-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									d="M5 15l7-7 7 7"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-								/>
+							<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path d="M5 15l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
 							</svg>
 						</button>
 					</div>
