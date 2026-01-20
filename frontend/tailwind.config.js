@@ -26,48 +26,23 @@ export default {
 						primary: {
 							50: "#FFF8E6",
 							100: "#FFEDB3",
-							200: "#FFE180",
-							300: "#FFD54D",
 							400: "#FFC91A",
 							500: "#FFAC00", // Sun - Buttons, Active states, Links
 							600: "#CC8A00",
 							700: "#996700",
-							800: "#664500",
-							900: "#332200",
 							DEFAULT: "#FFAC00",
 							foreground: "#0B2918" // Dark text on primary for contrast
-						},
-						secondary: {
-							50: "#FDF5EE",
-							100: "#F9E6D4",
-							200: "#F3CDA9",
-							300: "#ECB47E",
-							400: "#C99060",
-							500: "#A26B3B", // Cape Palliser - Accent color
-							600: "#8B5530",
-							700: "#744126",
-							800: "#5D2F1D",
-							900: "#4D2217",
-							DEFAULT: "#A26B3B",
-							foreground: "#FFFFFF"
 						},
 						content1: "#143522", // Elevated Aztec - Cards
 						content2: "#1c412c", // Custom - Sidebars / Input fields
 						content3: "#245A3D",
-						content4: "#2E6D4A",
 						focus: "#FFAC00",
 						divider: "#3A8058",
 						default: {
-							50: "#F5F7F4",
 							100: "#E8ECE6",
 							200: "#D4DCD0",
-							300: "#B8C7B2",
-							400: "#A3BFA0",
 							500: "#92AB90", // Envy - Secondary text / Metadata
 							600: "#748A72",
-							700: "#5A6B58",
-							800: "#3F4A3E",
-							900: "#252A24",
 							DEFAULT: "#92AB90",
 							foreground: "#F3F6F2"
 						}
@@ -80,38 +55,23 @@ export default {
 						primary: {
 							50: "#FFF8E6",
 							100: "#FFEDB3",
-							200: "#FFE180",
-							300: "#FFD54D",
 							400: "#FFC91A",
 							500: "#FFAC00", // Sun for light mode contrast
 							600: "#A67000",
 							700: "#805600",
-							800: "#5A3C00",
-							900: "#332200",
 							DEFAULT: "#FFAC00",
 							foreground: "#1A1A1A"
-						},
-						secondary: {
-							50: "#FDF5EE",
-							100: "#F9E6D4",
-							200: "#F3CDA9",
-							300: "#ECB47E",
-							400: "#C99060",
-							500: "#A26B3B", // Cape Palliser - Accent color
-							600: "#8B5530",
-							700: "#744126",
-							800: "#5D2F1D",
-							900: "#4D2217",
-							DEFAULT: "#A26B3B",
-							foreground: "#FFFFFF"
 						},
 						content1: "#FAFAFA",
 						content2: "#F5F5F5",
 						content3: "#EEEEEE",
-						content4: "#E0E0E0",
 						focus: "#CC8A00",
 						default: {
-							500: "#6B8A60"
+							100: "#E8ECE6",
+							200: "#D4DCD0",
+							500: "#6B8A60",
+							600: "#748A72",
+							DEFAULT: "#6B8A60"
 						}
 					}
 				}
