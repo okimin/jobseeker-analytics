@@ -169,24 +169,24 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									<a
 										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
 										href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
-										target="_blank"
 										rel="noopener noreferrer"
+										target="_blank"
 									>
 										Report a Bug / Request Feature
 									</a>
 									<a
 										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
 										href="https://www.neversearchalone.com/"
-										target="_blank"
 										rel="noopener noreferrer"
+										target="_blank"
 									>
 										Never Search Alone
 									</a>
 									<a
 										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
 										href="https://hiring.cafe/"
-										target="_blank"
 										rel="noopener noreferrer"
+										target="_blank"
 									>
 										hiring.cafe
 									</a>
@@ -372,8 +372,8 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						<a
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
 							href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
-							target="_blank"
 							rel="noopener noreferrer"
+							target="_blank"
 							onClick={() => setIsOpen(false)}
 						>
 							Report a Bug / Request Feature
@@ -381,8 +381,8 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						<a
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
 							href="https://www.neversearchalone.com/"
-							target="_blank"
 							rel="noopener noreferrer"
+							target="_blank"
 							onClick={() => setIsOpen(false)}
 						>
 							Never Search Alone
@@ -390,8 +390,8 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						<a
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
 							href="https://hiring.cafe/"
-							target="_blank"
 							rel="noopener noreferrer"
+							target="_blank"
 							onClick={() => setIsOpen(false)}
 						>
 							hiring.cafe
