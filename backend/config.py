@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = "default-for-local"
     GOOGLE_CLIENT_REDIRECT_URI: str = "http://localhost:8000/auth/google"
     GOOGLE_API_KEY: str
+    IPINFO_TOKEN: str = "default-for-local"
     COOKIE_SECRET: str
     STRIPE_SECRET_KEY: str = "sk_test_placeholder_for_dev"
     ENV: str = "dev"
