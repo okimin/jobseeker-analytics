@@ -59,9 +59,7 @@ function LoginContent() {
 								<>
 									Connect your Gmail and we&apos;ll automatically find your job applications.
 									<br />
-									<span className="text-primary font-medium">
-										Free to start. Pay what you can.
-									</span>
+									<span className="text-primary font-medium">Free to start. Pay what you can.</span>
 								</>
 							) : (
 								"Sign in to access your job application dashboard."

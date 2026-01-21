@@ -72,9 +72,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										: "/justajobapp-circle-monogram-logo-social.png"
 								}
 							/>
-							<span className="text-lg font-semibold text-foreground">
-								{siteConfig.name}
-							</span>
+							<span className="text-lg font-semibold text-foreground">{siteConfig.name}</span>
 						</NextLink>
 						<button
 							className="p-1.5 text-default-500 hover:text-foreground rounded-md"
@@ -340,10 +338,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 			{/* Mobile menu */}
 			{isOpen && (
-				<div
-					className="md:hidden bg-background dark:bg-content1 border-t border-divider"
-					id="mobile-menu"
-				>
+				<div className="md:hidden bg-background dark:bg-content1 border-t border-divider" id="mobile-menu">
 					<div className="px-2 pt-2 pb-3 space-y-1">
 						{/* About section */}
 						<div className="px-3 py-2 text-xs font-semibold text-default-500 uppercase tracking-wider">
