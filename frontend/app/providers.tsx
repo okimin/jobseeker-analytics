@@ -96,14 +96,16 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 	const router = useRouter();
 
 	return (
-		<HeroUIProvider navigate={router.push}>
-			<ToastProvider
-				placement="top-center"
-				toastProps={{
-					timeout: 2000
-				}}
-			/>
-			<NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-		</HeroUIProvider>
+		<NextThemesProvider {...themeProps}>
+			<HeroUIProvider navigate={router.push}>
+				<ToastProvider
+					placement="top-center"
+					toastProps={{
+						timeout: 2000
+					}}
+				/>
+				{children}
+			</HeroUIProvider>
+		</NextThemesProvider>
 	);
 }

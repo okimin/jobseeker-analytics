@@ -36,18 +36,22 @@ function LoginContent() {
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
-			<main className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-				<Card className="max-w-md w-full">
-					<CardHeader className="flex flex-col gap-1 items-center py-8">
-						<h1 className="text-2xl font-bold">
+			<main
+				aria-label="Login page"
+				className="flex-grow flex items-center justify-center bg-background p-4 sm:p-6 md:p-8"
+				role="main"
+			>
+				<Card aria-label="Login form" className="max-w-md w-full shadow-lg" role="region">
+					<CardHeader className="flex flex-col gap-2 items-center pt-8 pb-4 px-6">
+						<h1 className="text-3xl font-bold text-foreground">
 							{isReconnect ? "Reconnect to Gmail" : isSignup ? "Get Started Free" : "Welcome Back"}
 						</h1>
-						<p className="text-sm text-gray-500 text-center">
+						<p className="text-sm text-default-500 text-center">
 							{isReconnect ? (
 								<>
 									Your session has expired. Sign in again to scan for new applications.
 									<br />
-									<span className="text-emerald-600 font-medium">
+									<span className="text-primary font-medium">
 										Your existing data is still available.
 									</span>
 								</>
@@ -55,7 +59,7 @@ function LoginContent() {
 								<>
 									Connect your Gmail and we&apos;ll automatically find your job applications.
 									<br />
-									<span className="text-emerald-600 font-medium">
+									<span className="text-primary font-medium">
 										Free to start. Pay what you can.
 									</span>
 								</>
@@ -64,7 +68,7 @@ function LoginContent() {
 							)}
 						</p>
 					</CardHeader>
-					<CardBody className="pb-8">
+					<CardBody className="pb-8 px-6">
 						{isReconnect ? (
 							<GoogleLoginButton />
 						) : isSignup ? (
@@ -75,35 +79,35 @@ function LoginContent() {
 
 						<Divider className="my-6" />
 
-						<p className="text-xs text-gray-500 text-center">
+						<p className="text-xs text-default-500 text-center">
 							{isReconnect ? (
 								<>
 									Changed your mind?{" "}
-									<a className="text-emerald-600 hover:underline" href="/dashboard">
+									<a className="text-primary hover:underline" href="/dashboard">
 										Back to dashboard
 									</a>
 								</>
 							) : isSignup ? (
 								<>
 									Already have an account?{" "}
-									<a className="text-emerald-600 hover:underline" href="/login">
+									<a className="text-primary hover:underline" href="/login">
 										Sign in
 									</a>
 								</>
 							) : (
 								<>
 									New to JustAJobApp?{" "}
-									<a className="text-emerald-600 hover:underline" href="/login?signup=true">
+									<a className="text-primary hover:underline" href="/login?signup=true">
 										Create an account
 									</a>
 								</>
 							)}
 						</p>
 
-						<p className="text-xs text-gray-400 text-center mt-4">
+						<p className="text-xs text-default-400 text-center mt-4">
 							Need help?{" "}
 							<a
-								className="text-emerald-600 hover:underline"
+								className="text-primary hover:underline"
 								href="mailto:help@justajobapp.com"
 								target="_blank"
 							>

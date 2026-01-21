@@ -20,16 +20,16 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 	const isSSR = useIsSSR();
 
 	const onChange = () => {
-		if (theme === "light") {
-			setTheme("dark");
-		} else {
+		if (theme === "dark") {
 			setTheme("light");
+		} else {
+			setTheme("dark");
 		}
 	};
 
 	const { Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
-		isSelected: theme === "light" || isSSR,
-		"aria-label": `Switch to ${theme === "light" || isSSR ? "dark" : "light"} mode`,
+		isSelected: theme === "dark" || isSSR,
+		"aria-label": `Switch to ${theme === "dark" || isSSR ? "light" : "dark"} mode`,
 		onChange
 	});
 
@@ -62,7 +62,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 				})}
 			>
 				<div data-testid="theme-switch-button">
-					{!isSelected || isSSR ? <SunFilledIcon size={22} /> : <MoonFilledIcon size={22} />}
+					{!isSelected || isSSR ? <MoonFilledIcon size={22} /> : <SunFilledIcon size={22} />}
 					{children && <span className="text-default-600">{children}</span>}
 				</div>
 			</div>

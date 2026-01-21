@@ -13,7 +13,7 @@ export const FAQ = () => {
 		<section className="flex flex-col items-center justify-center gap-4 py-12 md:py-20 max-w-4xl mx-auto px-6">
 			<div className="text-center mb-8">
 				<h2 className={title({ size: "sm" })}>💭 Frequently Asked Questions</h2>
-				<p className={subtitle({ className: "mt-4" })}>
+				<p className={subtitle({ className: "mt-4 text-primary" })}>
 					We believe transparency is a security feature. Here is how we handle your data.
 				</p>
 			</div>
@@ -84,7 +84,7 @@ export const FAQ = () => {
 					startContent={<ShieldCheckIcon className="text-success h-5 w-5" />}
 					title="Eww, AI! Are you training models with my data?"
 				>
-					<div className="flex flex-col gap-3 pb-4 text-default-600">
+					<div className="flex flex-col gap-3 pb-4 text-default-200">
 						<p>
 							<strong>Absolutely not.</strong> We use the Google Gemini API via paid developer services.
 							Google’s data privacy terms for paid API users explicitly state that data sent through the

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
+import { ThemeSwitch } from "@/components/theme-switch";
 import { checkAuth } from "@/utils/auth";
 import PaymentAsk from "@/components/PaymentAsk";
 
@@ -58,7 +59,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 	// Collapsed navbar - just logo and expand button
 	if (isCollapsed) {
 		return (
-			<nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
+			<nav className="sticky top-0 z-50 bg-background dark:bg-content1 shadow-sm">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex items-center justify-between h-12">
 						<NextLink className="flex items-center gap-2" href="/">
@@ -71,12 +72,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										: "/justajobapp-circle-monogram-logo-social.png"
 								}
 							/>
-							<span className="text-lg font-semibold text-gray-900 dark:text-white">
+							<span className="text-lg font-semibold text-foreground">
 								{siteConfig.name}
 							</span>
 						</NextLink>
 						<button
-							className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white rounded-md"
+							className="p-1.5 text-default-500 hover:text-foreground rounded-md"
 							title="Expand navbar"
 							onClick={() => setIsCollapsed(false)}
 						>
@@ -91,32 +92,35 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 	}
 
 	return (
-		<nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
+		<nav className="sticky top-0 z-50 bg-background dark:bg-content1 shadow-md border-b border-divider">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between h-16">
 					{/* Logo and brand - left side */}
 					<div className="flex items-center">
-						<NextLink className="flex items-center gap-3" href="/">
-							<img
-								alt="JustAJobApp Logo"
-								className="h-9 w-9 object-contain"
-								src={
-									theme === "dark"
-										? "/justajobapp-square-dark-monogram-logo-favicon.png"
-										: "/justajobapp-circle-monogram-logo-social.png"
-								}
-							/>
-							<span className="text-xl font-semibold text-gray-900 dark:text-white">
-								{siteConfig.name}
-							</span>
-						</NextLink>
+						<div className="flex-shrink-0">
+							<NextLink className="flex items-center gap-3" href="/">
+								<img
+									alt="JustAJobApp Logo"
+									className="h-10 w-10 object-contain"
+									src={
+										theme === "dark"
+											? "/justajobapp-square-dark-monogram-logo-favicon.png"
+											: "/justajobapp-circle-monogram-logo-social.png"
+									}
+								/>
+								<div className="flex flex-col">
+									<span className="text-xl font-bold text-foreground">{siteConfig.name}</span>
+									<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
+								</div>
+							</NextLink>
+						</div>
 					</div>
 
 					{/* Center/Right navigation links and actions */}
 					<div className="hidden md:flex items-center space-x-2">
 						{/* About dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
+							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								About
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -127,22 +131,22 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									/>
 								</svg>
 							</button>
-							<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+							<div className="absolute left-0 mt-0 w-48 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 								<div className="py-1">
 									<NextLink
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/"
 									>
 										Job Seekers
 									</NextLink>
 									<NextLink
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/coaches"
 									>
 										Career Coaches
 									</NextLink>
 									<NextLink
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/faq"
 									>
 										FAQ
@@ -153,7 +157,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 						{/* Resources dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
+							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								Resources
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -164,10 +168,10 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									/>
 								</svg>
 							</button>
-							<div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+							<div className="absolute left-0 mt-0 w-56 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 								<div className="py-1">
 									<a
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
 										rel="noopener noreferrer"
 										target="_blank"
@@ -175,20 +179,20 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										Report a Bug / Request Feature
 									</a>
 									<a
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="https://www.neversearchalone.com/"
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Never Search Alone
+										Join a Support Group (Never Search Alone)
 									</a>
 									<a
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="https://hiring.cafe/"
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										hiring.cafe
+										Find a Job (hiring.cafe)
 									</a>
 								</div>
 							</div>
@@ -196,7 +200,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 						{/* Contribute dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
+							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								Contribute
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -207,16 +211,16 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									/>
 								</svg>
 							</button>
-							<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+							<div className="absolute left-0 mt-0 w-48 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 								<div className="py-1">
 									<button
-										className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block w-full text-left px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										onClick={handleDonateClick}
 									>
 										Donate
 									</button>
 									<NextLink
-										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/contributors"
 									>
 										Participate
@@ -225,10 +229,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							</div>
 						</div>
 
+						<ThemeSwitch />
+
 						{/* Dashboard dropdown - shown when authenticated and not on dashboard */}
 						{isAuthenticated && pathname !== "/dashboard" && (
 							<div className="relative group">
-								<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
+								<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 									Dashboard
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
@@ -239,16 +245,16 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										/>
 									</svg>
 								</button>
-								<div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+								<div className="absolute left-0 mt-0 w-48 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 									<div className="py-1">
 										<NextLink
-											className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+											className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 											href="/dashboard"
 										>
 											View
 										</NextLink>
 										<NextLink
-											className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+											className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 											href="/logout"
 										>
 											Logout
@@ -261,7 +267,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						{/* Primary CTA button (Dashboard or Login) - only show when not authenticated or on dashboard */}
 						{(!isAuthenticated || pathname === "/dashboard") && (
 							<NextLink
-								className="ml-4 inline-flex items-center px-5 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+								className="ml-4 inline-flex items-center px-5 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
 								href={primaryCTA.href}
 							>
 								{primaryCTA.label}
@@ -270,7 +276,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 						{/* Heart donate button - always visible */}
 						<button
-							className="ml-6 p-2.5 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 hover:text-gray-700 hover:border-gray-400 dark:text-gray-400 dark:hover:text-white dark:hover:border-gray-500 transition-colors"
+							className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
 							title="Donate"
 							onClick={handleDonateClick}
 						>
@@ -289,7 +295,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						<button
 							aria-controls="mobile-menu"
 							aria-expanded="false"
-							className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+							className="bg-content2 inline-flex items-center justify-center p-2 rounded-md text-foreground/80 hover:text-foreground hover:bg-content3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
 							type="button"
 							onClick={() => setIsOpen(!isOpen)}
 						>
@@ -335,30 +341,30 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 			{/* Mobile menu */}
 			{isOpen && (
 				<div
-					className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800"
+					className="md:hidden bg-background dark:bg-content1 border-t border-divider"
 					id="mobile-menu"
 				>
 					<div className="px-2 pt-2 pb-3 space-y-1">
 						{/* About section */}
-						<div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+						<div className="px-3 py-2 text-xs font-semibold text-default-500 uppercase tracking-wider">
 							About
 						</div>
 						<NextLink
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/"
 							onClick={() => setIsOpen(false)}
 						>
 							Job Seekers
 						</NextLink>
 						<NextLink
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/coaches"
 							onClick={() => setIsOpen(false)}
 						>
 							Career Coaches
 						</NextLink>
 						<NextLink
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/faq"
 							onClick={() => setIsOpen(false)}
 						>
@@ -366,11 +372,11 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						</NextLink>
 
 						{/* Resources section */}
-						<div className="px-3 py-2 pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-t border-gray-200 dark:border-gray-800">
+						<div className="px-3 py-2 pt-4 text-xs font-semibold text-default-500 uppercase tracking-wider border-t border-divider">
 							Resources
 						</div>
 						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
 							rel="noopener noreferrer"
 							target="_blank"
@@ -379,7 +385,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							Report a Bug / Request Feature
 						</a>
 						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="https://www.neversearchalone.com/"
 							rel="noopener noreferrer"
 							target="_blank"
@@ -388,7 +394,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							Never Search Alone
 						</a>
 						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="https://hiring.cafe/"
 							rel="noopener noreferrer"
 							target="_blank"
@@ -398,11 +404,11 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						</a>
 
 						{/* Contribute section */}
-						<div className="px-3 py-2 pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-t border-gray-200 dark:border-gray-800">
+						<div className="px-3 py-2 pt-4 text-xs font-semibold text-default-500 uppercase tracking-wider border-t border-divider">
 							Contribute
 						</div>
 						<button
-							className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							onClick={() => {
 								setIsOpen(false);
 								handleDonateClick();
@@ -411,7 +417,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							Donate
 						</button>
 						<NextLink
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/contributors"
 							onClick={() => setIsOpen(false)}
 						>
@@ -419,9 +425,13 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						</NextLink>
 
 						{/* Auth section */}
-						<div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+						<div className="pt-4 border-t border-divider">
 							<NextLink
-								className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+								className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+									pathname === primaryCTA.href
+										? "bg-primary text-primary-foreground"
+										: "text-foreground/80 hover:bg-content2 hover:text-foreground"
+								}`}
 								href={primaryCTA.href}
 								onClick={() => setIsOpen(false)}
 							>
@@ -429,7 +439,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							</NextLink>
 							{isAuthenticated && pathname !== "/dashboard" && (
 								<NextLink
-									className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+									className="block px-3 py-2 mt-1 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 									href="/logout"
 									onClick={() => setIsOpen(false)}
 								>
