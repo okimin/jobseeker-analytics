@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Input, Button, Card, CardBody, CardHeader, Link } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
@@ -42,10 +42,12 @@ export default function LoginPage() {
 			const data = await response.json();
 			if (data.status_code == 200) {
 				setIsVerified(true);
+				setError("");
 			} else {
 				setIsVerified(false);
+				setError("Invalid access code or email. Please check your credentials and try again.");
 			}
-		} catch (err) {
+		} catch {
 			setError("Code verification failed. Please try again.");
 		} finally {
 			setLoading(false);
@@ -55,57 +57,117 @@ export default function LoginPage() {
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
-			<main className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-				<Card className="max-w-md w-full">
-					<CardHeader className="flex flex-col gap-1 items-center py-8">
-						<h1 className="text-2xl font-bold">Welcome!</h1>
+			<main
+				aria-label="Login page"
+				className="flex-grow flex items-center justify-center bg-background p-4 sm:p-6 md:p-8"
+				role="main"
+			>
+				<Card aria-label="Login form" className="max-w-md w-full shadow-lg" role="region">
+					<CardHeader className="flex flex-col gap-2 items-center pt-8 pb-4 px-6">
+						<h1 className="text-3xl font-bold text-foreground">Welcome!</h1>
 						{!isVerified && (
-							<p className="text-sm text-gray-500">
+							<p className="text-sm text-default-500 text-center">
 								If you need help, email{" "}
-								<a
+								<Link
+									isExternal
+									aria-label="Contact support via email"
+									color="primary"
 									href="mailto:help@justajobapp.com?subject=Beta%20Login%20Page%20Help"
-									target="_blank"
+									underline="hover"
 								>
 									help@justajobapp.com
-								</a>
+								</Link>
 							</p>
 						)}
 					</CardHeader>
-					<CardBody className="pb-8">
+					<CardBody className="pb-8 px-6">
 						{isVerified == false ? (
-							<form className="space-y-4" onSubmit={handleVerifyEmail}>
+							<form
+								aria-label="Beta access verification form"
+								className="space-y-5"
+								onSubmit={handleVerifyEmail}
+							>
+								{error && (
+									<div
+										aria-live="polite"
+										className="p-3 rounded-lg bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800"
+										role="alert"
+									>
+										<p className="text-sm text-danger-600 dark:text-danger-400">{error}</p>
+									</div>
+								)}
 								<Input
 									required
+									aria-invalid={error ? "true" : "false"}
+									aria-label="Email address for beta access"
+									aria-required="true"
+									autoComplete="email"
+									classNames={{
+										input: "text-foreground",
+										label: "text-foreground"
+									}}
+									color="default"
 									label="Email Address"
-									placeholder="Enter the email approved for beta access."
+									placeholder="your.email@example.com"
 									type="email"
 									value={email}
+									variant="bordered"
 									onChange={(e) => setEmail(e.target.value)}
 								/>
 								<Input
 									required
+									aria-invalid={error ? "true" : "false"}
+									aria-label="Beta access code"
+									aria-required="true"
+									autoComplete="off"
+									classNames={{
+										input: "text-foreground",
+										label: "text-foreground"
+									}}
+									color="default"
 									label="Access Code"
 									placeholder="ABC-123"
 									type="text"
 									value={code}
-									onChange={(e) => setCode(e.target.value)}
+									variant="bordered"
+									onChange={(e) => setCode(e.target.value.toUpperCase())}
 								/>
-								<Button className="w-full bg-emerald-600 text-white" isLoading={loading} type="submit">
+								<Button
+									aria-label="Continue to sign in"
+									className="w-full font-semibold"
+									color="primary"
+									isLoading={loading}
+									size="lg"
+									type="submit"
+								>
 									Continue
 								</Button>
-								<span className="block text-sm text-gray-500 text-center">
-									Not in the official beta? Join the waitlist{" "}
-									<a
-										className="text-emerald-600 hover:underline text-sm"
+								<p className="text-sm text-default-500 text-center pt-2">
+									Not in the official beta?{" "}
+									<Link
+										isExternal
+										aria-label="Join the waitlist"
+										color="primary"
 										href={siteConfig.links.waitlist}
-										target="_blank"
+										underline="hover"
 									>
-										here.
-									</a>
-								</span>
+										Join the waitlist
+									</Link>
+								</p>
 							</form>
 						) : (
-							<GoogleLoginButton />
+							<div className="space-y-4">
+								<div
+									aria-live="polite"
+									className="p-3 rounded-lg bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800"
+									role="status"
+								>
+									<p className="text-sm text-success-600 dark:text-success-400 text-center">
+										Email verified! Please sign in with Google to continue.
+									</p>
+								</div>
+								<GoogleLoginButton />
+							</div>
 						)}
 					</CardBody>
 				</Card>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
+import { ThemeSwitch } from "@/components/theme-switch";
 
 export const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +14,7 @@ export const Navbar = () => {
 	const { theme } = useTheme();
 
 	return (
-		<nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
+		<nav className="sticky top-0 z-50 bg-background dark:bg-content1 shadow-md border-b border-divider">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between h-16">
 					<div className="flex items-center">
@@ -29,9 +30,7 @@ export const Navbar = () => {
 									}
 								/>
 								<div className="flex flex-col">
-									<span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-emerald-600 dark:text-orange-400">
-										{siteConfig.name}
-									</span>
+									<span className="text-xl font-bold text-foreground">{siteConfig.name}</span>
 									<span className="text-xs text-default-500 -mt-1">{siteConfig.description}</span>
 								</div>
 							</NextLink>
@@ -41,10 +40,10 @@ export const Navbar = () => {
 								{siteConfig.navItems.map((item) => (
 									<NextLink
 										key={item.href}
-										className={`px-3 py-2 rounded-md text-sm font-medium ${
+										className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 											pathname === item.href
-												? "bg-gray-900 text-white"
-												: "text-gray-700 dark:text-gray-300 hover:bg-gray-700 hover:text-white"
+												? "bg-primary hover:bg-primary-600 text-primary-foreground"
+												: "text-foreground/80 hover:bg-content2 hover:text-foreground"
 										}`}
 										href={item.href}
 									>
@@ -55,20 +54,24 @@ export const Navbar = () => {
 						</div>
 					</div>
 					<div className="hidden md:block">
-						<a
-							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-yellow-400 hover:bg-yellow-500"
-							href={siteConfig.links.waitlist}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Sign up
-						</a>
+						<div className="flex items-center space-x-4">
+							<ThemeSwitch />
+
+							<a
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-primary hover:bg-primary-600"
+								href={siteConfig.links.waitlist}
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								Sign up
+							</a>
+						</div>
 					</div>
 					<div className="-mr-2 flex md:hidden">
 						<button
 							aria-controls="mobile-menu"
 							aria-expanded="false"
-							className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+							className="bg-content2 inline-flex items-center justify-center p-2 rounded-md text-foreground/80 hover:text-foreground hover:bg-content3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
 							type="button"
 							onClick={() => setIsOpen(!isOpen)}
 						>
@@ -117,10 +120,10 @@ export const Navbar = () => {
 						{siteConfig.navItems.map((item) => (
 							<NextLink
 								key={item.href}
-								className={`block px-3 py-2 rounded-md text-base font-medium ${
+								className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
 									pathname === item.href
-										? "bg-gray-900 text-white"
-										: "text-gray-700 dark:text-gray-300 hover:bg-gray-700 hover:text-white"
+										? "bg-primary text-primary-foreground"
+										: "text-foreground/80 hover:bg-content2 hover:text-foreground"
 								}`}
 								href={item.href}
 								onClick={() => setIsOpen(false)}

@@ -59,26 +59,29 @@ const DeveloperInfo = () => {
 	};
 
 	return (
-		<Card className="p-6 md:p-8" id="developerInfoCard">
+		<Card
+			className="p-6 md:p-8 bg-content1 dark:bg-content2 border-2 border-content3 dark:border-content3"
+			id="developerInfoCard"
+		>
 			<div className="space-y-4">
-				<div className="flex items-center gap-2 text-amber-600 font-semibold">
-					<span className="bg-amber-100 text-amber-800 p-1 rounded-full">
+				<div className="flex items-center gap-2 text-primary-700 dark:text-primary font-semibold">
+					<span className="bg-primary-100 dark:bg-content3 text-primary-700 dark:text-primary p-1 rounded-full">
 						<CodeIcon size={16} />
 					</span>
 					Option 2: Run Locally
 				</div>
 
-				<h3 className="text-2xl font-bold">Use the app right away on your computer</h3>
-				<p className="text-default-500">
+				<h3 className="text-2xl font-bold text-foreground">Use the app right away on your computer</h3>
+				<p className="text-foreground/90">
 					Don't want to wait? You can install the application directly on your personal computer by following
 					these steps:
 				</p>
 
 				{/* Removed the background div that was causing issues */}
 				<div className="space-y-6 pt-2">
-					<div className="space-y-3 border-l-4 border-amber-500 pl-4">
-						<h4 className="font-semibold">1. For beginners</h4>
-						<p className="text-sm text-default-500">
+					<div className="space-y-3 border-l-4 border-primary pl-4 bg-primary-50/30 dark:bg-content3/50 p-4 rounded-r-lg">
+						<h4 className="font-semibold text-foreground">1. For beginners</h4>
+						<p className="text-sm text-foreground/90">
 							If you're not familiar with git, let us guide you through the installation process. Request
 							a setup session and our team will help you get started.
 						</p>
@@ -93,7 +96,7 @@ const DeveloperInfo = () => {
 								onChange={(e) => setEmail(e.target.value)}
 							/>
 							<Button
-								className="mt-2 w-full bg-amber-600 hover:bg-amber-700"
+								className="mt-2 w-full"
 								color="primary"
 								id="request-setup-session-button"
 								isDisabled={isSubmitting}
@@ -105,9 +108,9 @@ const DeveloperInfo = () => {
 						</div>
 					</div>
 
-					<div className="space-y-3 border-l-4 border-default-300 dark:border-default-600 pl-4">
-						<h4 className="font-semibold">2. For experienced developers</h4>
-						<p className="text-sm text-default-500">
+					<div className="space-y-3 border-l-4 border-content4 dark:border-content4 pl-4 bg-content2/50 dark:bg-content3/30 p-4 rounded-r-lg">
+						<h4 className="font-semibold text-foreground">2. For experienced developers</h4>
+						<p className="text-sm text-foreground/90">
 							If you're familiar with git, the CONTRIBUTING.md file in our repository contains setup
 							instructions.
 						</p>
@@ -126,8 +129,8 @@ const DeveloperInfo = () => {
 					</div>
 				</div>
 
-				<div className="border-t border-default-200 dark:border-default-700 pt-4 mt-6">
-					<h4 className="font-semibold mb-2">Support & Feedback</h4>
+				<div className="border-t border-divider pt-4 mt-6">
+					<h4 className="font-semibold mb-2 text-foreground">Support & Feedback</h4>
 					<div className="space-y-2">
 						<a
 							aria-label="Join our Discord server"

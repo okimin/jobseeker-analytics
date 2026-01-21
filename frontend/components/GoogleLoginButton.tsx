@@ -12,7 +12,10 @@ const GoogleLoginButton = () => {
 	return (
 		<div className="space-y-4 text-center">
 			<Button
-				className="w-full bg-white border-gray-300 text-gray-700"
+				aria-label="Sign in with Google account"
+				className="w-full font-semibold"
+				color="default"
+				size="lg"
 				startContent={<GoogleIcon size={20} />}
 				variant="bordered"
 				onPress={handleGoogleLogin}
