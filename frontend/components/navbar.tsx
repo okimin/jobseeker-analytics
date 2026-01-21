@@ -29,8 +29,12 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 		});
 	}, [apiUrl]);
 
-	// Handle donate click - use external handler if provided, otherwise use internal modal
+	// Handle donate click - redirect to login if not authenticated, otherwise show modal
 	const handleDonateClick = () => {
+		if (!isAuthenticated) {
+			window.location.href = "/login";
+			return;
+		}
 		if (onDonateClick) {
 			onDonateClick();
 		} else {
@@ -143,6 +147,49 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									>
 										FAQ
 									</NextLink>
+								</div>
+							</div>
+						</div>
+
+						{/* Resources dropdown */}
+						<div className="relative group">
+							<button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-1">
+								Resources
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path
+										d="M19 9l-7 7-7-7"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+									/>
+								</svg>
+							</button>
+							<div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+								<div className="py-1">
+									<a
+										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Report a Bug / Request Feature
+									</a>
+									<a
+										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										href="https://www.neversearchalone.com/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Never Search Alone
+									</a>
+									<a
+										className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+										href="https://hiring.cafe/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										hiring.cafe
+									</a>
 								</div>
 							</div>
 						</div>
@@ -317,6 +364,38 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						>
 							FAQ
 						</NextLink>
+
+						{/* Resources section */}
+						<div className="px-3 py-2 pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-t border-gray-200 dark:border-gray-800">
+							Resources
+						</div>
+						<a
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={() => setIsOpen(false)}
+						>
+							Report a Bug / Request Feature
+						</a>
+						<a
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							href="https://www.neversearchalone.com/"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={() => setIsOpen(false)}
+						>
+							Never Search Alone
+						</a>
+						<a
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+							href="https://hiring.cafe/"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={() => setIsOpen(false)}
+						>
+							hiring.cafe
+						</a>
 
 						{/* Contribute section */}
 						<div className="px-3 py-2 pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-t border-gray-200 dark:border-gray-800">

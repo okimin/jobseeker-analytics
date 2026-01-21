@@ -84,6 +84,11 @@ async def should_show_payment_ask(
     if recent_ask:
         days_since_ask = (datetime.now(timezone.utc) - recent_ask.action_at).days if recent_ask.action_at else 0
 
+        # If they selected an amount and went to checkout, don't ask again
+        # This covers the case where webhook hasn't processed yet
+        if recent_ask.action == 'selected' and (recent_ask.selected_amount_cents or 0) > 0:
+            return ShouldAskResponse(should_ask=False, reason="already_submitted_payment")
+
         # If they chose $0 recently, wait 90 days
         if recent_ask.selected_amount_cents == 0 and days_since_ask < 90:
             return ShouldAskResponse(should_ask=False, reason="chose_zero_recently")
