@@ -31,8 +31,13 @@ def _get_fernet() -> Fernet:
     key = settings.TOKEN_ENCRYPTION_KEY
 
     if key == "default-for-local":
+        # Fail fast in production - encryption key must be explicitly set
+        if settings.is_publicly_deployed:
+            raise EncryptionError(
+                "TOKEN_ENCRYPTION_KEY must be set in production. "
+                "Generate with: python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'"
+            )
         # Generate a deterministic key for local development only
-        # In production, this must be set via environment variable
         logger.warning("Using default encryption key - NOT FOR PRODUCTION USE")
         # Use a fixed key for local dev so tokens remain decryptable across restarts
         key = "local-dev-key-not-for-production-use="

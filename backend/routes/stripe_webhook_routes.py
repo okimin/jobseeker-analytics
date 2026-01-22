@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Request, HTTPException, Header
 from sqlmodel import select
 import stripe
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from db.users import Users
 from db.contributions import Contributions
@@ -13,9 +15,11 @@ import database
 settings = get_settings()
 logger = logging.getLogger(__name__)
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/stripe/webhook")
+@limiter.limit("100/minute")
 async def stripe_webhook(
     request: Request,
     stripe_signature: str = Header(None, alias="Stripe-Signature")
@@ -42,12 +46,24 @@ async def stripe_webhook(
         user_id = metadata.get("user_id")
         tier = metadata.get("tier")  # Legacy field for old pricing
         amount_cents_str = metadata.get("amount_cents")  # New field for choose-your-price
+        payment_intent_id = session.get("payment_intent")
 
         if not user_id:
             logger.error(f"Missing user_id in checkout session: {session.get('id')}")
             return {"status": "error", "message": "Missing user_id"}
 
         with database.get_session() as db_session:
+            # Idempotency check: skip if we've already processed this payment_intent
+            if payment_intent_id:
+                existing = db_session.exec(
+                    select(Contributions).where(
+                        Contributions.stripe_payment_intent_id == payment_intent_id
+                    )
+                ).first()
+                if existing:
+                    logger.info(f"Duplicate webhook for payment_intent {payment_intent_id}, skipping")
+                    return {"status": "success", "message": "Already processed"}
+
             user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
             if user:
                 subscription_id = session.get("subscription")
@@ -78,9 +94,10 @@ async def stripe_webhook(
 
                 db_session.add(user)
 
-                # Create contribution record
+                # Create contribution record with payment_intent_id for idempotency
                 contribution = Contributions(
                     user_id=user_id,
+                    stripe_payment_intent_id=payment_intent_id,
                     stripe_subscription_id=subscription_id,
                     amount_cents=amount_cents,
                     is_recurring=True,
@@ -99,6 +116,7 @@ async def stripe_webhook(
         invoice = event["data"]["object"]
         subscription_id = invoice.get("subscription")
         amount_paid = invoice.get("amount_paid", 0)
+        payment_intent_id = invoice.get("payment_intent")
 
         # Skip the first invoice (already handled by checkout.session.completed)
         billing_reason = invoice.get("billing_reason")
@@ -108,6 +126,17 @@ async def stripe_webhook(
 
         if subscription_id and amount_paid > 0:
             with database.get_session() as db_session:
+                # Idempotency check: skip if we've already processed this payment_intent
+                if payment_intent_id:
+                    existing = db_session.exec(
+                        select(Contributions).where(
+                            Contributions.stripe_payment_intent_id == payment_intent_id
+                        )
+                    ).first()
+                    if existing:
+                        logger.info(f"Duplicate invoice webhook for payment_intent {payment_intent_id}, skipping")
+                        return {"status": "success", "message": "Already processed"}
+
                 user = db_session.exec(
                     select(Users).where(Users.stripe_subscription_id == subscription_id)
                 ).first()
@@ -116,9 +145,10 @@ async def stripe_webhook(
                     user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_paid
                     db_session.add(user)
 
-                    # Create contribution record for recurring payment
+                    # Create contribution record for recurring payment with payment_intent_id for idempotency
                     contribution = Contributions(
                         user_id=user.user_id,
+                        stripe_payment_intent_id=payment_intent_id,
                         stripe_subscription_id=subscription_id,
                         amount_cents=amount_paid,
                         is_recurring=True,
