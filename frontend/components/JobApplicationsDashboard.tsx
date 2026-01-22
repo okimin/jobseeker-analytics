@@ -660,7 +660,12 @@ export default function JobApplicationsDashboard({
 							)}
 						</div>
 					)}
-					<Table aria-label="Applications Table">
+					<Table
+							aria-label="Applications Table"
+							classNames={{
+								th: "bg-content1 text-foreground dark:bg-content2 dark:text-foreground"
+							}}
+						>
 						<TableHeader>
 							<TableColumn className="text-center">Company</TableColumn>
 							<TableColumn className="text-center">Status</TableColumn>
