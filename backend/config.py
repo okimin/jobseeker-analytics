@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str
     IPINFO_TOKEN: str = "default-for-local"
     COOKIE_SECRET: str
+    TOKEN_ENCRYPTION_KEY: str = "default-for-local"  # Fernet key for encrypting OAuth tokens in DB
     STRIPE_SECRET_KEY: str = "sk_test_placeholder_for_dev"
     STRIPE_WEBHOOK_SECRET: str = "whsec_placeholder_for_dev"
     STRIPE_PRICE_ID_STANDARD: str = "price_standard_placeholder"

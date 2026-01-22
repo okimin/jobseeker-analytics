@@ -8,6 +8,7 @@ bs4==0.0.2
 cachetools==5.5.0
 catalogue==2.0.10
 certifi==2024.12.14
+cryptography>=42.0.0
 charset-normalizer==3.4.1
 click==8.1.8
 cloudpathlib==0.21.0

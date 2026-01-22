@@ -13,6 +13,7 @@ from utils.email_utils import get_email_ids, get_email, decode_subject_line
 from utils.llm_utils import process_email
 from utils.task_utils import exceeds_rate_limit
 from utils.config_utils import get_settings
+from utils.credential_service import get_credentials_for_background_task
 from session.session_layer import validate_session
 from utils.onboarding_utils import require_onboarding_complete
 from utils.admin_utils import get_context_user_id
@@ -208,14 +209,6 @@ async def start_processing(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Check if credentials are still valid
-    creds_json = request.session.get("creds")
-    if not creds_json:
-        raise HTTPException(
-            status_code=401,
-            detail="token_expired"
-        )
-
     # Check if already processing
     active_task = db_session.exec(
         select(task_models.TaskRuns)
@@ -229,10 +222,19 @@ async def start_processing(
             detail="already_processing"
         )
 
-    # Reconstruct credentials and start processing
+    # Load credentials with DB-first approach and session fallback
     try:
-        creds_dict = json.loads(creds_json)
-        creds = Credentials.from_authorized_user_info(creds_dict)
+        creds = get_credentials_for_background_task(
+            db_session,
+            user_id,
+            session_creds_json=request.session.get("creds"),
+        )
+
+        if not creds:
+            raise HTTPException(
+                status_code=401,
+                detail="token_expired"
+            )
 
         # Check if user has Gmail read scope
         gmail_scope = "https://www.googleapis.com/auth/gmail.readonly"
@@ -336,16 +338,19 @@ async def start_fetch_emails(
     if not user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
     logger.info(f"user_id:{user_id} start_fetch_emails")
-    # Retrieve stored credentials
-    creds_json = request.session.get("creds")
-    if not creds_json:
-        logger.error(f"Missing credentials for user_id: {user_id}")
-        return HTMLResponse(content="User not authenticated. Please log in again.", status_code=401)
 
     try:
-        # Convert JSON string back to Credentials object
-        creds_dict = json.loads(creds_json)
-        creds = Credentials.from_authorized_user_info(creds_dict)  # Convert dict to Credentials
+        # Load credentials with DB-first approach and session fallback
+        creds = get_credentials_for_background_task(
+            db_session,
+            user_id,
+            session_creds_json=request.session.get("creds"),
+        )
+
+        if not creds:
+            logger.error(f"Missing credentials for user_id: {user_id}")
+            return HTMLResponse(content="User not authenticated. Please log in again.", status_code=401)
+
         user = AuthenticatedUser(creds)
 
         logger.info(f"Starting email fetching process for user_id: {user_id}")
@@ -553,7 +558,7 @@ def _fetch_emails_to_db_impl(
                 message_data["subject"] = decode_subject_line(message_data["subject"])
                 
                 logger.debug(f"user_id:{user_id} creating user email record for message {idx + 1}")
-                email_record = create_user_email(user, message_data, db_session)
+                email_record = create_user_email(user_id, message_data, db_session)
                 
                 if email_record:
                     email_records.append(email_record)

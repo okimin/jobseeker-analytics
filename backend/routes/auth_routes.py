@@ -9,6 +9,7 @@ from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, ge
 from session.session_layer import create_random_session_string, validate_session, get_token_expiry, clear_session
 from utils.config_utils import get_settings
 from utils.cookie_utils import set_conditional_cookie
+from utils.credential_service import save_credentials
 from utils.redirect_utils import Redirects
 from routes.email_routes import fetch_emails_to_db
 import database
@@ -84,6 +85,9 @@ async def login(
             request.session["user_email"] = user.user_email
         request.session["access_token"] = creds.token
         request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
+
+        # Persist encrypted credentials to database for background task support
+        save_credentials(db_session, user.user_id, creds, credential_type="primary")
 
         existing_user, last_fetched_date = user_exists(user, db_session)
         
@@ -359,6 +363,9 @@ async def email_sync_auth(
         request.session["creds"] = request.session["email_sync_creds"]
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["access_token"] = creds.token
+
+        # Persist encrypted email_sync credentials to database for background task support
+        save_credentials(db_session, user_id, creds, credential_type="email_sync")
 
         # Update user record with email sync info
         user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()

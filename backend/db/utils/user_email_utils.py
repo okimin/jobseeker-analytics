@@ -39,18 +39,18 @@ def check_email_exists(user_id: str, email_id: str, db_session) -> bool:
     return result is not None
 
 
-def create_user_email(user, message_data: dict, db_session) -> UserEmails:
+def create_user_email(user_id: str, message_data: dict, db_session) -> UserEmails:
     """
     Creates a UserEmail record instance from the provided data.
     """
     try:
-        logger.debug(f"Creating user email record for user_id: {user.user_id}, email_id: {message_data['id']}")
-        
+        logger.debug(f"Creating user email record for user_id: {user_id}, email_id: {message_data['id']}")
+
         received_at_str = message_data["received_at"]
         received_at = parse_email_date(received_at_str)  # parse_email_date function was created as different date formats were being pulled from the data
-        
+
         # Check if email already exists
-        if check_email_exists(user.user_id, message_data["id"], db_session):
+        if check_email_exists(user_id, message_data["id"], db_session):
             logger.info(f"Email with ID {message_data['id']} already exists in the database.")
             return None
         
@@ -81,7 +81,7 @@ def create_user_email(user, message_data: dict, db_session) -> UserEmails:
                 
         record = UserEmails(
             id=message_data["id"],
-            user_id=user.user_id,
+            user_id=user_id,
             company_name=message_data["company_name"],
             application_status=message_data["application_status"],
             received_at=received_at,
@@ -90,10 +90,10 @@ def create_user_email(user, message_data: dict, db_session) -> UserEmails:
             normalized_job_title=normalized_job_title,
             email_from=message_data["from"]
         )
-    
-        logger.debug(f"Successfully created UserEmails record for user_id: {user.user_id}, email_id: {message_data['id']}")
+
+        logger.debug(f"Successfully created UserEmails record for user_id: {user_id}, email_id: {message_data['id']}")
         return record
 
     except Exception as e:
-        logger.error(f"Error creating UserEmail record for user_id: {user.user_id}, email_id: {message_data.get('id', 'unknown')}: {e}")
+        logger.error(f"Error creating UserEmail record for user_id: {user_id}, email_id: {message_data.get('id', 'unknown')}: {e}")
         return None
