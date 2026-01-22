@@ -44,8 +44,7 @@ async def stripe_webhook(
         session = event["data"]["object"]
         metadata = session.get("metadata", {})
         user_id = metadata.get("user_id")
-        tier = metadata.get("tier")  # Legacy field for old pricing
-        amount_cents_str = metadata.get("amount_cents")  # New field for choose-your-price
+        amount_cents_str = metadata.get("amount_cents")
         payment_intent_id = session.get("payment_intent")
 
         if not user_id:
@@ -79,19 +78,7 @@ async def stripe_webhook(
                     user.contribution_started_at = datetime.now(timezone.utc)
                 user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_cents
 
-                # Legacy: Keep has_completed_onboarding and subscription_tier for backwards compat
                 user.has_completed_onboarding = True
-                if tier:
-                    user.subscription_tier = tier
-                elif amount_cents > 0:
-                    # Map amount to a tier label for legacy compatibility
-                    if amount_cents <= 500:
-                        user.subscription_tier = "standard"
-                    elif amount_cents <= 1500:
-                        user.subscription_tier = "standard"
-                    else:
-                        user.subscription_tier = "sustainer"
-
                 db_session.add(user)
 
                 # Create contribution record with payment_intent_id for idempotency
