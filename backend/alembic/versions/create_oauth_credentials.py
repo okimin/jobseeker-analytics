@@ -15,7 +15,7 @@ import sqlmodel
 
 # revision identifiers, used by Alembic.
 revision: str = "create_oauth_credentials"
-down_revision: Union[str, None] = "create_contributions"
+down_revision: Union[str, None] = "add_timezone_to_timestamps"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
