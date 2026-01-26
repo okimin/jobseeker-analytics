@@ -47,14 +47,6 @@ const Footer = () => {
 							<li>
 								<NextLink
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href="/#how-it-works"
-								>
-									How It Works
-								</NextLink>
-							</li>
-							<li>
-								<NextLink
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
 									href="/"
 								>
 									For Job Seekers
@@ -69,24 +61,31 @@ const Footer = () => {
 								</NextLink>
 							</li>
 							<li>
-								<a
+								<NextLink
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href={siteConfig.links.waitlist}
-									rel="noopener noreferrer"
-									target="_blank"
+									href="/faq"
 								>
-									Join Waitlist <ExternalLinkIcon />
-								</a>
+									FAQ
+								</NextLink>
 							</li>
 						</ul>
 					</div>
 
-					{/* COMMUNITY Column */}
+					{/* RESOURCES Column */}
 					<div>
 						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
-							Community
+							Resources
 						</h4>
 						<ul className="space-y-3">
+							<li><a
+								className="text-sm text-default-500 hover:text-foreground transition-colors"
+								href={siteConfig.links.hiringCafe}
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								Find Real Jobs <ExternalLinkIcon />
+							</a>
+							</li>						
 							<li>
 								<a
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
@@ -97,64 +96,21 @@ const Footer = () => {
 									Job Search Councils <ExternalLinkIcon />
 								</a>
 							</li>
-							<li>
-								<NextLink
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href="/contributors"
-								>
-									Wall of Fame
-								</NextLink>
-							</li>
-							<li>
-								<a
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href={siteConfig.links.feedback}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									Give Feedback <ExternalLinkIcon />
-								</a>
-							</li>
 						</ul>
 					</div>
 
-					{/* COMPANY Column */}
+					{/* ABOUT Column */}
 					<div>
-						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Company</h4>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">About</h4>
 						<ul className="space-y-3">
-							<li>
-								<NextLink
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href="/"
-								>
-									About
-								</NextLink>
-							</li>
-							<li>
-								<a
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href={siteConfig.links.github}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									GitHub <ExternalLinkIcon />
-								</a>
-							</li>
 							<li>
 								<a
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
 									href={siteConfig.links.support}
 								>
-									Contact
+									Contact Us
 								</a>
 							</li>
-						</ul>
-					</div>
-
-					{/* LEGAL Column */}
-					<div>
-						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Legal</h4>
-						<ul className="space-y-3">
 							<li>
 								<NextLink
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
@@ -170,6 +126,41 @@ const Footer = () => {
 								>
 									Terms of Service
 								</NextLink>
+							</li>
+						</ul>
+					</div>
+
+					{/* CONTRIBUTE Column */}
+					<div>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Contribute</h4>
+						<ul className="space-y-3">
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.donate}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Donate <ExternalLinkIcon />
+								</a>
+							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/contributors"
+								>
+									Develop
+								</NextLink>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.feedback}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Give Feedback <ExternalLinkIcon />
+								</a>
 							</li>
 						</ul>
 					</div>

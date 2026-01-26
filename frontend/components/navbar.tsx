@@ -256,12 +256,9 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 									</a>
 									<a
 										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href={siteConfig.links.github}
-										rel="noopener noreferrer"
-										target="_blank"
+										href="/contributors"
 									>
 										Develop
-										<ExternalLinkIcon />
 									</a>
 									<a
 										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
