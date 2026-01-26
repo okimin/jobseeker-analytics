@@ -67,13 +67,18 @@ async def stripe_webhook(
             if user:
                 subscription_id = session.get("subscription")
                 amount_total = session.get("amount_total", 0)
+                is_recurring = metadata.get("is_recurring", "true") == "true"
 
                 # Determine amount - prefer explicit amount_cents, fall back to amount_total
                 amount_cents = int(amount_cents_str) if amount_cents_str else amount_total
 
                 # Update user with contribution info
-                user.monthly_contribution_cents = amount_cents
-                user.stripe_subscription_id = subscription_id
+                if is_recurring:
+                    # Recurring: set monthly contribution and subscription
+                    user.monthly_contribution_cents = amount_cents
+                    user.stripe_subscription_id = subscription_id
+                # One-time payments don't set monthly_contribution_cents
+
                 if not user.contribution_started_at:
                     user.contribution_started_at = datetime.now(timezone.utc)
                 user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_cents
@@ -85,16 +90,17 @@ async def stripe_webhook(
                 contribution = Contributions(
                     user_id=user_id,
                     stripe_payment_intent_id=payment_intent_id,
-                    stripe_subscription_id=subscription_id,
+                    stripe_subscription_id=subscription_id if is_recurring else None,
                     amount_cents=amount_cents,
-                    is_recurring=True,
+                    is_recurring=is_recurring,
                     status="completed",
                     trigger_type=metadata.get("trigger_type")
                 )
                 db_session.add(contribution)
                 db_session.commit()
 
-                logger.info(f"User {user_id} started contributing ${amount_cents/100:.2f}/month")
+                payment_type = "monthly" if is_recurring else "one-time"
+                logger.info(f"User {user_id} made {payment_type} contribution of ${amount_cents/100:.2f}")
             else:
                 logger.error(f"User {user_id} not found for checkout session")
 

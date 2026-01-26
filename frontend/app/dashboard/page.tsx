@@ -6,7 +6,7 @@ import React from "react";
 import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
-import PaymentAsk from "@/components/PaymentAsk";
+import SupportBanner from "@/components/SupportBanner";
 import ContributorBadge from "@/components/ContributorBadge";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
@@ -43,7 +43,7 @@ export default function Dashboard() {
 	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
 
 	// Payment ask state
-	const [showPaymentAsk, setShowPaymentAsk] = useState(false);
+	const [showPaymentAsk, setShowPaymentAsk] = useState(true);
 	const [paymentTriggerType, setPaymentTriggerType] = useState("");
 	const [contributionCents, setContributionCents] = useState(0);
 	const [paymentAskChecked, setPaymentAskChecked] = useState(false);
@@ -341,17 +341,6 @@ export default function Dashboard() {
 			setPaymentAskChecked(true);
 		}
 	}, [apiUrl, paymentAskChecked]);
-
-	// Check payment ask after data is loaded and rendered
-	useEffect(() => {
-		if (!loading && data.length > 0 && !paymentAskChecked) {
-			// Small delay to ensure data is rendered on screen before showing modal
-			const timer = setTimeout(() => {
-				checkPaymentAsk();
-			}, 500);
-			return () => clearTimeout(timer);
-		}
-	}, [loading, data.length, paymentAskChecked, checkPaymentAsk]);
 
 	const fetchData = async () => {
 		try {
@@ -718,8 +707,8 @@ export default function Dashboard() {
 				onStatusFilterChange={setStatusFilter}
 			/>
 
-			{/* Payment ask modal */}
-			<PaymentAsk isOpen={showPaymentAsk} triggerType={paymentTriggerType} onClose={handlePaymentAskClose} />
+			{/* Support banner */}
+			<SupportBanner isVisible={showPaymentAsk} triggerType={paymentTriggerType} onClose={handlePaymentAskClose} />
 
 			{/* Session expired modal */}
 			{showSessionExpired && (

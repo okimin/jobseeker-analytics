@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlmodel import select
 import stripe
 
-from db.users import Users
+from db.users import Users, CoachClientLink
 from db.payment_asks import PaymentAsks
 from db.processing_tasks import TaskRuns, FINISHED
 from session.session_layer import validate_session
@@ -44,6 +44,7 @@ class AskActionRequest(BaseModel):
 class CheckoutRequest(BaseModel):
     amount_cents: int
     trigger_type: Optional[str] = None
+    is_recurring: bool = True  # Default to recurring for backwards compatibility
 
 
 class PaymentStatusResponse(BaseModel):
@@ -72,6 +73,15 @@ async def should_show_payment_ask(
     # Already contributing
     if (user.monthly_contribution_cents or 0) > 0:
         return ShouldAskResponse(should_ask=False, reason="already_contributing")
+
+    # Check if user has an active coach link (coach is paying for their seat)
+    active_coach_link = db_session.exec(
+        select(CoachClientLink)
+        .where(CoachClientLink.client_id == user_id)
+        .where(CoachClientLink.end_date.is_(None))
+    ).first()
+    if active_coach_link:
+        return ShouldAskResponse(should_ask=False, reason="has_active_coach")
 
     # Check recent asks
     recent_ask = db_session.exec(
@@ -192,9 +202,6 @@ async def create_checkout(
     if body.amount_cents < 100:
         raise HTTPException(status_code=400, detail="Minimum contribution is $1")
 
-    if body.amount_cents > 100000:
-        raise HTTPException(status_code=400, detail="Maximum contribution is $1000")
-
     try:
         # Create or get Stripe customer
         if not user.stripe_customer_id:
@@ -206,35 +213,61 @@ async def create_checkout(
             db_session.add(user)
             db_session.commit()
 
-        # Create checkout session with custom price
-        checkout_session = stripe.checkout.Session.create(
-            customer=user.stripe_customer_id,
-            mode="subscription",
-            line_items=[{
-                "price_data": {
-                    "currency": "usd",
-                    "unit_amount": body.amount_cents,
-                    "recurring": {"interval": "month"},
-                    "product_data": {"name": "JustAJobApp Monthly Contribution"}
-                },
-                "quantity": 1
-            }],
-            success_url=f"{settings.APP_URL}/payment/thank-you?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{settings.APP_URL}/dashboard",
-            metadata={
-                "user_id": user_id,
-                "amount_cents": str(body.amount_cents),
-                "trigger_type": body.trigger_type or "manual"
-            },
-            subscription_data={
-                "metadata": {
+        # Build checkout session based on payment type
+        if body.is_recurring:
+            # Recurring subscription
+            checkout_session = stripe.checkout.Session.create(
+                customer=user.stripe_customer_id,
+                mode="subscription",
+                line_items=[{
+                    "price_data": {
+                        "currency": "usd",
+                        "unit_amount": body.amount_cents,
+                        "recurring": {"interval": "month"},
+                        "product_data": {"name": "JustAJobApp Monthly Contribution"}
+                    },
+                    "quantity": 1
+                }],
+                success_url=f"{settings.APP_URL}/payment/thank-you?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{settings.APP_URL}/dashboard",
+                metadata={
                     "user_id": user_id,
-                    "amount_cents": str(body.amount_cents)
+                    "amount_cents": str(body.amount_cents),
+                    "trigger_type": body.trigger_type or "manual",
+                    "is_recurring": "true"
+                },
+                subscription_data={
+                    "metadata": {
+                        "user_id": user_id,
+                        "amount_cents": str(body.amount_cents)
+                    }
                 }
-            }
-        )
+            )
+        else:
+            # One-time payment
+            checkout_session = stripe.checkout.Session.create(
+                customer=user.stripe_customer_id,
+                mode="payment",
+                line_items=[{
+                    "price_data": {
+                        "currency": "usd",
+                        "unit_amount": body.amount_cents,
+                        "product_data": {"name": "JustAJobApp One-Time Contribution"}
+                    },
+                    "quantity": 1
+                }],
+                success_url=f"{settings.APP_URL}/payment/thank-you?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{settings.APP_URL}/dashboard",
+                metadata={
+                    "user_id": user_id,
+                    "amount_cents": str(body.amount_cents),
+                    "trigger_type": body.trigger_type or "manual",
+                    "is_recurring": "false"
+                }
+            )
 
-        logger.info(f"Created checkout session {checkout_session.id} for user {user_id}, amount: {body.amount_cents}")
+        payment_type = "recurring" if body.is_recurring else "one-time"
+        logger.info(f"Created {payment_type} checkout session {checkout_session.id} for user {user_id}, amount: {body.amount_cents}")
         return {"checkout_url": checkout_session.url, "session_id": checkout_session.id}
 
     except stripe.error.StripeError as e:
