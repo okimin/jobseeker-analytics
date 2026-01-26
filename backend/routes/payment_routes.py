@@ -52,7 +52,6 @@ class PaymentStatusResponse(BaseModel):
     monthly_cents: int
     started_at: Optional[str] = None
     total_contributed_cents: int
-    stripe_subscription_id: Optional[str] = None
 
 
 class UpdateSubscriptionRequest(BaseModel):
@@ -302,8 +301,7 @@ async def get_payment_status(
         is_contributor=(user.monthly_contribution_cents or 0) > 0,
         monthly_cents=user.monthly_contribution_cents or 0,
         started_at=user.contribution_started_at.isoformat() if user.contribution_started_at else None,
-        total_contributed_cents=user.total_contributed_cents or 0,
-        stripe_subscription_id=user.stripe_subscription_id
+        total_contributed_cents=user.total_contributed_cents or 0
     )
 
 
@@ -325,6 +323,13 @@ async def cancel_contribution(
         raise HTTPException(status_code=400, detail="No active subscription")
 
     try:
+        # Verify subscription ownership before cancelling
+        subscription = stripe.Subscription.retrieve(user.stripe_subscription_id)
+        subscription_user_id = subscription.get("metadata", {}).get("user_id")
+        if subscription_user_id != user_id:
+            logger.error(f"Subscription ownership mismatch: expected {user_id}, got {subscription_user_id}")
+            raise HTTPException(status_code=403, detail="Subscription does not belong to user")
+
         stripe.Subscription.cancel(user.stripe_subscription_id)
 
         # Update user record
@@ -365,6 +370,13 @@ async def update_subscription(
     try:
         # Retrieve the current subscription to get the item ID
         subscription = stripe.Subscription.retrieve(user.stripe_subscription_id)
+
+        # Verify subscription ownership before updating
+        subscription_user_id = subscription.get("metadata", {}).get("user_id")
+        if subscription_user_id != user_id:
+            logger.error(f"Subscription ownership mismatch: expected {user_id}, got {subscription_user_id}")
+            raise HTTPException(status_code=403, detail="Subscription does not belong to user")
+
         if not subscription.get("items") or not subscription["items"].get("data"):
             raise HTTPException(status_code=400, detail="Invalid subscription state")
 
