@@ -25,11 +25,6 @@ class OnboardingStatusResponse(BaseModel):
     sync_email_address: Optional[str]
 
 
-class EmailSyncStatusResponse(BaseModel):
-    has_email_sync_configured: bool
-    sync_email_address: Optional[str]
-
-
 @router.get("/api/users/onboarding-status", response_model=OnboardingStatusResponse)
 @limiter.limit("10/minute")
 async def get_onboarding_status(
@@ -48,27 +43,6 @@ async def get_onboarding_status(
     return OnboardingStatusResponse(
         has_completed_onboarding=user.has_completed_onboarding,
         subscription_tier=user.subscription_tier,
-        has_email_sync_configured=user.has_email_sync_configured,
-        sync_email_address=user.sync_email_address
-    )
-
-
-@router.get("/api/users/email-sync-status", response_model=EmailSyncStatusResponse)
-@limiter.limit("10/minute")
-async def get_email_sync_status(
-    request: Request,
-    db_session: database.DBSession,
-    user_id: str = Depends(validate_session)
-):
-    """Get the current user's email sync configuration status."""
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return EmailSyncStatusResponse(
         has_email_sync_configured=user.has_email_sync_configured,
         sync_email_address=user.sync_email_address
     )
