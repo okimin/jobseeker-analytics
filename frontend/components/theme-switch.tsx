@@ -25,6 +25,10 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 		} else {
 			setTheme("dark");
 		}
+		// Blur the element so keyboard shortcuts work after theme switch
+		if (document.activeElement instanceof HTMLElement) {
+			document.activeElement.blur();
+		}
 	};
 
 	const { Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
