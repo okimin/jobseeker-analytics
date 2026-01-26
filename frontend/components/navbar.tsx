@@ -322,8 +322,8 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						)}
 
 						{/* Heart donate button - hidden for users with active coach */}
-						{!hasActiveCoach && (
-							isAuthenticated ? (
+						{!hasActiveCoach &&
+							(isAuthenticated ? (
 								<button
 									className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
 									title="Donate"
@@ -353,8 +353,7 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 										/>
 									</svg>
 								</a>
-							)
-						)}
+							))}
 					</div>
 
 					{/* Mobile menu button */}
