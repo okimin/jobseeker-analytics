@@ -680,7 +680,7 @@ export default function JobApplicationsDashboard({
 							{paginatedData.map((item) => (
 								<TableRow
 									key={item.id || item.received_at}
-									className="hover:bg-default-100 transition-colors"
+									className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
 								>
 									<TableCell className="max-w-[100px] text-center">
 										{item.company_name || "--"}
