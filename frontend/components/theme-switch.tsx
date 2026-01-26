@@ -43,7 +43,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 		<div className="relative group">
 			<Component
 				{...getBaseProps({
-					className: clsx("px-px transition-opacity hover:opacity-80 cursor-pointer", className, classNames?.base)
+					className: clsx(
+						"px-px transition-opacity hover:opacity-80 cursor-pointer",
+						className,
+						classNames?.base
+					)
 				})}
 			>
 				<VisuallyHidden>
