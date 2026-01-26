@@ -71,7 +71,8 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 
 			if (response.ok) {
 				const data = await response.json();
-				window.location.href = data.checkout_url;
+				window.open(data.checkout_url, "_blank", "noopener,noreferrer");
+				onClose();
 			} else {
 				console.error("Failed to create checkout session");
 				setIsLoading(false);

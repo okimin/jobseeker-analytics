@@ -108,6 +108,8 @@ const Footer = () => {
 								<a
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
 									href={siteConfig.links.support}
+									rel="noopener noreferrer"
+									target="_blank"
 								>
 									Contact Us
 								</a>
