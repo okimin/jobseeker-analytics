@@ -3,7 +3,6 @@ import json
 import logging
 import secrets
 from datetime import datetime, timezone, timedelta
-from typing import Optional
 from fastapi import Request, Response
 from utils.config_utils import get_settings
 import database

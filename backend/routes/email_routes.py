@@ -18,8 +18,6 @@ from session.session_layer import validate_session
 from utils.onboarding_utils import require_onboarding_complete
 from utils.admin_utils import get_context_user_id
 import database
-from google.oauth2.credentials import Credentials
-import json
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
 from datetime import datetime
