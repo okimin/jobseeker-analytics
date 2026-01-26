@@ -155,12 +155,7 @@ export default function ManageSubscriptionModal({
 				<ModalFooter>
 					{showCancelConfirm ? (
 						<>
-							<Button
-								color="default"
-								isDisabled={isCancelling}
-								variant="light"
-								onPress={handleClose}
-							>
+							<Button color="default" isDisabled={isCancelling} variant="light" onPress={handleClose}>
 								Keep Subscription
 							</Button>
 							<Button color="danger" isLoading={isCancelling} onPress={handleCancel}>

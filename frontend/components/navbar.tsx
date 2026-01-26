@@ -28,7 +28,12 @@ interface NavbarProps {
 	onManageSubscriptionClick?: () => void;
 }
 
-export const Navbar = ({ defaultCollapsed = false, onDonateClick, contributionCents = 0, onManageSubscriptionClick }: NavbarProps) => {
+export const Navbar = ({
+	defaultCollapsed = false,
+	onDonateClick,
+	contributionCents = 0,
+	onManageSubscriptionClick
+}: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
