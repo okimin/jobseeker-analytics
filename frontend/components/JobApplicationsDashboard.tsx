@@ -657,7 +657,9 @@ export default function JobApplicationsDashboard({
 									<PlusIcon className="w-4 h-4" />
 									<span>New application</span>
 									<Tooltip content="Keyboard shortcut: Press 'i' to add a new row">
-										<kbd className="ml-auto px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded text-xs">i</kbd>
+										<kbd className="ml-auto px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded text-xs">
+											i
+										</kbd>
 									</Tooltip>
 								</button>
 							)}
