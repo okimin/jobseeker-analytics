@@ -3,6 +3,7 @@
 import React from "react";
 import { Card, CardBody, Avatar } from "@heroui/react";
 
+import { Navbar } from "@/components/navbar";
 import contributorsData from "../../data/contributors.json";
 
 interface Contributor {
@@ -15,7 +16,9 @@ interface Contributor {
 
 export default function ContributorsPage() {
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+		<div className="flex flex-col">
+			<Navbar />
+			<main className="flex-grow bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
 			<div className="container mx-auto px-4 py-12">
 				{/* Header */}
 				<div className="text-center mb-12">
@@ -106,12 +109,8 @@ export default function ContributorsPage() {
 						</div>
 					</div>
 				</div>
-
-				{/* Footer */}
-				<div className="text-center mt-12">
-					<p className="text-gray-500 dark:text-gray-400">Made with ❤️ by the JAJA community</p>
-				</div>
 			</div>
+			</main>
 		</div>
 	);
 }
