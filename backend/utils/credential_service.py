@@ -193,10 +193,19 @@ def _refresh_and_save(
     user_id: str,
     creds: Credentials,
     stored: OAuthCredentials,
-) -> Credentials:
-    """Refresh token and save updated credentials."""
+) -> Optional[Credentials]:
+    """Refresh token and save updated credentials.
+
+    Returns:
+        Refreshed Credentials object or None if refresh fails
+    """
     try:
         creds.refresh(Request())
+
+        # Verify we got a valid new token
+        if not creds.token:
+            logger.error("Refresh returned empty token for user %s", user_id)
+            return None
 
         # Update stored credentials with new tokens
         stored.encrypted_access_token = encrypt_token(creds.token)
@@ -212,8 +221,7 @@ def _refresh_and_save(
 
     except Exception as e:
         logger.error("Failed to refresh token for user %s: %s", user_id, e)
-        # Return original credentials - they may still work
-        return creds
+        return None
 
 
 def get_credentials_for_background_task(

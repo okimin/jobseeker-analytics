@@ -188,17 +188,28 @@ async def getUser(request: Request, db_session: database.DBSession, user_id: str
     if not user_id:
         raise HTTPException(status_code=401, detail="No user id found in session")
     # Fetch user data
-    from db.users import Users
+    from db.users import Users, CoachClientLink
     user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if user has an active coach
+    active_coach_link = db_session.exec(
+        select(CoachClientLink)
+        .where(CoachClientLink.client_id == user_id)
+        .where(CoachClientLink.end_date.is_(None))
+    ).first()
+
     return {
         "user_id": user_id,
         "role": user.role,
         "has_completed_onboarding": user.has_completed_onboarding,
         "subscription_tier": user.subscription_tier,
         "has_email_sync_configured": user.has_email_sync_configured,
-        "sync_email_address": user.sync_email_address
+        "sync_email_address": user.sync_email_address,
+        "is_supporter": (user.monthly_contribution_cents or 0) > 0,
+        "supporter_since": user.contribution_started_at.isoformat() if user.contribution_started_at else None,
+        "has_active_coach": active_coach_link is not None
     }
 
 
