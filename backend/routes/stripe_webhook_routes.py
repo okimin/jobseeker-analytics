@@ -39,6 +39,8 @@ async def stripe_webhook(
         logger.error(f"Invalid signature: {e}")
         raise HTTPException(status_code=400, detail="Invalid signature")
 
+    logger.info(f"Received Stripe webhook event: {event['type']}")
+
     # Handle checkout.session.completed
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
@@ -46,6 +48,8 @@ async def stripe_webhook(
         user_id = metadata.get("user_id")
         amount_cents_str = metadata.get("amount_cents")
         payment_intent_id = session.get("payment_intent")
+
+        logger.info(f"checkout.session.completed - user_id: {user_id}, amount: {amount_cents_str}, subscription: {session.get('subscription')}")
 
         if not user_id:
             logger.error(f"Missing user_id in checkout session: {session.get('id')}")
@@ -169,5 +173,27 @@ async def stripe_webhook(
                 db_session.commit()
 
                 logger.info(f"Subscription cancelled for user {user.user_id}")
+
+    # Handle subscription updates (amount changes from Stripe dashboard or API)
+    elif event["type"] == "customer.subscription.updated":
+        subscription = event["data"]["object"]
+        subscription_id = subscription["id"]
+
+        # Get the new amount from the subscription items
+        items = subscription.get("items", {}).get("data", [])
+        if items:
+            new_amount = items[0].get("price", {}).get("unit_amount", 0)
+
+            with database.get_session() as db_session:
+                user = db_session.exec(
+                    select(Users).where(Users.stripe_subscription_id == subscription_id)
+                ).first()
+
+                if user and new_amount > 0:
+                    user.monthly_contribution_cents = new_amount
+                    db_session.add(user)
+                    db_session.commit()
+
+                    logger.info(f"Subscription amount updated for user {user.user_id}: ${new_amount/100:.2f}/mo")
 
     return {"status": "success"}

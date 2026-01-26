@@ -8,6 +8,7 @@ import posthog from "posthog-js";
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
 import SupportBanner from "@/components/SupportBanner";
 import ContributorBadge from "@/components/ContributorBadge";
+import ManageSubscriptionModal from "@/components/ManageSubscriptionModal";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
 import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
@@ -47,6 +48,7 @@ export default function Dashboard() {
 	const [paymentTriggerType, setPaymentTriggerType] = useState("");
 	const [contributionCents, setContributionCents] = useState(0);
 	const [paymentAskChecked, setPaymentAskChecked] = useState(false);
+	const [showManageSubscription, setShowManageSubscription] = useState(false);
 
 	// Processing status state
 	const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
@@ -342,6 +344,11 @@ export default function Dashboard() {
 		}
 	}, [apiUrl, paymentAskChecked]);
 
+	// Call checkPaymentAsk on mount
+	useEffect(() => {
+		checkPaymentAsk();
+	}, [checkPaymentAsk]);
+
 	const fetchData = async () => {
 		try {
 			setLoading(true);
@@ -588,6 +595,44 @@ export default function Dashboard() {
 		setShowPaymentAsk(true);
 	};
 
+	const handleUpdateSubscription = async (newAmountCents: number) => {
+		const response = await fetch(`${apiUrl}/payment/update-subscription`, {
+			method: "POST",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ new_amount_cents: newAmountCents })
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to update subscription");
+		}
+
+		setContributionCents(newAmountCents);
+		addToast({
+			title: "Subscription updated",
+			description: `Your monthly contribution is now $${newAmountCents / 100}`,
+			color: "success"
+		});
+	};
+
+	const handleCancelSubscription = async () => {
+		const response = await fetch(`${apiUrl}/payment/cancel`, {
+			method: "POST",
+			credentials: "include"
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to cancel subscription");
+		}
+
+		setContributionCents(0);
+		addToast({
+			title: "Subscription cancelled",
+			description: "Your subscription has been cancelled",
+			color: "success"
+		});
+	};
+
 	return (
 		<>
 			<Navbar onDonateClick={handleDonateClick} />
@@ -603,7 +648,7 @@ export default function Dashboard() {
 			{/* Contributor badge */}
 			{contributionCents > 0 && (
 				<div className="mb-4 p-4 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center gap-2">
-					<ContributorBadge monthlyCents={contributionCents} />
+					<ContributorBadge monthlyCents={contributionCents} onClick={() => setShowManageSubscription(true)} />
 					<span className="text-sm text-gray-600 dark:text-gray-300">
 						Your contribution helps others track their job search for free.
 					</span>
@@ -750,6 +795,15 @@ export default function Dashboard() {
 				isOpen={showStartDateModal}
 				onClose={() => setShowStartDateModal(false)}
 				onSave={handleStartDateSave}
+			/>
+
+			{/* Manage subscription modal */}
+			<ManageSubscriptionModal
+				currentAmountCents={contributionCents}
+				isOpen={showManageSubscription}
+				onCancel={handleCancelSubscription}
+				onClose={() => setShowManageSubscription(false)}
+				onUpdate={handleUpdateSubscription}
 			/>
 		</>
 	);

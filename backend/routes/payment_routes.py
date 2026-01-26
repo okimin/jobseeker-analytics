@@ -55,6 +55,10 @@ class PaymentStatusResponse(BaseModel):
     stripe_subscription_id: Optional[str] = None
 
 
+class UpdateSubscriptionRequest(BaseModel):
+    new_amount_cents: int
+
+
 @router.get("/payment/should-ask", response_model=ShouldAskResponse)
 @limiter.limit("20/minute")
 async def should_show_payment_ask(
@@ -331,3 +335,63 @@ async def cancel_contribution(
     except stripe.error.StripeError as e:
         logger.error(f"Stripe cancellation error: {e}")
         raise HTTPException(status_code=500, detail="Could not cancel subscription")
+
+
+@router.post("/payment/update-subscription")
+@limiter.limit("5/minute")
+async def update_subscription(
+    request: Request,
+    body: UpdateSubscriptionRequest,
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session)
+):
+    """Update subscription amount."""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    if body.new_amount_cents < 100:
+        raise HTTPException(status_code=400, detail="Minimum contribution is $1")
+
+    get_stripe_key()
+
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    if not user or not user.stripe_subscription_id:
+        raise HTTPException(status_code=400, detail="No active subscription")
+
+    try:
+        # Retrieve the current subscription to get the item ID
+        subscription = stripe.Subscription.retrieve(user.stripe_subscription_id)
+        if not subscription.get("items") or not subscription["items"].get("data"):
+            raise HTTPException(status_code=400, detail="Invalid subscription state")
+
+        subscription_item_id = subscription["items"]["data"][0]["id"]
+
+        # Update the subscription with a new price
+        updated_subscription = stripe.Subscription.modify(
+            user.stripe_subscription_id,
+            items=[{
+                "id": subscription_item_id,
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": body.new_amount_cents,
+                    "recurring": {"interval": "month"},
+                    "product_data": {"name": "JustAJobApp Monthly Contribution"}
+                }
+            }],
+            proration_behavior="none"  # Don't prorate, just change from next billing
+        )
+
+        # Update user record
+        user.monthly_contribution_cents = body.new_amount_cents
+        db_session.add(user)
+        db_session.commit()
+
+        logger.info(f"Subscription updated for user {user_id}: ${body.new_amount_cents/100:.2f}/mo")
+        return {
+            "updated": True,
+            "new_amount_cents": body.new_amount_cents
+        }
+
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe update error: {e}")
+        raise HTTPException(status_code=500, detail="Could not update subscription")
