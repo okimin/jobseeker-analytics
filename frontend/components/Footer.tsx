@@ -77,15 +77,16 @@ const Footer = () => {
 							Resources
 						</h4>
 						<ul className="space-y-3">
-							<li><a
-								className="text-sm text-default-500 hover:text-foreground transition-colors"
-								href={siteConfig.links.hiringCafe}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								Find Real Jobs <ExternalLinkIcon />
-							</a>
-							</li>						
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.hiringCafe}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Find Real Jobs <ExternalLinkIcon />
+								</a>
+							</li>
 							<li>
 								<a
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
@@ -132,7 +133,9 @@ const Footer = () => {
 
 					{/* CONTRIBUTE Column */}
 					<div>
-						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Contribute</h4>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
+							Contribute
+						</h4>
 						<ul className="space-y-3">
 							<li>
 								<a
