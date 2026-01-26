@@ -12,7 +12,7 @@ from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
 import database  # noqa: F401 - used for dependency injection
 # Import routes
-from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, billing_routes, onboarding_routes, stripe_webhook_routes, payment_routes
+from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, onboarding_routes, stripe_webhook_routes, payment_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,7 +46,6 @@ app.include_router(users_routes.router)
 app.include_router(start_date_routes.router)
 app.include_router(job_applications_routes.router)
 app.include_router(coach_routes.router)
-app.include_router(billing_routes.router)
 app.include_router(onboarding_routes.router)
 app.include_router(stripe_webhook_routes.router)
 app.include_router(payment_routes.router)

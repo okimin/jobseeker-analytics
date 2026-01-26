@@ -19,8 +19,6 @@ class Settings(BaseSettings):
     TOKEN_ENCRYPTION_KEY: str = "default-for-local"  # Fernet key for encrypting OAuth tokens in DB
     STRIPE_SECRET_KEY: str = "sk_test_placeholder_for_dev"
     STRIPE_WEBHOOK_SECRET: str = "whsec_placeholder_for_dev"
-    STRIPE_PRICE_ID_STANDARD: str = "price_standard_placeholder"
-    STRIPE_PRICE_ID_SUSTAINER: str = "price_sustainer_placeholder"
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
