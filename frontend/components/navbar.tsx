@@ -8,7 +8,7 @@ import { useTheme } from "next-themes";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { checkAuth } from "@/utils/auth";
-import PaymentAsk from "@/components/PaymentAsk";
+import SupportBanner from "@/components/SupportBanner";
 
 interface NavbarProps {
 	defaultCollapsed?: boolean;
@@ -20,14 +20,32 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
+	const [hasActiveCoach, setHasActiveCoach] = useState(false);
 	const pathname = usePathname();
 	const { theme } = useTheme();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 	useEffect(() => {
-		checkAuth(apiUrl).then((authenticated) => {
+		const checkUserStatus = async () => {
+			const authenticated = await checkAuth(apiUrl);
 			setIsAuthenticated(authenticated);
-		});
+
+			if (authenticated) {
+				try {
+					const response = await fetch(`${apiUrl}/me`, {
+						method: "GET",
+						credentials: "include"
+					});
+					if (response.ok) {
+						const data = await response.json();
+						setHasActiveCoach(data.has_active_coach || false);
+					}
+				} catch {
+					// Silently fail - default to false
+				}
+			}
+		};
+		checkUserStatus();
 	}, [apiUrl]);
 
 	// Handle donate click - redirect to login if not authenticated, otherwise show modal
@@ -272,20 +290,22 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							</NextLink>
 						)}
 
-						{/* Heart donate button - always visible */}
-						<button
-							className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
-							title="Donate"
-							onClick={handleDonateClick}
-						>
-							<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									clipRule="evenodd"
-									d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-									fillRule="evenodd"
-								/>
-							</svg>
-						</button>
+						{/* Heart donate button - hidden for users with active coach */}
+						{!hasActiveCoach && (
+							<button
+								className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+								title="Donate"
+								onClick={handleDonateClick}
+							>
+								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path
+										clipRule="evenodd"
+										d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+										fillRule="evenodd"
+									/>
+								</svg>
+							</button>
+						)}
 					</div>
 
 					{/* Mobile menu button */}
@@ -446,10 +466,10 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 				</div>
 			)}
 
-			{/* Payment modal - only rendered when not using external handler */}
+			{/* Support banner - only rendered when not using external handler */}
 			{!onDonateClick && (
-				<PaymentAsk
-					isOpen={showPaymentModal}
+				<SupportBanner
+					isVisible={showPaymentModal}
 					triggerType="navbar_donate"
 					onClose={() => setShowPaymentModal(false)}
 				/>
