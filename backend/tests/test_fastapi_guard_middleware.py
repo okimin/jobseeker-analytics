@@ -24,10 +24,15 @@ except ImportError:
             self.config = config
     
     class SecurityConfig:
-        def __init__(self, geo_ip_handler=None, ipinfo_token=None, whitelist_countries=None):
+        def __init__(self, geo_ip_handler=None, ipinfo_token=None, whitelist_countries=None,
+                     trusted_proxies=None, emergency_mode=False, enforce_https=False, passive_mode=False):
             self.geo_ip_handler = geo_ip_handler
             self.ipinfo_token = ipinfo_token
             self.whitelist_countries = whitelist_countries or []
+            self.trusted_proxies = trusted_proxies or []
+            self.emergency_mode = emergency_mode
+            self.enforce_https = enforce_https
+            self.passive_mode = passive_mode
     
     class GeoIPHandler:
         @staticmethod
