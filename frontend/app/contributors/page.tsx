@@ -27,14 +27,14 @@ export default function ContributorsPage() {
 							Wall of Fame 🏆
 						</h1>
 						<p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-							Meet the amazing contributors who have helped build Just A Job App (JAJA). Each person here
+							Meet the contributors who have helped build JustAJobApp. Each person here
 							has left their mark on this project!
 						</p>
 					</div>
 
 					{/* Contributors Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-						{contributorsData.map((contributor: Contributor, index: number) => (
+						{[...contributorsData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((contributor: Contributor, index: number) => (
 							<Card
 								key={contributor.github}
 								isPressable

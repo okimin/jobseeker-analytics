@@ -144,14 +144,23 @@ Get access to:
 
 JustAJobApp is built by jobseekers, for jobseekers. Our contributors are often going through the job search themselves.
 
-**Why people contribute:**
-- *"I felt empowered to build from scratch for my resume."*
-- *"Code is beginner friendly and easy to know how the process works."*
-- *"I liked supporting another side hustler."*
+### New to Open Source? Start Here.
 
-**Get started:**
-- [Issues](https://github.com/JustAJobApp/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
+**[Mini-Quest: Join the Wall of Fame](https://github.com/JustAJobApp/jobseeker-analytics/blob/main/CONTRIBUTOR_ONBOARDING.md)** — A guided tutorial that takes you from zero to your first pull request.
+
+By the end, you will:
+
+✅ Have JustAJobApp tracking your job search
+✅ Add Git, GitHub, and Docker to your resume
+✅ Get featured on our [Contributors Wall](https://justajobapp.com/contributors)
+
+No prior open source experience required.
+
+### Already Comfortable with Git?
+
+- 📹 **[Video tutorial](https://github.com/JustAJobApp/jobseeker-analytics?tab=readme-ov-file#-video-tutorial-diy-install)** — Watch the walkthrough
+- 📖 **[Written guide](https://github.com/JustAJobApp/jobseeker-analytics?tab=readme-ov-file#-written-tutorial-diy-install)** — Step-by-step instructions
+- 🐛 **[Open issues](https://github.com/JustAJobApp/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee)**
 
 **Support the project:** If JustAJobApp has helped your job search, consider [supporting us](https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00).
 
