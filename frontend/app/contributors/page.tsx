@@ -27,61 +27,63 @@ export default function ContributorsPage() {
 							Wall of Fame 🏆
 						</h1>
 						<p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-							Meet the contributors who have helped build JustAJobApp. Each person here
-							has left their mark on this project!
+							Meet the contributors who have helped build JustAJobApp. Each person here has left their
+							mark on this project!
 						</p>
 					</div>
 
 					{/* Contributors Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-						{[...contributorsData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((contributor: Contributor, index: number) => (
-							<Card
-								key={contributor.github}
-								isPressable
-								className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-								onPress={() => window.open(`https://github.com/${contributor.github}`, "_blank")}
-							>
-								<CardBody className="text-center p-6">
-									{/* Avatar */}
-									<div className="flex justify-center mb-4">
-										<Avatar
-											showFallback
-											className="w-24 h-24 text-large"
-											name={contributor.name}
-											size="lg"
-											src={contributor.avatar}
-										/>
-									</div>
+						{[...contributorsData]
+							.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+							.map((contributor: Contributor, index: number) => (
+								<Card
+									key={contributor.github}
+									isPressable
+									className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+									onPress={() => window.open(`https://github.com/${contributor.github}`, "_blank")}
+								>
+									<CardBody className="text-center p-6">
+										{/* Avatar */}
+										<div className="flex justify-center mb-4">
+											<Avatar
+												showFallback
+												className="w-24 h-24 text-large"
+												name={contributor.name}
+												size="lg"
+												src={contributor.avatar}
+											/>
+										</div>
 
-									{/* Name */}
-									<h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-										{contributor.name}
-									</h3>
+										{/* Name */}
+										<h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+											{contributor.name}
+										</h3>
 
-									{/* GitHub Username */}
-									<p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-										@{contributor.github}
-									</p>
-
-									{/* Message */}
-									<div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
-										<p className="text-gray-700 dark:text-gray-300 italic">
-											"{contributor.message}"
+										{/* GitHub Username */}
+										<p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+											@{contributor.github}
 										</p>
-									</div>
 
-									{/* Date */}
-									<p className="text-xs text-gray-400 dark:text-gray-500">
-										Joined{" "}
-										{new Date(contributor.date).toLocaleDateString("en-US", {
-											year: "numeric",
-											month: "long",
-											day: "numeric"
-										})}
-									</p>
-								</CardBody>
-							</Card>
-						))}
+										{/* Message */}
+										<div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+											<p className="text-gray-700 dark:text-gray-300 italic">
+												"{contributor.message}"
+											</p>
+										</div>
+
+										{/* Date */}
+										<p className="text-xs text-gray-400 dark:text-gray-500">
+											Joined{" "}
+											{new Date(contributor.date).toLocaleDateString("en-US", {
+												year: "numeric",
+												month: "long",
+												day: "numeric"
+											})}
+										</p>
+									</CardBody>
+								</Card>
+							))}
 					</div>
 
 					{/* Call to Action */}
