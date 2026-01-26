@@ -88,19 +88,22 @@ export default function ManageSubscriptionModal({
 					{showCancelConfirm ? (
 						<div className="space-y-4">
 							<p className="text-foreground/80">
-								Are you sure you want to cancel your subscription? Your support helps keep this tool free for
-								others.
+								Are you sure you want to cancel your subscription? Your support helps keep this tool
+								free for others.
 							</p>
 							{error && <p className="text-danger text-sm">{error}</p>}
 						</div>
 					) : (
 						<div className="space-y-4">
 							<p className="text-foreground/70 text-sm">
-								You&apos;re currently contributing ${currentDollarAmount}/month. Thank you for your support!
+								You&apos;re currently contributing ${currentDollarAmount}/month. Thank you for your
+								support!
 							</p>
 
 							<div>
-								<label className="block text-sm font-medium text-foreground/80 mb-1">Monthly amount</label>
+								<label className="block text-sm font-medium text-foreground/80 mb-1">
+									Monthly amount
+								</label>
 								<div className="flex items-center gap-2">
 									<span className="text-default-500">$</span>
 									<Input
@@ -114,9 +117,9 @@ export default function ManageSubscriptionModal({
 										value={newAmount}
 										variant="bordered"
 										onChange={(e) => {
-									setNewAmount(e.target.value);
-									setHasEdited(true);
-								}}
+											setNewAmount(e.target.value);
+											setHasEdited(true);
+										}}
 									/>
 									<span className="text-default-500">/month</span>
 								</div>
@@ -132,7 +135,12 @@ export default function ManageSubscriptionModal({
 				<ModalFooter>
 					{showCancelConfirm ? (
 						<>
-							<Button color="default" isDisabled={isCancelling} variant="light" onPress={() => setShowCancelConfirm(false)}>
+							<Button
+								color="default"
+								isDisabled={isCancelling}
+								variant="light"
+								onPress={() => setShowCancelConfirm(false)}
+							>
 								Keep Subscription
 							</Button>
 							<Button color="danger" isLoading={isCancelling} onPress={handleCancel}>
