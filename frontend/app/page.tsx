@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
-import { siteConfig } from "@/config/site";
 import { PrivacyFirst } from "@/components/PrivacyFirst";
 
 const Index = () => {
@@ -84,18 +83,23 @@ const Index = () => {
 							</div>
 							<div className="text-center">
 								<div className="text-4xl font-bold text-primary mb-4">2</div>
-								<h3 className="text-xl font-semibold mb-2 text-foreground">Apply for jobs like normal</h3>
+								<h3 className="text-xl font-semibold mb-2 text-foreground">
+									Apply for jobs like normal
+								</h3>
 								<p className="text-foreground/80">No browser extensions, no clipping</p>
 							</div>
 							<div className="text-center">
 								<div className="text-4xl font-bold text-primary mb-4">3</div>
-								<h3 className="text-xl font-semibold mb-2 text-foreground">Your dashboard updates automatically</h3>
+								<h3 className="text-xl font-semibold mb-2 text-foreground">
+									Your dashboard updates automatically
+								</h3>
 								<p className="text-foreground/80">Confirmation emails become tracked applications</p>
 							</div>
 						</div>
 						<div className="text-center mt-12">
 							<p className="text-lg text-foreground/90">
-								Unlike other job trackers that force you to manually "clip" every job with a browser extension, JustAJobApp is fully automated.
+								Unlike other job trackers that force you to manually "clip" every job with a browser
+								extension, JustAJobApp is fully automated.
 							</p>
 						</div>
 					</div>
@@ -113,19 +117,23 @@ const Index = () => {
 						<div className="bg-white dark:bg-content2 p-6 rounded-lg shadow">
 							<h3 className="text-xl font-bold text-foreground mb-2">2–3× More Applications</h3>
 							<p className="text-foreground/80">
-								Pre-pandemic research found job seekers sent ~12 applications per month. JustAJobApp users send 7–12 per <em>week</em>—over 2× the historical volume.
+								Pre-pandemic research found job seekers sent ~12 applications per month. JustAJobApp
+								users send 7–12 per <em>week</em>—over 2× the historical volume.
 							</p>
 						</div>
 						<div className="bg-white dark:bg-content2 p-6 rounded-lg shadow">
 							<h3 className="text-xl font-bold text-foreground mb-2">7,800+ Applications Tracked</h3>
 							<p className="text-foreground/80">
-								That's 7,800+ confirmation emails, status updates, and interview requests our users no longer manage manually.
+								That's 7,800+ confirmation emails, status updates, and interview requests our users no
+								longer manage manually.
 							</p>
 						</div>
 						<div className="bg-white dark:bg-content2 p-6 rounded-lg shadow">
 							<h3 className="text-xl font-bold text-foreground mb-2">Spreadsheets Aren't Helping</h3>
 							<p className="text-foreground/80">
-								72% of surveyed job seekers use 3+ different apps to track their search. Moving data between emails, calendars, and spreadsheets manually is where the $40,000 mistakes happen.
+								72% of surveyed job seekers use 3+ different apps to track their search. Moving data
+								between emails, calendars, and spreadsheets manually is where the $40,000 mistakes
+								happen.
 							</p>
 						</div>
 					</div>
@@ -154,10 +162,7 @@ const Index = () => {
 										a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It
 										prompted me to go back and find the email—it wasn't a rejection, but an
 										invitation to apply for a reopened position.{" "}
-										<strong>
-											I would have completely missed this opportunity.
-										</strong>
-										"
+										<strong>I would have completely missed this opportunity.</strong>"
 									</blockquote>
 									<div className="mt-4 text-sm font-semibold text-foreground">
 										CS & Engineering New Grad, F1-OPT
@@ -202,23 +207,23 @@ const Index = () => {
 					</p>
 					<div className="aspect-video">
 						<iframe
-							width="100%"
+							allowFullScreen
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							className="rounded-lg"
+							frameBorder="0"
 							height="100%"
 							src="https://www.youtube.com/embed/1ckVnvo-qcw"
 							title="GitHub's Favorite Open Source Projects of 2025"
-							frameBorder="0"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-							allowFullScreen
-							className="rounded-lg"
+							width="100%"
 						/>
 					</div>
 					<p className="mt-6 text-sm text-foreground/60">
 						Also featured on{" "}
 						<a
-							href="https://youtu.be/sbzKMVaYHZw?t=751"
-							target="_blank"
-							rel="noopener noreferrer"
 							className="text-primary hover:text-primary-600 underline"
+							href="https://youtu.be/sbzKMVaYHZw?t=751"
+							rel="noopener noreferrer"
+							target="_blank"
 						>
 							Open Source Friday (July 2025)
 						</a>
@@ -234,22 +239,26 @@ const Index = () => {
 							Coming Soon: Paid Plans with Interview Prep
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-foreground/75">
-							The core tracker is <strong>free for jobseekers</strong> as long as we can cover operating costs. Paid plans will unlock advanced features like Instant Interview Prep.
+							The core tracker is <strong>free for jobseekers</strong> as long as we can cover operating
+							costs. Paid plans will unlock advanced features like Instant Interview Prep.
 						</p>
 						<p className="mt-6 text-lg leading-8 text-foreground/75">
-							Customer discovery with 32 job seekers confirmed that <strong>56% could not locate job
-							descriptions or notes immediately before an interview.</strong>
+							Customer discovery with 32 job seekers confirmed that{" "}
+							<strong>
+								56% could not locate job descriptions or notes immediately before an interview.
+							</strong>
 						</p>
 						<p className="mt-6 text-lg leading-8 text-foreground/75">
 							When JustAJobApp detects an interview on your calendar, it will identify interviewers, draft
-							company-specific questions, and map key talking points from your resume to the job description.
+							company-specific questions, and map key talking points from your resume to the job
+							description.
 						</p>
 						<div className="mt-10">
 							<a
 								className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
 								href="https://its.justajobapp.com/"
-								target="_blank"
 								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Join the Waitlist →
 							</a>
@@ -262,9 +271,7 @@ const Index = () => {
 			<section className="w-full px-4 py-16" id="waitlist">
 				<div className="max-w-4xl mx-auto">
 					<div className="bg-background/80 dark:bg-content1/80 backdrop-blur-sm rounded-xl p-6 sm:p-8 border-2 border-primary/30 dark:border-primary/20 text-center transition-all shadow-xl">
-						<h2 className="text-2xl sm:text-3xl font-bold mb-4 text-foreground">
-							Stop Giving a Click.
-						</h2>
+						<h2 className="text-2xl sm:text-3xl font-bold mb-4 text-foreground">Stop Giving a Click.</h2>
 						<p className="text-base sm:text-lg text-foreground/80 mb-8 leading-relaxed">
 							Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date.
 						</p>
@@ -283,7 +290,7 @@ const Index = () => {
 								Login
 							</a>
 						</div>
-						
+
 						<p className="mt-6 text-sm text-foreground/60">
 							Limited availability: ~15 spots remaining during security audit
 						</p>
