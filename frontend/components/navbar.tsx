@@ -287,37 +287,42 @@ export const Navbar = ({
 
 						<ThemeSwitch />
 
-						{/* Dashboard dropdown - shown when authenticated and not on dashboard */}
+						{/* Back to Dashboard button and Logout icon - shown when authenticated and not on dashboard */}
 						{isAuthenticated && pathname !== "/dashboard" && (
-							<div className="relative group">
-								<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
-									Dashboard
+							<>
+								<NextLink
+									className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+									href="/dashboard"
+								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
-											d="M19 9l-7 7-7-7"
+											d="M10 19l-7-7m0 0l7-7m-7 7h18"
 											strokeLinecap="round"
 											strokeLinejoin="round"
 											strokeWidth={2}
 										/>
 									</svg>
-								</button>
-								<div className="absolute left-0 mt-0 w-48 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
-									<div className="py-1">
-										<NextLink
-											className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-											href="/dashboard"
-										>
-											View
-										</NextLink>
-										<NextLink
-											className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-											href="/logout"
-										>
-											Logout
-										</NextLink>
+									Back to Dashboard
+								</NextLink>
+								<div className="relative group">
+									<NextLink
+										className="p-2 text-default-500 hover:text-foreground transition-colors block"
+										href="/logout"
+									>
+										<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+											/>
+										</svg>
+									</NextLink>
+									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+										Logout
 									</div>
 								</div>
-							</div>
+							</>
 						)}
 
 						{/* Primary CTA button (Dashboard or Login) - only show when not authenticated or on dashboard */}
@@ -333,35 +338,45 @@ export const Navbar = ({
 						{/* Heart donate button - hidden for users with active coach */}
 						{!hasActiveCoach &&
 							(isAuthenticated ? (
-								<button
-									className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
-									title="Donate"
-									onClick={handleDonateClick}
-								>
-									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											clipRule="evenodd"
-											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-											fillRule="evenodd"
-										/>
-									</svg>
-								</button>
+								<div className="relative group ml-6">
+									<button
+										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+										onClick={handleDonateClick}
+									>
+										<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path
+												clipRule="evenodd"
+												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+												fillRule="evenodd"
+											/>
+										</svg>
+									</button>
+									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+										{contributionCents > 0 || pathname === "/payment/thank-you"
+											? "Manage Subscription"
+											: "Donate"}
+									</div>
+								</div>
 							) : (
-								<a
-									className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
-									href={siteConfig.links.donate}
-									rel="noopener noreferrer"
-									target="_blank"
-									title="Donate"
-								>
-									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											clipRule="evenodd"
-											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-											fillRule="evenodd"
-										/>
-									</svg>
-								</a>
+								<div className="relative group ml-6">
+									<a
+										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block"
+										href={siteConfig.links.donate}
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path
+												clipRule="evenodd"
+												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+												fillRule="evenodd"
+											/>
+										</svg>
+									</a>
+									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+										Donate
+									</div>
+								</div>
 							))}
 					</div>
 

@@ -37,39 +37,46 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 		onChange
 	});
 
+	const tooltipText = isSelected && !isSSR ? "Switch to light mode" : "Switch to dark mode";
+
 	return (
-		<Component
-			{...getBaseProps({
-				className: clsx("px-px transition-opacity hover:opacity-80 cursor-pointer", className, classNames?.base)
-			})}
-		>
-			<VisuallyHidden>
-				<input {...getInputProps()} />
-			</VisuallyHidden>
-			<div
-				{...getWrapperProps()}
-				className={slots.wrapper({
-					class: clsx(
-						[
-							"w-auto h-auto",
-							"bg-transparent",
-							"rounded-lg",
-							"flex items-center justify-center gap-2", // Added gap for spacing
-							"group-data-[selected=true]:bg-transparent",
-							"!text-default-500",
-							"pt-px",
-							"px-0",
-							"mx-0"
-						],
-						classNames?.wrapper
-					)
+		<div className="relative group">
+			<Component
+				{...getBaseProps({
+					className: clsx("px-px transition-opacity hover:opacity-80 cursor-pointer", className, classNames?.base)
 				})}
 			>
-				<div data-testid="theme-switch-button">
-					{!isSelected || isSSR ? <MoonFilledIcon size={22} /> : <SunFilledIcon size={22} />}
-					{children && <span className="text-default-600">{children}</span>}
+				<VisuallyHidden>
+					<input {...getInputProps()} />
+				</VisuallyHidden>
+				<div
+					{...getWrapperProps()}
+					className={slots.wrapper({
+						class: clsx(
+							[
+								"w-auto h-auto",
+								"bg-transparent",
+								"rounded-lg",
+								"flex items-center justify-center gap-2", // Added gap for spacing
+								"group-data-[selected=true]:bg-transparent",
+								"!text-default-500",
+								"pt-px",
+								"px-0",
+								"mx-0"
+							],
+							classNames?.wrapper
+						)
+					})}
+				>
+					<div data-testid="theme-switch-button">
+						{!isSelected || isSSR ? <MoonFilledIcon size={22} /> : <SunFilledIcon size={22} />}
+						{children && <span className="text-default-600">{children}</span>}
+					</div>
 				</div>
+			</Component>
+			<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+				{tooltipText}
 			</div>
-		</Component>
+		</div>
 	);
 };
