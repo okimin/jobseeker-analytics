@@ -128,13 +128,6 @@ async def processing_status(
             "should_rescan": True  # Never scanned, should scan
         }
 
-    # Count applications found so far
-    applications_found = db_session.exec(
-        select(func.count(UserEmails.id)).where(
-            UserEmails.user_id == user_id
-        )
-    ).one()
-
     # Determine status
     if process_task_run.status == task_models.FINISHED:
         status = "complete"
@@ -142,6 +135,18 @@ async def processing_status(
         status = "processing"
     else:
         status = "idle"
+
+    # Get applications_found count
+    # During processing, use the task run's count (updated in real-time)
+    # When complete/idle, query the database for total count
+    if status == "processing":
+        applications_found = process_task_run.applications_found or 0
+    else:
+        applications_found = db_session.exec(
+            select(func.count(UserEmails.id)).where(
+                UserEmails.user_id == user_id
+            )
+        ).one()
 
     # Calculate last_scan_at and should_rescan
     # Find the most recent FINISHED task to get last successful scan time
@@ -560,6 +565,10 @@ def _fetch_emails_to_db_impl(
                 
                 if email_record:
                     email_records.append(email_record)
+                    # Update applications_found count in task run
+                    process_task_run.applications_found = len(email_records)
+                    db_session.add(process_task_run)
+                    db_session.commit()
                     # check rate limit against total daily count
                     if exceeds_rate_limit(process_task_run.processed_emails):
                         logger.warning(f"Rate limit exceeded for user {user_id} at {process_task_run.processed_emails} emails")

@@ -23,7 +23,7 @@ export default function ProcessingBanner({ processed, total, found }: Processing
 						</span>
 					</div>
 					<span className="text-blue-600 dark:text-blue-400 font-medium">
-						{found} application{found !== 1 ? "s" : ""} found
+						{found} job search emails {found !== 1 ? "s" : ""} found
 					</span>
 				</div>
 				<Progress
