@@ -111,24 +111,26 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 			<div className="bg-content1 rounded-lg shadow-lg border border-divider p-5">
 				{/* Close button */}
 				<button
-					className="absolute top-2 right-2 text-default-400 hover:text-foreground"
 					aria-label="Dismiss"
+					className="absolute top-2 right-2 text-default-400 hover:text-foreground"
 					onClick={handleMaybeLater}
 				>
 					<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+						<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
 					</svg>
 				</button>
 
 				{/* Heart icon and headline */}
 				<div className="flex items-center gap-2 mb-3">
-					<span className="text-2xl"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										clipRule="evenodd"
-										d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-										fillRule="evenodd"
-									/>
-								</svg></span>
+					<span className="text-2xl">
+						<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+							<path
+								clipRule="evenodd"
+								d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+								fillRule="evenodd"
+							/>
+						</svg>
+					</span>
 					<h3 className="text-lg font-semibold text-foreground">Help keep this free</h3>
 				</div>
 

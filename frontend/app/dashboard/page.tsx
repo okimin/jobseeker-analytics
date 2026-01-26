@@ -708,7 +708,11 @@ export default function Dashboard() {
 			/>
 
 			{/* Support banner */}
-			<SupportBanner isVisible={showPaymentAsk} triggerType={paymentTriggerType} onClose={handlePaymentAskClose} />
+			<SupportBanner
+				isVisible={showPaymentAsk}
+				triggerType={paymentTriggerType}
+				onClose={handlePaymentAskClose}
+			/>
 
 			{/* Session expired modal */}
 			{showSessionExpired && (
