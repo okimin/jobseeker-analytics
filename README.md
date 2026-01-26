@@ -1,112 +1,192 @@
-# Stop dreading your job search.
+# JustAJobApp
 
-## JustAJobApp.com connects to your inbox to automatically build your job search dashboard. No more spreadsheets. No more manual data entry.
+**An automated job application tracker that connects to your Gmail inbox.** Apply for jobs, receive confirmation emails, and your dashboard updates automatically. No browser extensions. No manual data entry. No spreadsheets.
 
-<img width="50%" height="50%" alt="Graphic showing job search statistics: applications per hire have tripled since 2021, with 90% of candidates being rejected or ghosted" src="frontend/public/homepage/Problem2.png" />
+![Screenshot of JustAJobApp dashboard showing automated job application tracking with color-coded statuses, company names, and application timeline](screenshot.png)
 
-The job search is officially broken, and it's not just you. Applications per hire have tripled since early 2021, leaving even qualified candidates stuck in an endless cycle of submitting resumes into the void.
+---
 
+## A Single Lost Email Cost Me $40,000
 
-[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
+After being laid off by email in 2024, I managed 46 interview pipelines from 129 applications. During a 9-interview week, a manual tracking error led to a missed interview—for a role paying $40,000 more than the offers I received.
 
-## Get Started
+I built JustAJobApp so this never happens to you.
+
+---
+
+## The Job Search Crisis
+
+**2–3× More Applications:** Pre-pandemic research found job seekers sent ~12 applications per month. JustAJobApp users send 7–12 per *week*—over 2× the historical volume. That's 2× more confirmation emails, rejections, and interview threads flooding your inbox.
+
+**7,800+ Applications Tracked:** That's 7,800+ confirmation emails, status updates, and interview requests our users no longer manage manually.
+
+**Spreadsheets Aren't Helping:** 72% of surveyed job seekers use 3+ different apps to track their search. Moving data between emails, calendars, and spreadsheets manually is where the $40,000 mistakes happen.
+
+---
+
+## How It Works
+
+1. **Connect your Gmail** — Secure sign-in, takes 30 seconds
+2. **Apply for jobs like normal** — No browser extensions, no clipping
+3. **Your dashboard updates automatically** — Confirmation emails become tracked applications
+
+Unlike other job trackers that force you to manually "clip" every job with a browser extension, JustAJobApp is fully automated.
+
+---
+
+## Privacy Is Our Product
+
+For a tool that reads your inbox, trust is everything. We're committed to radical transparency.
+
+### We Don't Read Your Emails
+
+We use a narrow search query for job-related messages only. If an email isn't from a known hiring platform or doesn't contain keywords like "application received," we ignore it entirely. Our filter list is public: see [`applied_email_filter.yaml`](applied_email_filter.yaml).
+
+### Your Data Is Not for Sale
+
+We use Google's paid Gemini API, which contractually forbids them from using your data to train their models. Your data is yours, and it is never monetized.
+
+### What We Store
+
+Only the metadata necessary to build your dashboard:
+- Sender name and email
+- Application status (e.g., "Interview," "Rejection")
+- Timestamp, company name, job title
+
+If our system determines an email is a false positive (not job-related), we don't store anything about it.
+
+### Why Open Source?
+
+Because we handle sensitive data, we believe our code should be open for public audit. More eyeballs means higher security standards.
+
+---
+
+## What People Are Saying
+
+> *"I receive so many emails a day that I mistook one for a rejection. Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. I would have completely missed this opportunity."*
+> — **CS & Engineering New Grad, F1-OPT**
+
+> *"I get to see the entire picture on a single dashboard... and not have to continually update a spreadsheet."*
+> — **Donal Murphy, MBA, Global Events Producer**
+
+---
+
+## Getting Started
 
 ```mermaid
 graph LR
-    A{Do you have a GitHub account?} -- No --> B[Reserve 50% off the official app at BuyMeACoffee.com/JustAJobApp];
-    A -- Yes --> C{Do you have a Gmail account?};
-    C -- Yes --> D[Continue with DIY Install];
-    C -- No --> E[Set up forwarding to a Gmail account];
-    E --> D;
+    A{Have a GitHub account?} -- No --> B[Sign up for hosted version]
+    A -- Yes --> C{Have a Gmail account?}
+    C -- Yes --> D[DIY Install]
+    C -- No --> E[Set up forwarding to Gmail]
+    E --> D
 ```
 
-**Do you have a GitHub account?**
+### Hosted Version (Limited Availability)
 
-* **Yes:** Choose your DIY Install path: 
-  * Like watching? [Video 📹](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-video-tutorial-diy-install)
-  * More of a reader? [Manual 📖](https://github.com/just-a-job-app/jobseeker-analytics?tab=contributing-ov-file#-written-tutorial-diy-install)
+**[JustAJobApp.com](https://justajobapp.com?utm_source=github&utm_campaign=readme)** — Free to use. Connect your Gmail and start tracking in under 2 minutes.
 
+> ⚠️ **Only ~15 spots remaining.** We're capped at 100 users until our security audit is complete (estimated 1–2 months). [Join the waitlist](https://its.justajobapp.com/?utm_source=github&utm_campaign=readme) to be notified when we open up.
 
-* **No:** [Reserve 50% off when we launch](https://buymeacoffee.com/justajobapp).
+### DIY Install (Developers)
 
-## Problem: The Job Search is Burning You Out
+If you have a GitHub account, you can run JustAJobApp for free on your own infrastructure—no waitlist, no user cap.
 
-The market is brutal. Applications per hire have tripled since 2021, and 90% of candidates are rejected or ghosted.
+**Choose your path:**
+- 📹 **[Video tutorial](https://github.com/just-a-job-app/jobseeker-analytics?tab=readme-ov-file#-video-tutorial-diy-install)** — Watch the walkthrough
+- 📖 **[Written guide](https://github.com/just-a-job-app/jobseeker-analytics?tab=readme-ov-file#-written-tutorial-diy-install)** — Step-by-step instructions
 
-No wonder 64% of job seekers report symptoms of burnout—feeling exhausted, stuck, and overwhelmed.
+> **Don't have Gmail?** You can set up email forwarding from your primary inbox to a Gmail account, then connect that to JustAJobApp.
 
-If you're already managing a full-time job, the last thing you have time for is:
-- Manually copying and pasting job descriptions into a spreadsheet.
-- Sifting through your inbox to find out who you heard back from.
-- Worrying you're missing critical recruiter emails in your spam folder.
-- Losing track of applications, deadlines, and follow-ups.
+---
 
-Your problem isn't your qualifications; it's the inefficient, time-consuming process.
+## Coming Soon: Paid Plans with Interview Prep
 
-[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
+The core tracker is free for jobseekers as long as we can cover operating costs. Paid plans will unlock advanced features like Instant Interview Prep.
 
-## Our Solution: Stop "Clipping." Start Automating.
+Customer discovery with 32 job seekers confirmed that **56% could not locate job descriptions or notes immediately before an interview.**
 
-Unlike other job trackers (Huntr, Teal, Simplify) that force you to manually "clip" every job with a browser extension, JustAJobApp.com is automated.
+When JustAJobApp detects an interview on your calendar, it will:
+- Identify your interviewers from the calendar invite
+- Draft company-specific questions
+- Map key talking points from your resume to the job description
+- Optionally notify your career coach to help you prepare
 
-Apply for a job. Get a confirmation email. That's it. Your tracker is now up to date. It’s an email-powered tracker designed for busy professionals who value efficiency and discretion.
+### 📬 [Join the waitlist →](https://its.justajobapp.com/?utm_source=github&utm_campaign=readme_paid)
 
-<img width="75%" height="75%" alt="Screenshot of JustAJobApp dashboard showing automated job application tracking with color-coded statuses, company names, and application timeline" src="frontend/public/homepage/Solution-Screenshot.png" />
+Get notified when spots open up and when Interview Prep launches.
 
-## Why 100+ Beta Testers Ditched Their Spreadsheets
+---
 
-Computer Science & Engineering New Grad (May 2025), F1-OPT:
-> "I receive so many emails a day that I mistook one for a rejection. Later, I saw a color-coded 'Hiring Freeze' status in JustAJobApp that caught my eye. It prompted me to go back and find the email—it wasn't a rejection, but an invitation to apply for a reopened position. I would have completely missed this opportunity if it wasn't for JustAJobApp."
+## For Career Coaches (Pilot Program)
 
-Donal Murphy, MBA, Global Events Producer:
-> "I get to see the entire picture on a single dashboard... and not have to continually update a spreadsheet."
+We're running a pilot with career coaches who want real-time visibility into their clients' job searches.
 
-## Coming Soon
+Get access to:
+- Upcoming interviews
+- Referrals and recruiter inbounds
+- Job offers
 
-Tracking your applications is just the beginning. 
+👉 **[Coach.JustAJobApp.com](https://coach.justajobapp.com?utm_source=github&utm_campaign=readme)** — Apply to join the pilot
 
-The next, most stressful step is preparing for the interview.
+---
 
-Once the system detects an interview in your inbox, it will automatically spring into action. 
+## As Seen On
 
-We're building a system to help you prepare by identifying interviewers from the calendar invite, drafting company-specific questions, and mapping key talking points from your resume to the job description.
+🎬 **Featured twice on GitHub's official YouTube channel (586K subscribers)**
 
+- **July 2025:** First feature on GitHub's YouTube
+- **December 2025:** Named one of ["GitHub's Favorite Open Source Projects of 2025"](https://www.youtube.com/watch?v=1ckVnvo-qcw&t=9s)
 
-[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
+---
 
-## The Current Roadblock
+## Contributing
 
-We are currently blocked by Google's 100-user hard cap. To lift this cap and make the app available to everyone, I must pass a one-time, $3,000 mandatory security audit.
+JustAJobApp is built by jobseekers, for jobseekers. Our contributors are often going through the job search themselves.
 
-Today I had to turn away another job seeker who needed this tool but was (rightfully) concerned about its unverified status.
+**Why people contribute:**
+- *"I felt empowered to build from scratch for my resume."*
+- *"Code is beginner friendly and easy to know how the process works."*
+- *"I liked supporting another side hustler."*
 
-Your [support](https://buymeacoffee.com/justajobapp) will directly fund this audit. It is the only thing standing between us and helping thousands of job seekers.
+**Get started:**
+- [Issues](https://github.com/JustAJobApp/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## News 
+**Support the project:** If JustAJobApp has helped your job search, consider [supporting us](https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00).
 
-In July 2025, we secured a feature on GitHub's official YouTube channel, which has over 500,000 subscribers.
+---
 
-🎥 [Watch the full episode here](https://youtu.be/sbzKMVaYHZw?list=PL0ZEIUccq0tD_c7gV0lAMXDXl-xK4pxch&t=1260) 
+## FAQ
 
+<details>
+<summary><strong>Are you going to read all my emails?</strong></summary>
 
-<img width="75%" height="75%" alt="Screenshot of JustAJobApp featured on GitHub's official YouTube channel with over 500,000 subscribers" src="frontend/public/homepage/News.png" />
+No. JustAJobApp doesn't "crawl" your entire inbox. We use a specific search query to identify only potential job-related threads before the application even looks at the content. Our filter list is public in [`applied_email_filter.yaml`](applied_email_filter.yaml).
+</details>
 
+<details>
+<summary><strong>I use my personal email for everything. Is that okay?</strong></summary>
 
-## Get Involved
+Yes. We only access emails matching our pre-defined filters—specific sender domains (like greenhouse.io) and keywords (like "application received"). Everything else is ignored entirely.
+</details>
 
-[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
+<details>
+<summary><strong>Do I have to use the web app?</strong></summary>
 
-- Over 25 volunteer developers and 100 beta testers helped build what JustAJobApp.com is today. We've tracked over 3,000 applications and 268 interview invites.
-- But we are currently blocked. Google has a 100-user hard cap on unverified apps. To lift this cap and make a less stressful job search experience available to everyone (outside the developer community), we must pass a one-time, $3,000 mandatory security audit.
-- Recently I had to turn away another job seeker who needed this tool but was (rightfully) concerned about its unverified status.
-- So I've set up a BuyMeACoffee page to [raise the $3,000 to pass the security audit](https://www.buymeacoffee.com/justajobapp). It's the only thing standing between us and helping thousands of job seekers.
+No. If you're technical, you can self-host by following the instructions above.
+</details>
 
-Check out the page below to support us.
+<details>
+<summary><strong>Why is this open source?</strong></summary>
 
-[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/justajobapp)
+Transparency. Because we handle sensitive data, we believe our code should be open for public audit. Having "more eyeballs" ensures higher security standards.
+</details>
 
-## Thank You to Our Contributors
+---
 
-<a href="https://github.com/just-a-job-app/jobseeker-analytics/graphs/contributors">
-  <img alt="Grid of profile pictures showing all contributors to the jobseeker-analytics project" src="https://contrib.rocks/image?repo=just-a-job-app/jobseeker-analytics" />
-</a>
+## License
+
+[MIT License](LICENSE)
+
+Built with ❤️ by a jobseeker who lost $40,000 to a missed email—so you don't have to.
