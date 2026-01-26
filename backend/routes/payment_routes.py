@@ -74,9 +74,13 @@ async def should_show_payment_ask(
     if not user:
         return ShouldAskResponse(should_ask=False, reason="user_not_found")
 
-    # Already contributing
+    # Already contributing (active subscription)
     if (user.monthly_contribution_cents or 0) > 0:
         return ShouldAskResponse(should_ask=False, reason="already_contributing")
+
+    # Has made any contribution (including one-time donations)
+    if (user.total_contributed_cents or 0) > 0:
+        return ShouldAskResponse(should_ask=False, reason="has_contributed")
 
     # Check if user has an active coach link (coach is paying for their seat)
     active_coach_link = db_session.exec(

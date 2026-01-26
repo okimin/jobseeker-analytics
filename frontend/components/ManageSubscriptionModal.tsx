@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 
 interface ManageSubscriptionModalProps {
@@ -24,6 +24,14 @@ export default function ManageSubscriptionModal({
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [hasEdited, setHasEdited] = useState(false);
+
+	// Sync newAmount when modal opens or currentAmountCents changes
+	useEffect(() => {
+		if (isOpen && currentAmountCents > 0) {
+			setNewAmount((currentAmountCents / 100).toString());
+			setHasEdited(false);
+		}
+	}, [isOpen, currentAmountCents]);
 
 	const currentDollarAmount = currentAmountCents / 100;
 
@@ -122,6 +130,18 @@ export default function ManageSubscriptionModal({
 										}}
 									/>
 									<span className="text-default-500">/month</span>
+									<button
+										className="px-2 py-1 text-sm bg-primary/10 text-primary hover:bg-primary/20 rounded transition-colors disabled:opacity-50"
+										disabled={isUpdating || isCancelling}
+										type="button"
+										onClick={() => {
+											const current = parseFloat(newAmount) || 0;
+											setNewAmount((current + 5).toString());
+											setHasEdited(true);
+										}}
+									>
+										+$5
+									</button>
 								</div>
 								{!isValidAmount() && hasEdited && (
 									<p className="text-xs text-danger mt-1">Please enter an amount of at least $1</p>
@@ -139,7 +159,7 @@ export default function ManageSubscriptionModal({
 								color="default"
 								isDisabled={isCancelling}
 								variant="light"
-								onPress={() => setShowCancelConfirm(false)}
+								onPress={handleClose}
 							>
 								Keep Subscription
 							</Button>

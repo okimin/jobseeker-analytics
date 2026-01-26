@@ -24,9 +24,11 @@ const ExternalLinkIcon = ({ className = "w-3 h-3" }: { className?: string }) => 
 interface NavbarProps {
 	defaultCollapsed?: boolean;
 	onDonateClick?: () => void;
+	contributionCents?: number;
+	onManageSubscriptionClick?: () => void;
 }
 
-export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps) => {
+export const Navbar = ({ defaultCollapsed = false, onDonateClick, contributionCents = 0, onManageSubscriptionClick }: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,6 +65,11 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 	const handleDonateClick = () => {
 		if (!isAuthenticated) {
 			window.location.href = "/login";
+			return;
+		}
+		// If user has an active subscription, open manage subscription modal
+		if (contributionCents > 0 && onManageSubscriptionClick) {
+			onManageSubscriptionClick();
 			return;
 		}
 		if (onDonateClick) {

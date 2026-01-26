@@ -44,7 +44,7 @@ export default function Dashboard() {
 	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
 
 	// Payment ask state
-	const [showPaymentAsk, setShowPaymentAsk] = useState(true);
+	const [showPaymentAsk, setShowPaymentAsk] = useState(false);
 	const [paymentTriggerType, setPaymentTriggerType] = useState("");
 	const [contributionCents, setContributionCents] = useState(0);
 	const [paymentAskChecked, setPaymentAskChecked] = useState(false);
@@ -635,7 +635,11 @@ export default function Dashboard() {
 
 	return (
 		<>
-			<Navbar onDonateClick={handleDonateClick} />
+			<Navbar
+				contributionCents={contributionCents}
+				onDonateClick={handleDonateClick}
+				onManageSubscriptionClick={() => setShowManageSubscription(true)}
+			/>
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner
