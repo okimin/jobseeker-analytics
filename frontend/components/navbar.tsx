@@ -10,6 +10,17 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { checkAuth } from "@/utils/auth";
 import SupportBanner from "@/components/SupportBanner";
 
+const ExternalLinkIcon = ({ className = "w-3 h-3" }: { className?: string }) => (
+	<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path
+			d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+		/>
+	</svg>
+);
+
 interface NavbarProps {
 	defaultCollapsed?: boolean;
 	onDonateClick?: () => void;
@@ -171,6 +182,17 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							</div>
 						</div>
 
+						{/* Find Jobs - top-level external link */}
+						<a
+							className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1"
+							href={siteConfig.links.hiringCafe}
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							Find Real Jobs
+							<ExternalLinkIcon />
+						</a>
+
 						{/* Resources dropdown */}
 						<div className="relative group">
 							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
@@ -187,28 +209,22 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							<div className="absolute left-0 mt-0 w-56 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 								<div className="py-1">
 									<a
-										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.hiringCafe}
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Report a Bug / Request Feature
+										Real Jobs
+										<ExternalLinkIcon />
 									</a>
 									<a
-										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href="https://www.neversearchalone.com/"
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.neverSearchAlone}
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Join a Support Group (Never Search Alone)
-									</a>
-									<a
-										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href="https://hiring.cafe/"
-										rel="noopener noreferrer"
-										target="_blank"
-									>
-										Find a Job (hiring.cafe)
+										Job Search Councils
+										<ExternalLinkIcon />
 									</a>
 								</div>
 							</div>
@@ -229,18 +245,33 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							</button>
 							<div className="absolute left-0 mt-0 w-48 bg-content1 dark:bg-content2 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-divider">
 								<div className="py-1">
-									<button
-										className="block w-full text-left px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										onClick={handleDonateClick}
+									<a
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.donate}
+										rel="noopener noreferrer"
+										target="_blank"
 									>
 										Donate
-									</button>
-									<NextLink
-										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href="/contributors"
+										<ExternalLinkIcon />
+									</a>
+									<a
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.github}
+										rel="noopener noreferrer"
+										target="_blank"
 									>
-										Participate
-									</NextLink>
+										Develop
+										<ExternalLinkIcon />
+									</a>
+									<a
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.feedback}
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Give Feedback
+										<ExternalLinkIcon />
+									</a>
 								</div>
 							</div>
 						</div>
@@ -292,19 +323,37 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 
 						{/* Heart donate button - hidden for users with active coach */}
 						{!hasActiveCoach && (
-							<button
-								className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
-								title="Donate"
-								onClick={handleDonateClick}
-							>
-								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										clipRule="evenodd"
-										d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-										fillRule="evenodd"
-									/>
-								</svg>
-							</button>
+							isAuthenticated ? (
+								<button
+									className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+									title="Donate"
+									onClick={handleDonateClick}
+								>
+									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path
+											clipRule="evenodd"
+											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+											fillRule="evenodd"
+										/>
+									</svg>
+								</button>
+							) : (
+								<a
+									className="ml-6 p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+									href={siteConfig.links.donate}
+									rel="noopener noreferrer"
+									target="_blank"
+									title="Donate"
+								>
+									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path
+											clipRule="evenodd"
+											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+											fillRule="evenodd"
+										/>
+									</svg>
+								</a>
+							)
 						)}
 					</div>
 
@@ -391,46 +440,62 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 							Resources
 						</div>
 						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
-							href="https://github.com/just-a-job-app/jobseeker-analytics/issues"
+							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href={siteConfig.links.hiringCafe}
+							rel="noopener noreferrer"
+							target="_blank"
+							onClick={() => setIsOpen(false)}
+						>
+							Real Jobs
+							<ExternalLinkIcon />
+						</a>
+						<a
+							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href={siteConfig.links.neverSearchAlone}
+							rel="noopener noreferrer"
+							target="_blank"
+							onClick={() => setIsOpen(false)}
+						>
+							Job Search Councils (Never Search Alone)
+							<ExternalLinkIcon />
+						</a>
+						<a
+							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href={siteConfig.links.githubIssues}
 							rel="noopener noreferrer"
 							target="_blank"
 							onClick={() => setIsOpen(false)}
 						>
 							Report a Bug / Request Feature
-						</a>
-						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
-							href="https://www.neversearchalone.com/"
-							rel="noopener noreferrer"
-							target="_blank"
-							onClick={() => setIsOpen(false)}
-						>
-							Never Search Alone
-						</a>
-						<a
-							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
-							href="https://hiring.cafe/"
-							rel="noopener noreferrer"
-							target="_blank"
-							onClick={() => setIsOpen(false)}
-						>
-							hiring.cafe
+							<ExternalLinkIcon />
 						</a>
 
 						{/* Contribute section */}
 						<div className="px-3 py-2 pt-4 text-xs font-semibold text-default-500 uppercase tracking-wider border-t border-divider">
 							Contribute
 						</div>
-						<button
-							className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
-							onClick={() => {
-								setIsOpen(false);
-								handleDonateClick();
-							}}
-						>
-							Donate
-						</button>
+						{isAuthenticated ? (
+							<button
+								className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+								onClick={() => {
+									setIsOpen(false);
+									handleDonateClick();
+								}}
+							>
+								Donate
+							</button>
+						) : (
+							<a
+								className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+								href={siteConfig.links.donate}
+								rel="noopener noreferrer"
+								target="_blank"
+								onClick={() => setIsOpen(false)}
+							>
+								Donate
+								<ExternalLinkIcon />
+							</a>
+						)}
 						<NextLink
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/contributors"
@@ -438,6 +503,16 @@ export const Navbar = ({ defaultCollapsed = false, onDonateClick }: NavbarProps)
 						>
 							Participate
 						</NextLink>
+						<a
+							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href={siteConfig.links.feedback}
+							rel="noopener noreferrer"
+							target="_blank"
+							onClick={() => setIsOpen(false)}
+						>
+							Give Feedback
+							<ExternalLinkIcon />
+						</a>
 
 						{/* Auth section */}
 						<div className="pt-4 border-t border-divider">

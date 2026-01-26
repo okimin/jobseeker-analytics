@@ -6,6 +6,7 @@ import { Card, CardBody, Avatar } from "@heroui/react";
 import contributorsData from "../../data/contributors.json";
 
 import { Navbar } from "@/components/navbar";
+import { siteConfig } from "@/config/site";
 
 interface Contributor {
 	name: string;
@@ -99,7 +100,7 @@ export default function ContributorsPage() {
 							<div className="flex flex-col sm:flex-col gap-4 justify-center">
 								<a
 									className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-									href="https://github.com/just-a-job-app/jobseeker-analytics/blob/main/CONTRIBUTOR_ONBOARDING.md"
+									href={siteConfig.links.contributorOnboarding}
 									rel="noopener noreferrer"
 									target="_blank"
 								>
@@ -107,7 +108,7 @@ export default function ContributorsPage() {
 								</a>
 								<a
 									className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
-									href="https://github.com/just-a-job-app/jobseeker-analytics/blob/main/CONTRIBUTOR_ONBOARDING.md#step-3-add-yourself-to-the-wall-of-fame"
+									href={siteConfig.links.contributorOnboardingStep3}
 									rel="noopener noreferrer"
 									target="_blank"
 								>

@@ -207,7 +207,7 @@ const Index = () => {
 				</div>
 			</div>
 			{/* Solution / Value Prop Section */}
-			<div className="bg-background dark:bg-content2 py-24">
+			<div className="bg-background dark:bg-content2 py-24" id="how-it-works">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 						<div>

@@ -1,53 +1,187 @@
 "use client";
 
+import NextLink from "next/link";
+
 import { siteConfig } from "@/config/site";
+
+const ExternalLinkIcon = () => (
+	<svg className="inline-block w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path
+			d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+		/>
+	</svg>
+);
 
 const Footer = () => {
 	return (
-		<footer className="w-full border-t border-divider bg-content1 dark:bg-content1 p-6">
-			<div className="container mx-auto max-w-7xl">
-				<div className="flex flex-col items-center justify-center gap-4 md:flex-row">
-					<p className="text-sm text-default-500">
-						© {new Date().getFullYear()} {siteConfig.legalName}
-					</p>
-					<div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+		<footer className="w-full border-t border-divider bg-content1 dark:bg-content1">
+			{/* Waitlist CTA Banner */}
+			<div className="bg-primary/10 dark:bg-primary/5 py-6">
+				<div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+						<p className="text-sm sm:text-base text-foreground">
+							Get notified when Interview Prep launches
+						</p>
 						<a
-							className="text-sm text-primary hover:text-primary-600 hover:underline transition-colors"
-							href={siteConfig.links.termsAndConditions}
+							className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+							href={siteConfig.links.waitlist}
 							rel="noopener noreferrer"
 							target="_blank"
 						>
-							Terms of Use
-						</a>
-						{" | "}
-						<a
-							className="text-sm text-primary hover:text-primary-600 hover:underline transition-colors"
-							href={siteConfig.links.privacyPolicy}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Privacy Policy
-						</a>
-						{" | "}
-						<a
-							className="text-sm text-primary hover:text-primary-600 hover:underline transition-colors"
-							href={siteConfig.links.support}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Support
-						</a>
-						{" | "}
-						<a
-							className="text-sm text-primary hover:text-primary-600 hover:underline transition-colors"
-							href={siteConfig.links.feedback}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							<span className="mr-1">💬</span>
-							Give Feedback
+							Join Waitlist <ExternalLinkIcon />
 						</a>
 					</div>
+				</div>
+			</div>
+
+			{/* Main Footer Content */}
+			<div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+					{/* PRODUCT Column */}
+					<div>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Product</h4>
+						<ul className="space-y-3">
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/#how-it-works"
+								>
+									How It Works
+								</NextLink>
+							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/"
+								>
+									For Job Seekers
+								</NextLink>
+							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/coaches"
+								>
+									For Career Coaches
+								</NextLink>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.waitlist}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Join Waitlist <ExternalLinkIcon />
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					{/* COMMUNITY Column */}
+					<div>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
+							Community
+						</h4>
+						<ul className="space-y-3">
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.neverSearchAlone}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Job Search Councils <ExternalLinkIcon />
+								</a>
+							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/contributors"
+								>
+									Wall of Fame
+								</NextLink>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.feedback}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Give Feedback <ExternalLinkIcon />
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					{/* COMPANY Column */}
+					<div>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Company</h4>
+						<ul className="space-y-3">
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/"
+								>
+									About
+								</NextLink>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.github}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									GitHub <ExternalLinkIcon />
+								</a>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.support}
+								>
+									Contact
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					{/* LEGAL Column */}
+					<div>
+						<h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Legal</h4>
+						<ul className="space-y-3">
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.privacyPolicy}
+								>
+									Privacy Policy
+								</NextLink>
+							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.termsAndConditions}
+								>
+									Terms of Service
+								</NextLink>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			{/* Copyright */}
+			<div className="border-t border-divider py-6">
+				<div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+					<p className="text-sm text-default-500 text-center">
+						© {new Date().getFullYear()} {siteConfig.legalName} · {siteConfig.description}
+					</p>
 				</div>
 			</div>
 		</footer>

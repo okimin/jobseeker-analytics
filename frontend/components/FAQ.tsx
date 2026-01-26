@@ -7,6 +7,7 @@ import { LockClosedIcon, ShieldCheckIcon, CodeBracketSquareIcon } from "@heroico
 import { EmailIcon } from "./icons";
 
 import { title, subtitle } from "@/components/primitives";
+import { siteConfig } from "@/config/site";
 
 export const FAQ = () => {
 	return (
@@ -121,7 +122,7 @@ export const FAQ = () => {
 						</p>
 						<a
 							className="text-sm text-primary hover:underline"
-							href="https://github.com/JustAJobApp/jobseeker-analytics"
+							href={siteConfig.links.github}
 							rel="noopener noreferrer"
 							target="_blank"
 						>

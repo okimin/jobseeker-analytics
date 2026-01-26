@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/navbar";
+import { siteConfig } from "@/config/site";
 
 const CoachesPage = () => {
 	return (
@@ -33,7 +34,7 @@ const CoachesPage = () => {
 							<p className="text-foreground/90 mb-6 text-lg">Sign up at Coach.JustAJobApp.com</p>
 							<a
 								className="inline-flex w-full items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
-								href="https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_2"
+								href={siteConfig.links.coachPortal}
 								rel="noopener noreferrer"
 								target="_blank"
 							>
