@@ -25,6 +25,10 @@ async def stripe_webhook(
     stripe_signature: str = Header(None, alias="Stripe-Signature")
 ):
     """Handle Stripe webhook events."""
+    if not stripe_signature:
+        logger.error("Missing Stripe-Signature header")
+        raise HTTPException(status_code=400, detail="Missing signature header")
+
     get_stripe_key()
     payload = await request.body()
 
