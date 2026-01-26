@@ -383,7 +383,7 @@ async def update_subscription(
         subscription_item_id = subscription["items"]["data"][0]["id"]
 
         # Update the subscription with a new price
-        updated_subscription = stripe.Subscription.modify(
+        stripe.Subscription.modify(
             user.stripe_subscription_id,
             items=[{
                 "id": subscription_item_id,
