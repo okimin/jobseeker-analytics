@@ -2,7 +2,7 @@
 
 **An automated job application tracker that connects to your Gmail inbox.** Apply for jobs, receive confirmation emails, and your dashboard updates automatically. No browser extensions. No manual data entry. No spreadsheets.
 
-![Screenshot of JustAJobApp dashboard showing automated job application tracking with color-coded statuses, company names, and application timeline](screenshot.png)
+[![Watch the video on YouTube](https://img.youtube.com/vi/7L5eTlRHoa8/maxresdefault.jpg)](https://www.youtube.com/watch?v=7L5eTlRHoa8)
 
 ---
 
