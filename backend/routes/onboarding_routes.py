@@ -21,7 +21,6 @@ limiter = Limiter(key_func=get_remote_address)
 
 class OnboardingStatusResponse(BaseModel):
     has_completed_onboarding: bool  # Computed from onboarding_completed_at
-    subscription_tier: Optional[str]
     has_email_sync_configured: bool
     sync_email_address: Optional[str]
 
@@ -43,7 +42,6 @@ async def get_onboarding_status(
 
     return OnboardingStatusResponse(
         has_completed_onboarding=user.onboarding_completed_at is not None,
-        subscription_tier=user.subscription_tier,
         has_email_sync_configured=user.has_email_sync_configured,
         sync_email_address=user.sync_email_address
     )
@@ -68,7 +66,6 @@ async def complete_onboarding_subsidized(
         raise HTTPException(status_code=400, detail="Onboarding already completed")
 
     user.onboarding_completed_at = datetime.now(timezone.utc)
-    user.subscription_tier = "subsidized"
     db_session.add(user)
     db_session.commit()
 

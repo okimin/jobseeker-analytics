@@ -131,7 +131,6 @@ async def login(
                 if earliest_email:
                     # User has emails - auto-complete onboarding using earliest email date as start_date
                     existing_user.onboarding_completed_at = datetime.now(timezone.utc)
-                    existing_user.subscription_tier = "subsidized"
                     existing_user.start_date = earliest_email
                     db_session.add(existing_user)
                     db_session.commit()
@@ -206,7 +205,6 @@ async def getUser(request: Request, db_session: database.DBSession, user_id: str
         "user_id": user_id,
         "role": user.role,
         "has_completed_onboarding": user.onboarding_completed_at is not None,
-        "subscription_tier": user.subscription_tier,
         "has_email_sync_configured": user.has_email_sync_configured,
         "sync_email_address": user.sync_email_address,
         "is_supporter": (user.monthly_contribution_cents or 0) > 0,

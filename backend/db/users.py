@@ -22,7 +22,6 @@ class Users(SQLModel, table=True):
     role: str = Field(default="jobseeker") # 'jobseeker', 'coach'
     # Onboarding fields
     onboarding_completed_at: datetime | None = Field(default=None, nullable=True)  # When start date was set
-    subscription_tier: str | None = Field(default=None, nullable=True)  # "subsidized", "standard", "sustainer", "custom"
     # Email sync fields (separate from signup auth)
     has_email_sync_configured: bool = Field(default=False, nullable=False)
     sync_email_address: str | None = Field(default=None, nullable=True)  # Email address being synced (can differ from user_email)

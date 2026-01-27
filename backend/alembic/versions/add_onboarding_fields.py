@@ -10,7 +10,6 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import text
-import sqlmodel
 
 
 # revision identifiers, used by Alembic.
@@ -29,13 +28,6 @@ def upgrade() -> None:
         nullable=True
     ))
 
-    # Add subscription_tier as nullable string
-    op.add_column('users', sa.Column(
-        'subscription_tier',
-        sqlmodel.sql.sqltypes.AutoString(),
-        nullable=True
-    ))
-
     # Set existing active users to onboarding_completed_at = now
     # This ensures existing beta users are not forced into the new onboarding flow
     print("Setting onboarding_completed_at = NOW() for all existing active users")
@@ -44,5 +36,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_column('users', 'subscription_tier')
     op.drop_column('users', 'onboarding_completed_at')

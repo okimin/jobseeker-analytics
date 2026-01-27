@@ -126,7 +126,6 @@ def user_factory(db_session, is_active=True, start_date=None):
         role="jobseeker",
         onboarding_completed_at=None,
         has_email_sync_configured=False,
-        subscription_tier=None,
     ):
         user = Users(
             user_id=user_id,
@@ -136,7 +135,6 @@ def user_factory(db_session, is_active=True, start_date=None):
             role=role,
             onboarding_completed_at=onboarding_completed_at,
             has_email_sync_configured=has_email_sync_configured,
-            subscription_tier=subscription_tier,
         )
         db_session.add(user)
         db_session.commit()
@@ -199,7 +197,6 @@ def jobseeker_complete_setup(user_factory):
         onboarding_completed_at=datetime.now(timezone.utc),
         has_email_sync_configured=True,
         start_date=datetime.now(),
-        subscription_tier="standard",
     )
 
 
