@@ -28,7 +28,6 @@ def upgrade() -> None:
         sa.Column('stripe_payment_intent_id', sa.String(255), nullable=True),
         sa.Column('stripe_subscription_id', sa.String(255), nullable=True),
         sa.Column('amount_cents', sa.Integer(), nullable=False),
-        sa.Column('currency', sa.String(3), server_default='usd', nullable=False),
         sa.Column('is_recurring', sa.Boolean(), nullable=False),
         sa.Column('status', sa.String(50), nullable=False),  # 'pending', 'completed', 'failed', 'cancelled'
         sa.Column('trigger_type', sa.String(100), nullable=True),  # What triggered this payment

@@ -19,7 +19,6 @@ class Contributions(SQLModel, table=True):
 
     # Payment details
     amount_cents: int = Field(nullable=False)
-    currency: str = Field(default="usd", nullable=False)
     is_recurring: bool = Field(nullable=False)
 
     # Status: 'pending', 'completed', 'failed', 'refunded', 'cancelled'
