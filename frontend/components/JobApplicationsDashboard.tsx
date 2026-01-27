@@ -2,15 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/table";
-import { DatePicker } from "@heroui/react";
-import { CalendarDate } from "@internationalized/date";
-import { useRouter } from "next/navigation";
 import {
 	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
-	DropdownSection,
 	DropdownTrigger,
 	Modal,
 	ModalBody,
@@ -68,6 +64,22 @@ const getInitialSortKey = (key: string) => {
 	return typeof window !== "undefined" ? localStorage.getItem("sortKey") || key : key;
 };
 
+// Status options for inline add
+const STATUS_OPTIONS = [
+	"Application Confirmation",
+	"Rejection",
+	"Interview Invitation",
+	"Offer Made",
+	"Assessment Sent",
+	"Availability Request",
+	"Information Request",
+	"Action Required From Company",
+	"Hiring Freeze Notification",
+	"Withdrew Application",
+	"Did Not Apply - Inbound Request",
+	"Outreach"
+];
+
 //Function to get the CSS class based on application status
 function getStatusClass(status: string) {
 	const normalized = status?.toLowerCase();
@@ -96,6 +108,8 @@ function getStatusClass(status: string) {
 			return "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-600 dark:text-white";
 		case "false positive":
 			return "bg-amber-100 text-amber-800 dark:bg-amber-600 dark:text-white";
+		case "outreach":
+			return "bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-white";
 		default:
 			return "bg-zinc-200 text-zinc-800 dark:bg-zinc-600 dark:text-white";
 	}
@@ -122,17 +136,11 @@ export default function JobApplicationsDashboard({
 	hideApplicationConfirmations = true,
 	onHideApplicationConfirmationsChange,
 	onRefreshData,
-	readOnly = false,
-	...props
+	readOnly = false
 }: JobApplicationsDashboardProps) {
 	const [sortedData, setSortedData] = useState<Application[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState(new Set([getInitialSortKey(initialSortKey)]));
-	const [showModal, setShowModal] = useState(false);
-	const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(null);
-	const [isSaving, setIsSaving] = useState(false);
-	const [isNewUser, setIsNewUser] = useState(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-	const router = useRouter();
 	const [showDelete, setShowDelete] = useState(false);
 	const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
@@ -143,6 +151,41 @@ export default function JobApplicationsDashboard({
 	const [showApplicationModal, setShowApplicationModal] = useState(false);
 	const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 	const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+
+	// Inline add row state
+	const [isAddingRow, setIsAddingRow] = useState(false);
+	const [newRowData, setNewRowData] = useState({
+		company_name: "",
+		application_status: "Application Confirmation",
+		received_at: new Date().toISOString().split("T")[0],
+		job_title: "",
+		subject: "",
+		email_from: ""
+	});
+	const [isSavingNewRow, setIsSavingNewRow] = useState(false);
+
+	// Keyboard shortcut: press "i" to insert new row
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Don't trigger if user is typing in an input, textarea, or select
+			const target = e.target as HTMLElement;
+			if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
+				return;
+			}
+			// Don't trigger if a modal is open
+			if (showDelete || showApplicationModal) {
+				return;
+			}
+			// Press "i" to insert new row
+			if (e.key === "i" && !readOnly && !isAddingRow) {
+				e.preventDefault();
+				setIsAddingRow(true);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [readOnly, isAddingRow, showDelete, showApplicationModal]);
 
 	// Get unique statuses and companies for filter dropdowns
 	const uniqueStatuses = React.useMemo(() => {
@@ -163,68 +206,6 @@ export default function JobApplicationsDashboard({
 	}, [data]);
 
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
-
-	const handleSave = async () => {
-		if (!selectedDate) return alert("Please select a start date");
-
-		setIsSaving(true);
-		const formattedDate = `${selectedDate.year}-${String(selectedDate.month).padStart(2, "0")}-${String(
-			selectedDate.day
-		).padStart(2, "0")}`;
-		// Step 1: Save the start date
-		const response = await fetch(`${apiUrl}/set-start-date`, {
-			method: "POST",
-			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body: new URLSearchParams({ start_date: formattedDate.toString() }),
-			credentials: "include"
-		});
-
-		if (!response.ok) {
-			setIsSaving(false);
-			// You might want to show an error message to the user here
-			return;
-		}
-
-		// Always start the background task after saving the date
-		startFetchEmailsBackgroundTask();
-
-		// Navigate to processing page.
-		setIsNewUser(false); // Hide the modal after saving
-		setShowModal(false);
-		router.push("/processing"); // Navigate to the dashboard page
-	};
-
-	const startFetchEmailsBackgroundTask = async () => {
-		// Example background task: Start fetching emails
-		const response = await fetch(`${apiUrl}/fetch-emails`, {
-			method: "POST", // or GET, depending on your API
-			credentials: "include"
-		});
-
-		if (!response.ok) {
-			return;
-		}
-	};
-
-	useEffect(() => {
-		setShowModal(isNewUser);
-	}, [isNewUser]);
-
-	useEffect(() => {
-		async function fetchSessionData() {
-			const response = await fetch(`${apiUrl}/api/session-data`, {
-				method: "GET",
-				credentials: "include"
-			});
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const data = await response.json();
-			setIsNewUser(!!data.is_new_user); // Set the new user flag
-			setShowModal(!!data.is_new_user); // Show modal if new user
-		}
-		fetchSessionData();
-	}, []);
 
 	// Sort data based on selected key
 	useEffect(() => {
@@ -296,17 +277,43 @@ export default function JobApplicationsDashboard({
 
 	const totalPages = Math.ceil(sortedData.length / pageSize);
 
-	// Add/Edit application handlers
-	const handleAddApplication = () => {
-		setModalMode("create");
-		setSelectedApplication(null);
-		setShowApplicationModal(true);
+	// Inline row handlers
+	const resetNewRow = () => {
+		setNewRowData({
+			company_name: "",
+			application_status: "Application Confirmation",
+			received_at: new Date().toISOString().split("T")[0],
+			job_title: "",
+			subject: "",
+			email_from: ""
+		});
+		setIsAddingRow(false);
 	};
 
-	const handleEditApplication = (application: Application) => {
-		setModalMode("edit");
-		setSelectedApplication(application);
-		setShowApplicationModal(true);
+	const handleSaveNewRow = async () => {
+		if (!newRowData.company_name.trim() || !newRowData.job_title.trim()) return;
+
+		setIsSavingNewRow(true);
+		try {
+			const response = await fetch(`${apiUrl}/job-applications`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify({
+					...newRowData,
+					received_at: `${newRowData.received_at}T00:00:00.000Z`
+				})
+			});
+
+			if (!response.ok) throw new Error("Failed to create application");
+
+			resetNewRow();
+			if (onRefreshData) onRefreshData();
+		} catch (error) {
+			console.error("Error creating application:", error);
+		} finally {
+			setIsSavingNewRow(false);
+		}
 	};
 
 	const handleSaveApplication = async (application: Application) => {
@@ -344,20 +351,6 @@ export default function JobApplicationsDashboard({
 
 	return (
 		<div className="p-6">
-			{/* Modal for New User */}
-			<Modal isOpen={showModal} onOpenChange={setShowModal}>
-				<ModalContent>
-					<ModalHeader>Select Your Job Search Start Date</ModalHeader>
-					<ModalBody>
-						<DatePicker value={selectedDate} onChange={setSelectedDate} />
-					</ModalBody>
-					<ModalFooter>
-						<Button color="primary" isLoading={isSaving} onPress={handleSave}>
-							Save and Continue
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
 			<Modal isOpen={showDelete} onOpenChange={(isOpen) => setShowDelete(isOpen)}>
 				<ModalContent>
 					{(onClose) => (
@@ -391,278 +384,293 @@ export default function JobApplicationsDashboard({
 					)}
 				</ModalContent>
 			</Modal>
-			<h1 className="text-2xl font-bold mt-0">{title}</h1>
-			<br />
-			<div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-				{/* Search and Filter Controls */}
-				<div className="flex flex-wrap items-center gap-4 flex-1">
-					{/* Search Input */}
-					<div className="max-w-md">
-						<input
-							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-							placeholder="Company"
-							type="text"
-							value={searchTerm}
-							onChange={(e) => onSearchChange?.(e.target.value)}
-						/>
-					</div>
+			{/* Filter Row */}
+			<div className="flex flex-wrap items-center gap-3 mb-4">
+				{/* Search Input */}
+				<input
+					className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white min-w-[200px]"
+					placeholder="Search company, job title..."
+					type="text"
+					value={searchTerm}
+					onChange={(e) => onSearchChange?.(e.target.value)}
+				/>
 
-					{/* Status Filter */}
-					<Dropdown>
-						<DropdownTrigger>
-							<Button
-								className="pl-3"
-								color={statusFilter ? "success" : "primary"}
-								isDisabled={!data || data.length === 0}
-								startContent={
-									<svg
-										fill="none"
-										height="16"
-										stroke="currentColor"
-										strokeWidth="2"
-										viewBox="0 0 24 24"
-										width="16"
-									>
-										<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-									</svg>
-								}
-								variant="bordered"
-							>
-								{statusFilter || "All Statuses"}
-								{statusFilter && (
-									<span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-success text-white rounded-full">
-										+
-									</span>
-								)}
-							</Button>
-						</DropdownTrigger>
-						<DropdownMenu
-							disallowEmptySelection
-							aria-label="Status filter"
-							selectedKeys={statusFilter ? new Set([statusFilter]) : new Set()}
-							selectionMode="single"
-							variant="flat"
-							onSelectionChange={(keys) => {
-								const selectedStatus = Array.from(keys)[0] as string;
-								onStatusFilterChange?.(selectedStatus || "");
-							}}
+				{/* Status Filter */}
+				<Dropdown>
+					<DropdownTrigger>
+						<Button
+							color={statusFilter ? "primary" : "default"}
+							isDisabled={!data || data.length === 0}
+							size="sm"
+							variant={statusFilter ? "solid" : "bordered"}
 						>
-							<>
-								<DropdownItem key="">All Statuses</DropdownItem>
-								{uniqueStatuses.map((status: string) => (
-									<DropdownItem key={status}>{status}</DropdownItem>
-								))}
-							</>
-						</DropdownMenu>
-					</Dropdown>
-
-					{/* Company Filter */}
-					<Dropdown>
-						<DropdownTrigger>
-							<Button
-								className="pl-3"
-								color={companyFilter ? "success" : "primary"}
-								isDisabled={!data || data.length === 0}
-								startContent={
-									<svg
-										fill="none"
-										height="16"
-										stroke="currentColor"
-										strokeWidth="2"
-										viewBox="0 0 24 24"
-										width="16"
-									>
-										<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-									</svg>
-								}
-								variant="bordered"
-							>
-								{companyFilter || "All Companies"}
-								{companyFilter && (
-									<span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-success text-white rounded-full">
-										+
-									</span>
-								)}
-							</Button>
-						</DropdownTrigger>
-						<DropdownMenu
-							disallowEmptySelection
-							aria-label="Company filter"
-							selectedKeys={companyFilter ? new Set([companyFilter]) : new Set()}
-							selectionMode="single"
-							variant="flat"
-							onSelectionChange={(keys) => {
-								const selectedCompany = Array.from(keys)[0] as string;
-								onCompanyFilterChange?.(selectedCompany || "");
-							}}
-						>
-							<>
-								<DropdownItem key="">All Companies</DropdownItem>
-								{uniqueCompanies.map((company: string) => (
-									<DropdownItem key={company}>{company}</DropdownItem>
-								))}
-							</>
-						</DropdownMenu>
-					</Dropdown>
-
-					{/* Normalized Job Title Filter */}
-					<Dropdown>
-						<DropdownTrigger>
-							<Button
-								className="pl-3"
-								color={normalizedJobTitleFilter ? "success" : "primary"}
-								isDisabled={!data || data.length === 0}
-								startContent={
-									<svg
-										fill="none"
-										height="16"
-										stroke="currentColor"
-										strokeWidth="2"
-										viewBox="0 0 24 24"
-										width="16"
-									>
-										<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-										<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-										<line x1="12" x2="12" y1="22.08" y2="12" />
-									</svg>
-								}
-								variant="bordered"
-							>
-								{normalizedJobTitleFilter || "All Job Titles"}
-								{normalizedJobTitleFilter && (
-									<span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-success text-white rounded-full">
-										+
-									</span>
-								)}
-							</Button>
-						</DropdownTrigger>
-						<DropdownMenu
-							disallowEmptySelection
-							aria-label="Normalized job title filter"
-							selectedKeys={normalizedJobTitleFilter ? new Set([normalizedJobTitleFilter]) : new Set()}
-							selectionMode="single"
-							variant="flat"
-							onSelectionChange={(keys) => {
-								const selectedTitle = Array.from(keys)[0] as string;
-								onNormalizedJobTitleFilterChange?.(selectedTitle || "");
-							}}
-						>
-							<>
-								<DropdownItem key="">All Job Titles</DropdownItem>
-								{uniqueNormalizedJobTitles.map((title: string | undefined) =>
-									title ? <DropdownItem key={title}>{title}</DropdownItem> : null
-								)}
-							</>
-						</DropdownMenu>
-					</Dropdown>
-
-					{/* Hide Rejections Checkbox */}
-					<div className="flex items-center gap-2">
-						<input
-							checked={hideRejections}
-							className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-							id="hide-rejections"
-							type="checkbox"
-							onChange={(e) => onHideRejectionsChange?.(e.target.checked)}
-						/>
-						<label
-							className="text-sm font-medium text-gray-700 dark:text-gray-300"
-							htmlFor="hide-rejections"
-						>
-							Hide Rejections
-						</label>
-					</div>
-
-					{/* Hide Application Confirmations Checkbox */}
-					<div className="flex items-center gap-2">
-						<input
-							checked={hideApplicationConfirmations}
-							className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-							id="hide-application-confirmations"
-							type="checkbox"
-							onChange={(e) => onHideApplicationConfirmationsChange?.(e.target.checked)}
-						/>
-						<label
-							className="text-sm font-medium text-gray-700 dark:text-gray-300"
-							htmlFor="hide-application-confirmations"
-						>
-							Hide Application Confirmations
-						</label>
-					</div>
-				</div>
-
-				{/* Sort and Download Controls */}
-				<div className="flex items-center gap-4">
-					<Dropdown>
-						<DropdownTrigger>
-							<Button
-								className="pl-3"
-								color="primary"
-								data-testid="Sort By"
-								isDisabled={!data || data.length === 0}
-								startContent={<SortIcon />}
-								variant="bordered"
-							>
-								{selectedValue}
-							</Button>
-						</DropdownTrigger>
-						<DropdownMenu
-							disallowEmptySelection
-							aria-label="Single selection example"
-							selectedKeys={selectedKeys}
-							selectionMode="single"
-							variant="flat"
-							onSelectionChange={(keys) => handleSortChange(keys as Set<string>)}
-						>
-							<DropdownSection title="Sort By">
-								<DropdownItem key="Date (Newest)">Date Received (Newest First)</DropdownItem>
-								<DropdownItem key="Date (Oldest)">Date Received (Oldest First)</DropdownItem>
-								<DropdownItem key="Company">Company (A-Z)</DropdownItem>
-								<DropdownItem key="Normalized Job Title">Normalized Job Title (A-Z)</DropdownItem>
-								<DropdownItem key="Job Title">Job Title (A-Z)</DropdownItem>
-								<DropdownItem key="Status">Application Status</DropdownItem>
-							</DropdownSection>
-						</DropdownMenu>
-					</Dropdown>
-
-					<Button
-						className="w-full sm:w-auto text-white"
-						color="success"
-						isDisabled={!data || data.length === 0}
-						isLoading={downloading}
-						startContent={<DownloadIcon />}
-						onPress={onDownloadCsv}
+							{statusFilter || "Status"}
+						</Button>
+					</DropdownTrigger>
+					<DropdownMenu
+						aria-label="Status filter"
+						selectedKeys={statusFilter ? new Set([statusFilter]) : new Set()}
+						selectionMode="single"
+						onSelectionChange={(keys) => {
+							const selectedStatus = Array.from(keys)[0] as string;
+							onStatusFilterChange?.(selectedStatus || "");
+						}}
 					>
-						Download CSV
-					</Button>
-					{!readOnly && (
+						<>
+							<DropdownItem key="">All Statuses</DropdownItem>
+							{uniqueStatuses.map((status: string) => (
+								<DropdownItem key={status}>{status}</DropdownItem>
+							))}
+						</>
+					</DropdownMenu>
+				</Dropdown>
+
+				{/* Company Filter */}
+				<Dropdown>
+					<DropdownTrigger>
 						<Button
-							className="w-full sm:w-auto"
-							color="secondary"
+							color={companyFilter ? "primary" : "default"}
+							isDisabled={!data || data.length === 0}
+							size="sm"
+							variant={companyFilter ? "solid" : "bordered"}
+						>
+							{companyFilter || "Company"}
+						</Button>
+					</DropdownTrigger>
+					<DropdownMenu
+						aria-label="Company filter"
+						selectedKeys={companyFilter ? new Set([companyFilter]) : new Set()}
+						selectionMode="single"
+						onSelectionChange={(keys) => {
+							const selectedCompany = Array.from(keys)[0] as string;
+							onCompanyFilterChange?.(selectedCompany || "");
+						}}
+					>
+						<>
+							<DropdownItem key="">All Companies</DropdownItem>
+							{uniqueCompanies.map((company: string) => (
+								<DropdownItem key={company}>{company}</DropdownItem>
+							))}
+						</>
+					</DropdownMenu>
+				</Dropdown>
+
+				{/* Job Title Filter */}
+				<Dropdown>
+					<DropdownTrigger>
+						<Button
+							color={normalizedJobTitleFilter ? "primary" : "default"}
+							isDisabled={!data || data.length === 0}
+							size="sm"
+							variant={normalizedJobTitleFilter ? "solid" : "bordered"}
+						>
+							{normalizedJobTitleFilter || "Job Title"}
+						</Button>
+					</DropdownTrigger>
+					<DropdownMenu
+						aria-label="Job title filter"
+						selectedKeys={normalizedJobTitleFilter ? new Set([normalizedJobTitleFilter]) : new Set()}
+						selectionMode="single"
+						onSelectionChange={(keys) => {
+							const selectedTitle = Array.from(keys)[0] as string;
+							onNormalizedJobTitleFilterChange?.(selectedTitle || "");
+						}}
+					>
+						<>
+							<DropdownItem key="">All Job Titles</DropdownItem>
+							{uniqueNormalizedJobTitles.map((title: string | undefined) =>
+								title ? <DropdownItem key={title}>{title}</DropdownItem> : null
+							)}
+						</>
+					</DropdownMenu>
+				</Dropdown>
+
+				{/* Hide Options Dropdown */}
+				<Dropdown>
+					<DropdownTrigger>
+						<Button
+							color={hideRejections || hideApplicationConfirmations ? "primary" : "default"}
+							isDisabled={!data || data.length === 0}
+							size="sm"
+							variant={hideRejections || hideApplicationConfirmations ? "solid" : "bordered"}
+						>
+							Hide
+							{hideRejections || hideApplicationConfirmations
+								? ` (${(hideRejections ? 1 : 0) + (hideApplicationConfirmations ? 1 : 0)})`
+								: ""}
+						</Button>
+					</DropdownTrigger>
+					<DropdownMenu
+						aria-label="Hide options"
+						closeOnSelect={false}
+						selectedKeys={
+							new Set([
+								...(hideRejections ? ["rejections"] : []),
+								...(hideApplicationConfirmations ? ["confirmations"] : [])
+							])
+						}
+						selectionMode="multiple"
+						onSelectionChange={(keys) => {
+							const selectedKeys = Array.from(keys) as string[];
+							onHideRejectionsChange?.(selectedKeys.includes("rejections"));
+							onHideApplicationConfirmationsChange?.(selectedKeys.includes("confirmations"));
+						}}
+					>
+						<DropdownItem key="rejections">Rejections</DropdownItem>
+						<DropdownItem key="confirmations">Application Confirmations</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
+
+				{/* Sort Dropdown */}
+				<Dropdown>
+					<DropdownTrigger>
+						<Button
+							data-testid="Sort By"
+							isDisabled={!data || data.length === 0}
+							size="sm"
+							startContent={<SortIcon />}
 							variant="bordered"
-							onPress={() => setShowModal(true)}
 						>
-							Change Start Date
+							{selectedValue}
 						</Button>
-					)}
-					{!readOnly && (
-						<Button
-							className="w-full sm:w-auto"
-							color="primary"
-							startContent={<PlusIcon />}
-							onPress={handleAddApplication}
-						>
-							Add Application
-						</Button>
-					)}
-				</div>
+					</DropdownTrigger>
+					<DropdownMenu
+						aria-label="Sort options"
+						selectedKeys={selectedKeys}
+						selectionMode="single"
+						onSelectionChange={(keys) => handleSortChange(keys as Set<string>)}
+					>
+						<DropdownItem key="Date (Newest)">Date (Newest)</DropdownItem>
+						<DropdownItem key="Date (Oldest)">Date (Oldest)</DropdownItem>
+						<DropdownItem key="Company">Company (A-Z)</DropdownItem>
+						<DropdownItem key="Normalized Job Title">Job Title (A-Z)</DropdownItem>
+						<DropdownItem key="Status">Status</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
+
+				{/* Spacer */}
+				<div className="flex-1" />
+
+				{/* Action Buttons */}
+				<Button
+					color="success"
+					isDisabled={!data || data.length === 0}
+					isLoading={downloading}
+					size="sm"
+					startContent={<DownloadIcon />}
+					onPress={onDownloadCsv}
+				>
+					CSV
+				</Button>
 			</div>
 
 			{loading ? (
 				<p>Loading applications...</p>
 			) : (
 				<div className="overflow-x-auto bg-white dark:bg-black shadow-md rounded-lg">
-					<Table aria-label="Applications Table">
+					{/* Notion-style add row */}
+					{!readOnly && (
+						<div className="border-b border-gray-200 dark:border-gray-700">
+							{isAddingRow ? (
+								<div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20">
+									<input
+										autoFocus
+										className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+										placeholder="Company *"
+										value={newRowData.company_name}
+										onChange={(e) => setNewRowData({ ...newRowData, company_name: e.target.value })}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") handleSaveNewRow();
+											if (e.key === "Escape") resetNewRow();
+										}}
+									/>
+									<select
+										className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+										value={newRowData.application_status}
+										onChange={(e) =>
+											setNewRowData({ ...newRowData, application_status: e.target.value })
+										}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") handleSaveNewRow();
+											if (e.key === "Escape") resetNewRow();
+										}}
+									>
+										<option value="">Status</option>
+										{STATUS_OPTIONS.map((s) => (
+											<option key={s} value={s}>
+												{s}
+											</option>
+										))}
+									</select>
+									<input
+										className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+										type="date"
+										value={newRowData.received_at}
+										onChange={(e) => setNewRowData({ ...newRowData, received_at: e.target.value })}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") handleSaveNewRow();
+											if (e.key === "Escape") resetNewRow();
+										}}
+									/>
+									<input
+										className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+										placeholder="Job Title *"
+										value={newRowData.job_title}
+										onChange={(e) => setNewRowData({ ...newRowData, job_title: e.target.value })}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") handleSaveNewRow();
+											if (e.key === "Escape") resetNewRow();
+										}}
+									/>
+									{newRowData.application_status === "Outreach" && (
+										<input
+											className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+											placeholder="Who (name)"
+											value={newRowData.email_from}
+											onChange={(e) =>
+												setNewRowData({ ...newRowData, email_from: e.target.value })
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") handleSaveNewRow();
+												if (e.key === "Escape") resetNewRow();
+											}}
+										/>
+									)}
+									<Button
+										color="primary"
+										isDisabled={!newRowData.company_name.trim() || !newRowData.job_title.trim()}
+										isLoading={isSavingNewRow}
+										size="sm"
+										onPress={handleSaveNewRow}
+									>
+										Add
+									</Button>
+									<Button size="sm" variant="light" onPress={resetNewRow}>
+										Cancel
+									</Button>
+								</div>
+							) : (
+								<button
+									className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
+									onClick={() => setIsAddingRow(true)}
+								>
+									<PlusIcon className="w-4 h-4" />
+									<span>New application</span>
+									<Tooltip content="Keyboard shortcut: Press 'i' to add a new row">
+										<kbd className="ml-auto px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded text-xs">
+											i
+										</kbd>
+									</Tooltip>
+								</button>
+							)}
+						</div>
+					)}
+					<Table
+						aria-label="Applications Table"
+						classNames={{
+							th: "bg-content1 text-foreground dark:bg-content2 dark:text-foreground"
+						}}
+					>
 						<TableHeader>
 							<TableColumn className="text-center">Company</TableColumn>
 							<TableColumn className="text-center">Status</TableColumn>
@@ -677,7 +685,7 @@ export default function JobApplicationsDashboard({
 							{paginatedData.map((item) => (
 								<TableRow
 									key={item.id || item.received_at}
-									className="hover:bg-default-100 transition-colors"
+									className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
 								>
 									<TableCell className="max-w-[100px] text-center">
 										{item.company_name || "--"}

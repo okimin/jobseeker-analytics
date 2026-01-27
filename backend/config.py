@@ -16,11 +16,15 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str
     IPINFO_TOKEN: str = "default-for-local"
     COOKIE_SECRET: str
+    TOKEN_ENCRYPTION_KEY: str = "default-for-local"  # Fernet key for encrypting OAuth tokens in DB
     STRIPE_SECRET_KEY: str = "sk_test_placeholder_for_dev"
+    STRIPE_WEBHOOK_SECRET: str = "whsec_placeholder_for_dev"
     ENV: str = "dev"
     APP_URL: str = "http://localhost:3000"  # Frontend URL - default for local dev
     API_URL: str = "http://localhost:8000"  # Backend API URL - default for local dev
     GOOGLE_SCOPES: Annotated[List[str], NoDecode] = '["https://www.googleapis.com/auth/gmail.readonly", "openid", "https://www.googleapis.com/auth/userinfo.email"]'
+    # Basic scopes for signup (no email read access)
+    GOOGLE_SCOPES_BASIC: Annotated[List[str], NoDecode] = '["openid", "https://www.googleapis.com/auth/userinfo.email"]'
     ORIGIN: str = "localhost"  # Default for local dev
     DATABASE_URL: str = "default-for-local"
     DATABASE_URL_LOCAL_VIRTUAL_ENV: str = (
@@ -33,7 +37,7 @@ class Settings(BaseSettings):
     DEV_USER_GMAIL: str = "insert-your-email-here@gmail.com"
     DEV_USER_IS_ACTIVE: bool = True
 
-    @field_validator("GOOGLE_SCOPES", mode="before")
+    @field_validator("GOOGLE_SCOPES", "GOOGLE_SCOPES_BASIC", mode="before")
     @classmethod
     def decode_scopes(cls, v: str) -> List[str]:
         logger.info("Decoded scopes from string: %s", json.loads(v.strip("'\"")))

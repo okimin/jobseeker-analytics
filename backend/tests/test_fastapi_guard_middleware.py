@@ -16,19 +16,30 @@ from fastapi.testclient import TestClient
 # Import the guard components - these should be available from fastapi-guard package
 try:
     from guard import SecurityMiddleware, SecurityConfig, GeoIPHandler
+    GUARD_AVAILABLE = True
 except ImportError:
+    GUARD_AVAILABLE = False
     # Fallback for testing - create mock classes if guard is not available
     class SecurityMiddleware:
         def __init__(self, app, config):
             self.app = app
             self.config = config
-    
+
+        async def __call__(self, scope, receive, send):
+            # Pass through - mock doesn't actually filter
+            await self.app(scope, receive, send)
+
     class SecurityConfig:
-        def __init__(self, geo_ip_handler=None, ipinfo_token=None, whitelist_countries=None):
+        def __init__(self, geo_ip_handler=None, ipinfo_token=None, whitelist_countries=None,
+                     trusted_proxies=None, emergency_mode=False, enforce_https=False, passive_mode=False):
             self.geo_ip_handler = geo_ip_handler
             self.ipinfo_token = ipinfo_token
             self.whitelist_countries = whitelist_countries or []
-    
+            self.trusted_proxies = trusted_proxies or []
+            self.emergency_mode = emergency_mode
+            self.enforce_https = enforce_https
+            self.passive_mode = passive_mode
+
     class GeoIPHandler:
         @staticmethod
         def get_country(ip):
@@ -121,8 +132,8 @@ class TestFastAPIGuardMiddleware:
         
         return app
 
+    @pytest.mark.skipif(not GUARD_AVAILABLE, reason="fastapi-guard package not installed")
     @patch('utils.config_utils.get_settings')
-
     def test_us_ip_allowed_when_publicly_deployed(self, mock_get_settings, app_with_guard_middleware_passive, mock_settings_publicly_deployed):
         """Test that US IP addresses are allowed when publicly deployed."""
         mock_get_settings.return_value = mock_settings_publicly_deployed
@@ -130,38 +141,40 @@ class TestFastAPIGuardMiddleware:
         with patch.object(GeoIPHandler, 'get_country', return_value='US'):
             client = TestClient(app_with_guard_middleware_passive)
             response = client.get("/test", headers={"X-Forwarded-For": "8.8.8.8"})
-            
+
             assert response.status_code == 200
             assert response.json() == {"message": "success"}
 
+    @pytest.mark.skipif(not GUARD_AVAILABLE, reason="fastapi-guard package not installed")
     @patch('utils.config_utils.get_settings')
     @patch('guard.utils.extract_client_ip')
     def test_non_us_ip_blocked_when_publicly_deployed(self, mock_extract_ip, mock_get_settings, app_with_guard_middleware_active, mock_settings_publicly_deployed):
         """Test that non-US IP addresses are blocked when publicly deployed."""
         mock_get_settings.return_value = mock_settings_publicly_deployed
         mock_extract_ip.return_value = "1.2.3.4"  # Mock a non-US IP
-        
+
         with patch.object(GeoIPHandler, 'get_country', return_value='CA'):
             client = TestClient(app_with_guard_middleware_active)
             response = client.get("/test", headers={"X-Forwarded-For": "1.2.3.4"})
-            
+
             # Should be blocked by the middleware
             assert response.status_code == 403
 
+    @pytest.mark.skipif(not GUARD_AVAILABLE, reason="fastapi-guard package not installed")
     @patch('utils.config_utils.get_settings')
     @patch('guard.utils.extract_client_ip')
     def test_multiple_non_us_countries_blocked(self, mock_extract_ip, mock_get_settings, app_with_guard_middleware_active, mock_settings_publicly_deployed):
         """Test that various non-US countries are blocked."""
         mock_get_settings.return_value = mock_settings_publicly_deployed
-        
+
         blocked_countries = ['CA', 'GB', 'DE', 'FR', 'JP', 'CN', 'RU', 'BR']
-        
+
         for i, country_code in enumerate(blocked_countries):
             mock_extract_ip.return_value = f"1.2.3.{i+10}"  # Different IP for each test
             with patch.object(GeoIPHandler, 'get_country', return_value=country_code):
                 client = TestClient(app_with_guard_middleware_active)
                 response = client.get("/test", headers={"X-Forwarded-For": f"1.2.3.{i+10}"})
-                
+
                 assert response.status_code == 403, f"Country {country_code} should be blocked"
 
     @patch('utils.config_utils.get_settings')
@@ -176,18 +189,19 @@ class TestFastAPIGuardMiddleware:
         assert response.status_code == 200
         assert response.json() == {"message": "success"}
 
+    @pytest.mark.skipif(not GUARD_AVAILABLE, reason="fastapi-guard package not installed")
     @patch('utils.config_utils.get_settings')
     def test_case_insensitive_country_codes(self, mock_get_settings, app_with_guard_middleware_passive, mock_settings_publicly_deployed):
         """Test that country code matching is case insensitive."""
         mock_get_settings.return_value = mock_settings_publicly_deployed
 
         us_variations = ['US', 'us', 'Us', 'uS']
-        
+
         for country_code in us_variations:
             with patch.object(GeoIPHandler, 'get_country', return_value=country_code):
                 client = TestClient(app_with_guard_middleware_passive)
                 response = client.get("/test", headers={"X-Forwarded-For": "8.8.8.8"})
-                
+
                 assert response.status_code == 200, f"Country code {country_code} should be accepted"
 
     def test_security_config_initialization(self):

@@ -16,6 +16,7 @@ os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import database  # noqa: E402 DONT MOVE THIS
 import main  # noqa: E402
 from session.session_layer import validate_session  # noqa: E402
+from utils.onboarding_utils import require_onboarding_complete  # noqa: E402
 from db.processing_tasks import STARTED, FINISHED, TaskRuns  # noqa: E402
 from db.users import Users, CoachClientLink  # noqa: E402
 
@@ -47,11 +48,7 @@ def postgres_container():
 
 @pytest.fixture
 def engine(monkeypatch, postgres_container):
-    if (
-        postgres_container is not None
-        and not FORCE_SQLITE
-        and not IS_DOCKER_CONTAINER
-    ):
+    if postgres_container is not None and not FORCE_SQLITE and not IS_DOCKER_CONTAINER:
         # Use PostgreSQL with testcontainers when running locally
         test_url = sa.URL.create(
             "postgresql",
@@ -122,9 +119,23 @@ def task_factory(db_session, logged_in_user):
 @pytest.fixture
 def user_factory(db_session, is_active=True, start_date=None):
     def _create_user(
-        user_id="123", user_email="user@example.com", start_date=start_date, is_active=is_active, role="jobseeker"
+        user_id="123",
+        user_email="user@example.com",
+        start_date=start_date,
+        is_active=is_active,
+        role="jobseeker",
+        onboarding_completed_at=None,
+        has_email_sync_configured=False,
     ):
-        user = Users(user_id=user_id, user_email=user_email, start_date=start_date, is_active=is_active, role=role)
+        user = Users(
+            user_id=user_id,
+            user_email=user_email,
+            start_date=start_date,
+            is_active=is_active,
+            role=role,
+            onboarding_completed_at=onboarding_completed_at,
+            has_email_sync_configured=has_email_sync_configured,
+        )
         db_session.add(user)
         db_session.commit()
         return user
@@ -134,19 +145,32 @@ def user_factory(db_session, is_active=True, start_date=None):
 
 @pytest.fixture
 def logged_in_user(user_factory):
-    return user_factory()
+    from datetime import datetime, timezone
+    return user_factory(onboarding_completed_at=datetime.now(timezone.utc))
+
 
 @pytest.fixture
 def inactive_user(user_factory):
     return user_factory(is_active=False)
 
+
 @pytest.fixture
 def coach_user(user_factory):
-    return user_factory(user_id="coach123", user_email="coach@example.com", role="coach")
+    from datetime import datetime, timezone
+    return user_factory(
+        user_id="coach123",
+        user_email="coach@example.com",
+        role="coach",
+        onboarding_completed_at=datetime.now(timezone.utc),  # Coaches need this to access protected endpoints
+    )
+
 
 @pytest.fixture
 def client_user(user_factory):
-    return user_factory(user_id="client123", user_email="client@example.com", role="jobseeker")
+    return user_factory(
+        user_id="client123", user_email="client@example.com", role="jobseeker"
+    )
+
 
 @pytest.fixture
 def coach_client_link(coach_user, client_user, db_session):
@@ -155,9 +179,64 @@ def coach_client_link(coach_user, client_user, db_session):
     db_session.commit()
     return link
 
+
 @pytest.fixture
 def logged_in_coach_client(client_factory, coach_user):
     return client_factory(user=coach_user)
+
+
+@pytest.fixture
+def jobseeker_complete_setup(user_factory):
+    """Jobseeker with all onboarding steps complete"""
+    from datetime import datetime, timezone
+
+    return user_factory(
+        user_id="complete123",
+        user_email="complete@example.com",
+        role="jobseeker",
+        onboarding_completed_at=datetime.now(timezone.utc),
+        has_email_sync_configured=True,
+        start_date=datetime.now(),
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_email_sync(user_factory):
+    """Jobseeker with onboarding complete but no email sync"""
+    from datetime import datetime, timezone
+    return user_factory(
+        user_id="noemail123",
+        user_email="noemail@example.com",
+        role="jobseeker",
+        onboarding_completed_at=datetime.now(timezone.utc),
+        has_email_sync_configured=False,
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_onboarding(user_factory):
+    """Jobseeker who hasn't completed onboarding"""
+    return user_factory(
+        user_id="newuser123",
+        user_email="new@example.com",
+        role="jobseeker",
+        onboarding_completed_at=None,
+        has_email_sync_configured=False,
+    )
+
+
+@pytest.fixture
+def jobseeker_needs_start_date(user_factory):
+    """Jobseeker with onboarding and email sync complete but no start date"""
+    from datetime import datetime, timezone
+    return user_factory(
+        user_id="nostart123",
+        user_email="nostart@example.com",
+        role="jobseeker",
+        onboarding_completed_at=datetime.now(timezone.utc),
+        has_email_sync_configured=True,
+        start_date=None,
+    )
 
 
 @pytest.fixture
@@ -182,9 +261,11 @@ def client_factory(db_session):
         if user and user.is_active:
             user_id = user.user_id
             main.app.dependency_overrides[validate_session] = lambda: user_id
+            main.app.dependency_overrides[require_onboarding_complete] = lambda: user_id
         else:
             # Simulate not logged in: validate_session returns empty string
             main.app.dependency_overrides[validate_session] = lambda: ""
+            main.app.dependency_overrides[require_onboarding_complete] = lambda: ""
         return TestClient(main.app)
 
     return _make_client

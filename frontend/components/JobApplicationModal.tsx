@@ -38,7 +38,8 @@ const STATUS_OPTIONS = [
 	"Action Required From Company",
 	"Hiring Freeze Notification",
 	"Withdrew Application",
-	"Did Not Apply - Inbound Request"
+	"Did Not Apply - Inbound Request",
+	"Outreach"
 ];
 
 export default function JobApplicationModal({
@@ -60,13 +61,20 @@ export default function JobApplicationModal({
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
+	// Helper to find matching status option (case-insensitive)
+	const findMatchingStatus = (status: string): string => {
+		if (!status) return "";
+		const lowerStatus = status.toLowerCase();
+		return STATUS_OPTIONS.find((opt) => opt.toLowerCase() === lowerStatus) || status;
+	};
+
 	// Reset form when modal opens/closes or application changes
 	useEffect(() => {
 		if (isOpen) {
 			if (mode === "edit" && application) {
 				setFormData({
 					company_name: application.company_name || "",
-					application_status: application.application_status || "",
+					application_status: findMatchingStatus(application.application_status),
 					received_at: application.received_at || "",
 					subject: application.subject || "",
 					job_title: application.job_title || "",

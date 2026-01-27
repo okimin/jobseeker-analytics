@@ -1,5 +1,7 @@
 import React from "react";
 
+import { siteConfig } from "@/config/site";
+
 const PrivacyPolicyPage = () => {
 	return (
 		<main className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
@@ -12,7 +14,7 @@ const PrivacyPolicyPage = () => {
 					This Privacy Notice for <strong>JustAJobApp LLC</strong> (doing business as{" "}
 					<strong>JustAJobApp</strong>) establishes the protocols for the collection, storage, and processing
 					of personal information when using our services, including the web application hosted at{" "}
-					<a className="text-blue-600 underline" href="https://justajobapp.com">
+					<a className="text-blue-600 underline" href={siteConfig.links.homepage}>
 						justajobapp.com
 					</a>
 					. Our operations prioritize transparency and data minimization. We do not request personal
@@ -124,10 +126,7 @@ const PrivacyPolicyPage = () => {
 							<td className="border p-2 font-semibold">L. Sensitive Personal Information</td>
 							<td className="border p-2">
 								Gmail mailbox contents; specifically, the metadata of messages identified by the{" "}
-								<a
-									className="text-blue-600 underline"
-									href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml"
-								>
+								<a className="text-blue-600 underline" href={siteConfig.links.emailFilterYaml}>
 									applied_email_filter.yaml
 								</a>{" "}
 								logic. Account login information.
@@ -283,20 +282,14 @@ const PrivacyPolicyPage = () => {
 				<li>
 					<strong>Initial Discovery:</strong> Potential job-related messages are identified based on keywords
 					defined in our{" "}
-					<a
-						className="text-blue-600 underline"
-						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml"
-					>
+					<a className="text-blue-600 underline" href={siteConfig.links.emailFilterYaml}>
 						applied_email_filter.yaml
 					</a>
 					.
 				</li>
 				<li>
 					<strong>LLM-Based Analysis:</strong> An analysis layer defined in our{" "}
-					<a
-						className="text-blue-600 underline"
-						href="https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py"
-					>
+					<a className="text-blue-600 underline" href={siteConfig.links.llmUtils}>
 						llm_utils.py
 					</a>{" "}
 					utilizes programmatic filters to discard newsletters and personal data unrelated to your job search.
@@ -328,12 +321,9 @@ const PrivacyPolicyPage = () => {
 				6. Compliance to the Google API Services User Data Policy
 			</h2>
 			<p className="text-sm">
-				JustAJobApp's use and transfer of data to any other app of information received from Google’s Accounts
+				JustAJobApp's use and transfer of data to any other app of information received from Google's Accounts
 				will adhere to the{" "}
-				<a
-					className="text-blue-600 underline ml-1"
-					href="https://developers.google.com/terms/api-services-user-data-policy"
-				>
+				<a className="text-blue-600 underline ml-1" href={siteConfig.links.googleApiPolicy}>
 					Google API Services User Data Policy
 				</a>{" "}
 				including Limited Use requirements.

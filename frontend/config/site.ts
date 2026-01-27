@@ -33,17 +33,37 @@ export const siteConfig = {
 		}
 	],
 	links: {
-		github: "https://github.com/just-a-job-app/jobseeker-analytics",
-		discord: "https://discord.gg/gsdpMchCam",
-		sponsor: "https://github.com/sponsors/lnovitz",
+		// Internal routes
+		home: "/",
+		coaches: "/coaches",
+		faq: "/faq",
+		dashboard: "/dashboard",
+		login: "/login",
+		logout: "/logout",
 		privacyPolicy: "/privacy",
 		termsAndConditions: "/terms",
 		cookiePolicy: "/cookies",
 		dataRequests: "/dsar",
-		community: "/contributors",
-		coffee: "https://buymeacoffee.com/justajobapp",
-		feedback: "https://forms.gle/aGeT11NYJpcSBEix8",
+		wallOfFame: "/contributors",
+		// External links
+		github: "https://github.com/JustAJobApp/jobseeker-analytics",
+		githubIssues:
+			"https://github.com/JustAJobApp/jobseeker-analytics/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee",
+		contributorOnboarding: "https://github.com/JustAJobApp/jobseeker-analytics/blob/main/CONTRIBUTOR_ONBOARDING.md",
+		contributorOnboardingStep3:
+			"https://github.com/just-a-job-app/jobseeker-analytics/blob/main/CONTRIBUTOR_ONBOARDING.md#step-3-add-yourself-to-the-wall-of-fame",
+		emailFilterYaml:
+			"https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/email_query_filters/applied_email_filter.yaml",
+		llmUtils: "https://github.com/JustAJobApp/jobseeker-analytics/blob/main/backend/utils/llm_utils.py",
+		coachPortal: "https://coach.justajobapp.com/?utm_source=homepage&utm_campaign=coaches_2",
+		dsarForm: "https://app.termly.io/dsar/a8dc31e4-d96a-461e-afe0-abdec759bc97",
+		googleApiPolicy: "https://developers.google.com/terms/api-services-user-data-policy",
+		donate: "https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00",
+		feedback: "https://forms.gle/2askT8RbMvh1pFJk6",
 		support: "mailto:help@justajobapp.com",
-		waitlist: "https://its.justajobapp.com"
+		hiringCafe: "https://hiring.cafe/",
+		neverSearchAlone: "https://www.neversearchalone.com/",
+		waitlist: "https://its.justajobapp.com/",
+		homepage: "https://justajobapp.com"
 	}
 };

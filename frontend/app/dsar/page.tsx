@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import React from "react";
 
+import { siteConfig } from "@/config/site";
+
 export const metadata: Metadata = {
 	title: "Data Subject Access Request | JustAJobApp",
 	description: "Submit a data subject access request to understand what personal data we have about you."
@@ -25,14 +27,14 @@ export default function DSARPage() {
 					className="w-full min-h-screen border-0"
 					loading="lazy"
 					sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-					src="https://app.termly.io/dsar/a8dc31e4-d96a-461e-afe0-abdec759bc97"
+					src={siteConfig.links.dsarForm}
 					title="Data Subject Access Request Form"
 				>
 					<p className="p-4 text-gray-600 dark:text-gray-400">
 						Your browser does not support iframes. Please visit{" "}
 						<a
 							className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-							href="https://app.termly.io/dsar/a8dc31e4-d96a-461e-afe0-abdec759bc97"
+							href={siteConfig.links.dsarForm}
 							rel="noopener noreferrer"
 							target="_blank"
 						>

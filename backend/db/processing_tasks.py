@@ -22,6 +22,7 @@ class TaskRuns(SQLModel, table=True):
     status: str = Field(nullable=False)
     total_emails: int = 0
     processed_emails: int = 0
+    applications_found: int = 0
 
     user: Users = Relationship()
 

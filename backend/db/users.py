@@ -20,6 +20,16 @@ class Users(SQLModel, table=True):
     stripe_customer_id: str | None = Field(default=None, nullable=True)
     # Add role field to distinguish generic users from coaches
     role: str = Field(default="jobseeker") # 'jobseeker', 'coach'
+    # Onboarding fields
+    onboarding_completed_at: datetime | None = Field(default=None, nullable=True)  # When start date was set
+    # Email sync fields (separate from signup auth)
+    has_email_sync_configured: bool = Field(default=False, nullable=False)
+    sync_email_address: str | None = Field(default=None, nullable=True)  # Email address being synced (can differ from user_email)
+    # Contribution fields for choose-your-price model
+    monthly_contribution_cents: int = Field(default=0, nullable=False)  # 0 = free user
+    contribution_started_at: datetime | None = Field(default=None, nullable=True)  # When they first paid
+    total_contributed_cents: int = Field(default=0, nullable=False)  # Lifetime contributions
+    stripe_subscription_id: str | None = Field(default=None, nullable=True)  # For subscription management
 
 class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"
