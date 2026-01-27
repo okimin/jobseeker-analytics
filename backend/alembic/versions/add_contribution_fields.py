@@ -44,13 +44,6 @@ def upgrade() -> None:
         server_default=sa.text('0')
     ))
 
-    # When the user completed onboarding (set start date)
-    op.add_column('users', sa.Column(
-        'onboarding_completed_at',
-        sa.DateTime(timezone=True),
-        nullable=True
-    ))
-
     # Stripe subscription ID for managing subscriptions
     op.add_column('users', sa.Column(
         'stripe_subscription_id',
@@ -62,7 +55,6 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Remove contribution tracking fields from users table."""
     op.drop_column('users', 'stripe_subscription_id')
-    op.drop_column('users', 'onboarding_completed_at')
     op.drop_column('users', 'total_contributed_cents')
     op.drop_column('users', 'contribution_started_at')
     op.drop_column('users', 'monthly_contribution_cents')

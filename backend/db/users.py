@@ -21,7 +21,7 @@ class Users(SQLModel, table=True):
     # Add role field to distinguish generic users from coaches
     role: str = Field(default="jobseeker") # 'jobseeker', 'coach'
     # Onboarding fields
-    has_completed_onboarding: bool = Field(default=False, nullable=False)
+    onboarding_completed_at: datetime | None = Field(default=None, nullable=True)  # When start date was set
     subscription_tier: str | None = Field(default=None, nullable=True)  # "subsidized", "standard", "sustainer", "custom"
     # Email sync fields (separate from signup auth)
     has_email_sync_configured: bool = Field(default=False, nullable=False)
@@ -30,7 +30,6 @@ class Users(SQLModel, table=True):
     monthly_contribution_cents: int = Field(default=0, nullable=False)  # 0 = free user
     contribution_started_at: datetime | None = Field(default=None, nullable=True)  # When they first paid
     total_contributed_cents: int = Field(default=0, nullable=False)  # Lifetime contributions
-    onboarding_completed_at: datetime | None = Field(default=None, nullable=True)  # When start date was set
     stripe_subscription_id: str | None = Field(default=None, nullable=True)  # For subscription management
 
 class CoachClientLink(SQLModel, table=True):

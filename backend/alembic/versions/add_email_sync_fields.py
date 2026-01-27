@@ -45,7 +45,7 @@ def upgrade() -> None:
         UPDATE users
         SET has_email_sync_configured = true,
             sync_email_address = user_email
-        WHERE has_completed_onboarding = true
+        WHERE onboarding_completed_at IS NOT NULL
     """))
 
 

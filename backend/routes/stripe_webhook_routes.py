@@ -91,7 +91,8 @@ async def stripe_webhook(
                     user.contribution_started_at = datetime.now(timezone.utc)
                 user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_cents
 
-                user.has_completed_onboarding = True
+                if user.onboarding_completed_at is None:
+                    user.onboarding_completed_at = datetime.now(timezone.utc)
                 db_session.add(user)
 
                 # Create contribution record with payment_intent_id for idempotency

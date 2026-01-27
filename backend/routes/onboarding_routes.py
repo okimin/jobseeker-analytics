@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, HTTPException
@@ -19,7 +20,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 class OnboardingStatusResponse(BaseModel):
-    has_completed_onboarding: bool
+    has_completed_onboarding: bool  # Computed from onboarding_completed_at
     subscription_tier: Optional[str]
     has_email_sync_configured: bool
     sync_email_address: Optional[str]
@@ -41,7 +42,7 @@ async def get_onboarding_status(
         raise HTTPException(status_code=404, detail="User not found")
 
     return OnboardingStatusResponse(
-        has_completed_onboarding=user.has_completed_onboarding,
+        has_completed_onboarding=user.onboarding_completed_at is not None,
         subscription_tier=user.subscription_tier,
         has_email_sync_configured=user.has_email_sync_configured,
         sync_email_address=user.sync_email_address
@@ -63,10 +64,10 @@ async def complete_onboarding_subsidized(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if user.has_completed_onboarding:
+    if user.onboarding_completed_at is not None:
         raise HTTPException(status_code=400, detail="Onboarding already completed")
 
-    user.has_completed_onboarding = True
+    user.onboarding_completed_at = datetime.now(timezone.utc)
     user.subscription_tier = "subsidized"
     db_session.add(user)
     db_session.commit()

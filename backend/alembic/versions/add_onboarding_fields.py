@@ -22,12 +22,11 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Add has_completed_onboarding with default False for new users
+    # Add onboarding_completed_at timestamp (nullable, NULL = not completed)
     op.add_column('users', sa.Column(
-        'has_completed_onboarding',
-        sa.Boolean(),
-        nullable=False,
-        server_default=sa.text('false')
+        'onboarding_completed_at',
+        sa.DateTime(timezone=True),
+        nullable=True
     ))
 
     # Add subscription_tier as nullable string
@@ -37,13 +36,13 @@ def upgrade() -> None:
         nullable=True
     ))
 
-    # Set existing active users to has_completed_onboarding = true
+    # Set existing active users to onboarding_completed_at = now
     # This ensures existing beta users are not forced into the new onboarding flow
-    print("Setting has_completed_onboarding = true for all existing active users")
-    op.execute(text("UPDATE users SET has_completed_onboarding = true WHERE is_active = true"))
+    print("Setting onboarding_completed_at = NOW() for all existing active users")
+    op.execute(text("UPDATE users SET onboarding_completed_at = NOW() WHERE is_active = true"))
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_column('users', 'subscription_tier')
-    op.drop_column('users', 'has_completed_onboarding')
+    op.drop_column('users', 'onboarding_completed_at')

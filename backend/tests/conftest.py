@@ -124,7 +124,7 @@ def user_factory(db_session, is_active=True, start_date=None):
         start_date=start_date,
         is_active=is_active,
         role="jobseeker",
-        has_completed_onboarding=False,
+        onboarding_completed_at=None,
         has_email_sync_configured=False,
         subscription_tier=None,
     ):
@@ -134,7 +134,7 @@ def user_factory(db_session, is_active=True, start_date=None):
             start_date=start_date,
             is_active=is_active,
             role=role,
-            has_completed_onboarding=has_completed_onboarding,
+            onboarding_completed_at=onboarding_completed_at,
             has_email_sync_configured=has_email_sync_configured,
             subscription_tier=subscription_tier,
         )
@@ -147,7 +147,8 @@ def user_factory(db_session, is_active=True, start_date=None):
 
 @pytest.fixture
 def logged_in_user(user_factory):
-    return user_factory(has_completed_onboarding=True)
+    from datetime import datetime, timezone
+    return user_factory(onboarding_completed_at=datetime.now(timezone.utc))
 
 
 @pytest.fixture
@@ -157,11 +158,12 @@ def inactive_user(user_factory):
 
 @pytest.fixture
 def coach_user(user_factory):
+    from datetime import datetime, timezone
     return user_factory(
         user_id="coach123",
         user_email="coach@example.com",
         role="coach",
-        has_completed_onboarding=True,  # Coaches need this to access protected endpoints
+        onboarding_completed_at=datetime.now(timezone.utc),  # Coaches need this to access protected endpoints
     )
 
 
@@ -188,13 +190,13 @@ def logged_in_coach_client(client_factory, coach_user):
 @pytest.fixture
 def jobseeker_complete_setup(user_factory):
     """Jobseeker with all onboarding steps complete"""
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     return user_factory(
         user_id="complete123",
         user_email="complete@example.com",
         role="jobseeker",
-        has_completed_onboarding=True,
+        onboarding_completed_at=datetime.now(timezone.utc),
         has_email_sync_configured=True,
         start_date=datetime.now(),
         subscription_tier="standard",
@@ -204,11 +206,12 @@ def jobseeker_complete_setup(user_factory):
 @pytest.fixture
 def jobseeker_needs_email_sync(user_factory):
     """Jobseeker with onboarding complete but no email sync"""
+    from datetime import datetime, timezone
     return user_factory(
         user_id="noemail123",
         user_email="noemail@example.com",
         role="jobseeker",
-        has_completed_onboarding=True,
+        onboarding_completed_at=datetime.now(timezone.utc),
         has_email_sync_configured=False,
     )
 
@@ -220,7 +223,7 @@ def jobseeker_needs_onboarding(user_factory):
         user_id="newuser123",
         user_email="new@example.com",
         role="jobseeker",
-        has_completed_onboarding=False,
+        onboarding_completed_at=None,
         has_email_sync_configured=False,
     )
 
@@ -228,11 +231,12 @@ def jobseeker_needs_onboarding(user_factory):
 @pytest.fixture
 def jobseeker_needs_start_date(user_factory):
     """Jobseeker with onboarding and email sync complete but no start date"""
+    from datetime import datetime, timezone
     return user_factory(
         user_id="nostart123",
         user_email="nostart@example.com",
         role="jobseeker",
-        has_completed_onboarding=True,
+        onboarding_completed_at=datetime.now(timezone.utc),
         has_email_sync_configured=True,
         start_date=None,
     )

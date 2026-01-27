@@ -25,7 +25,7 @@ def require_onboarding_complete(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if not user.has_completed_onboarding:
+    if user.onboarding_completed_at is None:
         raise HTTPException(
             status_code=403,
             detail="Onboarding not completed",

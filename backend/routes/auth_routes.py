@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
@@ -95,10 +96,11 @@ async def login(
         request.session["is_new_user"] = False 
 
         if existing_user and existing_user.is_active:
+            from db.user_emails import UserEmails
+            from sqlmodel import func
+
             # Auto-set start_date from earliest email if not set
             if existing_user.start_date is None:
-                from db.user_emails import UserEmails
-                from sqlmodel import func
                 earliest_email = db_session.exec(
                     select(func.min(UserEmails.received_at))
                     .where(UserEmails.user_id == user.user_id)
@@ -119,7 +121,7 @@ async def login(
             if existing_user.role == "coach":
                 # Coaches go directly to dashboard
                 response = Redirects.to_dashboard()
-            elif not existing_user.has_completed_onboarding:
+            elif existing_user.onboarding_completed_at is None:
                 # Check if user has any emails in user_emails table
                 earliest_email = db_session.exec(
                     select(func.min(UserEmails.received_at))
@@ -128,7 +130,7 @@ async def login(
 
                 if earliest_email:
                     # User has emails - auto-complete onboarding using earliest email date as start_date
-                    existing_user.has_completed_onboarding = True
+                    existing_user.onboarding_completed_at = datetime.now(timezone.utc)
                     existing_user.subscription_tier = "subsidized"
                     existing_user.start_date = earliest_email
                     db_session.add(existing_user)
@@ -203,7 +205,7 @@ async def getUser(request: Request, db_session: database.DBSession, user_id: str
     return {
         "user_id": user_id,
         "role": user.role,
-        "has_completed_onboarding": user.has_completed_onboarding,
+        "has_completed_onboarding": user.onboarding_completed_at is not None,
         "subscription_tier": user.subscription_tier,
         "has_email_sync_configured": user.has_email_sync_configured,
         "sync_email_address": user.sync_email_address,
@@ -268,7 +270,7 @@ async def signup(request: Request, db_session: database.DBSession):
 
         if existing_user and existing_user.is_active:
             # Existing active user - redirect based on their status
-            if existing_user.has_completed_onboarding:
+            if existing_user.onboarding_completed_at is not None:
                 if existing_user.has_email_sync_configured:
                     response = Redirects.to_dashboard()
                 else:
