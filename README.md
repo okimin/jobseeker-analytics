@@ -2,8 +2,9 @@
 
 **An automated job application tracker that connects to your Gmail inbox.** Apply for jobs, receive confirmation emails, and your dashboard updates automatically. No browser extensions. No manual data entry. No spreadsheets.
 
-[![Watch the video on YouTube](https://img.youtube.com/vi/7L5eTlRHoa8/maxresdefault.jpg)](https://www.youtube.com/watch?v=7L5eTlRHoa8)
-
+<a href="https://youtu.be/xD-rX6zu2ds">
+  <img src="https://github.com/user-attachments/assets/f6c0b8ae-bc3a-4a10-ad9f-fb3992195a1e" alt="JustAJobApp Demo" width="600" height="300">
+</a>
 ---
 
 ## A Single Lost Email Cost Me $40,000
@@ -191,6 +192,15 @@ No. If you're technical, you can self-host by following the instructions above.
 
 Transparency. Because we handle sensitive data, we believe our code should be open for public audit. Having "more eyeballs" ensures higher security standards.
 </details>
+
+---
+
+## Sponsors
+
+<a href="https://chat.zulip.org"><img src="https://github.com/zulip/zulip/blob/main/static/images/logo/zulip-icon-circle.svg" alt="Zulip logo" width="60" height="60"/></a>
+
+Zulip is an organized team chat app designed for efficient communication.
+
 
 ---
 
