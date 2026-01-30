@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { addToast } from "@heroui/toast";
+import posthog from "posthog-js";
 
 import { Navbar } from "@/components/navbar";
 import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
@@ -55,6 +56,7 @@ function EmailSyncSetupContent() {
 			}
 
 			setIsLoading(false);
+			posthog.capture("email_sync_setup_viewed");
 		};
 
 		init();
@@ -113,7 +115,10 @@ function EmailSyncSetupContent() {
 						<div className="text-center">
 							<button
 								className="text-sm text-gray-500 hover:text-gray-700 underline"
-								onClick={() => router.push("/dashboard")}
+								onClick={() => {
+									posthog.capture("email_sync_skipped");
+									router.push("/dashboard");
+								}}
 							>
 								Skip for now (you can set this up later)
 							</button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import posthog from "posthog-js";
 
 interface ManageSubscriptionModalProps {
 	isOpen: boolean;
@@ -30,6 +31,7 @@ export default function ManageSubscriptionModal({
 		if (isOpen && currentAmountCents > 0) {
 			setNewAmount((currentAmountCents / 100).toString());
 			setHasEdited(false);
+			posthog.capture("subscription_modal_opened");
 		}
 	}, [isOpen, currentAmountCents]);
 
@@ -55,7 +57,12 @@ export default function ManageSubscriptionModal({
 		setError(null);
 
 		try {
-			await onUpdate(getNewAmountCents());
+			const newAmountCents = getNewAmountCents();
+			await onUpdate(newAmountCents);
+			posthog.capture("subscription_updated", {
+				old_amount_cents: currentAmountCents,
+				new_amount_cents: newAmountCents
+			});
 			onClose();
 		} catch (err) {
 			setError("Failed to update subscription. Please try again.");
@@ -70,6 +77,9 @@ export default function ManageSubscriptionModal({
 
 		try {
 			await onCancel();
+			posthog.capture("subscription_cancelled", {
+				amount_cents: currentAmountCents
+			});
 			onClose();
 		} catch (err) {
 			setError("Failed to cancel subscription. Please try again.");

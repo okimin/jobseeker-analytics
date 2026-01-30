@@ -1,10 +1,12 @@
 import { Button } from "@heroui/react";
+import posthog from "posthog-js";
 
 import { GoogleIcon } from "@/components/icons";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 const handleGoogleSignup = () => {
+	posthog.capture("signup_started", { method: "google" });
 	window.location.href = `${apiUrl}/auth/google/signup`; // Initiate OAuth with basic scopes
 };
 

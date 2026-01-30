@@ -1,10 +1,12 @@
 import { Button } from "@heroui/react";
+import posthog from "posthog-js";
 
 import { GoogleIcon } from "@/components/icons";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 const handleGoogleEmailSync = () => {
+	posthog.capture("email_sync_started");
 	window.location.href = `${apiUrl}/auth/google/email-sync`; // Initiate OAuth with gmail.readonly scope
 };
 

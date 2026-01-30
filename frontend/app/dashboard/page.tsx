@@ -163,6 +163,9 @@ export default function Dashboard() {
 			}
 		};
 		identifyUser();
+
+		// Track dashboard view
+		posthog.capture("dashboard_viewed");
 	}, [apiUrl]);
 
 	// Fetch start date on mount
@@ -502,6 +505,7 @@ export default function Dashboard() {
 
 	async function downloadCsv() {
 		setDownloading(true);
+		posthog.capture("csv_export_clicked", { application_count: data.length });
 		try {
 			const response = await fetch(`${apiUrl}/process-csv`, {
 				method: "GET",
@@ -526,6 +530,7 @@ export default function Dashboard() {
 				return;
 			}
 
+			posthog.capture("csv_export_completed", { application_count: data.length });
 			// Create a download link to trigger the file download
 			const blob = await response.blob();
 			const link = document.createElement("a");

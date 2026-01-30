@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import posthog from "posthog-js";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -68,6 +69,7 @@ export const Navbar = ({
 
 	// Handle donate click - redirect to login if not authenticated, otherwise show modal
 	const handleDonateClick = () => {
+		posthog.capture("donate_clicked", { source: "navbar" });
 		if (!isAuthenticated) {
 			window.location.href = "/login";
 			return;
@@ -200,6 +202,9 @@ export const Navbar = ({
 							href={siteConfig.links.hiringCafe}
 							rel="noopener noreferrer"
 							target="_blank"
+							onClick={() =>
+								posthog.capture("resource_link_clicked", { resource: "hiring_cafe", source: "top_nav" })
+							}
 						>
 							Find Real Jobs
 							<ExternalLinkIcon />
@@ -225,6 +230,9 @@ export const Navbar = ({
 										href={siteConfig.links.hiringCafe}
 										rel="noopener noreferrer"
 										target="_blank"
+										onClick={() =>
+											posthog.capture("resource_link_clicked", { resource: "hiring_cafe" })
+										}
 									>
 										Find Real Jobs
 										<ExternalLinkIcon />
@@ -234,6 +242,9 @@ export const Navbar = ({
 										href={siteConfig.links.neverSearchAlone}
 										rel="noopener noreferrer"
 										target="_blank"
+										onClick={() =>
+											posthog.capture("resource_link_clicked", { resource: "never_search_alone" })
+										}
 									>
 										Join a Support Group
 										<ExternalLinkIcon />
@@ -243,6 +254,9 @@ export const Navbar = ({
 										href={siteConfig.links.samStruanResume}
 										rel="noopener noreferrer"
 										target="_blank"
+										onClick={() =>
+											posthog.capture("resource_link_clicked", { resource: "sam_struan_resume" })
+										}
 									>
 										Write a Factual Resume
 										<ExternalLinkIcon />
@@ -476,7 +490,13 @@ export const Navbar = ({
 							href={siteConfig.links.hiringCafe}
 							rel="noopener noreferrer"
 							target="_blank"
-							onClick={() => setIsOpen(false)}
+							onClick={() => {
+								posthog.capture("resource_link_clicked", {
+									resource: "hiring_cafe",
+									source: "mobile_menu"
+								});
+								setIsOpen(false);
+							}}
 						>
 							Real Jobs
 							<ExternalLinkIcon />
@@ -486,7 +506,13 @@ export const Navbar = ({
 							href={siteConfig.links.neverSearchAlone}
 							rel="noopener noreferrer"
 							target="_blank"
-							onClick={() => setIsOpen(false)}
+							onClick={() => {
+								posthog.capture("resource_link_clicked", {
+									resource: "never_search_alone",
+									source: "mobile_menu"
+								});
+								setIsOpen(false);
+							}}
 						>
 							Job Search Councils (Never Search Alone)
 							<ExternalLinkIcon />
@@ -496,7 +522,13 @@ export const Navbar = ({
 							href={siteConfig.links.samStruanResume}
 							rel="noopener noreferrer"
 							target="_blank"
-							onClick={() => setIsOpen(false)}
+							onClick={() => {
+								posthog.capture("resource_link_clicked", {
+									resource: "sam_struan_resume",
+									source: "mobile_menu"
+								});
+								setIsOpen(false);
+							}}
 						>
 							Resume Writing (Sam Struan)
 							<ExternalLinkIcon />

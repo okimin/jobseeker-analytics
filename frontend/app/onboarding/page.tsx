@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import { Button } from "@heroui/react";
+import posthog from "posthog-js";
 
 import { Navbar } from "@/components/navbar";
 import Spinner from "@/components/spinner";
@@ -36,6 +37,22 @@ function OnboardingContent() {
 				});
 				router.push("/login");
 				return;
+			}
+
+			// Identify user in PostHog early in the funnel
+			try {
+				const userResponse = await fetch(`${apiUrl}/me`, {
+					method: "GET",
+					credentials: "include"
+				});
+				if (userResponse.ok) {
+					const userData = await userResponse.json();
+					if (userData.user_id) {
+						posthog.identify(userData.user_id);
+					}
+				}
+			} catch {
+				// Silently fail - don't block onboarding
 			}
 
 			// Check if returning from successful Stripe checkout (legacy flow)
@@ -75,6 +92,7 @@ function OnboardingContent() {
 			// Show start date picker for new users
 			setIsLoading(false);
 			setShowStartDatePicker(true);
+			posthog.capture("onboarding_started");
 		};
 
 		init();
@@ -108,6 +126,9 @@ function OnboardingContent() {
 			});
 
 			if (response.ok) {
+				posthog.capture("onboarding_completed", {
+					start_date_preset: selectedPreset || "custom"
+				});
 				addToast({
 					title: "Let's connect your email to find your applications.",
 					color: "success"

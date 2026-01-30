@@ -15,6 +15,7 @@ import {
 	ModalHeader,
 	Tooltip
 } from "@heroui/react";
+import posthog from "posthog-js";
 
 import JobApplicationModal from "./JobApplicationModal";
 
@@ -254,6 +255,7 @@ export default function JobApplicationsDashboard({
 	// Handle sorting selection change and store it in localStorage
 	const handleSortChange = (keys: Set<string>) => {
 		const sortKey = Array.from(keys)[0];
+		posthog.capture("sort_changed", { sort_by: sortKey });
 		localStorage.setItem("sortKey", sortKey);
 		setSelectedKeys(new Set([sortKey]));
 	};
@@ -307,6 +309,10 @@ export default function JobApplicationsDashboard({
 
 			if (!response.ok) throw new Error("Failed to create application");
 
+			posthog.capture("application_added", {
+				status: newRowData.application_status,
+				method: "inline"
+			});
 			resetNewRow();
 			if (onRefreshData) onRefreshData();
 		} catch (error) {
@@ -335,6 +341,11 @@ export default function JobApplicationsDashboard({
 			if (!response.ok) {
 				throw new Error(`Failed to ${modalMode} application`);
 			}
+
+			posthog.capture(modalMode === "create" ? "application_added" : "application_edited", {
+				status: application.application_status,
+				method: "modal"
+			});
 
 			// Refresh the data by calling the parent's refresh function or refetch
 			setShowApplicationModal(false);
@@ -371,6 +382,7 @@ export default function JobApplicationsDashboard({
 									color="danger"
 									onPress={() => {
 										if (itemToRemove) {
+											posthog.capture("application_deleted");
 											onRemoveItem(itemToRemove); // Notify the parent to remove the item
 											setItemToRemove(null); // Clear the selected item
 											setShowDelete(false); // Close the modal
