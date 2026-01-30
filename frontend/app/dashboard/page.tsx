@@ -93,6 +93,7 @@ export default function Dashboard() {
 	const handleRefresh = async () => {
 		if (refreshing || processingStatus?.status === "processing") return;
 
+		posthog.capture("manual_refresh_clicked");
 		setRefreshing(true);
 		try {
 			const response = await fetch(`${apiUrl}/processing/start`, {
@@ -118,7 +119,6 @@ export default function Dashboard() {
 					color: "primary"
 				});
 			} else if (response.ok) {
-				posthog.capture("manual_refresh_clicked");
 				// Refresh the status to pick up the new processing state
 				const statusResponse = await fetch(`${apiUrl}/processing/status`, {
 					method: "GET",

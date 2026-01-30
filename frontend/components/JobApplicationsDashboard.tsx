@@ -425,6 +425,7 @@ export default function JobApplicationsDashboard({
 						selectionMode="single"
 						onSelectionChange={(keys) => {
 							const selectedStatus = Array.from(keys)[0] as string;
+							posthog.capture("filter_status_changed", { status: selectedStatus || "all" });
 							onStatusFilterChange?.(selectedStatus || "");
 						}}
 					>
@@ -455,6 +456,7 @@ export default function JobApplicationsDashboard({
 						selectionMode="single"
 						onSelectionChange={(keys) => {
 							const selectedCompany = Array.from(keys)[0] as string;
+							posthog.capture("filter_company_changed");
 							onCompanyFilterChange?.(selectedCompany || "");
 						}}
 					>
@@ -485,6 +487,7 @@ export default function JobApplicationsDashboard({
 						selectionMode="single"
 						onSelectionChange={(keys) => {
 							const selectedTitle = Array.from(keys)[0] as string;
+							posthog.capture("filter_job_title_changed");
 							onNormalizedJobTitleFilterChange?.(selectedTitle || "");
 						}}
 					>
@@ -524,8 +527,14 @@ export default function JobApplicationsDashboard({
 						selectionMode="multiple"
 						onSelectionChange={(keys) => {
 							const selectedKeys = Array.from(keys) as string[];
-							onHideRejectionsChange?.(selectedKeys.includes("rejections"));
-							onHideApplicationConfirmationsChange?.(selectedKeys.includes("confirmations"));
+							const newHideRejections = selectedKeys.includes("rejections");
+							const newHideConfirmations = selectedKeys.includes("confirmations");
+							posthog.capture("filter_hide_changed", {
+								hide_rejections: newHideRejections,
+								hide_confirmations: newHideConfirmations
+							});
+							onHideRejectionsChange?.(newHideRejections);
+							onHideApplicationConfirmationsChange?.(newHideConfirmations);
 						}}
 					>
 						<DropdownItem key="rejections">Rejections</DropdownItem>
