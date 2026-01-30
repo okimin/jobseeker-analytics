@@ -16,26 +16,8 @@ import { PostHogProvider as PHProvider } from "posthog-js/react";
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
 	const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
-	useEffect(() => {
-		if (posthogKey) {
-			// Check for GPC signal
-			const hasGPCSignal = () => {
-				// Check navigator.globalPrivacyControl (standard GPC signal)
-				if ("globalPrivacyControl" in navigator) {
-					return (navigator as Navigator & { globalPrivacyControl: boolean }).globalPrivacyControl === true;
-				}
-				return false;
-			};
-
-			posthog.init(posthogKey, {
-				api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-				person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-				capture_pageview: false, // Disable automatic pageview capture, as we capture manually
-				opt_out_capturing_by_default: hasGPCSignal(), // Respect GPC signals
-				respect_dnt: true // Also respect Do Not Track signals
-			});
-		}
-	}, [posthogKey]);
+	// PostHog is initialized in instrumentation-client.ts with GPC/DNT signal handling
+	// This provider wraps children with the PostHog React context for hooks
 
 	// If no PostHog key is configured, just return children without PostHog
 	if (!posthogKey) {
