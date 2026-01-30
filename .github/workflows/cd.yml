@@ -56,3 +56,4 @@ jobs:
         gh-app-id: ${{ secrets.GH_APP_ID }}
         gh-private-key: ${{ secrets.GH_PRIVATE_KEY }}
         gh-installation-id: ${{ secrets.GH_INSTALLATION_ID }}
+        posthog-key: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}

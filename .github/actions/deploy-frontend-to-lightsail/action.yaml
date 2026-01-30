@@ -26,6 +26,9 @@ inputs:
   gh-installation-id:
     description: GitHub Installation ID
     required: true
+  posthog-key:
+    description: PostHog Project API Key
+    required: false
 
 runs:
   using: composite
@@ -97,6 +100,7 @@ runs:
       docker build \
         --build-arg NEXT_PUBLIC_API_URL="${{ inputs.api-url }}" \
         --build-arg NEXT_PUBLIC_APP_URL="${{ inputs.app-url }}" \
+        --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ inputs.posthog-key }}" \
         -t ${LIGHTSAIL_SERVICE_NAME}-${CONTAINER_NAME}:${{ github.sha }} \
         --platform=linux/amd64 \
         ./frontend
