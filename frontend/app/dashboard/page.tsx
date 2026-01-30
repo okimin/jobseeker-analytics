@@ -155,7 +155,7 @@ export default function Dashboard() {
 				if (userResponse.ok) {
 					const userData = await userResponse.json();
 					if (userData.user_id && typeof posthog !== "undefined" && typeof posthog.identify === "function") {
-						posthog.identify(userData.user_id);
+						posthog.identify(userData.user_id, { email: userData.email });
 					}
 				}
 			} catch (error) {

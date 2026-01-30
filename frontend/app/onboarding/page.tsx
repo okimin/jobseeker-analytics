@@ -48,7 +48,7 @@ function OnboardingContent() {
 				if (userResponse.ok) {
 					const userData = await userResponse.json();
 					if (userData.user_id) {
-						posthog.identify(userData.user_id);
+						posthog.identify(userData.user_id, { email: userData.email });
 					}
 				}
 			} catch {
