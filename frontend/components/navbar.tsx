@@ -235,7 +235,7 @@ export const Navbar = ({
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Try a Job Search Council
+										Join a Support Group
 										<ExternalLinkIcon />
 									</a>
 									<a
