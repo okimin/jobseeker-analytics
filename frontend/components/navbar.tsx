@@ -226,7 +226,7 @@ export const Navbar = ({
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Real Jobs
+										Find Real Jobs
 										<ExternalLinkIcon />
 									</a>
 									<a
@@ -235,7 +235,16 @@ export const Navbar = ({
 										rel="noopener noreferrer"
 										target="_blank"
 									>
-										Job Search Councils
+										Try a Job Search Council
+										<ExternalLinkIcon />
+									</a>
+									<a
+										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href={siteConfig.links.samStruanResume}
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Write a Factual Resume
 										<ExternalLinkIcon />
 									</a>
 								</div>
@@ -480,6 +489,16 @@ export const Navbar = ({
 							onClick={() => setIsOpen(false)}
 						>
 							Job Search Councils (Never Search Alone)
+							<ExternalLinkIcon />
+						</a>
+						<a
+							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href={siteConfig.links.samStruanResume}
+							rel="noopener noreferrer"
+							target="_blank"
+							onClick={() => setIsOpen(false)}
+						>
+							Resume Writing (Sam Struan)
 							<ExternalLinkIcon />
 						</a>
 						<a
