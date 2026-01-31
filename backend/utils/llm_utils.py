@@ -1,7 +1,6 @@
-import google.generativeai as genai
+from google import genai
 import time
 import json
-from google.ai.generativelanguage_v1beta2 import GenerateTextResponse
 import logging
 
 from utils.config_utils import get_settings
@@ -10,8 +9,8 @@ from utils.task_utils import processed_emails_exceeds_rate_limit
 settings = get_settings()
 
 # Configure Google Gemini API
-genai.configure(api_key=settings.GOOGLE_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash-lite")
+client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+MODEL_ID = "gemini-2.5-flash-lite"
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -115,8 +114,7 @@ def process_email(email_text: str, user_id: str, db_session):
     for attempt in range(retries):
         try:
             logger.info(f"user_id:{user_id} Calling generate_content (attempt {attempt + 1}/{retries})")
-            response: GenerateTextResponse = model.generate_content(prompt)
-            response.resolve()
+            response = client.models.generate_content(model=MODEL_ID, contents=prompt)
             response_json: str = response.text
             logger.info(f"user_id:{user_id} Received response from model: %s", response_json)
             if response_json:
