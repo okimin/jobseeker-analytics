@@ -105,8 +105,8 @@ const PrivacyPolicyPage = () => {
 						<tr>
 							<td className="border p-2 font-semibold">I. Professional or Employment Information</td>
 							<td className="border p-2">
-								Job titles, hiring company names, and application status extracted from processed
-								emails.
+								Job titles, hiring company names, application statuses, sender names, and sender email
+								addresses extracted from processed emails.
 							</td>
 							<td className="border p-2">YES</td>
 						</tr>
@@ -166,6 +166,42 @@ const PrivacyPolicyPage = () => {
 					with us
 				</li>
 			</ul>
+
+			{/* DATA PROTECTION AND SECURITY */}
+			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2" id="data-protection">
+				Data Protection and Security Measures
+			</h2>
+			<p className="text-sm mb-4">
+				We implement security procedures to protect the confidentiality of your personal data, including
+				sensitive information obtained through Gmail API access:
+			</p>
+			<ul className="list-disc list-inside space-y-2 ml-4 text-sm mb-6">
+				<li>
+					<strong>Encryption in Transit:</strong> All data transmitted between your browser and our servers in
+					AWS is encrypted using TLS (Transport Layer Security).
+				</li>
+				<li>
+					<strong>Token Encryption:</strong> OAuth 2.0 refresh tokens and access tokens are encrypted using
+					Fernet symmetric encryption before storage in our database.
+				</li>
+				<li>
+					<strong>Minimal Data Storage:</strong> We extract and store only job-related metadata (company name,
+					job title, application status, sender name, sender email address) from emails. Full email bodies are
+					not retained.
+				</li>
+				<li>
+					<strong>Secure Session Management:</strong> Authentication cookies are configured with HttpOnly,
+					Secure, and SameSite attributes to prevent unauthorized access.
+				</li>
+				<li>
+					<strong>Access Controls:</strong> Production data access requires explicit authorization and is
+					limited to specific support, debugging, or security investigation purposes.
+				</li>
+				<li>
+					<strong>Rate Limiting:</strong> Authentication endpoints are rate-limited to prevent abuse.
+				</li>
+			</ul>
+
 			{/* 1. CALIFORNIA NOTICE AT COLLECTION */}
 			<h2 className="text-3xl font-semibold mb-4 mt-8 border-b pb-2">
 				1. Notice at Collection: Categories of Information
