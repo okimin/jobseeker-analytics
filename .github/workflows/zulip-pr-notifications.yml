@@ -1,0 +1,25 @@
+name : Zulip PR Notifications
+
+on:
+  pull_request:
+    types: [opened, reopened]
+  workflow_run:
+    workflows: ["Zulip PR Notifications"]
+    types: [completed]
+
+jobs
+  notify-zulip:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test a pr notification
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        # Your bot's API key and email
+        api-key: ${{ secrets.ZULIP_API_KEY }}
+        email: "github-bot@justajobapp.zulipchat.com"
+        organization-url: "https://justajobapp.zulipchat.com"
+        type: "stream"
+        # Notification channel
+        to: "sandbox"
+        topic: "experiments"
+        content: "Testing creation of a PR"
