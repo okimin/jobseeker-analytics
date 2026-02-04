@@ -188,6 +188,12 @@ export const Navbar = ({
 									</NextLink>
 									<NextLink
 										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href="/pricing"
+									>
+										Pricing
+									</NextLink>
+									<NextLink
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/faq"
 									>
 										FAQ
@@ -377,7 +383,7 @@ export const Navbar = ({
 									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
 										{contributionCents > 0 || pathname === "/payment/thank-you"
 											? "Manage Subscription"
-											: "Donate"}
+											: "Support Us"}
 									</div>
 								</div>
 							) : (
@@ -472,6 +478,13 @@ export const Navbar = ({
 							onClick={() => setIsOpen(false)}
 						>
 							Career Coaches
+						</NextLink>
+						<NextLink
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href="/pricing"
+							onClick={() => setIsOpen(false)}
+						>
+							Pricing
 						</NextLink>
 						<NextLink
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
