@@ -68,6 +68,14 @@ const Footer = () => {
 									FAQ
 								</NextLink>
 							</li>
+							<li>
+								<NextLink
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href="/pricing"
+								>
+									Pricing
+								</NextLink>
+							</li>
 						</ul>
 					</div>
 
@@ -94,7 +102,17 @@ const Footer = () => {
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									Job Search Councils <ExternalLinkIcon />
+									Join a Support Group <ExternalLinkIcon />
+								</a>
+							</li>
+							<li>
+								<a
+									className="text-sm text-default-500 hover:text-foreground transition-colors"
+									href={siteConfig.links.samStruanResume}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Write a Factual Resume <ExternalLinkIcon />
 								</a>
 							</li>
 						</ul>

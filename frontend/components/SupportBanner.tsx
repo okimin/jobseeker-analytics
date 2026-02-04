@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Input } from "@heroui/react";
+import { Button } from "@heroui/react";
+import NextLink from "next/link";
 
 interface SupportBannerProps {
 	isVisible: boolean;
@@ -9,18 +10,15 @@ interface SupportBannerProps {
 	triggerType: string;
 }
 
-const DEFAULT_AMOUNT_CENTS = 500; // $5
+const PREMIUM_AMOUNT_CENTS = 500; // $5/month for premium
 
 export default function SupportBanner({ isVisible, onClose, triggerType }: SupportBannerProps) {
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [customAmount, setCustomAmount] = useState("5");
-	const [isRecurring, setIsRecurring] = useState(true);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 	useEffect(() => {
 		if (isVisible) {
-			// Small delay for entrance animation
 			const timer = setTimeout(() => setIsAnimating(true), 100);
 			return () => clearTimeout(timer);
 		} else {
@@ -28,22 +26,8 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 		}
 	}, [isVisible]);
 
-	const getAmountCents = () => {
-		const parsed = parseFloat(customAmount);
-		if (isNaN(parsed) || parsed < 1) return DEFAULT_AMOUNT_CENTS;
-		return Math.round(parsed * 100);
-	};
-
-	const isValidAmount = () => {
-		const parsed = parseFloat(customAmount);
-		return !isNaN(parsed) && parsed >= 1;
-	};
-
-	const handleSupport = async () => {
-		if (!isValidAmount()) return;
-
+	const handleUpgrade = async () => {
 		setIsLoading(true);
-		const amountCents = getAmountCents();
 
 		try {
 			// Record the action
@@ -53,7 +37,7 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					action: "selected",
-					selected_amount_cents: amountCents
+					selected_amount_cents: PREMIUM_AMOUNT_CENTS
 				})
 			});
 
@@ -63,9 +47,9 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					amount_cents: amountCents,
+					amount_cents: PREMIUM_AMOUNT_CENTS,
 					trigger_type: triggerType,
-					is_recurring: isRecurring
+					is_recurring: true
 				})
 			});
 
@@ -78,7 +62,7 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 				setIsLoading(false);
 			}
 		} catch (error) {
-			console.error("Support error:", error);
+			console.error("Upgrade error:", error);
 			setIsLoading(false);
 		}
 	};
@@ -99,9 +83,6 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 
 	if (!isVisible) return null;
 
-	const amountCents = getAmountCents();
-	const displayAmount = (amountCents / 100).toFixed(amountCents % 100 === 0 ? 0 : 2);
-
 	return (
 		<div
 			className={`fixed bottom-4 right-4 z-40 max-w-sm transition-all duration-300 ease-out ${
@@ -121,86 +102,25 @@ export default function SupportBanner({ isVisible, onClose, triggerType }: Suppo
 					</svg>
 				</button>
 
-				{/* Heart icon and headline */}
-				<div className="flex items-center gap-2 mb-3">
-					<span className="text-2xl">
-						<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								clipRule="evenodd"
-								d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-								fillRule="evenodd"
-							/>
-						</svg>
-					</span>
-					<h3 className="text-lg font-semibold text-foreground">Help keep this free</h3>
-				</div>
+				{/* Headline */}
+				<h3 className="text-lg font-semibold text-foreground mb-3">Introducing Premium — $5/mo</h3>
 
-				{/* Emotional message */}
+				{/* Value proposition */}
 				<p className="text-foreground/70 text-sm mb-4">
-					Job searching is hard. Your support helps us keep this tool free for the next person who needs it.
+					Your data stays automatically synced so it's always up to date when you open the app.
 				</p>
 
-				{/* Amount input */}
-				<div className="mb-3">
-					<label className="block text-sm font-medium text-foreground/80 mb-1">Amount</label>
-					<div className="flex items-center gap-2">
-						<span className="text-default-500">$</span>
-						<Input
-							className="max-w-24"
-							color="default"
-							disabled={isLoading}
-							min={1}
-							placeholder="5"
-							size="sm"
-							type="number"
-							value={customAmount}
-							variant="bordered"
-							onChange={(e) => setCustomAmount(e.target.value)}
-						/>
-					</div>
-					{!isValidAmount() && customAmount && (
-						<p className="text-xs text-danger mt-1">Please enter an amount of at least $1</p>
-					)}
-				</div>
-
-				{/* One-time vs Recurring toggle */}
-				<div className="flex gap-2 mb-4">
-					<button
-						className={`flex-1 py-2 px-3 text-sm rounded-md border transition-colors ${
-							!isRecurring
-								? "border-primary bg-primary text-primary-foreground"
-								: "border-divider text-foreground/60 hover:border-default-400 hover:text-foreground"
-						}`}
-						disabled={isLoading}
-						type="button"
-						onClick={() => setIsRecurring(false)}
-					>
-						One-time
-					</button>
-					<button
-						className={`flex-1 py-2 px-3 text-sm rounded-md border transition-colors ${
-							isRecurring
-								? "border-primary bg-primary text-primary-foreground"
-								: "border-divider text-foreground/60 hover:border-default-400 hover:text-foreground"
-						}`}
-						disabled={isLoading}
-						type="button"
-						onClick={() => setIsRecurring(true)}
-					>
-						Monthly
-					</button>
-				</div>
+				{/* Learn more link */}
+				<p className="text-xs text-default-500 mb-4">
+					<NextLink className="underline hover:text-foreground" href="/pricing">
+						See all premium features
+					</NextLink>
+				</p>
 
 				{/* CTA */}
 				<div className="flex flex-col gap-2">
-					<Button
-						className="w-full"
-						color="primary"
-						isDisabled={!isValidAmount()}
-						isLoading={isLoading}
-						onPress={handleSupport}
-					>
-						{isLoading ? "Processing..." : `Support with $${displayAmount}${isRecurring ? "/mo" : ""}`}
+					<Button className="w-full" color="primary" isLoading={isLoading} onPress={handleUpgrade}>
+						{isLoading ? "Processing..." : "Upgrade to Premium"}
 					</Button>
 					<button
 						className="text-sm text-default-500 hover:text-foreground"

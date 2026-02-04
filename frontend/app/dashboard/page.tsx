@@ -662,7 +662,7 @@ export default function Dashboard() {
 						onClick={() => setShowManageSubscription(true)}
 					/>
 					<span className="text-sm text-gray-600 dark:text-gray-300">
-						Your contribution helps others track their job search for free.
+						Your contribution helps us support jobseekers.
 					</span>
 				</div>
 			)}

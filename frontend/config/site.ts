@@ -14,6 +14,10 @@ export const siteConfig = {
 			href: "/coaches"
 		},
 		{
+			label: "Pricing",
+			href: "/pricing"
+		},
+		{
 			label: "FAQ",
 			href: "/faq"
 		}
@@ -36,6 +40,7 @@ export const siteConfig = {
 		// Internal routes
 		home: "/",
 		coaches: "/coaches",
+		pricing: "/pricing",
 		faq: "/faq",
 		dashboard: "/dashboard",
 		login: "/login",
