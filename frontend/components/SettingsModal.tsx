@@ -19,9 +19,9 @@ interface PremiumStatus {
 	premium_reason: "coach" | "coach_client" | "paid" | null;
 	monthly_contribution_cents: number;
 	stripe_subscription_id: string | null;
-	always_open_enabled: boolean;
 	has_valid_credentials: boolean;
 	last_background_sync_at: string | null;
+	contribution_started_at: string | null;
 }
 
 interface SettingsModalProps {
