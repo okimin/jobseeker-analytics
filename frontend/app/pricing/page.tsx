@@ -1,36 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardBody, CardHeader, Button, Input } from "@heroui/react";
+import { Card, CardBody, CardHeader, Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 
-const PREMIUM_THRESHOLD = 5;
+const PREMIUM_AMOUNT_CENTS = 500; // $5/month
 
 export default function PricingPage() {
-	const [customAmount, setCustomAmount] = useState("5");
-	const [isRecurring, setIsRecurring] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
-	const getAmountCents = () => {
-		const parsed = parseFloat(customAmount);
-		if (isNaN(parsed) || parsed < 1) return 500;
-		return Math.round(parsed * 100);
-	};
-
-	const isValidAmount = () => {
-		const parsed = parseFloat(customAmount);
-		return !isNaN(parsed) && parsed >= 1;
-	};
-
-	const isPremiumAmount = () => getAmountCents() >= PREMIUM_THRESHOLD * 100;
-
-	const handleSupport = async () => {
-		if (!isValidAmount()) return;
-
+	const handleUpgrade = async () => {
 		setIsLoading(true);
-		const amountCents = getAmountCents();
 
 		try {
 			const response = await fetch(`${apiUrl}/payment/checkout`, {
@@ -38,9 +20,9 @@ export default function PricingPage() {
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					amount_cents: amountCents,
+					amount_cents: PREMIUM_AMOUNT_CENTS,
 					trigger_type: "pricing_page",
-					is_recurring: isRecurring
+					is_recurring: true
 				})
 			});
 
@@ -51,7 +33,7 @@ export default function PricingPage() {
 				console.error("Failed to create checkout session");
 			}
 		} catch (error) {
-			console.error("Support error:", error);
+			console.error("Upgrade error:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -119,7 +101,7 @@ export default function PricingPage() {
 							<CardHeader className="flex flex-col items-center pt-6 pb-4">
 								<h2 className="text-2xl font-bold text-gray-800 dark:text-white">Premium</h2>
 								<div className="mt-4">
-									<span className="text-4xl font-bold text-gray-800 dark:text-white">$5+</span>
+									<span className="text-4xl font-bold text-gray-800 dark:text-white">$5</span>
 									<span className="text-gray-500 dark:text-gray-400">/month</span>
 								</div>
 							</CardHeader>
@@ -149,9 +131,9 @@ export default function PricingPage() {
 										className="w-full"
 										color="primary"
 										isLoading={isLoading}
-										onPress={handleSupport}
+										onPress={handleUpgrade}
 									>
-										Support with ${customAmount}/mo
+										Upgrade to Premium
 									</Button>
 								</div>
 							</CardBody>
@@ -201,93 +183,6 @@ export default function PricingPage() {
 						</Card>
 					</div>
 
-					{/* Custom Amount Section */}
-					<div className="max-w-lg mx-auto">
-						<Card className="bg-white dark:bg-gray-800">
-							<CardBody className="p-8">
-								<h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 text-center">
-									Choose Your Amount
-								</h3>
-								<p className="text-gray-600 dark:text-gray-300 text-sm text-center mb-6">
-									Pay what you want. $5+/month unlocks automatic syncing.
-								</p>
-
-								{/* Amount Input */}
-								<div className="flex items-center justify-center gap-2 mb-4">
-									<span className="text-2xl text-gray-600 dark:text-gray-300">$</span>
-									<Input
-										className="max-w-24"
-										min={1}
-										size="lg"
-										type="number"
-										value={customAmount}
-										variant="bordered"
-										onChange={(e) => setCustomAmount(e.target.value)}
-									/>
-									<span className="text-gray-500 dark:text-gray-400">
-										{isRecurring ? "/month" : "one-time"}
-									</span>
-								</div>
-
-								{/* One-time vs Monthly Toggle */}
-								<div className="flex gap-2 mb-6">
-									<button
-										className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-											!isRecurring
-												? "border-primary bg-primary text-primary-foreground"
-												: "border-default-300 text-gray-600 dark:text-gray-300 hover:border-default-400"
-										}`}
-										type="button"
-										onClick={() => setIsRecurring(false)}
-									>
-										One-time
-									</button>
-									<button
-										className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-											isRecurring
-												? "border-primary bg-primary text-primary-foreground"
-												: "border-default-300 text-gray-600 dark:text-gray-300 hover:border-default-400"
-										}`}
-										type="button"
-										onClick={() => setIsRecurring(true)}
-									>
-										Monthly
-									</button>
-								</div>
-
-								{/* Premium benefit indicator */}
-								{isRecurring && isPremiumAmount() && (
-									<div className="mb-4 p-3 bg-success/10 rounded-lg border border-success/20">
-										<p className="text-sm text-success-600 dark:text-success-400 font-medium text-center">
-											Includes automatic sync every 12 hours
-										</p>
-									</div>
-								)}
-
-								{isRecurring && !isPremiumAmount() && (
-									<div className="mb-4 p-3 bg-default-100 rounded-lg">
-										<p className="text-sm text-default-600 text-center">
-											Tip: $5+/month unlocks automatic syncing
-										</p>
-									</div>
-								)}
-
-								<Button
-									className="w-full"
-									color="primary"
-									isDisabled={!isValidAmount()}
-									isLoading={isLoading}
-									size="lg"
-									onPress={handleSupport}
-								>
-									{isLoading
-										? "Processing..."
-										: `Support with $${customAmount}${isRecurring ? "/mo" : ""}`}
-								</Button>
-							</CardBody>
-						</Card>
-					</div>
-
 					{/* FAQ Section */}
 					<div className="max-w-2xl mx-auto mt-16">
 						<h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center">
@@ -317,9 +212,9 @@ export default function PricingPage() {
 									What if I contribute less than $5/month?
 								</h3>
 								<p className="text-gray-600 dark:text-gray-300">
-									Any contribution helps keep the project running! You'll have access to all free
+									<span><a className="underline" href="https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00">Any contribution</a></span> helps keep the project running! You'll have access to all free
 									features and can manually sync your emails anytime. Premium auto-sync is available
-									at $5+/month.
+									at $5/month.
 								</p>
 							</div>
 							<div>
