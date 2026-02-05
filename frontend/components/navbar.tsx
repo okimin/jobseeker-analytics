@@ -158,10 +158,10 @@ export const Navbar = ({
 					</div>
 
 					{/* Center/Right navigation links and actions */}
-					<div className="hidden md:flex items-center space-x-2">
+					<div className="hidden md:flex items-center space-x-1 lg-nav:space-x-2">
 						{/* About dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								About
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -198,7 +198,7 @@ export const Navbar = ({
 
 						{/* Find Jobs - top-level external link */}
 						<a
-							className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1"
+							className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1"
 							href={siteConfig.links.hiringCafe}
 							rel="noopener noreferrer"
 							target="_blank"
@@ -212,7 +212,7 @@ export const Navbar = ({
 
 						{/* Resources dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								Resources
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -267,7 +267,7 @@ export const Navbar = ({
 
 						{/* Contribute dropdown */}
 						<div className="relative group">
-							<button className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
 								Contribute
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -314,7 +314,7 @@ export const Navbar = ({
 						{isAuthenticated && pathname !== "/dashboard" && (
 							<>
 								<NextLink
-									className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+									className="inline-flex items-center gap-2 px-3 lg-nav:px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
 									href="/dashboard"
 								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,7 +351,7 @@ export const Navbar = ({
 						{/* Primary CTA button (Dashboard or Login) - only show when not authenticated or on dashboard */}
 						{(!isAuthenticated || pathname === "/dashboard") && (
 							<NextLink
-								className="ml-4 inline-flex items-center px-5 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+								className="ml-2 lg-nav:ml-4 inline-flex items-center px-3 lg-nav:px-5 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
 								href={primaryCTA.href}
 							>
 								{primaryCTA.label}
@@ -361,7 +361,7 @@ export const Navbar = ({
 						{/* Heart donate button - hidden for users with active coach */}
 						{!hasActiveCoach &&
 							(isAuthenticated ? (
-								<div className="relative group ml-6">
+								<div className="relative group ml-3 lg-nav:ml-6">
 									<button
 										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
 										onClick={handleDonateClick}
@@ -381,7 +381,7 @@ export const Navbar = ({
 									</div>
 								</div>
 							) : (
-								<div className="relative group ml-6">
+								<div className="relative group ml-3 lg-nav:ml-6">
 									<a
 										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block"
 										href={siteConfig.links.donate}
