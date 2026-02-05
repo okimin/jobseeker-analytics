@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlmodel import select, and_
 from pydantic import BaseModel
@@ -8,7 +8,6 @@ import uuid
 
 from db.user_emails import UserEmails
 from session.session_layer import validate_session
-from utils.admin_utils import get_context_user_id
 import database
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -149,93 +148,3 @@ async def update_job_application(
         db_session.rollback()
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
-@router.get("/job-applications/{application_id}", response_model=JobApplicationResponse)
-@limiter.limit("10/minute")
-async def get_job_application(
-    request: Request,
-    application_id: str,
-    db_session: database.DBSession,
-    user_id: str = Depends(get_context_user_id)
-):
-    """
-    Get a specific job application by ID.
-    """
-    try:
-        logger.info(f"Fetching job application {application_id} for user_id: {user_id}")
-        
-        statement = select(UserEmails).where(
-            and_(UserEmails.id == application_id, UserEmails.user_id == user_id)
-        )
-        application = db_session.exec(statement).first()
-        
-        if not application:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Job application with id {application_id} not found"
-            )
-        
-        return JobApplicationResponse(
-            id=application.id,
-            company_name=application.company_name,
-            application_status=application.application_status,
-            received_at=application.received_at,
-            subject=application.subject,
-            job_title=application.job_title,
-            email_from=application.email_from
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error fetching job application {application_id} for user_id {user_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
-@router.get("/job-applications", response_model=List[JobApplicationResponse])
-@limiter.limit("10/minute")
-async def get_job_applications(
-    request: Request,
-    db_session: database.DBSession,
-    user_id: str = Depends(get_context_user_id),
-    status: Optional[str] = None,
-    company: Optional[str] = None
-):
-    """
-    Get all job applications for the user with optional filters.
-    """
-    try:
-        logger.info(f"Fetching job applications for user_id: {user_id}")
-        
-        # Build query with filters
-        statement = select(UserEmails).where(UserEmails.user_id == user_id)
-        
-        if status:
-            statement = statement.where(UserEmails.application_status == status)
-        
-        if company:
-            statement = statement.where(UserEmails.company_name.ilike(f"%{company}%"))
-        
-        # Filter out "unknown" status and order by date
-        statement = statement.where(
-            UserEmails.application_status.notin_(["unknown", "Unknown"])
-        ).order_by(UserEmails.received_at.desc())
-        
-        applications = db_session.exec(statement).all()
-        
-        logger.info(f"Found {len(applications)} job applications for user_id: {user_id}")
-        
-        return [
-            JobApplicationResponse(
-                id=app.id,
-                company_name=app.company_name,
-                application_status=app.application_status,
-                received_at=app.received_at,
-                subject=app.subject,
-                job_title=app.job_title,
-                email_from=app.email_from
-            )
-            for app in applications
-        ]
-        
-    except Exception as e:
-        logger.error(f"Error fetching job applications for user_id {user_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

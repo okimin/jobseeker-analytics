@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 from sqlmodel import select, desc
 from db.user_emails import UserEmails
 from db import processing_tasks as task_models
@@ -37,55 +37,6 @@ APP_URL = settings.APP_URL
 
 # FastAPI router for email routes
 router = APIRouter()
-
-
-@router.get("/processing")
-async def processing(
-    request: Request,
-    db_session: database.DBSession,
-    user_id: str = Depends(get_context_user_id),
-):
-    logging.info("user_id:%s processing", user_id)
-    if not user_id:
-        logger.info("user_id: not found, redirecting to login")
-        return RedirectResponse("/logout", status_code=303)
-
-    process_task_run: task_models.TaskRuns = db_session.exec(
-        select(task_models.TaskRuns)
-        .where(task_models.TaskRuns.user_id == user_id)
-        .order_by(task_models.TaskRuns.updated.desc())  # TODO: pass task_id between frontend / backend
-    ).first()
-
-    if not process_task_run:
-        raise HTTPException(status_code=404, detail="Processing has not started.")
-
-    # Refresh the session to ensure we get the latest data
-    db_session.refresh(process_task_run)
-
-    if process_task_run.status == task_models.FINISHED:
-        logger.info("user_id: %s processing complete", user_id)
-        return JSONResponse(
-            content={
-                "message": "Processing complete",
-                "processed_emails": process_task_run.processed_emails,
-                "total_emails": process_task_run.total_emails,
-            }
-        )
-    else:
-        logger.info(
-            "user_id: %s processing not complete - processed: %s, total: %s, status: %s",
-            user_id,
-            process_task_run.processed_emails,
-            process_task_run.total_emails,
-            process_task_run.status,
-        )
-        return JSONResponse(
-            content={
-                "message": "Processing in progress",
-                "processed_emails": process_task_run.processed_emails,
-                "total_emails": process_task_run.total_emails,
-            }
-        )
 
 
 @router.get("/processing/status")
@@ -330,44 +281,6 @@ async def delete_email(request: Request, db_session: database.DBSession, email_i
         logger.error(f"Error deleting email with id {email_id} for user_id {user_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to delete email: {str(e)}")
         
-
-@router.post("/fetch-emails")
-@limiter.limit("5/minute")
-async def start_fetch_emails(
-    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession, user_id: str = Depends(validate_session)
-):
-    """Starts the background task for fetching and processing emails."""
-    
-    if not user_id:
-        raise HTTPException(status_code=403, detail="Unauthorized")
-    logger.info(f"user_id:{user_id} start_fetch_emails")
-
-    try:
-        # Load credentials with DB-first approach and session fallback
-        creds = get_credentials_for_background_task(
-            db_session,
-            user_id,
-            session_creds_json=request.session.get("creds"),
-        )
-
-        if not creds:
-            logger.error(f"Missing credentials for user_id: {user_id}")
-            return HTMLResponse(content="User not authenticated. Please log in again.", status_code=401)
-
-        user = AuthenticatedUser(creds)
-
-        logger.info(f"Starting email fetching process for user_id: {user_id}")
-
-        # Get the last email date for incremental fetching
-        last_updated = get_last_email_date(user_id, db_session)
-
-        background_tasks.add_task(fetch_emails_to_db, user, request, last_updated, user_id=user_id)
-
-        return JSONResponse(content={"message": "Email fetching started"}, status_code=200)
-    except Exception as e:
-        logger.error(f"Error reconstructing credentials: {e}")
-        raise HTTPException(status_code=500, detail="Failed to authenticate user")
-
 
 def fetch_emails_to_db(
     user: AuthenticatedUser,
