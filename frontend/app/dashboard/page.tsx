@@ -6,9 +6,8 @@ import React from "react";
 import posthog from "posthog-js";
 
 import JobApplicationsDashboard, { Application } from "@/components/JobApplicationsDashboard";
-import SupportBanner from "@/components/SupportBanner";
 import ContributorBadge from "@/components/ContributorBadge";
-import ManageSubscriptionModal from "@/components/ManageSubscriptionModal";
+import SettingsModal from "@/components/SettingsModal";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
 import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
@@ -43,12 +42,10 @@ export default function Dashboard() {
 	const [hideApplicationConfirmations, setHideApplicationConfirmations] = useState<boolean>(false);
 	const [normalizedJobTitleFilter, setNormalizedJobTitleFilter] = useState("");
 
-	// Payment ask state
-	const [showPaymentAsk, setShowPaymentAsk] = useState(false);
-	const [paymentTriggerType, setPaymentTriggerType] = useState("");
+	// Premium status state
 	const [contributionCents, setContributionCents] = useState(0);
-	const [paymentAskChecked, setPaymentAskChecked] = useState(false);
-	const [showManageSubscription, setShowManageSubscription] = useState(false);
+	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [isPremium, setIsPremium] = useState(false);
 
 	// Processing status state
 	const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
@@ -294,63 +291,28 @@ export default function Dashboard() {
 		}
 	}, [processingStatus?.should_rescan, processingStatus?.status, autoRescanTriggered, refreshing]);
 
-	// Check if we should show payment ask modal
-	const checkPaymentAsk = useCallback(async () => {
-		if (paymentAskChecked) return;
-
+	// Fetch premium status for navbar and settings
+	const fetchPremiumStatus = useCallback(async () => {
 		try {
-			// First get contribution status
-			const statusResponse = await fetch(`${apiUrl}/payment/status`, {
-				method: "GET",
-				credentials: "include"
-			});
-
-			if (statusResponse.ok) {
-				const statusData = await statusResponse.json();
-				setContributionCents(statusData.monthly_cents || 0);
-
-				// If already contributing, don't check for payment ask
-				if (statusData.is_contributor) {
-					setPaymentAskChecked(true);
-					return;
-				}
-			}
-
-			// Check if we should show payment ask
-			const response = await fetch(`${apiUrl}/payment/should-ask`, {
+			const response = await fetch(`${apiUrl}/settings/premium-status`, {
 				method: "GET",
 				credentials: "include"
 			});
 
 			if (response.ok) {
 				const data = await response.json();
-				if (data.should_ask) {
-					// Record that we're showing the modal
-					await fetch(`${apiUrl}/payment/ask-shown`, {
-						method: "POST",
-						credentials: "include",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							trigger_type: data.trigger_type,
-							trigger_value: data.trigger_value
-						})
-					});
-
-					setPaymentTriggerType(data.trigger_type);
-					setShowPaymentAsk(true);
-				}
+				setIsPremium(data.is_premium);
+				setContributionCents(data.monthly_contribution_cents || 0);
 			}
 		} catch (error) {
-			console.error("Error checking payment ask:", error);
-		} finally {
-			setPaymentAskChecked(true);
+			console.error("Error fetching premium status:", error);
 		}
-	}, [apiUrl, paymentAskChecked]);
+	}, [apiUrl]);
 
-	// Call checkPaymentAsk on mount
+	// Fetch premium status on mount
 	useEffect(() => {
-		checkPaymentAsk();
-	}, [checkPaymentAsk]);
+		fetchPremiumStatus();
+	}, [fetchPremiumStatus]);
 
 	const fetchData = async () => {
 		try {
@@ -591,59 +553,11 @@ export default function Dashboard() {
 		}
 	};
 
-	const handlePaymentAskClose = () => {
-		setShowPaymentAsk(false);
-	};
-
-	const handleDonateClick = () => {
-		setPaymentTriggerType("navbar_donate");
-		setShowPaymentAsk(true);
-	};
-
-	const handleUpdateSubscription = async (newAmountCents: number) => {
-		const response = await fetch(`${apiUrl}/payment/update-subscription`, {
-			method: "POST",
-			credentials: "include",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ new_amount_cents: newAmountCents })
-		});
-
-		if (!response.ok) {
-			throw new Error("Failed to update subscription");
-		}
-
-		setContributionCents(newAmountCents);
-		addToast({
-			title: "Subscription updated",
-			description: `Your monthly contribution is now $${newAmountCents / 100}`,
-			color: "success"
-		});
-	};
-
-	const handleCancelSubscription = async () => {
-		const response = await fetch(`${apiUrl}/payment/cancel`, {
-			method: "POST",
-			credentials: "include"
-		});
-
-		if (!response.ok) {
-			throw new Error("Failed to cancel subscription");
-		}
-
-		setContributionCents(0);
-		addToast({
-			title: "Subscription cancelled",
-			description: "Your subscription has been cancelled",
-			color: "success"
-		});
-	};
-
 	return (
 		<>
 			<Navbar
-				contributionCents={contributionCents}
-				onDonateClick={handleDonateClick}
-				onManageSubscriptionClick={() => setShowManageSubscription(true)}
+				isPremium={isPremium}
+				onSettingsClick={() => setShowSettingsModal(true)}
 			/>
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
@@ -659,7 +573,7 @@ export default function Dashboard() {
 				<div className="mb-4 p-4 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center gap-2">
 					<ContributorBadge
 						monthlyCents={contributionCents}
-						onClick={() => setShowManageSubscription(true)}
+						onClick={() => setShowSettingsModal(true)}
 					/>
 					<span className="text-sm text-gray-600 dark:text-gray-300">
 						Your contribution helps us support jobseekers.
@@ -764,11 +678,14 @@ export default function Dashboard() {
 				onStatusFilterChange={setStatusFilter}
 			/>
 
-			{/* Support banner */}
-			<SupportBanner
-				isVisible={showPaymentAsk}
-				triggerType={paymentTriggerType}
-				onClose={handlePaymentAskClose}
+			{/* Settings modal */}
+			<SettingsModal
+				isOpen={showSettingsModal}
+				onClose={() => setShowSettingsModal(false)}
+				onSubscriptionChange={() => {
+					// Refresh premium status when subscription changes
+					fetchPremiumStatus();
+				}}
 			/>
 
 			{/* Session expired modal */}
@@ -809,14 +726,6 @@ export default function Dashboard() {
 				onSave={handleStartDateSave}
 			/>
 
-			{/* Manage subscription modal */}
-			<ManageSubscriptionModal
-				currentAmountCents={contributionCents}
-				isOpen={showManageSubscription}
-				onCancel={handleCancelSubscription}
-				onClose={() => setShowManageSubscription(false)}
-				onUpdate={handleUpdateSubscription}
-			/>
 		</>
 	);
 }
