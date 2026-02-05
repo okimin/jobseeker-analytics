@@ -63,12 +63,14 @@ function ThankYouContent() {
 						<h1 className="text-2xl font-bold mb-2">Thank you for supporting JustAJobApp!</h1>
 						{contributionAmount && (
 							<p className="text-gray-600 dark:text-gray-300 mb-4">
-								Your ${contributionAmount / 100}/month helps keep this free for someone who can&apos;t
-								afford it.
+								Your ${contributionAmount / 100}/month helps us help more jobseekers.
 							</p>
 						)}
 						<p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-							You can manage or cancel your contribution anytime from your dashboard.
+							You can manage or cancel anytime from{" "}
+							<a className="underline" href="/settings">
+								Settings.
+							</a>
 						</p>
 						<Button color="primary" size="lg" onPress={handleGoToDashboard}>
 							Back to Dashboard
