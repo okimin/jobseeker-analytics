@@ -30,6 +30,9 @@ class Users(SQLModel, table=True):
     contribution_started_at: datetime | None = Field(default=None, nullable=True)  # When they first paid
     total_contributed_cents: int = Field(default=0, nullable=False)  # Lifetime contributions
     stripe_subscription_id: str | None = Field(default=None, nullable=True)  # For subscription management
+    # Background sync fields
+    sync_tier: str = Field(default="none", nullable=False)  # 'none' or 'premium'
+    last_background_sync_at: datetime | None = Field(default=None, nullable=True)  # Last background sync timestamp
 
 class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"

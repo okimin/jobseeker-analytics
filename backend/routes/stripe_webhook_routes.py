@@ -10,6 +10,11 @@ from slowapi.util import get_remote_address
 from db.users import Users
 from db.contributions import Contributions
 from utils.config_utils import get_settings, get_stripe_key
+from utils.billing_utils import (
+    upgrade_user_to_premium,
+    downgrade_user_from_premium,
+    PREMIUM_CONTRIBUTION_THRESHOLD_CENTS,
+)
 import database
 
 settings = get_settings()
@@ -108,6 +113,10 @@ async def stripe_webhook(
                 db_session.add(contribution)
                 db_session.commit()
 
+                # Upgrade to premium tier if recurring $5+/month contribution
+                if is_recurring and amount_cents >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS:
+                    upgrade_user_to_premium(db_session, user_id)
+
                 payment_type = "monthly" if is_recurring else "one-time"
                 logger.info(f"User {user_id} made {payment_type} contribution of ${amount_cents/100:.2f}")
             else:
@@ -177,6 +186,9 @@ async def stripe_webhook(
                 db_session.add(user)
                 db_session.commit()
 
+                # Check if user should be downgraded from premium tier
+                downgrade_user_from_premium(db_session, user.user_id)
+
                 logger.info(f"Subscription cancelled for user {user.user_id}")
 
     # Handle subscription updates (amount changes from Stripe dashboard or API)
@@ -195,9 +207,16 @@ async def stripe_webhook(
                 ).first()
 
                 if user and new_amount > 0:
+                    old_amount = user.monthly_contribution_cents or 0
                     user.monthly_contribution_cents = new_amount
                     db_session.add(user)
                     db_session.commit()
+
+                    # Check for tier upgrade/downgrade based on new amount
+                    if new_amount >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS and old_amount < PREMIUM_CONTRIBUTION_THRESHOLD_CENTS:
+                        upgrade_user_to_premium(db_session, user.user_id)
+                    elif new_amount < PREMIUM_CONTRIBUTION_THRESHOLD_CENTS and old_amount >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS:
+                        downgrade_user_from_premium(db_session, user.user_id)
 
                     logger.info(f"Subscription amount updated for user {user.user_id}: ${new_amount/100:.2f}/mo")
 

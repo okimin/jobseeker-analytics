@@ -46,8 +46,13 @@ async def login(
     )
     try:
         if not code:
-            # Check if we have a refresh token in session
-            has_refresh_token = get_refresh_token_status(request.session.get("creds"))
+            # Check if we have a refresh token (DB first, then session fallback)
+            session_user_id = request.session.get("user_id")
+            has_refresh_token = get_refresh_token_status(
+                session_creds=request.session.get("creds"),
+                db_session=db_session,
+                user_id=session_user_id,
+            )
             authorization_url, state = get_google_authorization_url(
                 flow, has_refresh_token
             )
@@ -231,7 +236,13 @@ async def signup(request: Request, db_session: database.DBSession):
     )
     try:
         if not code:
-            has_refresh_token = get_refresh_token_status(request.session.get("creds"))
+            # Check if we have a refresh token (DB first, then session fallback)
+            session_user_id = request.session.get("user_id")
+            has_refresh_token = get_refresh_token_status(
+                session_creds=request.session.get("creds"),
+                db_session=db_session,
+                user_id=session_user_id,
+            )
             authorization_url, state = get_google_authorization_url(
                 flow, has_refresh_token
             )
@@ -337,7 +348,12 @@ async def email_sync_auth(
                 logger.warning("Email sync auth attempted without session. Redirecting to login.")
                 return Redirects.to_error("auth_required")
 
-            has_refresh_token = get_refresh_token_status(request.session.get("email_sync_creds"))
+            # Check for email_sync credentials (DB first, then session fallback)
+            has_refresh_token = get_refresh_token_status(
+                session_creds=request.session.get("email_sync_creds"),
+                db_session=db_session,
+                user_id=user_id,
+            )
             authorization_url, state = get_google_authorization_url(
                 flow, has_refresh_token
             )
