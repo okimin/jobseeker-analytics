@@ -27,11 +27,7 @@ interface NavbarProps {
 	onSettingsClick?: () => void;
 }
 
-export const Navbar = ({
-	defaultCollapsed = false,
-	isPremium = false,
-	onSettingsClick
-}: NavbarProps) => {
+export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettingsClick }: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -395,7 +391,9 @@ export const Navbar = ({
 								<button
 									className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
 									onClick={() => {
-										posthog.capture(isPremium ? "settings_clicked" : "upgrade_clicked", { source: "navbar" });
+										posthog.capture(isPremium ? "settings_clicked" : "upgrade_clicked", {
+											source: "navbar"
+										});
 										onSettingsClick();
 									}}
 								>
@@ -680,7 +678,6 @@ export const Navbar = ({
 					</div>
 				</div>
 			)}
-
 		</nav>
 	);
 };

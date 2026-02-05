@@ -212,9 +212,16 @@ export default function PricingPage() {
 									What if I contribute less than $5/month?
 								</h3>
 								<p className="text-gray-600 dark:text-gray-300">
-									<span><a className="underline" href="https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00">Any contribution</a></span> helps keep the project running! You'll have access to all free
-									features and can manually sync your emails anytime. Premium auto-sync is available
-									at $5/month.
+									<span>
+										<a
+											className="underline"
+											href="https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00"
+										>
+											Any contribution
+										</a>
+									</span>{" "}
+									helps keep the project running! You'll have access to all free features and can
+									manually sync your emails anytime. Premium auto-sync is available at $5/month.
 								</p>
 							</div>
 							<div>

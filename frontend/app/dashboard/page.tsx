@@ -555,10 +555,7 @@ export default function Dashboard() {
 
 	return (
 		<>
-			<Navbar
-				isPremium={isPremium}
-				onSettingsClick={() => setShowSettingsModal(true)}
-			/>
+			<Navbar isPremium={isPremium} onSettingsClick={() => setShowSettingsModal(true)} />
 			{/* Processing banner - shows while scanning emails */}
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner
@@ -571,10 +568,7 @@ export default function Dashboard() {
 			{/* Contributor badge */}
 			{contributionCents > 0 && (
 				<div className="mb-4 p-4 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center gap-2">
-					<ContributorBadge
-						monthlyCents={contributionCents}
-						onClick={() => setShowSettingsModal(true)}
-					/>
+					<ContributorBadge monthlyCents={contributionCents} onClick={() => setShowSettingsModal(true)} />
 					<span className="text-sm text-gray-600 dark:text-gray-300">
 						Your contribution helps us support jobseekers.
 					</span>
@@ -725,7 +719,6 @@ export default function Dashboard() {
 				onClose={() => setShowStartDateModal(false)}
 				onSave={handleStartDateSave}
 			/>
-
 		</>
 	);
 }

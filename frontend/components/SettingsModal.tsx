@@ -1,16 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-	Button,
-	Modal,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	Switch,
-	Spinner
-} from "@heroui/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Switch, Spinner } from "@heroui/react";
 import NextLink from "next/link";
 import posthog from "posthog-js";
 
@@ -281,8 +272,8 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 									{showCancelConfirm ? (
 										<div className="space-y-4">
 											<p className="text-foreground/80">
-												Are you sure you want to cancel? Your support helps keep this tool
-												free for others.
+												Are you sure you want to cancel? Your support helps keep this tool free
+												for others.
 											</p>
 											<div className="flex gap-2">
 												<Button
@@ -293,7 +284,11 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 												>
 													Keep Subscription
 												</Button>
-												<Button color="danger" isLoading={isCancelling} onPress={handleCancelSubscription}>
+												<Button
+													color="danger"
+													isLoading={isCancelling}
+													onPress={handleCancelSubscription}
+												>
 													Yes, Cancel
 												</Button>
 											</div>
@@ -301,7 +296,9 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 									) : (
 										<div className="space-y-4">
 											<p className="text-sm text-default-500">
-												You&apos;re contributing ${(status.monthly_contribution_cents / 100).toFixed(0)}/month. Thank you for your support!
+												You&apos;re contributing $
+												{(status.monthly_contribution_cents / 100).toFixed(0)}/month. Thank you
+												for your support!
 											</p>
 											<button
 												className="text-sm text-danger hover:underline"
@@ -319,15 +316,21 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 							{!status.is_premium && (
 								<div className="border-t border-divider pt-4">
 									<div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-										<h3 className="font-semibold text-foreground mb-2">Upgrade to Premium — $5/mo</h3>
+										<h3 className="font-semibold text-foreground mb-2">
+											Upgrade to Premium — $5/mo
+										</h3>
 										<p className="text-sm text-foreground/70 mb-4">
-											Your data stays automatically synced so it&apos;s always up to date when you open the app.
+											Your data stays automatically synced so it&apos;s always up to date when you
+											open the app.
 										</p>
 										<div className="flex items-center gap-3">
 											<Button color="primary" isLoading={isUpgrading} onPress={handleUpgrade}>
 												Upgrade Now
 											</Button>
-											<NextLink className="text-sm text-default-500 hover:underline" href="/pricing">
+											<NextLink
+												className="text-sm text-default-500 hover:underline"
+												href="/pricing"
+											>
 												See all features
 											</NextLink>
 										</div>
@@ -336,9 +339,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 							)}
 
 							{/* Error display */}
-							{error && (
-								<p className="text-sm text-danger">{error}</p>
-							)}
+							{error && <p className="text-sm text-danger">{error}</p>}
 						</div>
 					) : null}
 				</ModalBody>

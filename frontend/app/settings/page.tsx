@@ -186,12 +186,7 @@ export default function SettingsPage() {
 										onValueChange={handleToggle}
 									/>
 								) : (
-									<Button
-										as={NextLink}
-										color="primary"
-										href="/pricing"
-										size="sm"
-									>
+									<Button as={NextLink} color="primary" href="/pricing" size="sm">
 										Upgrade
 									</Button>
 								)}
