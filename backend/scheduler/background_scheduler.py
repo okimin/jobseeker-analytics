@@ -24,6 +24,7 @@ settings = get_settings()
 # Global scheduler instance
 _scheduler: Optional[BackgroundScheduler] = None
 
+
 def get_scheduler() -> BackgroundScheduler:
     """Get or create the global scheduler instance."""
     global _scheduler
@@ -150,9 +151,7 @@ def get_eligible_premium_users(db_session) -> List[Users]:
     """
     # Query users with premium tier
     eligible_users = db_session.exec(
-        select(Users)
-        .where(Users.sync_tier == "premium")
-        .where(Users.is_active == True)
+        select(Users).where(Users.sync_tier == "premium").where(Users.is_active == True)
     ).all()
 
     # Filter to only those with valid credentials
