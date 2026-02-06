@@ -106,7 +106,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 			case "not_using":
 				return {
 					title: "Got it",
-					message: `Your contribution has been cancelled. ${benefitsNote} You can still use the free features anytime. If there's something that would've made it more useful, we'd love to hear from you at ${mailTo}`
+					message: `Your contribution has been cancelled. ${benefitsNote} You can still use the free features anytime.`
 				};
 			case "too_expensive":
 				return {
@@ -231,7 +231,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 								<br />
 								<p className="text-sm text-foreground/70 leading-relaxed underline">
 									<a href="mailto:help@justajobapp.com">
-										Got questions? Email us at help@justajobapp.com
+										Got questions or feedback? Email us at help@justajobapp.com
 									</a>
 								</p>
 							</div>
