@@ -18,7 +18,7 @@ interface PremiumStatus {
 	is_premium: boolean;
 	premium_reason: "coach" | "coach_client" | "paid" | null;
 	monthly_contribution_cents: number;
-	stripe_subscription_id: string | null;
+	has_active_subscription: boolean;
 	has_valid_credentials: boolean;
 	last_background_sync_at: string | null;
 	contribution_started_at: string | null;
@@ -268,7 +268,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 										{status.is_premium ? "Premium" : "Free"}
 									</span>
 								</div>
-								{status.premium_reason === "paid" && status.stripe_subscription_id ? (
+								{status.premium_reason === "paid" && status.has_active_subscription ? (
 									<>
 										{showCancelConfirm ? (
 											<div className="space-y-4 mt-3">
