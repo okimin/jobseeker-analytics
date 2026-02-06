@@ -1,15 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader, Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
+import SettingsModal from "@/components/SettingsModal";
 
 const PREMIUM_AMOUNT_CENTS = 500; // $5/month
 
 export default function PricingPage() {
 	const [isLoading, setIsLoading] = useState(false);
+	const [isPremium, setIsPremium] = useState(false);
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+	useEffect(() => {
+		const fetchPremiumStatus = async () => {
+			try {
+				const response = await fetch(`${apiUrl}/settings/premium-status`, {
+					credentials: "include"
+				});
+				if (response.ok) {
+					const data = await response.json();
+					setIsPremium(data.is_premium);
+				}
+			} catch (err) {
+				// Silently fail - user may not be logged in
+			}
+		};
+		fetchPremiumStatus();
+	}, [apiUrl]);
 
 	const handleUpgrade = async () => {
 		setIsLoading(true);
@@ -127,14 +147,25 @@ export default function PricingPage() {
 									</li>
 								</ul>
 								<div className="mt-6">
-									<Button
-										className="w-full"
-										color="primary"
-										isLoading={isLoading}
-										onPress={handleUpgrade}
-									>
-										Upgrade to Premium
-									</Button>
+									{isPremium ? (
+										<Button
+											className="w-full"
+											color="primary"
+											variant="bordered"
+											onPress={() => setIsSettingsOpen(true)}
+										>
+											Manage Subscription
+										</Button>
+									) : (
+										<Button
+											className="w-full"
+											color="primary"
+											isLoading={isLoading}
+											onPress={handleUpgrade}
+										>
+											Upgrade to Premium
+										</Button>
+									)}
 								</div>
 							</CardBody>
 						</Card>
@@ -237,6 +268,10 @@ export default function PricingPage() {
 					</div>
 				</div>
 			</main>
+			<SettingsModal
+				isOpen={isSettingsOpen}
+				onClose={() => setIsSettingsOpen(false)}
+			/>
 		</div>
 	);
 }
