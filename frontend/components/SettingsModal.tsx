@@ -213,8 +213,8 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 
 	return (
 		<Modal isOpen={isOpen} size="lg" onClose={handleClose}>
-			<ModalContent>
-				<ModalHeader className="flex flex-col gap-1">Settings</ModalHeader>
+			<ModalContent className="dark:bg-[#1a2e1a]">
+				<ModalHeader className="flex flex-col gap-1 dark:text-white">Settings</ModalHeader>
 				<ModalBody>
 					{showCancelSuccess ? (
 						<div className="py-4">
@@ -222,21 +222,25 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 								<div className="text-4xl mb-4">
 									{completedCancelReason === "landed_job" ? "🎉" : "👋"}
 								</div>
-								<h3 className="text-lg font-semibold text-foreground mb-3">
+								<h3 className="text-lg font-semibold text-foreground dark:text-white mb-3">
 									{getCancelSuccessMessage(completedCancelReason, billingPeriodEnd).title}
 								</h3>
-								<p className="text-sm text-foreground/70 leading-relaxed">
+								<p className="text-sm text-foreground/70 dark:text-gray-300 leading-relaxed">
 									{getCancelSuccessMessage(completedCancelReason, billingPeriodEnd).message}
 								</p>
 								<br />
-								<p className="text-sm text-foreground/70 leading-relaxed underline">
+								<p className="text-sm text-foreground/70 dark:text-gray-300 leading-relaxed underline">
 									<a href="mailto:help@justajobapp.com">
 										Got questions or feedback? Email us at help@justajobapp.com
 									</a>
 								</p>
 							</div>
 							<div className="flex justify-center">
-								<Button color="primary" onPress={handleClose}>
+								<Button
+									className="dark:bg-amber-500 dark:text-black dark:hover:bg-amber-400"
+									color="primary"
+									onPress={handleClose}
+								>
 									Done
 								</Button>
 							</div>
@@ -255,14 +259,14 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 					) : status ? (
 						<div className="space-y-6">
 							{/* Plan Status with integrated subscription info */}
-							<div className="p-4 rounded-lg bg-default-100">
+							<div className="p-4 rounded-lg bg-default-100 dark:bg-[#243824]">
 								<div className="flex items-center justify-between mb-2">
-									<span className="font-medium">Your plan</span>
+									<span className="font-medium text-foreground dark:text-white">Your plan</span>
 									<span
 										className={`px-3 py-1 rounded-full text-sm font-medium ${
 											status.is_premium
-												? "bg-success/20 text-success-600 dark:text-success-400"
-												: "bg-default-200 text-default-600"
+												? "bg-success/20 text-success-600 dark:bg-amber-500/20 dark:text-amber-400"
+												: "bg-default-200 dark:bg-[#2d4a2d] text-default-700 dark:text-gray-300"
 										}`}
 									>
 										{status.is_premium ? "Premium" : "Free"}
@@ -272,10 +276,10 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 									<>
 										{showCancelConfirm ? (
 											<div className="space-y-4 mt-3">
-												<p className="text-sm font-medium text-foreground">
+												<p className="text-sm font-medium text-foreground dark:text-white">
 													Cancel your contribution
 												</p>
-												<p className="text-sm text-foreground/70">
+												<p className="text-sm text-foreground/70 dark:text-gray-300">
 													We&apos;re sorry to see you go! If you have a sec, let us know why —
 													it helps us improve.
 												</p>
@@ -325,11 +329,11 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 										) : status.cancel_at_period_end && status.subscription_ends_at ? (
 											<div className="space-y-2">
 												<div className="flex items-center justify-between">
-													<p className="text-sm text-default-500">
+													<p className="text-sm text-foreground/70 dark:text-gray-300">
 														${(status.monthly_contribution_cents / 100).toFixed(0)}/month
 													</p>
 												</div>
-												<p className="text-sm text-warning-600 dark:text-warning-400">
+												<p className="text-sm text-warning-600 dark:text-amber-400">
 													Subscription ends{" "}
 													{new Date(status.subscription_ends_at * 1000).toLocaleDateString()}
 												</p>
@@ -337,10 +341,10 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 										) : (
 											<div className="space-y-2">
 												<div className="flex items-center justify-between">
-													<p className="text-sm text-default-500">
+													<p className="text-sm text-foreground/70 dark:text-gray-300">
 														${(status.monthly_contribution_cents / 100).toFixed(0)}/month
 														{status.subscription_renews_at && (
-															<span className="text-default-400">
+															<span className="text-foreground/50 dark:text-gray-400">
 																{" "}
 																· Renews{" "}
 																{new Date(
@@ -350,7 +354,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 														)}
 													</p>
 													<button
-														className="text-sm text-default-400 hover:text-danger hover:underline"
+														className="text-sm text-foreground/50 dark:text-gray-400 hover:text-danger hover:underline"
 														disabled={isCancelling}
 														onClick={() => setShowCancelConfirm(true)}
 													>
@@ -361,31 +365,32 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 										)}
 									</>
 								) : status.is_premium && status.premium_reason ? (
-									<p className="text-sm text-success-600 dark:text-success-400">
+									<p className="text-sm text-success-600 dark:text-success-300">
 										{getPremiumReasonText(status.premium_reason)}
 									</p>
 								) : !status.is_premium ? (
-									<p className="text-sm text-default-500">
+									<p className="text-sm text-foreground/60 dark:text-gray-400">
 										Upgrade to unlock automatic background sync
 									</p>
 								) : null}
 							</div>
 
 							{/* Background Sync */}
-							<div className="border-t border-divider pt-4">
+							<div className="border-t border-divider dark:border-[#3d5a3d] pt-4">
 								<div className="flex items-center justify-between">
 									<div className={!status.is_premium ? "opacity-50" : ""}>
-										<p className="font-medium">Background sync</p>
-										<p className="text-sm text-default-500">
+										<p className="font-medium text-foreground dark:text-white">Background sync</p>
+										<p className="text-sm text-foreground/60 dark:text-gray-400">
 											Emails sync automatically every 12 hours
 										</p>
 									</div>
 									{status.is_premium ? (
-										<span className="text-sm text-success-600 dark:text-success-400">
+										<span className="text-sm text-success-600 dark:text-success-300">
 											✓ Included
 										</span>
 									) : (
 										<Button
+											className="dark:bg-amber-500 dark:text-black dark:hover:bg-amber-400"
 											color="primary"
 											isLoading={isUpgrading}
 											size="sm"
@@ -402,7 +407,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 						</div>
 					) : null}
 				</ModalBody>
-				<ModalFooter>
+				<ModalFooter className="dark:border-t dark:border-[#3d5a3d]">
 					<Button color="default" variant="light" onPress={handleClose}>
 						Close
 					</Button>
