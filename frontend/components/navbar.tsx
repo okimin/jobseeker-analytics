@@ -347,34 +347,6 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							</>
 						)}
 
-						{/* Settings icon - shown when authenticated and ON dashboard */}
-						{isAuthenticated && pathname === "/dashboard" && (
-							<div className="relative group">
-								<NextLink
-									className="p-2 text-default-500 hover:text-foreground transition-colors block"
-									href="/settings"
-								>
-									<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path
-											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-										/>
-										<path
-											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-										/>
-									</svg>
-								</NextLink>
-								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-									Settings
-								</div>
-							</div>
-						)}
-
 						{/* Primary CTA button (Dashboard or Login) - only show when not authenticated or on dashboard */}
 						{(!isAuthenticated || pathname === "/dashboard") && (
 							<NextLink
