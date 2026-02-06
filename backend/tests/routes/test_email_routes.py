@@ -8,21 +8,23 @@ from routes.email_routes import fetch_emails_to_db
 
 def test_processing(logged_in_client, started_task):
     # make request to check on processing status
-    resp = logged_in_client.get("/processing", follow_redirects=False)
+    resp = logged_in_client.get("/processing/status", follow_redirects=False)
     # assert response
     assert resp.status_code == 200, resp.headers
     assert resp.json()["processed_emails"] == 0
 
 
-def test_processing_404(logged_in_client):
-    resp = logged_in_client.get("/processing", follow_redirects=False)
-    assert resp.status_code == 404
+def test_processing_idle(logged_in_client):
+    # No task exists, should return idle status
+    resp = logged_in_client.get("/processing/status", follow_redirects=False)
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "idle"
 
 
-def test_processing_redirect(incognito_client):
-    resp = incognito_client.get("/processing", follow_redirects=False)
-    # Unauthenticated users get redirected to logout
-    assert resp.status_code == 303
+def test_processing_unauthenticated(incognito_client):
+    resp = incognito_client.get("/processing/status", follow_redirects=False)
+    # Unauthenticated users get 401
+    assert resp.status_code == 401
 
 
 def test_fetch_emails_to_db(logged_in_user, db_session, mock_authenticated_user):
