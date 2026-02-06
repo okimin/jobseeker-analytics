@@ -34,6 +34,7 @@ jobs:
         google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         google-client-redirect-uri: ${{ secrets.GOOGLE_CLIENT_REDIRECT_URI }}
         origin: ${{ secrets.ORIGIN }}
+        token-encryption-key: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
 
   deploy-frontend:
     name: Deploy Frontend
