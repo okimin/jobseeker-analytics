@@ -341,8 +341,11 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 														${(status.monthly_contribution_cents / 100).toFixed(0)}/month
 														{status.subscription_renews_at && (
 															<span className="text-default-400">
-																{" "}· Renews{" "}
-																{new Date(status.subscription_renews_at * 1000).toLocaleDateString()}
+																{" "}
+																· Renews{" "}
+																{new Date(
+																	status.subscription_renews_at * 1000
+																).toLocaleDateString()}
 															</span>
 														)}
 													</p>
