@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from sqlmodel import Session, select
 
 from db.users import Users
-from db.user_emails import UserEmails
 from db import processing_tasks as task_models
 from db.utils.user_email_utils import create_user_email
 from db.utils.user_utils import get_last_email_date

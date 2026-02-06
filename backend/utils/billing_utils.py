@@ -28,7 +28,7 @@ def get_premium_reason(db_session, user: Users) -> str | None:
     active_coach_link = db_session.exec(
         select(CoachClientLink)
         .where(CoachClientLink.client_id == user.user_id)
-        .where(CoachClientLink.end_date == None)
+        .where(CoachClientLink.end_date.is_(None))
     ).first()
 
     if active_coach_link:
