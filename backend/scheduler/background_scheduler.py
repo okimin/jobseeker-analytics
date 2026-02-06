@@ -4,7 +4,6 @@ Uses APScheduler to run email sync for premium users at scheduled intervals.
 """
 
 import logging
-from datetime import datetime, timezone
 from typing import List, Optional
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -151,7 +150,7 @@ def get_eligible_premium_users(db_session) -> List[Users]:
     """
     # Query users with premium tier
     eligible_users = db_session.exec(
-        select(Users).where(Users.sync_tier == "premium").where(Users.is_active == True)
+        select(Users).where(Users.sync_tier == "premium").where(Users.is_active)
     ).all()
 
     # Filter to only those with valid credentials
