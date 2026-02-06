@@ -9,7 +9,6 @@ import posthog from "posthog-js";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { checkAuth } from "@/utils/auth";
-import SupportBanner from "@/components/SupportBanner";
 
 const ExternalLinkIcon = ({ className = "w-3 h-3" }: { className?: string }) => (
 	<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,22 +23,14 @@ const ExternalLinkIcon = ({ className = "w-3 h-3" }: { className?: string }) => 
 
 interface NavbarProps {
 	defaultCollapsed?: boolean;
-	onDonateClick?: () => void;
-	contributionCents?: number;
-	onManageSubscriptionClick?: () => void;
+	isPremium?: boolean;
+	onSettingsClick?: () => void;
 }
 
-export const Navbar = ({
-	defaultCollapsed = false,
-	onDonateClick,
-	contributionCents = 0,
-	onManageSubscriptionClick
-}: NavbarProps) => {
+export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettingsClick }: NavbarProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [showPaymentModal, setShowPaymentModal] = useState(false);
-	const [hasActiveCoach, setHasActiveCoach] = useState(false);
 	const pathname = usePathname();
 	const { theme } = useTheme();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
@@ -48,41 +39,19 @@ export const Navbar = ({
 		const checkUserStatus = async () => {
 			const authenticated = await checkAuth(apiUrl);
 			setIsAuthenticated(authenticated);
-
-			if (authenticated) {
-				try {
-					const response = await fetch(`${apiUrl}/me`, {
-						method: "GET",
-						credentials: "include"
-					});
-					if (response.ok) {
-						const data = await response.json();
-						setHasActiveCoach(data.has_active_coach || false);
-					}
-				} catch {
-					// Silently fail - default to false
-				}
-			}
 		};
 		checkUserStatus();
 	}, [apiUrl]);
 
-	// Handle donate click - redirect to login if not authenticated, otherwise show modal
-	const handleDonateClick = () => {
-		posthog.capture("donate_clicked", { source: "navbar" });
+	// Handle settings/upgrade click in mobile menu
+	const handleMobileSettingsClick = () => {
+		posthog.capture(isPremium ? "settings_clicked" : "upgrade_clicked", { source: "navbar_mobile" });
 		if (!isAuthenticated) {
 			window.location.href = "/login";
 			return;
 		}
-		// If user has an active subscription, open manage subscription modal
-		if (contributionCents > 0 && onManageSubscriptionClick) {
-			onManageSubscriptionClick();
-			return;
-		}
-		if (onDonateClick) {
-			onDonateClick();
-		} else {
-			setShowPaymentModal(true);
+		if (onSettingsClick) {
+			onSettingsClick();
 		}
 	};
 
@@ -185,6 +154,12 @@ export const Navbar = ({
 										href="/coaches"
 									>
 										Career Coaches
+									</NextLink>
+									<NextLink
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href="/pricing"
+									>
+										Pricing
 									</NextLink>
 									<NextLink
 										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
@@ -330,6 +305,30 @@ export const Navbar = ({
 								<div className="relative group">
 									<NextLink
 										className="p-2 text-default-500 hover:text-foreground transition-colors block"
+										href="/settings"
+									>
+										<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+											/>
+											<path
+												d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+											/>
+										</svg>
+									</NextLink>
+									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+										Settings
+									</div>
+								</div>
+								<div className="relative group">
+									<NextLink
+										className="p-2 text-default-500 hover:text-foreground transition-colors block"
 										href="/logout"
 									>
 										<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,14 +357,36 @@ export const Navbar = ({
 							</NextLink>
 						)}
 
-						{/* Heart donate button - hidden for users with active coach */}
-						{!hasActiveCoach &&
-							(isAuthenticated ? (
-								<div className="relative group ml-6">
-									<button
-										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
-										onClick={handleDonateClick}
-									>
+						{/* Settings/Upgrade button - shows gear for premium, heart for free */}
+						{isAuthenticated && onSettingsClick ? (
+							<div className="relative group ml-6">
+								<button
+									className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+									onClick={() => {
+										posthog.capture(isPremium ? "settings_clicked" : "upgrade_clicked", {
+											source: "navbar"
+										});
+										onSettingsClick();
+									}}
+								>
+									{isPremium ? (
+										/* Gear icon for premium users */
+										<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+											/>
+											<path
+												d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+											/>
+										</svg>
+									) : (
+										/* Heart icon for free users */
 										<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 											<path
 												clipRule="evenodd"
@@ -373,34 +394,33 @@ export const Navbar = ({
 												fillRule="evenodd"
 											/>
 										</svg>
-									</button>
-									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-										{contributionCents > 0 || pathname === "/payment/thank-you"
-											? "Manage Subscription"
-											: "Donate"}
-									</div>
+									)}
+								</button>
+								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+									{isPremium ? "Settings" : "Upgrade to Premium"}
 								</div>
-							) : (
-								<div className="relative group ml-6">
-									<a
-										className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block"
-										href={siteConfig.links.donate}
-										rel="noopener noreferrer"
-										target="_blank"
-									>
-										<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-											<path
-												clipRule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												fillRule="evenodd"
-											/>
-										</svg>
-									</a>
-									<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-										Donate
-									</div>
+							</div>
+						) : !isAuthenticated ? (
+							<div className="relative group ml-6">
+								<a
+									className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block"
+									href={siteConfig.links.donate}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path
+											clipRule="evenodd"
+											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+											fillRule="evenodd"
+										/>
+									</svg>
+								</a>
+								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+									Donate
 								</div>
-							))}
+							</div>
+						) : null}
 					</div>
 
 					{/* Mobile menu button */}
@@ -472,6 +492,13 @@ export const Navbar = ({
 							onClick={() => setIsOpen(false)}
 						>
 							Career Coaches
+						</NextLink>
+						<NextLink
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href="/pricing"
+							onClick={() => setIsOpen(false)}
+						>
+							Pricing
 						</NextLink>
 						<NextLink
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
@@ -548,15 +575,15 @@ export const Navbar = ({
 						<div className="px-3 py-2 pt-4 text-xs font-semibold text-default-500 uppercase tracking-wider border-t border-divider">
 							Contribute
 						</div>
-						{isAuthenticated ? (
+						{isAuthenticated && onSettingsClick ? (
 							<button
 								className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 								onClick={() => {
 									setIsOpen(false);
-									handleDonateClick();
+									handleMobileSettingsClick();
 								}}
 							>
-								Donate
+								{isPremium ? "Manage Subscription" : "Upgrade to Premium"}
 							</button>
 						) : (
 							<a
@@ -590,6 +617,15 @@ export const Navbar = ({
 
 						{/* Auth section */}
 						<div className="pt-4 border-t border-divider">
+							{isAuthenticated && (
+								<NextLink
+									className="block px-3 py-2 rounded-md text-base font-medium text-foreground/80 hover:bg-content2 hover:text-foreground"
+									href="/settings"
+									onClick={() => setIsOpen(false)}
+								>
+									Settings
+								</NextLink>
+							)}
 							<NextLink
 								className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
 									pathname === primaryCTA.href
@@ -613,15 +649,6 @@ export const Navbar = ({
 						</div>
 					</div>
 				</div>
-			)}
-
-			{/* Support banner - only rendered when not using external handler */}
-			{!onDonateClick && (
-				<SupportBanner
-					isVisible={showPaymentModal}
-					triggerType="navbar_donate"
-					onClose={() => setShowPaymentModal(false)}
-				/>
 			)}
 		</nav>
 	);

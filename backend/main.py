@@ -11,13 +11,30 @@ from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
 import database  # noqa: F401 - used for dependency injection
+from scheduler.background_scheduler import start_scheduler, stop_scheduler
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, onboarding_routes, stripe_webhook_routes, payment_routes
 
+# Configure logging early so it's available in lifespan
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # App startup - no dev user seeding (use real OAuth flow for testing)
+    # App startup
+    settings = get_settings()
+
+    # Start background scheduler for Always Open email sync (production only)
+    if settings.is_publicly_deployed:
+        start_scheduler()
+        logger.info("Background scheduler started for Always Open email sync")
+
     yield
+
+    # App shutdown
+    if settings.is_publicly_deployed:
+        stop_scheduler()
+        logger.info("Background scheduler stopped")
 
 app = FastAPI(lifespan=lifespan)
 settings = get_settings()
@@ -73,10 +90,6 @@ else:
         allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # Allow all headers
     )
-
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
 
 # Rate limit exception handler

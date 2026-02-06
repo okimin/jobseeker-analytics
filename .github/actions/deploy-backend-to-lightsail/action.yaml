@@ -40,6 +40,9 @@ inputs:
   origin:
     description: Origin
     required: true
+  token-encryption-key:
+    description: Fernet key for encrypting OAuth tokens in DB
+    required: true
 
 runs:
   using: composite
@@ -59,6 +62,7 @@ runs:
       echo "::add-mask::${{ inputs.google-client-redirect-uri }}"
       echo "::add-mask::${{ inputs.ls-database-name }}"
       echo "::add-mask::${{ inputs.origin }}"
+      echo "::add-mask::${{ inputs.token-encryption-key }}"
 
   - name: Set up AWS CLI
     uses: aws-actions/configure-aws-credentials@v1
@@ -188,6 +192,7 @@ runs:
       APP_URL: ${{ inputs.app-url }}
       API_URL: ${{ inputs.api-url }}
       ORIGIN: ${{ inputs.origin }}
+      TOKEN_ENCRYPTION_KEY: ${{ inputs.token-encryption-key }}
     shell: bash
     run: |
       # Mask env vars before use
@@ -201,6 +206,7 @@ runs:
       echo "::add-mask::${DATABASE_URL}"
       echo "::add-mask::${APP_URL}"
       echo "::add-mask::${API_URL}"
+      echo "::add-mask::${TOKEN_ENCRYPTION_KEY}"
 
       # Deploy to Lightsail using inline JSON
       aws lightsail create-container-service-deployment \
@@ -222,7 +228,8 @@ runs:
               \"API_URL\": \"${API_URL}\",
               \"ENV\": \"prod\",
               \"DATABASE_URL\": \"${DATABASE_URL}\",
-              \"ORIGIN\": \"${ORIGIN}\"
+              \"ORIGIN\": \"${ORIGIN}\",
+              \"TOKEN_ENCRYPTION_KEY\": \"${TOKEN_ENCRYPTION_KEY}\"
             },
             \"ports\": {
               \"${CONTAINER_PORT}\": \"HTTP\"
