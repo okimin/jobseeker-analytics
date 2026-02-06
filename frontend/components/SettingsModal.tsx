@@ -22,6 +22,9 @@ interface PremiumStatus {
 	has_valid_credentials: boolean;
 	last_background_sync_at: string | null;
 	contribution_started_at: string | null;
+	cancel_at_period_end: boolean;
+	subscription_ends_at: number | null;
+	subscription_renews_at: number | null;
 }
 
 interface SettingsModalProps {
@@ -96,7 +99,9 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 	};
 
 	const getCancelSuccessMessage = (reason: string, periodEnd: string | null): { title: string; message: string } => {
-		const benefitsNote = periodEnd ? `You'll keep your premium benefits through ${periodEnd}.` : "";
+		const benefitsNote = periodEnd
+			? `You'll keep your premium benefits through ${periodEnd}.`
+			: "You'll keep your premium benefits until the end of your billing period.";
 		switch (reason) {
 			case "landed_job":
 				return {
@@ -112,11 +117,6 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 				return {
 					title: "Totally understand",
 					message: `Your contribution has been cancelled. ${benefitsNote} You can still use the free features anytime — we want you to have the tools you need regardless.`
-				};
-			case "switching_free":
-				return {
-					title: "Sounds good!",
-					message: `Your contribution has been cancelled. ${benefitsNote} The free plan is yours to use as long as you need it.`
 				};
 			default:
 				return {
@@ -287,7 +287,6 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 													<Radio value="landed_job">I landed a job 🎉</Radio>
 													<Radio value="not_using">Not using the app enough</Radio>
 													<Radio value="too_expensive">Too expensive right now</Radio>
-													<Radio value="switching_free">Switching to the free plan</Radio>
 													<Radio value="other">Other</Radio>
 												</RadioGroup>
 												{cancelReason === "other" && (
@@ -323,18 +322,38 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 													</Button>
 												</div>
 											</div>
-										) : (
-											<div className="flex items-center justify-between">
-												<p className="text-sm text-default-500">
-													${(status.monthly_contribution_cents / 100).toFixed(0)}/month
+										) : status.cancel_at_period_end && status.subscription_ends_at ? (
+											<div className="space-y-2">
+												<div className="flex items-center justify-between">
+													<p className="text-sm text-default-500">
+														${(status.monthly_contribution_cents / 100).toFixed(0)}/month
+													</p>
+												</div>
+												<p className="text-sm text-warning-600 dark:text-warning-400">
+													Subscription ends{" "}
+													{new Date(status.subscription_ends_at * 1000).toLocaleDateString()}
 												</p>
-												<button
-													className="text-sm text-default-400 hover:text-danger hover:underline"
-													disabled={isCancelling}
-													onClick={() => setShowCancelConfirm(true)}
-												>
-													Cancel
-												</button>
+											</div>
+										) : (
+											<div className="space-y-2">
+												<div className="flex items-center justify-between">
+													<p className="text-sm text-default-500">
+														${(status.monthly_contribution_cents / 100).toFixed(0)}/month
+														{status.subscription_renews_at && (
+															<span className="text-default-400">
+																{" "}· Renews{" "}
+																{new Date(status.subscription_renews_at * 1000).toLocaleDateString()}
+															</span>
+														)}
+													</p>
+													<button
+														className="text-sm text-default-400 hover:text-danger hover:underline"
+														disabled={isCancelling}
+														onClick={() => setShowCancelConfirm(true)}
+													>
+														Cancel
+													</button>
+												</div>
 											</div>
 										)}
 									</>

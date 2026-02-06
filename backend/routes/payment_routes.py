@@ -153,7 +153,7 @@ async def cancel_contribution(
 
         # Don't clear monthly_contribution_cents yet - webhook will handle that
         # when subscription actually ends
-        period_end = updated_subscription.get("current_period_end")
+        period_end = updated_subscription.get("cancel_at")
 
         logger.info(f"Contribution scheduled for cancellation for user {user_id}, ends at {period_end}")
         return {
