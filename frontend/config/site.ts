@@ -65,6 +65,7 @@ export const siteConfig = {
 		googleApiPolicy: "https://developers.google.com/terms/api-services-user-data-policy",
 		donate: "https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00",
 		feedback: "https://forms.gle/2askT8RbMvh1pFJk6",
+		bugReport: "https://docs.google.com/forms/d/17vTrX86CyvgdBRkfakdRVXXnM8Mnl9tcxmYLn2z5rEM/prefill",
 		support: "mailto:help@justajobapp.com",
 		hiringCafe: "https://hiring.cafe/",
 		neverSearchAlone: "https://www.neversearchalone.com/",
