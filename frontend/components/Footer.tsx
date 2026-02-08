@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import NextLink from "next/link";
 
 import { siteConfig } from "@/config/site";
@@ -16,23 +17,60 @@ const ExternalLinkIcon = () => (
 );
 
 const Footer = () => {
+	const [isPremium, setIsPremium] = useState(false);
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+	useEffect(() => {
+		const checkPremiumStatus = async () => {
+			if (!apiUrl) return;
+			try {
+				const response = await fetch(`${apiUrl}/settings/premium-status`, {
+					credentials: "include"
+				});
+				if (response.ok) {
+					const data = await response.json();
+					setIsPremium(data.is_premium);
+				}
+			} catch {
+				// Silently fail - default to non-premium
+			}
+		};
+		checkPremiumStatus();
+	}, [apiUrl]);
+
 	return (
 		<footer className="w-full border-t border-divider bg-content1 dark:bg-content1">
-			{/* Waitlist CTA Banner */}
+			{/* CTA Banner */}
 			<div className="bg-primary/10 dark:bg-primary/5 py-6">
 				<div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
-						<p className="text-sm sm:text-base text-foreground">
-							Get notified when Interview Prep launches
-						</p>
-						<a
-							className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
-							href={siteConfig.links.waitlist}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Join Waitlist <ExternalLinkIcon />
-						</a>
+						{isPremium ? (
+							<>
+								<p className="text-sm sm:text-base text-foreground">
+									Something not working correctly? We&apos;d love to hear about it!
+								</p>
+								<a
+									className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+									href={siteConfig.links.bugReport}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Give Feedback <ExternalLinkIcon />
+								</a>
+							</>
+						) : (
+							<>
+								<p className="text-sm sm:text-base text-foreground">
+									Your job search moves fast. Let your tracker keep up.
+								</p>
+								<NextLink
+									className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
+									href={siteConfig.links.pricing}
+								>
+									Try auto-refresh →
+								</NextLink>
+							</>
+						)}
 					</div>
 				</div>
 			</div>
