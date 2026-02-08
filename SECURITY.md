@@ -10,6 +10,7 @@ This document provides a comprehensive overview of JustAJobApp's security archit
 - [Data Flows](#data-flows)
 - [External Service Integrations](#external-service-integrations)
 - [Security Controls](#security-controls)
+- [Data Classification](#data-classification)
 - [Data Handling Policies](#data-handling-policies)
 - [CI/CD Security](#cicd-security)
 
@@ -376,6 +377,136 @@ sequenceDiagram
 
 ---
 
+## Data Classification
+
+All sensitive data is classified into protection levels with corresponding security controls.
+
+### Classification Levels
+
+| Level | Description | Protection Requirements |
+|-------|-------------|------------------------|
+| **CRITICAL** | Encryption keys, API secrets | Environment variables only, never in DB/logs/code |
+| **HIGH** | OAuth tokens, credentials | Encryption at rest, minimal access |
+| **MEDIUM** | PII (emails, payment IDs) | Access control, audit logging |
+| **LOW** | Application metadata | Standard access control |
+| **PUBLIC** | Non-sensitive data | No special protection |
+
+---
+
+### CRITICAL - Encryption Keys & Secrets
+
+These values are **never stored in the database or logs**. Production deployment fails if not configured.
+
+| Data | Storage | Protection | Config Location |
+|------|---------|------------|-----------------|
+| `TOKEN_ENCRYPTION_KEY` | Environment variable | Fernet key for OAuth token encryption | `config.py:19` |
+| `COOKIE_SECRET` | Environment variable | Session cookie signing | `config.py:18` |
+| `GOOGLE_CLIENT_SECRET` | Environment variable | OAuth2 client authentication | `config.py:14` |
+| `STRIPE_SECRET_KEY` | Environment variable | Payment API authentication | `config.py:20` |
+| `STRIPE_WEBHOOK_SECRET` | Environment variable | Webhook signature verification | `config.py:21` |
+| `DATABASE_URL` | Environment variable | Database connection credentials | `config.py:29` |
+| `GOOGLE_API_KEY` | Environment variable | Gemini API authentication | `config.py:16` |
+
+**Controls:**
+- Stored only in environment variables or GitHub Secrets
+- Never committed to version control (`.env` in `.gitignore`)
+- Production fails fast if `TOKEN_ENCRYPTION_KEY` is default value
+- Rotatable without code changes
+
+---
+
+### HIGH - OAuth Tokens
+
+OAuth tokens enable access to user email and are encrypted at rest.
+
+| Data | Table | Column | Protection |
+|------|-------|--------|------------|
+| Refresh Token | `oauth_credentials` | `encrypted_refresh_token` | Fernet encryption |
+| Access Token | `oauth_credentials` | `encrypted_access_token` | Fernet encryption |
+
+**Controls:**
+- Encrypted using Fernet symmetric encryption (`backend/utils/encryption_utils.py`)
+- Only stored for premium users (data minimization)
+- Decrypted only when actively needed for API calls
+- Token expiry stored unencrypted (needed for refresh logic)
+
+**Encryption Implementation:**
+```
+encrypt_token() → Fernet.encrypt() → Base64 ciphertext → Database
+Database → Base64 ciphertext → Fernet.decrypt() → decrypt_token()
+```
+
+---
+
+### MEDIUM - Personal Identifiable Information (PII)
+
+PII requires authentication and authorization for access.
+
+| Data | Table | Column | Purpose |
+|------|-------|--------|---------|
+| User Email | `users` | `user_email` | Account identification, login |
+| Sync Email | `users` | `sync_email_address` | Email account being monitored |
+| Stripe Customer ID | `users` | `stripe_customer_id` | Payment customer reference |
+| Stripe Subscription ID | `users` | `stripe_subscription_id` | Subscription management |
+| Payment Intent ID | `contributions` | `stripe_payment_intent_id` | Payment idempotency |
+| Email Sender | `user_emails` | `email_from` | Application source tracking |
+
+**Controls:**
+- Server-side session validation required for all access
+- User can only access their own data (enforced by `user_id` filtering)
+- Coach access requires verified `CoachClientLink` relationship
+- No client-side caching of PII
+
+---
+
+### LOW - Application Metadata
+
+Non-sensitive application data with standard access controls.
+
+| Data | Table | Column | Purpose |
+|------|-------|--------|---------|
+| Company Name | `user_emails` | `company_name` | Dashboard display |
+| Job Title | `user_emails` | `job_title` | Dashboard display |
+| Application Status | `user_emails` | `application_status` | Dashboard display |
+| Email Subject | `user_emails` | `subject` | Dashboard display |
+| Received Date | `user_emails` | `received_at` | Timeline display |
+| User Role | `users` | `role` | Access control (jobseeker/coach) |
+| Coach-Client Links | `coach_client_link` | `coach_id`, `client_id` | Relationship tracking |
+
+**Controls:**
+- Standard session-based access control
+- Scoped to authenticated user or authorized coach
+
+---
+
+### NOT STORED - Explicitly Excluded Data
+
+The following data is **never persisted** to minimize data exposure:
+
+| Data Type | Reason | Handling |
+|-----------|--------|----------|
+| Full email body | Data minimization | Processed in memory, only metadata extracted |
+| Email attachments | Not needed | Never fetched from Gmail API |
+| Non-job emails | Privacy | Filtered by Gmail query before fetch |
+| User passwords | OAuth only | Google handles authentication |
+| Payment card data | PCI compliance | Handled entirely by Stripe |
+| Email content after classification | Privacy | Discarded after LLM processing |
+
+---
+
+### Data Classification by Database Table
+
+| Table | Classification | Encrypted Fields | Access Control |
+|-------|---------------|------------------|----------------|
+| `oauth_credentials` | HIGH | `encrypted_refresh_token`, `encrypted_access_token` | User-scoped |
+| `users` | MEDIUM | None | User-scoped |
+| `contributions` | MEDIUM | None | User-scoped |
+| `user_emails` | LOW-MEDIUM | None | User-scoped + Coach |
+| `coach_client_link` | LOW | None | Coach-scoped |
+| `processing_tasks` | LOW | None | User-scoped |
+
+---
+
 ## Data Handling Policies
 
 ### What We Store
@@ -565,4 +696,3 @@ graph LR
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-08 | Security Review | Initial documentation |
-| 1.1 | 2026-02-08 | Security Review | Added CI/CD security workflows |
