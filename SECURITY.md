@@ -11,6 +11,9 @@ This document provides a comprehensive overview of JustAJobApp's security archit
 - [External Service Integrations](#external-service-integrations)
 - [Security Controls](#security-controls)
 - [Data Classification](#data-classification)
+  - [Classification Levels](#classification-levels)
+  - [Protection Requirements Matrix](#protection-requirements-matrix)
+  - [Detailed Protection Requirements](#detailed-protection-requirements)
 - [Data Handling Policies](#data-handling-policies)
 - [CI/CD Security](#cicd-security)
 
@@ -383,13 +386,78 @@ All sensitive data is classified into protection levels with corresponding secur
 
 ### Classification Levels
 
-| Level | Description | Protection Requirements |
-|-------|-------------|------------------------|
-| **CRITICAL** | Encryption keys, API secrets | Environment variables only, never in DB/logs/code |
-| **HIGH** | OAuth tokens, credentials | Encryption at rest, minimal access |
-| **MEDIUM** | PII (emails, payment IDs) | Access control, audit logging |
-| **LOW** | Application metadata | Standard access control |
-| **PUBLIC** | Non-sensitive data | No special protection |
+| Level | Description | Examples |
+|-------|-------------|----------|
+| **CRITICAL** | Encryption keys, API secrets | `TOKEN_ENCRYPTION_KEY`, `STRIPE_SECRET_KEY` |
+| **HIGH** | OAuth tokens, credentials | Refresh tokens, access tokens |
+| **MEDIUM** | PII (emails, payment IDs) | User email, Stripe customer ID |
+| **LOW** | Application metadata | Company name, job title, application status |
+| **PUBLIC** | Non-sensitive data | Application version, feature flags |
+
+---
+
+### Protection Requirements Matrix
+
+Each classification level has specific requirements across five security dimensions:
+
+| Level | Encryption at Rest | Encryption in Transit | Integrity | Retention | Access Control |
+|-------|-------------------|----------------------|-----------|-----------|----------------|
+| **CRITICAL** | N/A (not stored) | TLS (1.2 preferred) | Fail-fast validation | Rotate annually minimum | Infrastructure team only |
+| **HIGH** | Required (Fernet AES-128) | TLS (1.2 preferred) | Decrypt validation | Until account deletion | User-scoped, system processes |
+| **MEDIUM** | Not required | TLS (1.2 preferred) | Schema validation | Until account deletion | User-scoped, authorized coaches |
+| **LOW** | Not required | TLS (1.2 preferred) | Schema validation | Until account deletion | User-scoped, authorized coaches |
+| **PUBLIC** | Not required | TLS recommended | None | No restriction | No restriction |
+
+> **Note:** AWS Lightsail container services support TLS 1.0, 1.1, and 1.2. TLS 1.2 is negotiated by default with modern browsers. TLS version cannot be restricted at the container service level without adding a Lightsail Distribution.
+
+---
+
+### Detailed Protection Requirements
+
+#### Encryption Requirements
+
+| Level | At Rest | In Transit | Key Management |
+|-------|---------|------------|----------------|
+| **CRITICAL** | Never stored in database | TLS (1.2 preferred) | Stored in environment variables or secrets manager |
+| **HIGH** | Fernet symmetric encryption (AES-128-CBC + HMAC-SHA256) | TLS (1.2 preferred) | `TOKEN_ENCRYPTION_KEY` env var |
+| **MEDIUM** | Database-level encryption (if available) | TLS (1.2 preferred) | Managed by database provider |
+| **LOW** | None required | TLS (1.2 preferred) | N/A |
+| **PUBLIC** | None required | TLS recommended | N/A |
+
+#### Integrity Requirements
+
+| Level | Validation Method | Tamper Detection | Implementation |
+|-------|------------------|------------------|----------------|
+| **CRITICAL** | Fail-fast on invalid/default values | N/A (not stored) | `config.py` validation on startup |
+| **HIGH** | Decryption validation (Fernet includes HMAC) | HMAC-SHA256 via Fernet | `encryption_utils.py` |
+| **MEDIUM** | Pydantic schema validation | Database constraints | API input/output validation |
+| **LOW** | Pydantic schema validation | Database constraints | API input/output validation |
+| **PUBLIC** | None required | None required | N/A |
+
+#### Retention Requirements
+
+| Level | Retention Period | Deletion Trigger | Deletion Method |
+|-------|-----------------|------------------|-----------------|
+| **CRITICAL** | Rotate minimum annually | Key rotation schedule | Replace in secrets manager |
+| **HIGH** | Until account deletion or token revocation | User logout, account deletion, or OAuth revocation | Hard delete from `oauth_credentials` |
+| **MEDIUM** | Until account deletion | User account deletion request | Cascade delete with user record |
+| **LOW** | Until account deletion | User account deletion request | Cascade delete with user record |
+| **PUBLIC** | No restriction | N/A | N/A |
+
+**Log Retention:**
+- Application logs: Container instance lifetime only (deleted on redeployment)
+- No persistent log storage configured
+- User activity analytics: PostHog (see PostHog retention policy)
+
+#### Privacy & Confidentiality Requirements
+
+| Level | Access Control | Audit Trail | Data Minimization |
+|-------|---------------|-------------|-------------------|
+| **CRITICAL** | Infrastructure team only, no application access | AWS Lightsail container instance log | Only store what's required for operation |
+| **HIGH** | User-scoped, system processes only | PostHog activity events | Only store for premium users |
+| **MEDIUM** | User-scoped + authorized coach access | PostHog activity events | Collect only necessary PII |
+| **LOW** | User-scoped + authorized coach access | PostHog activity events | No restrictions |
+| **PUBLIC** | No restriction | None | No restrictions |
 
 ---
 
@@ -525,9 +593,21 @@ The following data is **never persisted** to minimize data exposure:
 
 ### Retention
 
-- User data: Retained while account is active
-- Deleted on account deletion request
-- Logs: Rotated per standard practices
+Retention periods are determined by data classification level (see [Protection Requirements Matrix](#protection-requirements-matrix)):
+
+| Data Type | Classification | Retention Period | Deletion Method |
+|-----------|---------------|------------------|-----------------|
+| Encryption keys/secrets | CRITICAL | Rotate annually minimum | Replace in secrets manager |
+| OAuth tokens | HIGH | Until logout/deletion/revocation | Hard delete |
+| User PII | MEDIUM | Until account deletion | Cascade delete |
+| Application metadata | LOW | Until account deletion | Cascade delete |
+| Application logs | N/A | Container instance lifetime | Deleted on redeployment |
+| User activity analytics | N/A | PostHog retention policy | Managed by PostHog |
+
+**Deletion Process:**
+- Account deletion removes all user data within 30 days
+- OAuth tokens are immediately invalidated on logout
+- Backup retention follows the same classification-based periods
 
 ### Third-Party Data Sharing
 
