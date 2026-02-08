@@ -6,6 +6,25 @@ const nextConfig = {
 		// Remove any experimental features
 	},
 
+	// Security headers to prevent clickjacking
+	async headers() {
+		return [
+			{
+				source: "/:path*",
+				headers: [
+					{
+						key: "X-Frame-Options",
+						value: "DENY"
+					},
+					{
+						key: "Content-Security-Policy",
+						value: "frame-ancestors 'none'"
+					}
+				]
+			}
+		];
+	},
+
 	// Add PostHog rewrites
 	async rewrites() {
 		return [
