@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -90,6 +91,25 @@ else:
         allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # Allow all headers
     )
+
+
+# Security headers middleware to prevent MIME-sniffing and clickjacking attacks
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, is_publicly_deployed: bool = False):
+        super().__init__(app)
+        self.is_publicly_deployed = is_publicly_deployed
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        # HSTS: only set in production over HTTPS
+        if self.is_publicly_deployed:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware, is_publicly_deployed=settings.is_publicly_deployed)
 
 
 # Rate limit exception handler
