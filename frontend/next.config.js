@@ -59,7 +59,7 @@ const nextConfig = {
 					...securityHeaders,
 					{
 						key: "Cache-Control",
-						value: "private, no-cache, no-store, max-age=0, must-revalidate"
+						value: "private, no-cache, no-store, max-age=0, s-maxage=0, must-revalidate"
 					}
 				]
 			}
