@@ -37,6 +37,9 @@ inputs:
   stripe-secret-key:
     description: Stripe Secret Key to read Promo codes
     required: true
+  stripe-webhook-secret:
+    description: Stripe Webhook Secret for verifying webhook signatures
+    required: true
   origin:
     description: Origin
     required: true
@@ -56,6 +59,7 @@ runs:
       echo "::add-mask::${{ inputs.cookie-secret }}"
       echo "::add-mask::${{ inputs.google-api-key }}"
       echo "::add-mask::${{ inputs.stripe-secret-key }}"
+      echo "::add-mask::${{ inputs.stripe-webhook-secret }}"
       echo "::add-mask::${{ inputs.google-client-id }}"
       echo "::add-mask::${{ inputs.google-client-secret }}"
       echo "::add-mask::${{ inputs.ipinfo-token }}"
@@ -185,6 +189,7 @@ runs:
       COOKIE_SECRET: ${{ inputs.cookie-secret }}
       GOOGLE_API_KEY: ${{ inputs.google-api-key }}
       STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
+      STRIPE_WEBHOOK_SECRET: ${{ inputs.stripe-webhook-secret }}
       GOOGLE_CLIENT_ID: ${{ inputs.google-client-id }}
       GOOGLE_CLIENT_SECRET: ${{ inputs.google-client-secret }}
       GOOGLE_CLIENT_REDIRECT_URI: ${{ inputs.google-client-redirect-uri }}
@@ -199,6 +204,7 @@ runs:
       echo "::add-mask::${COOKIE_SECRET}"
       echo "::add-mask::${GOOGLE_API_KEY}"
       echo "::add-mask::${STRIPE_SECRET_KEY}"
+      echo "::add-mask::${STRIPE_WEBHOOK_SECRET}"
       echo "::add-mask::${GOOGLE_CLIENT_ID}"
       echo "::add-mask::${GOOGLE_CLIENT_SECRET}"
       echo "::add-mask::${GOOGLE_CLIENT_REDIRECT_URI}"
@@ -224,6 +230,7 @@ runs:
               \"IPINFO_TOKEN\": \"${IPINFO_TOKEN}\",
               \"COOKIE_SECRET\": \"${COOKIE_SECRET}\",
               \"STRIPE_SECRET_KEY\": \"${STRIPE_SECRET_KEY}\",
+              \"STRIPE_WEBHOOK_SECRET\": \"${STRIPE_WEBHOOK_SECRET}\",
               \"APP_URL\": \"${APP_URL}\",
               \"API_URL\": \"${API_URL}\",
               \"ENV\": \"prod\",
