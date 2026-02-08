@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: "standalone",
+	// Disable X-Powered-By header to prevent technology fingerprinting
+	poweredByHeader: false,
 	// Ensure experimental features are removed
 	experimental: {
 		// Remove any experimental features
 	},
 
-	// Security headers to prevent clickjacking
+	// Security headers to prevent clickjacking and technology disclosure
 	async headers() {
 		return [
 			{
@@ -19,6 +21,14 @@ const nextConfig = {
 					{
 						key: "Content-Security-Policy",
 						value: "frame-ancestors 'none'"
+					},
+					{
+						key: "X-Content-Type-Options",
+						value: "nosniff"
+					},
+					{
+						key: "Referrer-Policy",
+						value: "strict-origin-when-cross-origin"
 					}
 				]
 			}
