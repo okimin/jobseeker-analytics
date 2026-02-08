@@ -10,25 +10,56 @@ const nextConfig = {
 
 	// Security headers to prevent clickjacking and technology disclosure
 	async headers() {
+		const securityHeaders = [
+			{
+				key: "X-Frame-Options",
+				value: "DENY"
+			},
+			{
+				key: "Content-Security-Policy",
+				value: "frame-ancestors 'none'"
+			},
+			{
+				key: "X-Content-Type-Options",
+				value: "nosniff"
+			},
+			{
+				key: "Referrer-Policy",
+				value: "strict-origin-when-cross-origin"
+			}
+		];
+
 		return [
 			{
+				// Static assets - allow caching (immutable, hashed filenames)
+				source: "/_next/static/:path*",
+				headers: [
+					...securityHeaders,
+					{
+						key: "Cache-Control",
+						value: "public, max-age=31536000, immutable"
+					}
+				]
+			},
+			{
+				// Public static files (fonts, images in public/)
+				source: "/static/:path*",
+				headers: [
+					...securityHeaders,
+					{
+						key: "Cache-Control",
+						value: "public, max-age=31536000, immutable"
+					}
+				]
+			},
+			{
+				// HTML pages and API routes - no caching
 				source: "/:path*",
 				headers: [
+					...securityHeaders,
 					{
-						key: "X-Frame-Options",
-						value: "DENY"
-					},
-					{
-						key: "Content-Security-Policy",
-						value: "frame-ancestors 'none'"
-					},
-					{
-						key: "X-Content-Type-Options",
-						value: "nosniff"
-					},
-					{
-						key: "Referrer-Policy",
-						value: "strict-origin-when-cross-origin"
+						key: "Cache-Control",
+						value: "private, no-cache, no-store, max-age=0, must-revalidate"
 					}
 				]
 			}
