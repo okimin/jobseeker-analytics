@@ -10,6 +10,11 @@ from slowapi.util import get_remote_address
 from db.users import Users
 from db.contributions import Contributions
 from utils.config_utils import get_settings, get_stripe_key
+from utils.billing_utils import (
+    upgrade_user_to_premium,
+    downgrade_user_from_premium,
+    PREMIUM_CONTRIBUTION_THRESHOLD_CENTS,
+)
 import database
 
 settings = get_settings()
@@ -21,8 +26,7 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/stripe/webhook")
 @limiter.limit("100/minute")
 async def stripe_webhook(
-    request: Request,
-    stripe_signature: str = Header(None, alias="Stripe-Signature")
+    request: Request, stripe_signature: str = Header(None, alias="Stripe-Signature")
 ):
     """Handle Stripe webhook events."""
     if not stripe_signature:
@@ -53,7 +57,9 @@ async def stripe_webhook(
         amount_cents_str = metadata.get("amount_cents")
         payment_intent_id = session.get("payment_intent")
 
-        logger.info(f"checkout.session.completed - user_id: {user_id}, amount: {amount_cents_str}, subscription: {session.get('subscription')}")
+        logger.info(
+            f"checkout.session.completed - user_id: {user_id}, amount: {amount_cents_str}, subscription: {session.get('subscription')}"
+        )
 
         if not user_id:
             logger.error(f"Missing user_id in checkout session: {session.get('id')}")
@@ -68,17 +74,23 @@ async def stripe_webhook(
                     )
                 ).first()
                 if existing:
-                    logger.info(f"Duplicate webhook for payment_intent {payment_intent_id}, skipping")
+                    logger.info(
+                        f"Duplicate webhook for payment_intent {payment_intent_id}, skipping"
+                    )
                     return {"status": "success", "message": "Already processed"}
 
-            user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+            user = db_session.exec(
+                select(Users).where(Users.user_id == user_id)
+            ).first()
             if user:
                 subscription_id = session.get("subscription")
                 amount_total = session.get("amount_total", 0)
                 is_recurring = metadata.get("is_recurring", "true") == "true"
 
                 # Determine amount - prefer explicit amount_cents, fall back to amount_total
-                amount_cents = int(amount_cents_str) if amount_cents_str else amount_total
+                amount_cents = (
+                    int(amount_cents_str) if amount_cents_str else amount_total
+                )
 
                 # Update user with contribution info
                 if is_recurring:
@@ -89,7 +101,9 @@ async def stripe_webhook(
 
                 if not user.contribution_started_at:
                     user.contribution_started_at = datetime.now(timezone.utc)
-                user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_cents
+                user.total_contributed_cents = (
+                    user.total_contributed_cents or 0
+                ) + amount_cents
 
                 if user.onboarding_completed_at is None:
                     user.onboarding_completed_at = datetime.now(timezone.utc)
@@ -103,13 +117,22 @@ async def stripe_webhook(
                     amount_cents=amount_cents,
                     is_recurring=is_recurring,
                     status="completed",
-                    trigger_type=metadata.get("trigger_type")
+                    trigger_type=metadata.get("trigger_type"),
                 )
                 db_session.add(contribution)
                 db_session.commit()
 
+                # Upgrade to premium tier if recurring $5+/month contribution
+                if (
+                    is_recurring
+                    and amount_cents >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS
+                ):
+                    upgrade_user_to_premium(db_session, user_id)
+
                 payment_type = "monthly" if is_recurring else "one-time"
-                logger.info(f"User {user_id} made {payment_type} contribution of ${amount_cents/100:.2f}")
+                logger.info(
+                    f"User {user_id} made {payment_type} contribution of ${amount_cents / 100:.2f}"
+                )
             else:
                 logger.error(f"User {user_id} not found for checkout session")
 
@@ -136,7 +159,9 @@ async def stripe_webhook(
                         )
                     ).first()
                     if existing:
-                        logger.info(f"Duplicate invoice webhook for payment_intent {payment_intent_id}, skipping")
+                        logger.info(
+                            f"Duplicate invoice webhook for payment_intent {payment_intent_id}, skipping"
+                        )
                         return {"status": "success", "message": "Already processed"}
 
                 user = db_session.exec(
@@ -144,7 +169,9 @@ async def stripe_webhook(
                 ).first()
 
                 if user:
-                    user.total_contributed_cents = (user.total_contributed_cents or 0) + amount_paid
+                    user.total_contributed_cents = (
+                        user.total_contributed_cents or 0
+                    ) + amount_paid
                     db_session.add(user)
 
                     # Create contribution record for recurring payment with payment_intent_id for idempotency
@@ -154,12 +181,14 @@ async def stripe_webhook(
                         stripe_subscription_id=subscription_id,
                         amount_cents=amount_paid,
                         is_recurring=True,
-                        status="completed"
+                        status="completed",
                     )
                     db_session.add(contribution)
                     db_session.commit()
 
-                    logger.info(f"Recurring payment recorded for user {user.user_id}: ${amount_paid/100:.2f}")
+                    logger.info(
+                        f"Recurring payment recorded for user {user.user_id}: ${amount_paid / 100:.2f}"
+                    )
 
     # Handle subscription cancellation
     elif event["type"] == "customer.subscription.deleted":
@@ -176,6 +205,9 @@ async def stripe_webhook(
                 user.stripe_subscription_id = None
                 db_session.add(user)
                 db_session.commit()
+
+                # Check if user should be downgraded from premium tier
+                downgrade_user_from_premium(db_session, user.user_id)
 
                 logger.info(f"Subscription cancelled for user {user.user_id}")
 
@@ -195,10 +227,25 @@ async def stripe_webhook(
                 ).first()
 
                 if user and new_amount > 0:
+                    old_amount = user.monthly_contribution_cents or 0
                     user.monthly_contribution_cents = new_amount
                     db_session.add(user)
                     db_session.commit()
 
-                    logger.info(f"Subscription amount updated for user {user.user_id}: ${new_amount/100:.2f}/mo")
+                    # Check for tier upgrade/downgrade based on new amount
+                    if (
+                        new_amount >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS
+                        and old_amount < PREMIUM_CONTRIBUTION_THRESHOLD_CENTS
+                    ):
+                        upgrade_user_to_premium(db_session, user.user_id)
+                    elif (
+                        new_amount < PREMIUM_CONTRIBUTION_THRESHOLD_CENTS
+                        and old_amount >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS
+                    ):
+                        downgrade_user_from_premium(db_session, user.user_id)
+
+                    logger.info(
+                        f"Subscription amount updated for user {user.user_id}: ${new_amount / 100:.2f}/mo"
+                    )
 
     return {"status": "success"}

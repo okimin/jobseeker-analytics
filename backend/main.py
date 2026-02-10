@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -11,13 +12,30 @@ from slowapi.middleware import SlowAPIMiddleware
 from utils.config_utils import get_settings
 from contextlib import asynccontextmanager
 import database  # noqa: F401 - used for dependency injection
+from scheduler.background_scheduler import start_scheduler, stop_scheduler
 # Import routes
 from routes import email_routes, auth_routes, file_routes, users_routes, start_date_routes, job_applications_routes, coach_routes, onboarding_routes, stripe_webhook_routes, payment_routes
 
+# Configure logging early so it's available in lifespan
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # App startup - no dev user seeding (use real OAuth flow for testing)
+    # App startup
+    settings = get_settings()
+
+    # Start background scheduler for Always Open email sync (production only)
+    if settings.is_publicly_deployed:
+        start_scheduler()
+        logger.info("Background scheduler started for Always Open email sync")
+
     yield
+
+    # App shutdown
+    if settings.is_publicly_deployed:
+        stop_scheduler()
+        logger.info("Background scheduler stopped")
 
 app = FastAPI(lifespan=lifespan)
 settings = get_settings()
@@ -75,8 +93,23 @@ else:
     )
 
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
+# Security headers middleware to prevent MIME-sniffing and clickjacking attacks
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, is_publicly_deployed: bool = False):
+        super().__init__(app)
+        self.is_publicly_deployed = is_publicly_deployed
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        # HSTS: only set in production over HTTPS
+        if self.is_publicly_deployed:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware, is_publicly_deployed=settings.is_publicly_deployed)
 
 
 # Rate limit exception handler

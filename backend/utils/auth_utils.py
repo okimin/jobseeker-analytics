@@ -128,13 +128,48 @@ def get_google_authorization_url(flow, has_valid_creds: bool) -> tuple[str, str]
     return authorization_url, state
 
 
-def get_refresh_token_status(creds: object):
-    if creds:
+def get_refresh_token_status(
+    session_creds: object,
+    db_session=None,
+    user_id: str = None,
+) -> bool:
+    """Check if user has a valid refresh token (DB first, then session fallback).
+
+    Args:
+        session_creds: Credentials JSON string from session
+        db_session: Optional database session for DB credential lookup
+        user_id: Optional user ID for DB credential lookup
+
+    Returns:
+        True if refresh token exists (in DB or session), False otherwise
+    """
+    # Check DB credentials first (preferred source)
+    if db_session and user_id:
+        from utils.credential_service import load_credentials
+
+        # Try email_sync credentials first, then primary
+        for cred_type in ["email_sync", "primary"]:
+            creds = load_credentials(
+                db_session, user_id, cred_type, auto_refresh=False
+            )
+            if creds and creds.refresh_token:
+                logger.info(
+                    "Found valid refresh token in DB (%s) for user %s",
+                    cred_type,
+                    user_id,
+                )
+                return True
+
+    # Fall back to session credentials
+    if session_creds:
         try:
-            creds_dict = json.loads(creds)
-            return bool(creds_dict.get("refresh_token"))  # TODO: this seems redundant, shouldn't we directly save the token?
+            creds_dict = json.loads(session_creds)
+            if creds_dict.get("refresh_token"):
+                logger.info("Found valid refresh token in session")
+                return True
         except json.JSONDecodeError:
             logger.info("Trouble loading credentials from user session.")
+
     return False
 
 

@@ -21,20 +21,6 @@ router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
 
-@router.get("/download-file")
-async def download_file(request: Request, user_id: str = Depends(validate_session)):
-    if not user_id:
-        return RedirectResponse("/logout", status_code=303)
-    directory = get_user_filepath(user_id)
-    filename = "emails.csv"
-    filepath = f"{directory}/{filename}"
-    if os.path.exists(filepath):
-        logger.info("user_id:%s downloading from filepath %s", user_id, filepath)
-        return FileResponse(filepath)
-    raise HTTPException(status_code=400, detail="File not found")
-
-
-# Write and download csv
 @router.get("/process-csv")
 @limiter.limit("2/minute")
 async def process_csv(
