@@ -10,7 +10,7 @@ export default {
 	theme: {
 		extend: {
 			screens: {
-				'lg-nav': '926px'
+				"lg-nav": "926px"
 			},
 			fontFamily: {
 				sans: ["var(--font-sans)"],
