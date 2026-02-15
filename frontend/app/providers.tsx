@@ -79,8 +79,8 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 
 	const navigate = (path: string) => {
 		// Basic validation: ensure we only navigate to internal paths
-		if (path.startsWith('/') || path.startsWith(window.location.origin)) {
-		router.push(path);
+		if (path.startsWith("/") || path.startsWith(window.location.origin)) {
+			router.push(path);
 		}
 	};
 
