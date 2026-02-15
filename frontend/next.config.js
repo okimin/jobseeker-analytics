@@ -59,6 +59,10 @@ const nextConfig = {
 			{
 				key: "Permissions-Policy",
 				value: permissionsPolicy
+			},
+			{
+				key: "Strict-Transport-Security",
+				value: "max-age=63072000; includeSubDomains" // TODO: add preload later
 			}
 		];
 
