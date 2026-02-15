@@ -34,6 +34,7 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+	const isProd = process.env.NODE_ENV === "production";
 	return (
 		<html suppressHydrationWarning lang="en">
 			<body
@@ -47,12 +48,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 						</div>
 					</Providers>
 				</PostHogProvider>
-				<Script
-					crossOrigin="anonymous"
-					integrity="sha384-mbLNRmLXKn0EeOWA8CkkcQulVLq0F93UcuDlZqBW+iCJ8Sre41d9PE1SB/9MXadG"
-					src="https://app.termly.io/resource-blocker/6adf3d96-4f08-4972-b58b-0e62e4e81785?autoBlock=on"
-					strategy="afterInteractive"
-				/>
+				{isProd && (
+					<Script
+						crossOrigin="anonymous"
+						integrity="sha384-mbLNRmLXKn0EeOWA8CkkcQulVLq0F93UcuDlZqBW+iCJ8Sre41d9PE1SB/9MXadG"
+						src="https://app.termly.io/resource-blocker/6adf3d96-4f08-4972-b58b-0e62e4e81785?autoBlock=on"
+						strategy="afterInteractive"
+					/>
+				)}
 			</body>
 		</html>
 	);
