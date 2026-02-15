@@ -99,12 +99,45 @@ Before starting, make sure you have:
    }
    ```
 
+Here is the correctly formatted Markdown replacement for **Step 3** in `CONTRIBUTOR_ONBOARDING.md`.
+
+You can copy and paste this entire block to replace the existing "Step 3" section in your file.
+
+```markdown
+### Step 3: Add Yourself to the Wall of Fame
+
+1. **Navigate to the contributors page**
+   - Open http://localhost:3000/contributors in your browser
+   - Take a **before screenshot** showing the current contributors
+
+2. **Add your contributor data**
+   - Open `frontend/data/contributors.json`
+   - Add your information following this format:
+   ```json
+   {
+     "name": "Your Name",
+     "github": "your-github-username",
+     "avatar": "/contributors/your-github-username.png",
+     "message": "Your Name was here! 🚀",
+     "date": "2025-01-27"
+   }
+
+```
+
 3. **Add your profile picture**
-   - Option 1: Use your GitHub avatar (recommended)
-     - URL format: `https://github.com/your-github-username.png`
-   - Option 2: Add a custom image
-     - Place your image in `frontend/public/contributors/`
-     - Reference it as `/contributors/your-image.jpg`
+> **Note:** For security reasons, we do not allow external image links. You must save your image locally.
+
+
+* **Option 1: Use your GitHub avatar (Recommended)**
+1. Go to `https://github.com/your-github-username.png` (replace with your actual username)
+2. Right-click the image and select **"Save Image As..."**
+3. Save the file to `frontend/public/contributors/` using your username (e.g., `your-github-username.png`)
+
+
+* **Option 2: Use a custom image**
+1. Place your image file in `frontend/public/contributors/`
+2. Ensure the filename matches what you put in `contributors.json` (e.g., `/contributors/my-pic.jpg`)
+
 
 4. **Test your changes**
    - Refresh http://localhost:3000/contributors
