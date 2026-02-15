@@ -29,7 +29,7 @@ const nextConfig = {
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https:; " +
 			"font-src 'self'; " +
-			"connect-src 'self' https://app.termly.io; " +
+			"connect-src 'self' http://localhost:8000 https://api.justajobapp.com https://app.termly.io; " +
 			"frame-src https://www.google.com/recaptcha/; " +
 			"frame-ancestors 'none'; " +
 			"form-action 'self';";
@@ -61,7 +61,7 @@ const nextConfig = {
 				// 2. Public Pages - Allow Caching (Overrides Block 1)
 				// These pages are static and safe to cache for 1 hour.
 				source: "/(login|coaches|faq|privacy|terms|contributors)?",
-				// Note: The regex above catches specific routes. Excludes api/
+				// Note: The regex above catches specific routes.
 				// The root "/" requires its own specific object usually, see below.
 				headers: [
 					...securityHeaders,
