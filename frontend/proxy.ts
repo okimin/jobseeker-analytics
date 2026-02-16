@@ -15,7 +15,7 @@ export function proxy(request: NextRequest) {
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://*.posthog.com https://app.termly.io https://*.googleusercontent.com;
     worker-src 'self' blob:;
-    connect-src 'self' https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "http://localhost:8000 ws: wss:" : ""};
+    connect-src 'self' https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.api.justajobapp.com https://api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "http://localhost:8000 ws: wss:" : ""};
     frame-src 'self' https://app.termly.io https://www.youtube.com blob:;
     font-src 'self' data:;
     object-src 'none';
