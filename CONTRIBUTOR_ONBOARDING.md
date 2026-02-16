@@ -93,30 +93,6 @@ Before starting, make sure you have:
    {
      "name": "Your Name",
      "github": "your-github-username",
-     "avatar": "https://github.com/your-github-username.png",
-     "message": "Your Name was here! 🚀",
-     "date": "2025-01-27"
-   }
-   ```
-
-Here is the correctly formatted Markdown replacement for **Step 3** in `CONTRIBUTOR_ONBOARDING.md`.
-
-You can copy and paste this entire block to replace the existing "Step 3" section in your file.
-
-```markdown
-### Step 3: Add Yourself to the Wall of Fame
-
-1. **Navigate to the contributors page**
-   - Open http://localhost:3000/contributors in your browser
-   - Take a **before screenshot** showing the current contributors
-
-2. **Add your contributor data**
-   - Open `frontend/data/contributors.json`
-   - Add your information following this format:
-   ```json
-   {
-     "name": "Your Name",
-     "github": "your-github-username",
      "avatar": "/contributors/your-github-username.png",
      "message": "Your Name was here! 🚀",
      "date": "2025-01-27"
