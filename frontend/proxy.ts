@@ -11,12 +11,11 @@ export function proxy(request: NextRequest) {
 	// - Whitelisted Termly domains: app.termly.io and *.api.termly.io
 	const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
-    child-src 'self' blob:;
+    script-src 'self' 'nonce-${nonce}' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://*.posthog.com https://app.termly.io https://*.googleusercontent.com;
     worker-src 'self' blob:;
-    connect-src 'self' http://localhost:8000 https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "ws: wss:" : ""};
+    connect-src 'self' https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "http://localhost:8000 ws: wss:" : ""};
     frame-src 'self' https://app.termly.io https://www.youtube.com blob:;
     font-src 'self' data:;
     object-src 'none';
