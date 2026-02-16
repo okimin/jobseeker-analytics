@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 	const cspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://apis.google.com https://accounts.google.com;
-    style-src 'self' 'unsafe-inline' https://app.termly.io;
+    style-src 'self' 'nonce-${nonce}' https://app.termly.io;
     img-src 'self' blob: data: https://us-assets.i.posthog.com https://app.termly.io;
     connect-src 'self' http://localhost:8000 https://us.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io;
     frame-src 'self' https://app.termly.io https://www.youtube.com;
