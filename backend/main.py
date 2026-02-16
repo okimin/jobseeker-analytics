@@ -113,6 +113,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
+
+        # FIX CWE-525: Prevent caching of API responses
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
         # HSTS: only set in production over HTTPS
         if self.is_publicly_deployed:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
