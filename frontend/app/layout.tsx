@@ -57,7 +57,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				</PostHogProvider>
 				{isProd && (
 					<Script
-						crossOrigin="anonymous"
 						integrity="sha384-mbLNRmLXKn0EeOWA8CkkcQulVLq0F93UcuDlZqBW+iCJ8Sre41d9PE1SB/9MXadG"
 						nonce={nonce}
 						src="https://app.termly.io/resource-blocker/6adf3d96-4f08-4972-b58b-0e62e4e81785?autoBlock=on"
