@@ -93,18 +93,27 @@ Before starting, make sure you have:
    {
      "name": "Your Name",
      "github": "your-github-username",
-     "avatar": "https://github.com/your-github-username.png",
+     "avatar": "/contributors/your-github-username.png",
      "message": "Your Name was here! 🚀",
      "date": "2025-01-27"
    }
-   ```
+
+```
 
 3. **Add your profile picture**
-   - Option 1: Use your GitHub avatar (recommended)
-     - URL format: `https://github.com/your-github-username.png`
-   - Option 2: Add a custom image
-     - Place your image in `frontend/public/contributors/`
-     - Reference it as `/contributors/your-image.jpg`
+> **Note:** For security reasons, we do not allow external image links. You must save your image locally.
+
+
+* **Option 1: Use your GitHub avatar (Recommended)**
+1. Go to `https://github.com/your-github-username.png` (replace with your actual username)
+2. Right-click the image and select **"Save Image As..."**
+3. Save the file to `frontend/public/contributors/` using your username (e.g., `your-github-username.png`)
+
+
+* **Option 2: Use a custom image**
+1. Place your image file in `frontend/public/contributors/`
+2. Ensure the filename matches what you put in `contributors.json` (e.g., `/contributors/my-pic.jpg`)
+
 
 4. **Test your changes**
    - Refresh http://localhost:3000/contributors

@@ -1,39 +1,34 @@
 # Contributors Directory
 
-This directory is for custom profile images that contributors want to use instead of their GitHub avatars.
+This directory contains profile images for the Wall of Fame. To ensure site security and reliability, all contributor images must be hosted locally in this folder.
 
-## How to add your custom image:
+## How to add your image
 
-1. **Add your image file** to this directory
+1. **Choose your image**
 
-    - Supported formats: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`
-    - Recommended size: 400x400 pixels or larger
-    - Keep file size under 2MB
+    - **Option A (GitHub Avatar):** Download your avatar from `https://github.com/your-username.png`
+    - **Option B (Custom):** Use any professional, safe-for-work image you like.
 
-2. **Update your contributor entry** in `frontend/data/contributors.json`:
+2. **Save the file**
+
+    - Save the image into this directory (`frontend/public/contributors/`)
+    - Use a unique filename (e.g., `your-github-username.png`)
+    - Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`
+    - Recommended size: 400x400 pixels (keep file size under 2MB)
+
+3. **Update `contributors.json`**
+    - In `frontend/data/contributors.json`, reference your local file:
     ```json
     {
     	"name": "Your Name",
     	"github": "your-github-username",
-    	"avatar": "/contributors/your-image.jpg",
+    	"avatar": "/contributors/your-filename.png",
     	"message": "Your Name was here! 🚀",
-    	"date": "2024-05-23"
+    	"date": "2025-02-15"
     }
     ```
 
-## Guidelines:
+## Guidelines
 
 -   **Safe for Work**: Only use images that are appropriate for a professional environment
--   **Personal**: Use an image that represents you (photo, avatar, logo, etc.)
--   **Quality**: Use clear, high-quality images
--   **Size**: Keep files reasonably sized for fast loading
-
-## Default Option:
-
-If you don't want to add a custom image, you can use your GitHub avatar by setting:
-
-```json
-"avatar": "https://github.com/your-github-username.png"
-```
-
-This will automatically use your current GitHub profile picture.
+-   **No External Links**: Do not use `https://...` URLs in the JSON file; they will be rejected during review.
