@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 	},
 	description: siteConfig.description,
 	alternates: {
-		canonical: "/", // This sets <link rel="canonical" href="https://www.justajobapp.com/" />
+		canonical: "/" // This sets <link rel="canonical" href="https://www.justajobapp.com/" />
 	},
 	icons: {
 		icon: "/favicon.ico"
