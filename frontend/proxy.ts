@@ -30,7 +30,7 @@ export function proxy(request: NextRequest) {
 	requestHeaders.set("Content-Security-Policy", cspHeader);
 
 	const response = NextResponse.next({
-    headers: requestHeaders,
+		headers: requestHeaders,
 		request: {
 			headers: requestHeaders
 		}

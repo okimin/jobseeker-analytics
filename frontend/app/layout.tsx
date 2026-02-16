@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable, inter.className)}
 			>
 				<PostHogProvider>
-					<Providers themeProps={{ nonce: nonce, attribute: "class", defaultTheme: "dark"}}>
+					<Providers themeProps={{ nonce: nonce, attribute: "class", defaultTheme: "dark" }}>
 						<div className="relative flex h-screen flex-col">
 							<main className="container mx-auto flex-grow max-w-7xl px-6 pt-16">{children}</main>
 							<Footer />
