@@ -5,6 +5,7 @@
 .vscode/
 *.csv
 *.txt
+!robots.txt
 credentials.json
 .venv/
 venv/
