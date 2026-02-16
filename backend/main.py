@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -138,6 +139,10 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
 @app.get("/")
 async def root():
     return {"message": "success"}
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def get_robots():
+    return "User-agent: *\nDisallow: /"
 
 @app.get("/heartbeat")
 @limiter.limit("4/hour")

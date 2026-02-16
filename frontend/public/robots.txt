@@ -1,0 +1,30 @@
+# User-agent: * refers to all crawlers (Google, Bing, etc.)
+User-agent: *
+
+# Allow crawling of public-facing marketing and info pages
+Allow: /
+Allow: /faq
+Allow: /pricing
+Allow: /contributors
+Allow: /terms
+Allow: /privacy
+Allow: /cookies
+Allow: /dsar
+
+# Disallow crawling of authenticated/private user areas
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /email-sync-setup
+
+# Disallow authentication flows (prevents crawlers from hitting login/signup buttons)
+Disallow: /login
+Disallow: /signup
+Disallow: /logout
+
+# Disallow Next.js internal files and API routes
+Disallow: /_next/
+Disallow: /api/
+
+# Sitemap location (Update once you generate a sitemap.xml)
+# Sitemap: https://www.justajobapp.com/sitemap.xml
