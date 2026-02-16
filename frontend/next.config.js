@@ -25,12 +25,11 @@ const nextConfig = {
 
 		const cspHeader =
 			"default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.termly.io https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.termly.io; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https:; " +
 			"font-src 'self'; " +
 			"connect-src 'self' http://localhost:8000 https://api.justajobapp.com https://app.termly.io; " +
-			"frame-src https://www.google.com/recaptcha/; " +
 			"frame-ancestors 'none'; " +
 			"form-action 'self';";
 
