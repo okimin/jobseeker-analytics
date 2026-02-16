@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { headers } from "next/headers";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Inter } from "next/font/google";
@@ -37,8 +38,10 @@ export const viewport: Viewport = {
 	]
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const isProd = process.env.NODE_ENV === "production";
+	const nonce = (await headers()).get("x-nonce");
+
 	return (
 		<html suppressHydrationWarning lang="en">
 			<body
@@ -58,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 						integrity="sha384-mbLNRmLXKn0EeOWA8CkkcQulVLq0F93UcuDlZqBW+iCJ8Sre41d9PE1SB/9MXadG"
 						src="https://app.termly.io/resource-blocker/6adf3d96-4f08-4972-b58b-0e62e4e81785?autoBlock=on"
 						strategy="afterInteractive"
+						nonce={nonce}
 					/>
 				)}
 			</body>
