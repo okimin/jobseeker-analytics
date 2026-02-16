@@ -87,7 +87,7 @@ graph TB
 - `X-Content-Type-Options: nosniff` - Prevents MIME-type sniffing
 - `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer leakage
 - `X-Powered-By` header disabled - Reduces technology fingerprinting
-- Cache-Control: `no-cache, no-store` for HTML/API routes
+- Cache-Control: Granular policy; public pages cached (e.g., 1 hour), static assets are immutable, and sensitive pages default to `no-cache`.
 
 **Configuration:** `frontend/next.config.js`
 

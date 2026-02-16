@@ -27,7 +27,7 @@ const nextConfig = {
 			"default-src 'self'; " +
 			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.termly.io; " +
 			"style-src 'self' 'unsafe-inline'; " +
-			"img-src 'self' data: https:; " +
+			"img-src 'self' data:; " +
 			"font-src 'self'; " +
 			"connect-src 'self' http://localhost:8000 https://api.justajobapp.com https://app.termly.io; " +
 			"frame-ancestors 'none'; " +
