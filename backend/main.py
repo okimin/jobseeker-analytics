@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -113,6 +114,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
+
+        # FIX CWE-525: Prevent caching of API responses
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
         # HSTS: only set in production over HTTPS
         if self.is_publicly_deployed:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
@@ -133,6 +139,10 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
 @app.get("/")
 async def root():
     return {"message": "success"}
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def get_robots():
+    return "User-agent: *\nDisallow: /"
 
 @app.get("/heartbeat")
 @limiter.limit("4/hour")
