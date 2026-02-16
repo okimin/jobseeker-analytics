@@ -10,10 +10,12 @@ export function proxy(request: NextRequest) {
 	// - Whitelisted Termly domains: app.termly.io and *.api.termly.io
 	const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://apis.google.com https://accounts.google.com;
-    style-src 'self' 'nonce-${nonce}' https://app.termly.io;
-    img-src 'self' blob: data: https://us-assets.i.posthog.com https://app.termly.io;
-    connect-src 'self' http://localhost:8000 https://us.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io;
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://apis.google.com https://accounts.google.com https://*.posthog.com;
+    # 2. Styles: Must be unsafe-inline for HeroUI and PostHog masking
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https://*.posthog.com https://app.termly.io;
+    worker-src 'self' blob:;
+    connect-src 'self' http://localhost:8000 https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io;
     frame-src 'self' https://app.termly.io https://www.youtube.com;
     object-src 'none';
     base-uri 'self';
