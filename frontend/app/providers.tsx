@@ -77,16 +77,9 @@ declare module "@react-types/shared" {
 export function Providers({ children, themeProps }: ProvidersProps) {
 	const router = useRouter();
 
-	const navigate = (path: string) => {
-		// Basic validation: ensure we only navigate to internal paths
-		if (path.startsWith("/") || path.startsWith(window.location.origin)) {
-			router.push(path);
-		}
-	};
-
 	return (
 		<NextThemesProvider {...themeProps}>
-			<HeroUIProvider navigate={navigate}>
+			<HeroUIProvider navigate={router.push}>
 				<ToastProvider
 					placement="top-center"
 					toastProps={{
