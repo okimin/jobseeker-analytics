@@ -13,11 +13,15 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+	metadataBase: new URL("https://www.justajobapp.com"), // Base URL for all metadata
 	title: {
 		default: siteConfig.name,
 		template: `%s - ${siteConfig.name}`
 	},
 	description: siteConfig.description,
+	alternates: {
+		canonical: "/", // This sets <link rel="canonical" href="https://www.justajobapp.com/" />
+	},
 	icons: {
 		icon: "/favicon.ico"
 	}
