@@ -5,6 +5,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardBody, CardHeader, Divider } from "@heroui/react";
+import { z } from "zod";
 
 import { Navbar } from "@/components/navbar";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
@@ -16,11 +17,25 @@ function LoginContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+	// Define a strict schema for the query parameters
+	const querySchema = z.object({
+		signup: z
+			.string()
+			.optional()
+			.transform((val) => val === "true"), // Convert "true" string to boolean, everything else to false
+		reconnect: z
+			.string()
+			.optional()
+			.transform((val) => val === "true") // Convert "true" string to boolean, everything else to false
+	});
 
-	// Check if this is a new user signup (from signup=true param)
-	const isSignup = searchParams.get("signup") === "true";
+	// Use Zod to parse the raw search params safely
+	const rawParams = Object.fromEntries(searchParams.entries());
+	const validatedParams = querySchema.safeParse(rawParams);
+
+	const isSignup = validatedParams.success ? validatedParams.data.signup : false;
 	// Check if this is a reconnect flow (session expired, user wants to reconnect Gmail)
-	const isReconnect = searchParams.get("reconnect") === "true";
+	const isReconnect = validatedParams.success ? validatedParams.data.reconnect : false;
 
 	useEffect(() => {
 		// On load, check for existing session (but skip redirect if reconnecting)
