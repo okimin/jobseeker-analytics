@@ -34,23 +34,22 @@ const nextConfig = {
 		return [
 			{
 				// 1. GLOBAL FALLBACK (Must be FIRST)
-				// Default to Private/No-Cache for safety.
-				// Matches everything, but will be overridden by specific rules below.
+				// Default to strictly NO-STORE for all dynamic/authenticated content.
 				source: "/:path*",
 				headers: [
 					...securityHeaders,
 					{
 						key: "Cache-Control",
-						value: "private, no-cache, max-age=0, s-maxage=0, must-revalidate"
-					}
+						value: "no-store, no-cache, must-revalidate, proxy-revalidate"
+					},
+					{ key: "Pragma", value: "no-cache" },
+					{ key: "Expires", value: "0" }
 				]
 			},
 			{
-				// 2. Public Pages - Allow Caching (Overrides Block 1)
-				// These pages are static and safe to cache for 1 hour.
-				source: "/(login|coaches|faq|privacy|terms|contributors)?",
-				// Note: The regex above catches specific routes.
-				// The root "/" requires its own specific object usually, see below.
+				// 2. Public Static Pages - Allow Caching (Overrides Block 1)
+				// Explicitly allowlist non-sensitive pages.
+				source: "/:path(login|coaches|faq|pricing|privacy|terms|contributors|cookies|dsar|signup)",
 				headers: [
 					...securityHeaders,
 					{
