@@ -83,9 +83,6 @@ ALLOWED_ORIGINS = [
     "https://www.app.justajobapp.com",
     "https://api.justajobapp.com",
     "https://www.api.justajobapp.com",
-    "https://coach.justajobapp.com",
-    "https://its.justajobapp.com",
-    "https://blog.justajobapp.com",
 ]
 
 if settings.is_publicly_deployed:
