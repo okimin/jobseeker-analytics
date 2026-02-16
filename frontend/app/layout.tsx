@@ -40,7 +40,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const isProd = process.env.NODE_ENV === "production";
-	const nonce = (await headers()).get("x-nonce");
+	const nonce = (await headers()).get("x-nonce") || undefined;
 
 	return (
 		<html suppressHydrationWarning lang="en">
@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable, inter.className)}
 			>
 				<PostHogProvider>
-					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+					<Providers themeProps={{ nonce: nonce, attribute: "class", defaultTheme: "dark"}}>
 						<div className="relative flex h-screen flex-col">
 							<main className="container mx-auto flex-grow max-w-7xl px-6 pt-16">{children}</main>
 							<Footer />
