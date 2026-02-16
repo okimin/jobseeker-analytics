@@ -4,19 +4,21 @@ import { NextResponse, NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
 	// 1. Generate a unique nonce for every request
 	const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-
+	// Check if we are in development mode
+	const isDev = process.env.NODE_ENV === "development";
 	// 2. Define your Strict CSP
 	// - Added 'strict-dynamic' to allow Termly to load its own sub-scripts
 	// - Whitelisted Termly domains: app.termly.io and *.api.termly.io
 	const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://apis.google.com https://accounts.google.com https://*.posthog.com;
-    # 2. Styles: Must be unsafe-inline for HeroUI and PostHog masking
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
+    child-src 'self' blob:;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.posthog.com https://app.termly.io;
+    img-src 'self' blob: data: https://*.posthog.com https://app.termly.io https://*.googleusercontent.com;
     worker-src 'self' blob:;
-    connect-src 'self' http://localhost:8000 https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io;
-    frame-src 'self' https://app.termly.io https://www.youtube.com;
+    connect-src 'self' http://localhost:8000 https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "ws: wss:" : ""};
+    frame-src 'self' https://app.termly.io https://www.youtube.com blob:;
+    font-src 'self' data:;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
