@@ -286,7 +286,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							</div>
 						</div>
 
-						<ThemeSwitch />
+						<ThemeSwitch className="px-2 py-1.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block" />
 
 						{/* Back to Dashboard button and Logout icon - shown when authenticated and not on dashboard */}
 						{isAuthenticated && pathname !== "/dashboard" && (

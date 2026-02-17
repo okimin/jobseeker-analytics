@@ -40,14 +40,10 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames, child
 	const tooltipText = isSelected && !isSSR ? "Switch to light mode" : "Switch to dark mode";
 
 	return (
-		<div className="relative group px-2 py-1.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block">
+		<div className={clsx("relative group", className)}>
 			<Component
 				{...getBaseProps({
-					className: clsx(
-						"px-px transition-opacity hover:opacity-80 cursor-pointer",
-						className,
-						classNames?.base
-					)
+					className: clsx("px-px transition-opacity hover:opacity-80 cursor-pointer", classNames?.base)
 				})}
 			>
 				<VisuallyHidden>
