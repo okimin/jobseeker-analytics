@@ -35,6 +35,9 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 	const { theme } = useTheme();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
+	const navButtonClasses =
+		"px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1";
+
 	useEffect(() => {
 		const checkUserStatus = async () => {
 			const authenticated = await checkAuth(apiUrl);
@@ -130,7 +133,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 					<div className="hidden md:flex items-center space-x-1 lg-nav:space-x-2">
 						{/* About dropdown */}
 						<div className="relative group">
-							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className={navButtonClasses}>
 								About
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -173,7 +176,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 
 						{/* Find Jobs - top-level external link */}
 						<a
-							className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1"
+							className={navButtonClasses}
 							href={siteConfig.links.hiringCafe}
 							rel="noopener noreferrer"
 							target="_blank"
@@ -187,7 +190,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 
 						{/* Resources dropdown */}
 						<div className="relative group">
-							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className={navButtonClasses}>
 								Resources
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -242,7 +245,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 
 						{/* Contribute dropdown */}
 						<div className="relative group">
-							<button className="px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1">
+							<button className={navButtonClasses}>
 								Contribute
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
