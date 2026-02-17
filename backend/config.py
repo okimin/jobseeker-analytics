@@ -1,5 +1,5 @@
 import json
-
+import hashlib
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict, NoDecode
 from typing import List
@@ -56,6 +56,32 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="allow"
     )
+
+    def get_security_fingerprint(self) -> str:
+        """
+        Generates a non-reversible SHA-256 hash of security-critical configuration.
+        Selected keys based on the JustAJobApp security profile.
+        """
+        critical_keys = [
+            "ENV",                        # Environment boundary
+            "GOOGLE_CLIENT_ID",           # OAuth Identity
+            "GOOGLE_CLIENT_REDIRECT_URI", # OAuth Flow
+            "COOKIE_SECRET",              # Session Integrity
+            "TOKEN_ENCRYPTION_KEY",       # DB Credential Security
+            "APP_URL",                    # Trusted Frontend Origin
+            "API_URL",                    # Trusted Backend Origin
+            "ORIGIN",                     # Cookie Domain
+            "STRIPE_WEBHOOK_SECRET"       # Financial Webhook Security
+        ]
+        
+        # Build a sorted dictionary to ensure the hash is consistent every time
+        config_data = {
+            key: str(getattr(self, key, "") or "").strip() 
+            for key in sorted(critical_keys)
+        }
+        config_json = json.dumps(config_data, sort_keys=True)
+        
+        return hashlib.sha256(config_json.encode()).hexdigest()
 
 class ConfigSettings(Settings):
     @property

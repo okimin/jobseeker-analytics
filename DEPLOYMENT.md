@@ -322,6 +322,18 @@ The deployment includes automated health checks:
    - Check that the application can connect to the database
    - Verify migrations ran successfully (if applicable)
 
+
+6. **Verify security configuration integrity**
+   - Verify that the application's security posture (defined by `get_security_fingerprint`) has not drifted unintentionally during deployment. Current_Hash is only accessible by maintainers.
+     1. **Match:** `Current_Hash == Previous_Hash`. (Pass: Configuration is unchanged).
+     2. **Intentional Mismatch:** `Current_Hash != Previous_Hash` AND the associated commit message or PR explicitly authorizes a configuration change (e.g., "Rotate Stripe Webhook Secret").
+     3. **Unknown Mismatch:** `Current_Hash != Previous_Hash` with no documented authorization.
+
+   - *Execute these steps for a Mismatch.*
+     * **If the change was accidental:** Revert the environment variable in GitHub Secrets and re-run the job.
+     * **If the change was intentional:** Update the "stored" hash and document the rotation in the deployment changelog.
+
+
 ---
 
 ## Rollback Procedures
