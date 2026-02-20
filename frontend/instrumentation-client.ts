@@ -16,7 +16,7 @@ if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 		defaults: "2026-01-30",
 		opt_out_capturing_by_default: hasGPCSignal(), // Respect GPC signals
 		debug: process.env.NODE_ENV === "development",
-		session_recording: { maskTextSelector: "*"},
+		session_recording: { maskTextSelector: "*" },
 		opt_in_site_apps: true
 	});
 }
