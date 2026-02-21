@@ -714,7 +714,7 @@ aws lightsail get-container-log \
 aws lightsail get-container-log \
   --service-name jaja-backend \
   --container-name backend \
-  --start-time $(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ)
+  --start-time $(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ) # On macOS, use: date -u -v-1H +'%Y-%m-%dT%H:%M:%SZ'
 ```
 
 ---
