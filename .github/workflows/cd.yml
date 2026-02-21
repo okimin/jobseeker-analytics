@@ -7,6 +7,9 @@ on:
 
 jobs:
   verify-integrity:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
