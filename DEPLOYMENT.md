@@ -349,20 +349,15 @@ Initiate rollback if:
 #### Method 1: Redeploy Previous Git Commit (Recommended)
 
 ```bash
-# 1. Identify the last known good commit
+# 1. Identify the bad commit
 git log --oneline -10
 
-# 2. Create a rollback branch
-git checkout -b rollback/<issue-description> <good-commit-sha>
-
-# 3. Push to trigger deployment
-git push origin rollback/<issue-description>
-
-# 4. Merge to main after verification
+# 2. Revert the commit on the main branch
 git checkout main
-git merge rollback/<issue-description>
+git revert <bad-commit-sha>
+
+# 3. Push to trigger the rollback deployment
 git push origin main
-```
 
 #### Method 2: Redeploy Previous Container Image
 
