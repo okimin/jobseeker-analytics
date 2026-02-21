@@ -35,6 +35,8 @@ jobs:
           if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
             echo "::error title=Security Mismatch::Integrity unverified."
             exit 1
+          else
+            echo "Security fingerprint verified successfully."
           fi
 
   deploy-backend:
