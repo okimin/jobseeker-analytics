@@ -29,11 +29,15 @@ jobs:
     - name: Verify Security Fingerprint
       env:
         EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
+        PYTHONPATH: ${{ github.workspace }}/backend
       run: |
-        # 1. Generate the actual fingerprint from the current environment
-        ACTUAL_FINGERPRINT=$(python3 -c "from backend.config import settings; print(settings.get_security_fingerprint())")
+        # 1. Targeted installation of only what config.py needs
+        pip install pydantic pydantic-settings typing-extensions
         
-        # 2. Compare with the one stored in GitHub Secrets/Infisical
+        # 2. Generate the actual fingerprint using the method in Settings
+        ACTUAL_FINGERPRINT=$(python3 -c "from config import settings; print(settings.get_security_fingerprint())")
+        
+        # 3. Compare and alert via GitHub Annotations
         if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
           echo "::warning title=Security Configuration Mismatch::The generated fingerprint does not match the stored reference. Verify if secrets were rotated or if the config.py 'critical_keys' list was updated."
         else
