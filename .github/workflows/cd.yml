@@ -27,6 +27,7 @@ jobs:
         project-slug: "jobseeker-analytics-zec-y"
 
     - name: Verify Security Fingerprint
+      continue-on-error: true
       env:
         EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
         PYTHONPATH: ${{ github.workspace }}/backend
@@ -40,6 +41,7 @@ jobs:
         # 3. Compare and alert via GitHub Annotations
         if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
           echo "::warning title=Security Configuration Mismatch::The generated fingerprint does not match the stored reference. Verify if secrets were rotated or if the config.py 'critical_keys' list was updated."
+          exit 1
         else
           echo "Security fingerprint verified successfully."
         fi

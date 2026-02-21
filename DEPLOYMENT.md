@@ -656,6 +656,17 @@ See `backend/.env.example` and `frontend/.env.sample` for required variables.
 
 ## Troubleshooting
 
+### Deployment Warnings
+
+#### **Warning: Security Configuration Mismatch**
+* **Symptoms**: A yellow warning banner appears in the GitHub Action summary stating "Security Configuration Mismatch".
+* **Cause**: The current environment variables in the runner do not match the expected cryptographic fingerprint.
+* **Impact**: The deployment will continue (Fail-Safe), but the configuration integrity cannot be guaranteed.
+* **Resolution**: 
+    1. Check if a secret was recently rotated without updating the fingerprint.
+    2. Audit Infisical for any unauthorized changes.
+    3. Update the `EXPECTED_SECURITY_FINGERPRINT` secret once the configuration is verified.
+
 ### Common Issues
 
 #### Deployment Stuck in DEPLOYING State
