@@ -213,7 +213,7 @@ aws lightsail create-container-service-deployment \
   --service-name jaja-frontend \
   --containers '{
     "frontend": {
-      "image": ":jaja-frontend.frontend.latest",
+      "image": ":jaja-frontend.frontend.X",
       "environment": {
         "NODE_ENV": "production",
         "NEXT_PUBLIC_APP_URL": "'"${APP_URL}"'",
