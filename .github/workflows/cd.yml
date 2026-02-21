@@ -6,6 +6,23 @@ on:
     - main
 
 jobs:
+  verify-integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Security Fingerprint
+        env:
+          EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
+          PYTHONPATH: ${{ github.workspace }}/backend
+        run: |
+          pip install pydantic pydantic-settings typing-extensions
+          ACTUAL_FINGERPRINT=$(python3 -c "from config import settings; print(settings.get_security_fingerprint())")
+          
+          if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
+            echo "::error title=Security Mismatch::Integrity unverified."
+            exit 1
+          fi
+
   deploy-backend:
     name: Deploy Backend
     permissions:
@@ -25,26 +42,6 @@ jobs:
         domain: "https://app.infisical.com"
         env-slug: "prod"
         project-slug: "jobseeker-analytics-zec-y"
-
-    - name: Verify Security Fingerprint
-      continue-on-error: true
-      env:
-        EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
-        PYTHONPATH: ${{ github.workspace }}/backend
-      run: |
-        # 1. Targeted installation of only what config.py needs
-        pip install pydantic pydantic-settings typing-extensions
-        
-        # 2. Generate the actual fingerprint using the method in Settings
-        ACTUAL_FINGERPRINT=$(python3 -c "from config import settings; print(settings.get_security_fingerprint())")
-        
-        # 3. Compare and alert via GitHub Annotations
-        if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
-          echo "::warning title=Security Configuration Mismatch::The generated fingerprint does not match the stored reference. Verify if secrets were rotated or if the config.py 'critical_keys' list was updated."
-          exit 1
-        else
-          echo "Security fingerprint verified successfully."
-        fi
 
     - id: deploy
       uses: ./.github/actions/deploy-backend-to-lightsail
