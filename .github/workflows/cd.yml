@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: Authenticate with Infisical via OIDC and fetch secrets
+        uses: Infisical/secrets-action@v1.0.15
+        with:
+          method: oidc
+          identity-id: "402c7253-b53d-47c8-8ca1-60ffb3406b32"
+          domain: "https://app.infisical.com"
+          env-slug: "prod"
+          project-slug: "jobseeker-analytics-zec-y"
+
       - name: Verify Security Fingerprint
         env:
           EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
