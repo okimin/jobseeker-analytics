@@ -64,14 +64,27 @@ class Settings(BaseSettings):
         """
         critical_keys = [
             "ENV",                        # Environment boundary
-            "GOOGLE_CLIENT_ID",           # OAuth Identity
+            "NODE_ENV",                   # Environment boundary
+            "GOOGLE_API_KEY",             # LLM function
+            "GOOGLE_CLIENT_ID",           # OAuth Flow
+            "GOOGLE_CLIENT_SECRET",       # OAuth Flow
             "GOOGLE_CLIENT_REDIRECT_URI", # OAuth Flow
             "COOKIE_SECRET",              # Session Integrity
             "TOKEN_ENCRYPTION_KEY",       # DB Credential Security
+            "DATABASE_URL",               # DB Credential Security
             "APP_URL",                    # Trusted Frontend Origin
             "API_URL",                    # Trusted Backend Origin
+            "NEXT_PUBLIC_APP_URL",        # Trusted Frontend Origin
+            "NEXT_PUBLIC_API_URL",        # Trusted Backend Origin
             "ORIGIN",                     # Cookie Domain
-            "STRIPE_WEBHOOK_SECRET"       # Financial Webhook Security
+            "STRIPE_WEBHOOK_SECRET",      # Payments Security
+            "STRIPE_SECRET_KEY",          # Payments Security
+            "IPINFO_TOKEN",               # Geographic boundary
+            "GH_PRIVATE_KEY",             # GitHub App Config (Maintainer Tooling)
+            "GH_APP_ID",                  # GitHub App Config (Maintainer Tooling)
+            "GH_INSTALLATION_ID",         # GitHub App Config (Maintainer Tooling)
+            "AWS_DATABASE_NAME",          # AWS Config
+            "AWS_DATABASE_REGION"         # AWS Config
         ]
         
         # Build a sorted dictionary to ensure the hash is consistent every time

@@ -83,13 +83,14 @@ Deployments are automatically triggered when code is pushed to the `main` branch
 
 ### Process
 
-1. GitHub Actions runner checks out the repository
-2. AWS CLI is configured with credentials from GitHub Secrets
-3. Old container images are cleaned up from Lightsail
-4. Docker images are built for `linux/amd64` platform
-5. Images are pushed to AWS Lightsail container registry
-6. New deployment is created with updated environment variables
-7. Health checks validate the deployment (10s interval, 2 healthy/unhealthy thresholds)
+1. GitHub Actions runner checks out the repository.
+2. **GitHub Actions runner authenticates with Infisical using an OIDC machine ID to securely retrieve all deployment secrets.**
+3. AWS CLI is configured with the AWS credentials retrieved from Infisical.
+4. Old container images are cleaned up from Lightsail.
+5. Docker images are built for `linux/amd64` platform.
+6. Images are pushed to AWS Lightsail container registry.
+7. New deployment is created with updated environment variables injected from Infisical.
+8. Health checks validate the deployment (10s interval, 2 healthy/unhealthy thresholds).
 
 ### Monitoring Deployment Status
 
@@ -130,7 +131,7 @@ Use manual deployment only when automated deployment is unavailable or for emerg
    ```bash
    brew install aws/tap/lightsailctl
    ```
-4. Required environment variables set (see [Secrets Management](#secrets-management))
+4. Required environment variables injected into your local shell (fetched via Infisical CLI).
 
 ### Backend Manual Deployment
 
@@ -263,7 +264,7 @@ Complete this checklist before any production deployment:
 
 ### Configuration
 
-- [ ] All required environment variables are configured in GitHub Secrets
+- [ ] All required environment variables are correctly configured in Infisical
 - [ ] No hardcoded secrets in code
 - [ ] API endpoint URLs are correct for production
 
@@ -322,14 +323,14 @@ The deployment includes automated health checks:
 
 
 6. **Verify security configuration integrity**
-   - Verify that the application's security posture (defined by `get_security_fingerprint`) has not drifted unintentionally during deployment. Current_Hash is only accessible by maintainers.
-     1. **Match:** `Current_Hash == Previous_Hash`. (Pass: Configuration is unchanged).
-     2. **Intentional Mismatch:** `Current_Hash != Previous_Hash` AND the associated commit message or PR explicitly authorizes a configuration change (e.g., "Rotate Stripe Webhook Secret").
-     3. **Unknown Mismatch:** `Current_Hash != Previous_Hash` with no documented authorization.
+   - Verify that the application's security posture (defined by `get_security_fingerprint`) has not drifted unintentionally during deployment. The expected hash should be stored securely in Infisical as the `EXPECTED_SECURITY_FINGERPRINT` secret.
+     1. **Match:** `Current_Hash == EXPECTED_SECURITY_FINGERPRINT`. (Pass: Configuration is unchanged).
+     2. **Intentional Mismatch:** `Current_Hash != EXPECTED_SECURITY_FINGERPRINT` AND the associated commit message or PR explicitly authorizes a configuration change (e.g., "Rotate Stripe Webhook Secret").
+     3. **Unknown Mismatch:** `Current_Hash != EXPECTED_SECURITY_FINGERPRINT` with no documented authorization.
 
    - *Execute these steps for a Mismatch.*
-     * **If the change was accidental:** Revert the environment variable in GitHub Secrets and re-run the job.
-     * **If the change was intentional:** Update the "stored" hash and document the rotation in the deployment changelog.
+     * **If the change was accidental:** Revert the environment variable in Infisical and re-run the job.
+     * **If the change was intentional:** Update `EXPECTED_SECURITY_FINGERPRINT` secret in Infisical to match the new current hash and document the rotation in the deployment changelog.
 
 
 ---
@@ -459,47 +460,48 @@ PGPASSWORD="<master-password>" pg_dump \
 
 ### Restore Procedures
 
-#### Restore from Lightsail Snapshot
+#### Restore from Lightsail Backup (Point-in-Time Recovery)
+
+AWS Lightsail managed databases use Point-in-Time Recovery (PITR) for automated backups. This allows you to restore the database to any specific minute within the last 7 days.
+
+**Prerequisite:** Retrieve your deployment configuration from Infisical:
+* **Region:** Use the `AWS_REGION_NAME` secret.
+* **Target Database:** Use the `AWS_DATABASE_NAME` secret.
 
 ```bash
-# 1. List available snapshots
-aws lightsail get-relational-database-snapshots
+# 1. Check the latest restorable time for your database
+aws lightsail get-relational-database \
+  --region <AWS_REGION_NAME> \
+  --relational-database-name <AWS_DATABASE_NAME> \
+  --query "relationalDatabase.latestRestorableTime"
 
-# 2. Create new database from snapshot
+# 2. Option A: Create a new database restored to the latest possible minute
 aws lightsail create-relational-database-from-snapshot \
+  --region <AWS_REGION_NAME> \
   --relational-database-name <new-database-name> \
-  --relational-database-snapshot-name <snapshot-name> \
+  --source-relational-database-name <AWS_DATABASE_NAME> \
+  --use-latest-restorable-time \
   --availability-zone <az> \
   --publicly-accessible
 
-# 3. Update application to use new database
-# Update DATABASE_URL in GitHub Secrets and redeploy
-```
+# 2. Option B: Create a new database restored to a specific past timestamp (Unix epoch time)
+aws lightsail create-relational-database-from-snapshot \
+  --region <AWS_REGION_NAME> \
+  --relational-database-name <new-database-name> \
+  --source-relational-database-name <AWS_DATABASE_NAME> \
+  --restore-time <unix-timestamp> \
+  --availability-zone <az> \
+  --publicly-accessible
 
-#### Restore from pg_dump Export
-
-```bash
-# 1. Create new database (if needed)
-PGPASSWORD="<password>" psql \
-  -h <endpoint> -U <username> \
-  -c "CREATE DATABASE restored_db;"
-
-# 2. Restore from dump
-PGPASSWORD="<password>" pg_restore \
-  -h <endpoint> \
-  -p <port> \
-  -U <username> \
-  -d restored_db \
-  -F c \
-  backup-YYYYMMDD-HHMMSS.dump
-```
+# 3. Update application to use the new database
+# Update DATABASE_URL in Infisical and redeploy
 
 ### Application State Backup
 
 The application is stateless beyond the database. To fully restore:
 
 1. **Code**: Available in Git repository
-2. **Configuration**: Stored in GitHub Secrets
+2. **Configuration**: Stored in Infisical
 3. **Database**: Restore from snapshot or pg_dump
 4. **Container Images**: Rebuilt from source code
 
@@ -540,23 +542,34 @@ aws lightsail update-container-service \
 
 #### Scenario 2: Database Corruption or Failure
 
-**Symptoms**: Application errors, database connection failures
+**Symptoms**: Application errors, database connection failures, accidental data deletion.
 
 **Recovery**:
+*(Note: Ensure you have retrieved `AWS_REGION_NAME` and `AWS_DATABASE_NAME` from Infisical before starting.)*
+
 ```bash
-# 1. Check database status
+# 1. Check database status and get latest restorable time
 aws lightsail get-relational-database \
-  --relational-database-name <database-name>
+  --region <AWS_REGION_NAME> \
+  --relational-database-name <AWS_DATABASE_NAME>
 
-# 2. If database is down, restore from latest snapshot
+# 2. Restore database to a new instance using Point-in-Time Recovery (PITR)
 aws lightsail create-relational-database-from-snapshot \
+  --region <AWS_REGION_NAME> \
   --relational-database-name <new-database-name> \
-  --relational-database-snapshot-name <latest-snapshot>
+  --source-relational-database-name <AWS_DATABASE_NAME> \
+  --use-latest-restorable-time \
+  --availability-zone <az> \
+  --publicly-accessible
 
-# 3. Update DATABASE_URL in GitHub Secrets
+# 3. Securely retrieve the master password for the newly restored database
+aws lightsail get-relational-database-master-user-password \
+  --region <AWS_REGION_NAME> \
+  --relational-database-name <new-database-name>
 
-# 4. Redeploy application
-```
+# 4. Update DATABASE_URL in GitHub Secrets with the new endpoint and credentials
+
+# 5. Redeploy application to pick up the new database connection
 
 #### Scenario 3: Complete Infrastructure Loss
 
@@ -577,7 +590,7 @@ aws lightsail create-relational-database-from-snapshot \
 
 2. **Restore Database**: Follow [Restore Procedures](#restore-procedures)
 
-3. **Configure Secrets**: Ensure all GitHub Secrets are configured
+3. **Configure Secrets**: Ensure all secrets are correctly configured in Infisical
 
 4. **Deploy Application**: Push to main branch or manual deploy
 
@@ -595,37 +608,45 @@ Recommended quarterly:
 
 ## Secrets Management
 
-### GitHub Secrets (Production)
+### Infisical (Production)
 
-All production secrets are stored in GitHub Secrets under the `prod` environment.
+All production secrets are securely managed and stored in Infisical under the prod environment. The GitHub Actions CI/CD pipeline authenticates with Infisical automatically using an OIDC machine ID to retrieve these secrets at runtime, ensuring no credentials are unnecessarily stored or exposed directly within GitHub.
 
 | Secret | Purpose | Rotation Frequency |
 |--------|---------|-------------------|
-| `AWS_ACCESS_KEY_ID` | AWS API access | Annual |
-| `AWS_SECRET_ACCESS_KEY` | AWS API access | Annual |
-| `AWS_REGION` | AWS region | N/A (config) |
+| `APP_URL` | Routing | N/A (config) |
+| `API_URL` | Routing | N/A (config) |
+| `NEXT_PUBLIC_APP_URL` | Routing | N/A (config) |
+| `NEXT_PUBLIC_API_URL` | Routing | N/A (config) |
+| `AWS_DATABASE_REGION` | AWS region | N/A (config) |
+| `AWS_DATABASE_NAME` | AWS region | N/A (config) |
+| `DATABASE_URL` | Storage | N/A (only if new database is created or restored from backup) |
 | `COOKIE_SECRET` | Session signing | Annual |
 | `TOKEN_ENCRYPTION_KEY` | OAuth token encryption | Annual |
 | `GOOGLE_CLIENT_ID` | OAuth client | As needed |
 | `GOOGLE_CLIENT_SECRET` | OAuth client | As needed |
+| `GOOGLE_CLIENT_REDIRECT_URI` | OAuth client | As needed |
 | `GOOGLE_API_KEY` | Gemini API | As needed |
 | `STRIPE_SECRET_KEY` | Payment processing | As needed |
 | `STRIPE_WEBHOOK_SECRET` | Webhook verification | As needed |
 | `GH_APP_ID` | GitHub App | N/A |
 | `GH_PRIVATE_KEY` | GitHub App | Annual |
 | `GH_INSTALLATION_ID` | GitHub App | N/A |
+| `NODE_ENV` | Settings Configuration | N/A |
+| `ENV` | Settings Configuration | N/A |
+| `IPINFO_TOKEN` | Settings Configuration | N/A |
 
 ### Secret Rotation Procedure
 
 1. Generate new secret value
-2. Update in GitHub Secrets (Settings > Secrets > Actions)
-3. Trigger new deployment to apply
+2. Update the secret in the Infisical Dashboard (under the prod environment).
+3. Trigger a new deployment in GitHub Actions to apply the updated environment variables.
 4. Verify application functionality
 5. Revoke old secret (if applicable)
 
 ### Local Development
 
-Local secrets are stored in:
+Local secrets are typically pulled down via the Infisical CLI or stored in:
 - `backend/.env` (gitignored)
 - `frontend/.env` (gitignored)
 
@@ -717,3 +738,4 @@ aws lightsail get-container-log \
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-08 | Deployment Team | Initial runbook creation |
+| 1.1 | 2026-02-21 | Deployment Team | Migrated secrets management from GitHub Secrets to Infisical OIDC integration |
