@@ -33,7 +33,7 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         google-credentials-file-content: ${{ env.GOOGLE_CREDENTIALS_FILE_CONTENT }}
-        ls-database-name: ${{ env.LS_DATABASE_NAME }}
+        ls-database-name: ${{ env.AWS_DATABASE_NAME }}
         cookie-secret: ${{ env.COOKIE_SECRET }}
         stripe-secret-key: ${{ env.STRIPE_SECRET_KEY }}
         stripe-webhook-secret: ${{ env.STRIPE_WEBHOOK_SECRET }}
