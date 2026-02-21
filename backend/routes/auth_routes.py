@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
+import time
 
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
@@ -58,10 +59,17 @@ async def login(
                 flow, has_refresh_token
             )
             request.session["oauth_state"] = state
+            request.session["oauth_start_time"] = time.time()
             return RedirectResponse(url=authorization_url)
         
         # OAuth callback - verify state
         saved_state = request.session.pop("oauth_state", None)
+        # ensure the login link (the "out of band verifier") expires in 10 minutes
+        start_time = request.session.pop("oauth_start_time", 0)
+        if time.time() - start_time > 600: # 600 seconds = 10 minutes
+            logger.error("OAuth flow timed out (exceeded 10 minutes)")
+            return Redirects.to_error("timeout")
+    
         query_params_state = request.query_params.get("state")
 
         if not saved_state or saved_state != query_params_state:

@@ -26,6 +26,13 @@ async def lifespan(app: FastAPI):
     # App startup
     settings = get_settings()
 
+    # Log the Security Integrity Fingerprint
+    fingerprint = settings.get_security_fingerprint()
+    logger.info("================================================")
+    logger.info("SECURITY INTEGRITY AUDIT")
+    logger.info(f"Configuration Fingerprint: {fingerprint}")
+    logger.info("================================================")
+
     # Start background scheduler for Always Open email sync (production only)
     if settings.is_publicly_deployed:
         start_scheduler()
