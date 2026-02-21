@@ -157,7 +157,7 @@ aws lightsail create-container-service-deployment \
   --service-name jaja-backend \
   --containers '{
     "backend": {
-      "image": ":jaja-backend.backend.latest",
+      "image": ":jaja-backend.backend.X",
       "environment": {
         "DATABASE_URL": "'"${DATABASE_URL}"'",
         "COOKIE_SECRET": "'"${COOKIE_SECRET}"'",
