@@ -26,6 +26,20 @@ jobs:
         env-slug: "prod"
         project-slug: "jobseeker-analytics-zec-y"
 
+    - name: Verify Security Fingerprint
+      env:
+        EXPECTED_FINGERPRINT: ${{ env.EXPECTED_SECURITY_FINGERPRINT }}
+      run: |
+        # 1. Generate the actual fingerprint from the current environment
+        ACTUAL_FINGERPRINT=$(python3 -c "from backend.config import settings; print(settings.get_security_fingerprint())")
+        
+        # 2. Compare with the one stored in GitHub Secrets/Infisical
+        if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
+          echo "::warning title=Security Configuration Mismatch::The generated fingerprint does not match the stored reference. Verify if secrets were rotated or if the config.py 'critical_keys' list was updated."
+        else
+          echo "Security fingerprint verified successfully."
+        fi
+
     - id: deploy
       uses: ./.github/actions/deploy-backend-to-lightsail
       with:
