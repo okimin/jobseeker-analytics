@@ -86,7 +86,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
             logger.info("validate_session clearing session for inactive/missing user_id: %s", user_id)
             return ""
 
-    logger.info("Valid Session, Access granted. %s", request.session.get("last_login_time"))
+    logger.info("Valid Session, Access granted.")
     return user_id
 
 
@@ -192,7 +192,8 @@ def user_has_recent_authentication(request: Request, max_age_minutes: int = 15) 
         if last_auth_time.tzinfo is None:
             last_auth_time = last_auth_time.replace(tzinfo=timezone.utc)
             
-        age_in_minutes = (datetime.now(timezone.utc) - last_auth_time).total_seconds() / 60
+        age_in_minutes = int((datetime.now(timezone.utc) - last_auth_time).total_seconds() / 60)
+        logger.info("user_id: %s last login was %s or %s minutes ago", request.session["user_id"], last_auth_time, age_in_minutes)
         return age_in_minutes <= max_age_minutes
     except ValueError:
         return False
