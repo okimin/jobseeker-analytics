@@ -151,7 +151,6 @@ async def login(
         # Default to False for existing users, will be overwritten if needed
         request.session["is_new_user"] = False 
 
-        if existing_user and existing_user.is_active:
         response = None # Initialize response with a default value
         if existing_user and existing_user.is_active:
             if is_step_up:
