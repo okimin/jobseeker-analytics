@@ -152,6 +152,8 @@ async def login(
         request.session["is_new_user"] = False 
 
         if existing_user and existing_user.is_active:
+        response = None # Initialize response with a default value
+        if existing_user and existing_user.is_active:
             if is_step_up:
                 safe_url = get_safe_redirect_url(raw_return_to, default_url=f"{APP_URL}/settings")
                 response = RedirectResponse(url=safe_url, status_code=303)
