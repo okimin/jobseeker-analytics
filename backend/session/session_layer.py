@@ -188,12 +188,12 @@ def user_has_recent_authentication(request: Request, max_age_minutes: int = 15) 
         return False
         
     try:
-        last_auth_time = datetime.fromtimestamp(float(last_login_str), tz=timezone.utc)
+        last_auth_time = datetime.fromtimestamp(int(last_login_str), tz=timezone.utc)
         if last_auth_time.tzinfo is None:
             last_auth_time = last_auth_time.replace(tzinfo=timezone.utc)
             
         age_in_minutes = int((datetime.now(timezone.utc) - last_auth_time).total_seconds() / 60)
-        logger.info("user_id: %s last login was %s or %s minutes ago", request.session["user_id"], last_auth_time, age_in_minutes)
+        logger.info("user_id: %s last login at %s or %s minutes ago", request.session["user_id"], last_auth_time, age_in_minutes)
         return age_in_minutes <= max_age_minutes
     except ValueError:
         return False
