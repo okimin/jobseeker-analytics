@@ -33,7 +33,7 @@ async def process_csv(
 
     if not user_has_recent_authentication(request):
         logger.info(f"Step-Up Auth required for user {user_id} attempting to download CSV.")
-        raise HTTPException(status_code=403, detail="Step-Up Auth required")
+        raise HTTPException(status_code=403, detail="Step-Up Auth required", headers={"X-Step-Up-Auth": "true"})
 
     directory = get_user_filepath(user_id)
     filename = "emails.csv"

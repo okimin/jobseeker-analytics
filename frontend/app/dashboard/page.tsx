@@ -494,8 +494,8 @@ export default function Dashboard() {
 				credentials: "include"
 			});
 
-			if (response.status === 403) {
-				// Backend says the session is too old for this sensitive action
+			const requiresStepUp = response.headers.get("X-Step-Up-Auth");
+			if (requiresStepUp === "true" && response.status === 403) {
 				setRequiresStepUp(true);
 				return;
 			}
