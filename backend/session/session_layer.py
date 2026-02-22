@@ -176,3 +176,23 @@ def attempt_token_refresh(
 
     logger.warning("Token refresh failed for user %s - no valid credentials found", user_id)
     return False
+
+
+def user_has_recent_authentication(request: Request, max_age_minutes: int = 15) -> bool:
+    """
+    Checks if the user has freshly authenticated recently (Step-Up verification).
+    Call this as a dependency or inline check on sensitive routes like subscription changes.
+    """
+    last_auth_str = request.session.get("last_auth_time")
+    if not last_auth_str:
+        return False
+        
+    try:
+        last_auth_time = datetime.fromisoformat(last_auth_str)
+        if last_auth_time.tzinfo is None:
+            last_auth_time = last_auth_time.replace(tzinfo=timezone.utc)
+            
+        age_in_minutes = (datetime.now(timezone.utc) - last_auth_time).total_seconds() / 60
+        return age_in_minutes <= max_age_minutes
+    except ValueError:
+        return False
