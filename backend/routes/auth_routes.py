@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 import time
+from urllib.parse import urlparse
 
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
@@ -33,10 +34,40 @@ router = APIRouter()
 APP_URL = settings.APP_URL
 
 
+ALLOWED_STEP_UP_PATHS = {
+    "/settings",
+    "/settings/billing",
+    "/dashboard"
+}
+
+def get_safe_redirect_url(return_to: str, default_url: str) -> str:
+    """
+    Prevents Open Redirect vulnerabilities by ensuring the return_to path
+    is explicitly allowed or strictly a relative path.
+    """
+    if not return_to:
+        return default_url
+        
+    # 1. Check against a strict allowlist (Safest approach)
+    if return_to in ALLOWED_STEP_UP_PATHS:
+        return f"{settings.APP_URL}{return_to}"
+        
+    # 2. Fallback: Ensure it is a valid relative path (starts with '/' but not '//')
+    parsed = urlparse(return_to)
+    if parsed.netloc == "" and parsed.scheme == "" and return_to.startswith("/") and not return_to.startswith("//"):
+        return f"{settings.APP_URL}{return_to}"
+        
+    # If it fails validation, default to a safe known path
+    logger.warning(f"Blocked potential open redirect attempt to: {return_to}")
+    return default_url
+
+
 @router.get("/auth/google")
 @limiter.limit("10/minute")
 async def login(
-    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession
+    request: Request, background_tasks: BackgroundTasks, db_session: database.DBSession,
+    step_up: bool = False,
+    return_to: str = None
 ):
     """Handles Google OAuth2 login and authorization code exchange."""
     code = request.query_params.get("code")
@@ -48,6 +79,11 @@ async def login(
     )
     try:
         if not code:
+            if step_up:
+                request.session["is_step_up"] = True
+            if return_to:
+                # Store the raw return_to, we will validate it upon return
+                request.session["return_to"] = return_to
             # Check if we have a refresh token (DB first, then session fallback)
             session_user_id = request.session.get("user_id")
             has_refresh_token = get_refresh_token_status(
@@ -92,9 +128,7 @@ async def login(
         # Preserve existing session_id or create new one if none exists
         session_id = request.session.get("session_id") or create_random_session_string()
         request.session["session_id"] = session_id
-        # --- NEW: Store the true Google auth_time in the secure session ---
-        if user.auth_time:
-            request.session["google_auth_time"] = user.auth_time
+        request.session["last_login_time"] = datetime.now(timezone.utc).timestamp()
         # Set session details
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id
@@ -102,6 +136,8 @@ async def login(
             request.session["user_email"] = user.user_email
         request.session["access_token"] = creds.token
         request.session["creds"] = get_latest_refresh_token(old_creds=request.session.get("creds"), new_creds=creds)
+        is_step_up = request.session.pop("is_step_up", False)
+        raw_return_to = request.session.pop("return_to", None)
 
         existing_user, last_fetched_date = user_exists(user, db_session)
 
@@ -114,6 +150,10 @@ async def login(
         request.session["is_new_user"] = False 
 
         if existing_user and existing_user.is_active:
+            if is_step_up:
+                safe_url = get_safe_redirect_url(raw_return_to, default_url=f"{APP_URL}/settings")
+                response = RedirectResponse(url=safe_url, status_code=303)
+
             from db.user_emails import UserEmails
             from sqlmodel import func
 
@@ -168,16 +208,16 @@ async def login(
                 # User needs to pick start date
                 response = Redirects.to_dashboard()
             else:
-                # Returning user with everything configured - trigger email sync in background
-                response = Redirects.to_processing()
-                background_tasks.add_task(
-                    fetch_emails_to_db,
-                    user,
-                    request,
-                    last_fetched_date,
-                    user_id=user.user_id,
-                )
-                logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
+                if not is_step_up:
+                    response = Redirects.to_processing()
+                    background_tasks.add_task(
+                        fetch_emails_to_db,
+                        user,
+                        request,
+                        last_fetched_date,
+                        user_id=user.user_id,
+                    )
+                    logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
         elif existing_user and not existing_user.is_active:
             # Existing but inactive user - redirect to signup to reactivate
             logger.info("user_id: %s is inactive. Redirecting to signup flow.", user.user_id)
@@ -283,6 +323,7 @@ async def signup(request: Request, db_session: database.DBSession):
         request.session["session_id"] = session_id
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id
+        request.session["last_login_time"] = datetime.now(timezone.utc).timestamp()
         if user.user_email:
             request.session["user_email"] = user.user_email
         request.session["access_token"] = creds.token

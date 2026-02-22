@@ -7,7 +7,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 import database
 from utils.file_utils import get_user_filepath
-from session.session_layer import validate_session
+from session.session_layer import validate_session, user_has_recent_authentication
 from routes.email_routes import query_emails
 from utils.config_utils import get_settings
 
@@ -31,6 +31,10 @@ async def process_csv(
     if not user_id:
         return RedirectResponse("/logout", status_code=303)
 
+    if not user_has_recent_authentication(request):
+        logger.info(f"Step-Up Auth required for user {user_id} attempting to download CSV.")
+        raise HTTPException(status_code=403, detail="Step-Up Auth required")
+
     directory = get_user_filepath(user_id)
     filename = "emails.csv"
     filepath = os.path.join(directory, filename)
@@ -53,7 +57,6 @@ async def process_csv(
     }
 
     if not settings.is_publicly_deployed:
-        logger.info("DEBUG: Adding message id to output")
         field_mapping.update({"id": "Message ID"})
 
     selected_fields = list(field_mapping.keys())

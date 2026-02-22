@@ -86,7 +86,7 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
             logger.info("validate_session clearing session for inactive/missing user_id: %s", user_id)
             return ""
 
-    logger.info("Valid Session, Access granted.")
+    logger.info("Valid Session, Access granted. %s", request.session.get("last_login_time"))
     return user_id
 
 
@@ -183,12 +183,12 @@ def user_has_recent_authentication(request: Request, max_age_minutes: int = 15) 
     Checks if the user has freshly authenticated recently (Step-Up verification).
     Call this as a dependency or inline check on sensitive routes like subscription changes.
     """
-    last_auth_str = request.session.get("last_auth_time")
-    if not last_auth_str:
+    last_login_str = request.session.get("last_login_time")
+    if not last_login_str:
         return False
         
     try:
-        last_auth_time = datetime.fromisoformat(last_auth_str)
+        last_auth_time = datetime.fromtimestamp(float(last_login_str), tz=timezone.utc)
         if last_auth_time.tzinfo is None:
             last_auth_time = last_auth_time.replace(tzinfo=timezone.utc)
             

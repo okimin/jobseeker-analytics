@@ -47,7 +47,7 @@ class AuthenticatedUser:
 
     def get_user_id_and_email(self) -> tuple:
         """
-        Retrieves the user ID, email, auth_time from Google OAuth2 credentials.
+        Retrieves the user ID, email from Google OAuth2 credentials.
 
         Parameters:
 
@@ -72,7 +72,6 @@ class AuthenticatedUser:
             )
             user_id = decoded_token["sub"]  # 'sub' is the unique user ID
             user_email = decoded_token.get("email")  # 'email' is the user's email address
-            self.auth_time = decoded_token.get("auth_time") # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
             return user_id, user_email
         
         except (KeyError, TypeError):
@@ -100,7 +99,7 @@ class AuthenticatedUser:
             return proxy_user_id, None  # Generate a random ID and return None for email
 
 
-def get_google_authorization_url(flow, has_valid_creds: bool) -> tuple[str, str]:
+def get_google_authorization_url(flow, has_valid_creds: bool, step_up: bool = False) -> tuple[str, str]:
     """
     Helper function to generate the Google OAuth2 authorization URL with appropriate prompt.
     Use 'select_account' for returning users (with valid refresh tokens), or 'consent' for new/expired users.
@@ -112,7 +111,15 @@ def get_google_authorization_url(flow, has_valid_creds: bool) -> tuple[str, str]
     Returns:
         tuple[str, str]: (authorization_url, state) from the OAuth flow
     """
-    if has_valid_creds:
+    if step_up:
+        # Force account selection and re-authentication for sensitive actions
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            prompt='select_account',
+            max_age=0  # Enforces a fresh login session
+        )
+        logger.info("Using select_account with max_age=0 for step-up authentication")
+    elif has_valid_creds:
         # Returning user - use select_account (no consent screen)
         authorization_url, state = flow.authorization_url(
             access_type='offline',
