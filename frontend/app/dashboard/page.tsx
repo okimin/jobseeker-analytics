@@ -663,17 +663,35 @@ export default function Dashboard() {
 				searchTerm={searchTerm}
 				statusFilter={statusFilter}
 				totalPages={totalPages}
-				onCompanyFilterChange={setCompanyFilter}
+				onCompanyFilterChange={(company) => {
+					setCompanyFilter(company);
+					setCurrentPage(1);
+				}}
 				onDownloadCsv={downloadCsv}
-				onHideApplicationConfirmationsChange={setHideApplicationConfirmations}
-				onHideRejectionsChange={setHideRejections}
+				onHideApplicationConfirmationsChange={(hide) => {
+					setHideApplicationConfirmations(hide);
+					setCurrentPage(1);
+				}}
+				onHideRejectionsChange={(hide) => {
+					setHideRejections(hide);
+					setCurrentPage(1);
+				}}
 				onNextPage={nextPage}
-				onNormalizedJobTitleFilterChange={setNormalizedJobTitleFilter}
+				onNormalizedJobTitleFilterChange={(title) => {
+					setNormalizedJobTitleFilter(title);
+					setCurrentPage(1);
+				}}
 				onPrevPage={prevPage}
 				onRefreshData={fetchData}
 				onRemoveItem={handleRemoveItem}
-				onSearchChange={setSearchTerm}
-				onStatusFilterChange={setStatusFilter}
+				onSearchChange={(term) => {
+					setSearchTerm(term);
+					setCurrentPage(1);
+				}}
+				onStatusFilterChange={(status) => {
+					setStatusFilter(status);
+					setCurrentPage(1);
+				}}
 			/>
 
 			{/* Settings modal */}
