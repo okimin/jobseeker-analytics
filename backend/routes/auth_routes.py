@@ -46,8 +46,10 @@ def get_safe_redirect_url(return_to: str, default_url: str) -> str:
     is explicitly allowed or strictly a relative path.
     """
     if not return_to:
-        return default_url
-        
+        request.session["return_to"] = default_url # Store a safe default if not provided
+    else:
+        # Validate and store the return_to URL immediately
+        request.session["return_to"] = get_safe_redirect_url(return_to, default_url=f"{settings.APP_URL}/dashboard")
     # 1. Check against a strict allowlist (Safest approach)
     if return_to in ALLOWED_STEP_UP_PATHS:
         return f"{settings.APP_URL}{return_to}"
