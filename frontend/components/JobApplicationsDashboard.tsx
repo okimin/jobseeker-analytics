@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/table";
 import {
 	Button,
@@ -32,7 +32,7 @@ export interface Application {
 	email_from: string;
 }
 
-interface JobApplicationsDashboardProps {
+export interface JobApplicationsDashboardProps {
 	title?: string;
 	data: Application[];
 	loading: boolean;
@@ -136,16 +136,18 @@ export default function JobApplicationsDashboard({
 	onHideRejectionsChange,
 	hideApplicationConfirmations = true,
 	onHideApplicationConfirmationsChange,
+	onNextPage,
+	onPrevPage,
+	currentPage,
+	totalPages,
 	onRefreshData,
 	readOnly = false
 }: JobApplicationsDashboardProps) {
-	const [sortedData, setSortedData] = useState<Application[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState(new Set([getInitialSortKey(initialSortKey)]));
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 	const [showDelete, setShowDelete] = useState(false);
 	const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
-	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
 
 	// Add/Edit modal state
@@ -209,48 +211,43 @@ export default function JobApplicationsDashboard({
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
 
 	// Sort data based on selected key
-	useEffect(() => {
-		const sortData = () => {
-			const sorted = [...data];
-			const sortKey = Array.from(selectedKeys)[0];
+	const sortedData = useMemo(() => {
+		const sorted = [...data];
+		const sortKey = Array.from(selectedKeys)[0];
 
-			switch (sortKey) {
-				case "Date (Newest)":
-					sorted.sort((a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime());
-					break;
-				case "Date (Oldest)":
-					sorted.sort((a, b) => new Date(a.received_at).getTime() - new Date(b.received_at).getTime());
-					break;
-				case "Company":
-					sorted.sort((a, b) => a.company_name.localeCompare(b.company_name));
-					break;
-				case "Job Title":
-					sorted.sort((a, b) => a.job_title.localeCompare(b.job_title));
-					break;
-				case "Normalized Job Title":
-					sorted.sort((a, b) => {
-						const titleA = a.normalized_job_title?.toLowerCase() || "";
-						const titleB = b.normalized_job_title?.toLowerCase() || "";
-						return titleA.localeCompare(titleB);
-					});
-					break;
-				case "Status":
-					sorted.sort((a, b) => a.application_status.localeCompare(b.application_status));
-					break;
-				default:
-					break;
-			}
-			setSortedData(sorted);
-		};
-
-		if (data.length > 0) {
-			sortData();
-		} else {
-			setSortedData([]);
+		switch (sortKey) {
+			case "Date (Newest)":
+				sorted.sort((a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime());
+				break;
+			case "Date (Oldest)":
+				sorted.sort((a, b) => new Date(a.received_at).getTime() - new Date(b.received_at).getTime());
+				break;
+			case "Company":
+				sorted.sort((a, b) => a.company_name.localeCompare(b.company_name));
+				break;
+			case "Job Title":
+				sorted.sort((a, b) => a.job_title.localeCompare(b.job_title));
+				break;
+			case "Normalized Job Title":
+				sorted.sort((a, b) => {
+					const titleA = a.normalized_job_title?.toLowerCase() || "";
+					const titleB = b.normalized_job_title?.toLowerCase() || "";
+					return titleA.localeCompare(titleB);
+				});
+				break;
+			case "Status":
+				sorted.sort((a, b) => a.application_status.localeCompare(b.application_status));
+				break;
+			default:
+				break;
 		}
-	}, [selectedKeys, data]);
+		return sorted;
+	}, [data, selectedKeys]);
 
-	const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+	// Paginate the sorted data
+	const paginatedData = useMemo(() => {
+		return sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+	}, [sortedData, currentPage]);
 
 	// Handle sorting selection change and store it in localStorage
 	const handleSortChange = (keys: Set<string>) => {
@@ -259,25 +256,6 @@ export default function JobApplicationsDashboard({
 		localStorage.setItem("sortKey", sortKey);
 		setSelectedKeys(new Set([sortKey]));
 	};
-
-	// Pagination controls
-	const handleNextPage = () => {
-		if (currentPage < Math.ceil(sortedData.length / pageSize)) {
-			setCurrentPage(currentPage + 1);
-		}
-	};
-
-	const handlePreviousPage = () => {
-		if (currentPage > 1) {
-			setCurrentPage(currentPage - 1);
-		}
-	};
-
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
-	};
-
-	const totalPages = Math.ceil(sortedData.length / pageSize);
 
 	// Inline row handlers
 	const resetNewRow = () => {
@@ -775,11 +753,11 @@ export default function JobApplicationsDashboard({
 				</div>
 			)}
 			<div className="flex justify-between items-center mt-4">
-				<Button disabled={currentPage === 1} onPress={handlePreviousPage}>
+				<Button disabled={currentPage <= 1} onPress={onPrevPage}>
 					Previous
 				</Button>
-				<span>{`${currentPage} of ${totalPages}`}</span>
-				<Button disabled={currentPage === totalPages} onPress={handleNextPage}>
+				<span>{`${currentPage} of ${Math.max(1, totalPages)}`}</span>
+				<Button disabled={currentPage >= totalPages} onPress={onNextPage}>
 					Next
 				</Button>
 			</div>

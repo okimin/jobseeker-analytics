@@ -33,8 +33,13 @@ export default function Dashboard() {
 	const [loading, setLoading] = useState(true);
 	const [downloading, setDownloading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// Pagination States
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+	const pageSize = 10;
+
+	// Filter States
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
 	const [companyFilter, setCompanyFilter] = useState("");
@@ -59,6 +64,57 @@ export default function Dashboard() {
 	const [updatingStartDate, setUpdatingStartDate] = useState(false);
 
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+	// Filtering Logic: Processed client-side on the retrieved data
+	const filteredData = useMemo(() => {
+		return data.filter((item) => {
+			const matchesSearch =
+				!searchTerm ||
+				item.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(item.normalized_job_title &&
+					item.normalized_job_title.toLowerCase().includes(searchTerm.toLowerCase()));
+
+			const matchesStatus = !statusFilter || item.application_status === statusFilter;
+			const matchesCompany = !companyFilter || item.company_name === companyFilter;
+			const matchesNormalizedJobTitle =
+				!normalizedJobTitleFilter || item.normalized_job_title === normalizedJobTitleFilter;
+
+			const isNotRejection = !hideRejections || !item.application_status.toLowerCase().includes("reject");
+
+			const isNotApplicationConfirmation =
+				!hideApplicationConfirmations ||
+				!item.application_status.toLowerCase().includes("application confirmation");
+
+			return (
+				matchesSearch &&
+				matchesStatus &&
+				matchesCompany &&
+				matchesNormalizedJobTitle &&
+				isNotRejection &&
+				isNotApplicationConfirmation
+			);
+		});
+	}, [
+		data,
+		searchTerm,
+		statusFilter,
+		companyFilter,
+		normalizedJobTitleFilter,
+		hideRejections,
+		hideApplicationConfirmations
+	]);
+
+	// Fix for "1 of NaN": Dynamically compute total pages from filtered data
+	const computedTotalPages = useMemo(() => {
+		return Math.ceil(filteredData.length / pageSize) || 1;
+	}, [filteredData.length]);
+
+	// Fix for "Empty Page": Ensure the current page is always within the computed bounds
+	const activePage = useMemo(() => {
+		return Math.min(currentPage, Math.max(1, computedTotalPages));
+	}, [currentPage, computedTotalPages]);
 
 	// Format start date for display
 	const formatStartDate = (isoString: string | null): string => {
@@ -104,19 +160,15 @@ export default function Dashboard() {
 			} else if (response.status === 403) {
 				const data = await response.json();
 				if (data.detail === "gmail_scope_missing") {
-					// User needs to re-auth with Gmail scope - show the reconnect modal
-					// They can still view their existing data
 					setShowSessionExpired(true);
 					posthog.capture("gmail_scope_missing_shown");
 				}
 			} else if (response.status === 409) {
-				// Already processing, just refresh status
 				addToast({
 					title: "Scan already in progress",
 					color: "primary"
 				});
 			} else if (response.ok) {
-				// Refresh the status to pick up the new processing state
 				const statusResponse = await fetch(`${apiUrl}/processing/status`, {
 					method: "GET",
 					credentials: "include"
@@ -156,12 +208,10 @@ export default function Dashboard() {
 					}
 				}
 			} catch (error) {
-				// Silently fail PostHog identification - don't block the dashboard
+				/* Silently fail PostHog identification */
 			}
 		};
 		identifyUser();
-
-		// Track dashboard view
 		posthog.capture("dashboard_viewed");
 	}, [apiUrl]);
 
@@ -207,7 +257,6 @@ export default function Dashboard() {
 				setShowStartDateModal(false);
 
 				if (result.rescan_started) {
-					// Refresh processing status to pick up the new scan
 					const statusResponse = await fetch(`${apiUrl}/processing/status`, {
 						method: "GET",
 						credentials: "include"
@@ -238,7 +287,6 @@ export default function Dashboard() {
 		}
 	};
 
-	// Fetch processing status on mount
 	const fetchProcessingStatus = React.useCallback(async () => {
 		try {
 			const response = await fetch(`${apiUrl}/processing/status`, {
@@ -254,30 +302,24 @@ export default function Dashboard() {
 		}
 	}, [apiUrl]);
 
-	// Initial fetch on mount
 	useEffect(() => {
 		fetchProcessingStatus();
 	}, [fetchProcessingStatus]);
 
-	// Poll processing status only while processing is active
 	useEffect(() => {
 		if (processingStatus?.status !== "processing") return;
-
 		const interval = setInterval(fetchProcessingStatus, 5000);
 		return () => clearInterval(interval);
 	}, [processingStatus?.status, fetchProcessingStatus]);
 
-	// Refresh applications once when processing completes
 	const prevProcessingStatus = React.useRef<string | undefined>();
 	useEffect(() => {
-		// Detect transition from "processing" to another status
 		if (prevProcessingStatus.current === "processing" && processingStatus?.status !== "processing") {
 			fetchData();
 		}
 		prevProcessingStatus.current = processingStatus?.status;
 	}, [processingStatus?.status]);
 
-	// Auto-trigger rescan if >24 hours since last scan
 	useEffect(() => {
 		if (
 			processingStatus?.should_rescan &&
@@ -291,7 +333,6 @@ export default function Dashboard() {
 		}
 	}, [processingStatus?.should_rescan, processingStatus?.status, autoRescanTriggered, refreshing]);
 
-	// Fetch premium status for navbar and settings
 	const fetchPremiumStatus = useCallback(async () => {
 		try {
 			const response = await fetch(`${apiUrl}/settings/premium-status`, {
@@ -309,7 +350,6 @@ export default function Dashboard() {
 		}
 	}, [apiUrl]);
 
-	// Fetch premium status on mount
 	useEffect(() => {
 		fetchPremiumStatus();
 	}, [fetchPremiumStatus]);
@@ -317,7 +357,6 @@ export default function Dashboard() {
 	const fetchData = async () => {
 		try {
 			setLoading(true);
-			// Check if user is logged in
 			const isAuthenticated = await checkAuth(apiUrl);
 			if (!isAuthenticated) {
 				addToast({
@@ -328,7 +367,6 @@ export default function Dashboard() {
 				return;
 			}
 
-			// Check onboarding and email sync status
 			const onboardingResp = await fetch(`${apiUrl}/api/users/onboarding-status`, {
 				credentials: "include"
 			});
@@ -344,14 +382,15 @@ export default function Dashboard() {
 				}
 			}
 
-			// Fetch applications (if user is logged in)
 			const headers: HeadersInit = {};
 			if (viewAs) {
 				headers["X-View-As"] = viewAs;
 			}
-			const response = await fetch(`${apiUrl}/get-emails?page=${currentPage}`, {
+
+			// We fetch the full list here to allow client-side filtering/searching across the whole set.
+			const response = await fetch(`${apiUrl}/get-emails`, {
 				method: "GET",
-				credentials: "include", // Include cookies for session management
+				credentials: "include",
 				headers
 			});
 
@@ -371,9 +410,10 @@ export default function Dashboard() {
 			}
 
 			const result = await response.json();
-			setTotalPages(result.totalPages);
+			// Backend usually returns a list, if it returns an object with totalPages, we can use that as fallback
+			if (result.totalPages) setTotalPages(result.totalPages);
 
-			setData(result);
+			setData(Array.isArray(result) ? result : result.data || []);
 		} catch {
 			setError("Failed to load applications");
 		} finally {
@@ -383,9 +423,8 @@ export default function Dashboard() {
 
 	useEffect(() => {
 		fetchData();
-	}, [apiUrl, router, currentPage, viewAs]);
+	}, [apiUrl, router, viewAs]);
 
-	// Fetch role and clients if coach
 	useEffect(() => {
 		const init = async () => {
 			try {
@@ -410,55 +449,14 @@ export default function Dashboard() {
 					}
 				}
 			} catch {
-				/* ignore */
+				/*ignore*/
 			}
 		};
 		init();
 	}, [apiUrl]);
 
-	// Filter data based on search term, status, company, and hide options
-	const filteredData = useMemo(() => {
-		return data.filter((item) => {
-			const matchesSearch =
-				!searchTerm ||
-				item.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				item.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(item.normalized_job_title &&
-					item.normalized_job_title.toLowerCase().includes(searchTerm.toLowerCase()));
-
-			const matchesStatus = !statusFilter || item.application_status === statusFilter;
-			const matchesCompany = !companyFilter || item.company_name === companyFilter;
-			const matchesNormalizedJobTitle =
-				!normalizedJobTitleFilter || item.normalized_job_title === normalizedJobTitleFilter;
-
-			const isNotRejection = !hideRejections || !item.application_status.toLowerCase().includes("reject");
-
-			const isNotApplicationConfirmation =
-				!hideApplicationConfirmations ||
-				!item.application_status.toLowerCase().includes("application confirmation");
-
-			return (
-				matchesSearch &&
-				matchesStatus &&
-				matchesCompany &&
-				matchesNormalizedJobTitle &&
-				isNotRejection &&
-				isNotApplicationConfirmation
-			);
-		});
-	}, [
-		data,
-		searchTerm,
-		statusFilter,
-		companyFilter,
-		normalizedJobTitleFilter,
-		hideRejections,
-		hideApplicationConfirmations
-	]);
-
 	const nextPage = () => {
-		if (currentPage < totalPages) {
+		if (currentPage < computedTotalPages) {
 			setCurrentPage(currentPage + 1);
 		}
 	};
@@ -480,24 +478,20 @@ export default function Dashboard() {
 
 			if (!response.ok) {
 				let description = "Something went wrong. Please try again.";
-
 				if (response.status === 429) {
 					description = "Download limit reached. Please wait before trying again.";
 				} else {
 					description = "Please try again or contact help@justajobapp.com if the issue persists.";
 				}
-
 				addToast({
 					title: "Failed to download CSV",
 					description,
 					color: "danger"
 				});
-
 				return;
 			}
 
 			posthog.capture("csv_export_completed", { application_count: data.length });
-			// Create a download link to trigger the file download
 			const blob = await response.blob();
 			const link = document.createElement("a");
 			const url = URL.createObjectURL(blob);
@@ -518,6 +512,25 @@ export default function Dashboard() {
 		}
 	}
 
+	const handleRemoveItem = async (id: string) => {
+		try {
+			const response = await fetch(`${apiUrl}/delete-email/${id}`, {
+				method: "DELETE",
+				credentials: "include"
+			});
+			if (!response.ok) throw new Error("Failed to delete the item");
+
+			setData((prevData) => prevData.filter((item) => item.id !== id));
+			addToast({ title: "Item removed successfully", color: "success" });
+		} catch (error) {
+			addToast({
+				title: "Failed to remove item",
+				description: "Please try again or contact support.",
+				color: "danger"
+			});
+		}
+	};
+
 	if (error) {
 		return (
 			<div className="p-6 flex flex-col items-center justify-center min-h-[50vh]">
@@ -529,38 +542,10 @@ export default function Dashboard() {
 		);
 	}
 
-	const handleRemoveItem = async (id: string) => {
-		try {
-			// Make a DELETE request to the backend
-			const response = await fetch(`${apiUrl}/delete-email/${id}`, {
-				method: "DELETE",
-				credentials: "include" // Include cookies for authentication
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to delete the item");
-			}
-
-			// If the deletion is successful, update the local state
-			setData((prevData) => prevData.filter((item) => item.id !== id));
-
-			addToast({
-				title: "Item removed successfully",
-				color: "success"
-			});
-		} catch (error) {
-			addToast({
-				title: "Failed to remove item",
-				description: "Please try again or contact support.",
-				color: "danger"
-			});
-		}
-	};
-
 	return (
 		<>
 			<Navbar isPremium={isPremium} onSettingsClick={() => setShowSettingsModal(true)} />
-			{/* Processing banner - shows while scanning emails */}
+
 			{processingStatus?.status === "processing" && (
 				<ProcessingBanner
 					found={processingStatus.applications_found}
@@ -569,7 +554,6 @@ export default function Dashboard() {
 				/>
 			)}
 
-			{/* Contributor badge */}
 			{contributionCents > 0 && (
 				<div className="mb-4 p-4 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center gap-2">
 					<ContributorBadge monthlyCents={contributionCents} onClick={() => setShowSettingsModal(true)} />
@@ -579,7 +563,6 @@ export default function Dashboard() {
 				</div>
 			)}
 
-			{/* Header with tracking info and refresh */}
 			<div className="flex items-center justify-between mb-4 px-6 pt-4">
 				<p className="text-sm text-gray-500 dark:text-gray-400">
 					Tracking since {formatStartDate(startDate)}
@@ -650,9 +633,10 @@ export default function Dashboard() {
 					</select>
 				</div>
 			)}
+
 			<JobApplicationsDashboard
 				companyFilter={companyFilter}
-				currentPage={currentPage}
+				currentPage={activePage} // Fix: Uses reactive activePage
 				data={filteredData}
 				downloading={downloading}
 				hideApplicationConfirmations={hideApplicationConfirmations}
@@ -662,49 +646,46 @@ export default function Dashboard() {
 				readOnly={!!viewAs}
 				searchTerm={searchTerm}
 				statusFilter={statusFilter}
-				totalPages={totalPages}
-				onCompanyFilterChange={(company) => {
-					setCompanyFilter(company);
+				totalPages={computedTotalPages} // Fix: Uses reactive computedTotalPages
+				onCompanyFilterChange={(v) => {
+					setCompanyFilter(v);
 					setCurrentPage(1);
 				}}
 				onDownloadCsv={downloadCsv}
-				onHideApplicationConfirmationsChange={(hide) => {
-					setHideApplicationConfirmations(hide);
+				onHideApplicationConfirmationsChange={(v) => {
+					setHideApplicationConfirmations(v);
 					setCurrentPage(1);
 				}}
-				onHideRejectionsChange={(hide) => {
-					setHideRejections(hide);
+				onHideRejectionsChange={(v) => {
+					setHideRejections(v);
 					setCurrentPage(1);
 				}}
 				onNextPage={nextPage}
-				onNormalizedJobTitleFilterChange={(title) => {
-					setNormalizedJobTitleFilter(title);
+				onNormalizedJobTitleFilterChange={(v) => {
+					setNormalizedJobTitleFilter(v);
 					setCurrentPage(1);
 				}}
 				onPrevPage={prevPage}
 				onRefreshData={fetchData}
 				onRemoveItem={handleRemoveItem}
-				onSearchChange={(term) => {
-					setSearchTerm(term);
+				onSearchChange={(v) => {
+					setSearchTerm(v);
 					setCurrentPage(1);
 				}}
-				onStatusFilterChange={(status) => {
-					setStatusFilter(status);
+				onStatusFilterChange={(v) => {
+					setStatusFilter(v);
 					setCurrentPage(1);
 				}}
 			/>
 
-			{/* Settings modal */}
 			<SettingsModal
 				isOpen={showSettingsModal}
 				onClose={() => setShowSettingsModal(false)}
 				onSubscriptionChange={() => {
-					// Refresh premium status when subscription changes
 					fetchPremiumStatus();
 				}}
 			/>
 
-			{/* Session expired modal */}
 			{showSessionExpired && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 					<div className="bg-white dark:bg-gray-800 rounded-lg max-w-sm w-full mx-4 p-6">
@@ -714,18 +695,12 @@ export default function Dashboard() {
 						<p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
 							Your existing data is still available. Sign in again to scan for new applications.
 						</p>
-						<div
-							onClick={() => {
-								posthog.capture("token_expired_reauth");
-							}}
-						>
+						<div onClick={() => posthog.capture("token_expired_reauth")}>
 							<GoogleEmailSyncButton />
 						</div>
 						<button
 							className="w-full mt-3 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm"
-							onClick={() => {
-								setShowSessionExpired(false);
-							}}
+							onClick={() => setShowSessionExpired(false)}
 						>
 							Cancel
 						</button>
@@ -733,7 +708,6 @@ export default function Dashboard() {
 				</div>
 			)}
 
-			{/* Change start date modal */}
 			<ChangeStartDateModal
 				currentDate={startDate}
 				isLoading={updatingStartDate}
