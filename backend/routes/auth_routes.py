@@ -92,7 +92,9 @@ async def login(
         # Preserve existing session_id or create new one if none exists
         session_id = request.session.get("session_id") or create_random_session_string()
         request.session["session_id"] = session_id
-
+        # --- NEW: Store the true Google auth_time in the secure session ---
+        if user.auth_time:
+            request.session["google_auth_time"] = user.auth_time
         # Set session details
         request.session["token_expiry"] = get_token_expiry(creds)
         request.session["user_id"] = user.user_id

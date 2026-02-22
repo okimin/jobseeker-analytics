@@ -35,6 +35,7 @@ class AuthenticatedUser:
         _service=None,
     ):
         self.creds = creds
+        self.auth_time = None
         self.user_id, self.user_email = (
             (_user_id, _user_email)
             if _user_id and _user_email
@@ -46,7 +47,7 @@ class AuthenticatedUser:
 
     def get_user_id_and_email(self) -> tuple:
         """
-        Retrieves the user ID and email from Google OAuth2 credentials.
+        Retrieves the user ID, email, auth_time from Google OAuth2 credentials.
 
         Parameters:
 
@@ -71,6 +72,7 @@ class AuthenticatedUser:
             )
             user_id = decoded_token["sub"]  # 'sub' is the unique user ID
             user_email = decoded_token.get("email")  # 'email' is the user's email address
+            self.auth_time = decoded_token.get("auth_time") # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
             return user_id, user_email
         
         except (KeyError, TypeError):
