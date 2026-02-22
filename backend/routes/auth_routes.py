@@ -100,7 +100,7 @@ async def login(
             request.session["oauth_start_time"] = time.time()
             return RedirectResponse(url=authorization_url)
         
-                # ensure the login link (the "out of band verifier") expires in 10 minutes
+        # ensure the login link (the "out of band verifier") expires in 10 minutes
         start_time = request.session.pop("oauth_start_time", 0)
         if time.time() - start_time > 600: # 600 seconds = 10 minutes
             logger.error("OAuth flow timed out (exceeded 10 minutes)")
