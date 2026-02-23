@@ -428,6 +428,58 @@ export default function Dashboard() {
 		}
 	};
 
+	// Wrap downloadCsv in useCallback to stabilize its reference
+	const downloadCsv = useCallback(async () => {
+		setDownloading(true);
+		posthog.capture("csv_export_clicked", { application_count: data.length });
+		try {
+			const response = await fetch(`${apiUrl}/process-csv`, {
+				method: "GET",
+				credentials: "include"
+			});
+
+			const requiresStepUpHeader = response.headers.get("X-Step-Up-Auth");
+			if (requiresStepUpHeader === "true" && response.status === 403) {
+				setRequiresStepUp(true);
+				return;
+			}
+
+			if (!response.ok) {
+				let description = "Something went wrong. Please try again.";
+				if (response.status === 429) {
+					description = "Download limit reached. Please wait before trying again.";
+				} else {
+					description = "Please try again or contact help@justajobapp.com if the issue persists.";
+				}
+				addToast({
+					title: "Failed to download CSV",
+					description,
+					color: "danger"
+				});
+				return;
+			}
+
+			posthog.capture("csv_export_completed", { application_count: data.length });
+			const blob = await response.blob();
+			const link = document.createElement("a");
+			const url = URL.createObjectURL(blob);
+			link.href = url;
+			link.download = `job_applications_${new Date().toISOString().split("T")[0]}.csv`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+		} catch {
+			addToast({
+				title: "Something went wrong",
+				description: "Please try again",
+				color: "danger"
+			});
+		} finally {
+			setDownloading(false);
+		}
+	}, [apiUrl, data.length]);
+
 	// --- Handle return actions from Step-Up Auth flows ---
 	useEffect(() => {
 		const action = searchParams.get("action");
@@ -436,8 +488,7 @@ export default function Dashboard() {
 			window.history.replaceState({}, "", window.location.pathname);
 			downloadCsv();
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
+	}, [searchParams, downloadCsv]);
 
 	useEffect(() => {
 		fetchData();
@@ -484,57 +535,6 @@ export default function Dashboard() {
 			setCurrentPage(currentPage - 1);
 		}
 	};
-
-	async function downloadCsv() {
-		setDownloading(true);
-		posthog.capture("csv_export_clicked", { application_count: data.length });
-		try {
-			const response = await fetch(`${apiUrl}/process-csv`, {
-				method: "GET",
-				credentials: "include"
-			});
-
-			const requiresStepUp = response.headers.get("X-Step-Up-Auth");
-			if (requiresStepUp === "true" && response.status === 403) {
-				setRequiresStepUp(true);
-				return;
-			}
-
-			if (!response.ok) {
-				let description = "Something went wrong. Please try again.";
-				if (response.status === 429) {
-					description = "Download limit reached. Please wait before trying again.";
-				} else {
-					description = "Please try again or contact help@justajobapp.com if the issue persists.";
-				}
-				addToast({
-					title: "Failed to download CSV",
-					description,
-					color: "danger"
-				});
-				return;
-			}
-
-			posthog.capture("csv_export_completed", { application_count: data.length });
-			const blob = await response.blob();
-			const link = document.createElement("a");
-			const url = URL.createObjectURL(blob);
-			link.href = url;
-			link.download = `job_applications_${new Date().toISOString().split("T")[0]}.csv`;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-		} catch {
-			addToast({
-				title: "Something went wrong",
-				description: "Please try again",
-				color: "danger"
-			});
-		} finally {
-			setDownloading(false);
-		}
-	}
 
 	const handleRemoveItem = async (id: string) => {
 		try {
