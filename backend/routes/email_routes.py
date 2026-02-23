@@ -249,6 +249,7 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         
 
 @router.delete("/delete-email/{email_id}")
+@limiter.limit("20/minute")
 async def delete_email(request: Request, db_session: database.DBSession, email_id: str, user_id: str = Depends(require_onboarding_complete)):
     """
     Delete an email record by its ID for the authenticated user.
