@@ -5,6 +5,7 @@ import logging
 from pydantic import BaseModel, Field, field_validator
 import re
 from sqlmodel import select, and_
+from typing import Optional
 import uuid
 
 from db.user_emails import UserEmails
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-def reject_html_svg(value: str) -> str:
+def reject_html_svg(value: Optional[str]) -> Optional[str]:
     if value and re.search(r'<[^>]*>', value):
         raise ValueError("HTML and SVG content is not permitted")
     return value
@@ -50,12 +51,12 @@ class JobApplicationCreate(BaseModel):
         return reject_html_svg(v)
 
 class JobApplicationUpdate(BaseModel):
-    company_name: str = Field(..., max_length=255)
-    application_status: str = Field(..., max_length=50)
-    received_at: datetime
-    subject: str = Field(..., max_length=1000)
-    job_title: str = Field(..., max_length=255)
-    email_from: str = Field(default="", max_length=255)
+    company_name: Optional[str] = Field(default=None, max_length=255)
+    application_status: Optional[str] = Field(default=None, max_length=50)
+    received_at: Optional[datetime] = Field(default=None)
+    subject: Optional[str] = Field(default=None, max_length=1000)
+    job_title: Optional[str] = Field(default=None, max_length=255)
+    email_from: Optional[str] = Field(default=None, max_length=255)
 
     @field_validator('company_name', 'application_status', 'subject', 'job_title')
     @classmethod
