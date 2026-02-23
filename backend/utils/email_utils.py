@@ -5,11 +5,20 @@ import re
 from typing import Dict, Any
 from bs4 import BeautifulSoup
 from email_validator import validate_email, EmailNotValidError
+import spacy
+from spacy_cleaner import processing, Cleaner
 
 from constants import GENERIC_ATS_DOMAINS
 from utils.config_utils import get_settings
 
 logger = logging.getLogger(__name__)
+
+# Load the model ONCE at the module level
+try:
+    nlp_model = spacy.load("en_core_web_sm")
+except Exception as e:
+    logger.error(f"Failed to load spaCy model: {e}")
+    nlp_model = None
 
 settings = get_settings()
 
@@ -299,13 +308,13 @@ def decode_subject_line(subject_line: str) -> str:
 
 
 def clean_email(email_body: str) -> list:
-    import spacy
-    from spacy_cleaner import processing, Cleaner
+    if nlp_model is None:
+        logger.warning("Cleaning skipped: spaCy model not loaded.")
+        return [email_body]
 
     try:
-        model = spacy.load("en_core_web_sm")
         pipeline = Cleaner(
-            model,
+            nlp_model,
             processing.remove_stopword_token,
             processing.remove_punctuation_token,
             processing.remove_number_token,
