@@ -81,9 +81,9 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         try:
             user = db_session.exec(select(Users).where(Users.user_email == user_email)).first()
-        except Exception:
+        except Exception as e:
             request.session.clear()
-            logger.info("validate_session user not found: %s", user_id)
+            logger.error("Exception during user validation for user_id %s: %s", user_id, e)
             return ""
         if not user or not user.is_active:
             # Clear session data (can't delete cookies here since we don't have response)
