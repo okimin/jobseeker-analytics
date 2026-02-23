@@ -126,12 +126,19 @@ class TestRoleBasedAccess:
         resp = client.get("/coach/clients")
         assert resp.status_code == 403
 
-    def test_coach_can_view_client_emails(
+    def test_coach_can_view_client_emails_with_step_up(
         self, logged_in_coach_client, coach_client_link, client_user
     ):
         """Coach should be able to view their client's emails via X-View-As header."""
-        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
+        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id, "X-Step-Up-Auth": True})
         assert resp.status_code == 200
+
+    def test_coach_cannot_view_client_emails_without_step_up(
+        self, logged_in_coach_client, coach_client_link, client_user
+    ):
+        """Coach should not be able to view their client's emails if step-up header missing."""
+        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
+        assert resp.status_code == 403
 
     def test_coach_cannot_view_non_client_emails(
         self, logged_in_coach_client, user_factory
