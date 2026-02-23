@@ -5,7 +5,6 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 import time
-from urllib.parse import urlparse
 
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
@@ -45,20 +44,13 @@ def get_safe_redirect_url(request: Request, return_to: str, default_url: str) ->
     Prevents Open Redirect vulnerabilities by ensuring the return_to path
     is explicitly allowed or strictly a relative path.
     """
-    if not return_to:
+    default_url = f"{settings.APP_URL}/dashboard"
+    if not return_to or return_to not in ALLOWED_STEP_UP_PATHS:
         request.session["return_to"] = default_url # Store a safe default if not provided
-    else:
-        # Validate and store the return_to URL immediately
-        request.session["return_to"] = get_safe_redirect_url(return_to, default_url=f"{settings.APP_URL}/dashboard")
     # 1. Check against a strict allowlist (Safest approach)
     if return_to in ALLOWED_STEP_UP_PATHS:
+        request.session["return_to"] = f"{settings.APP_URL}{return_to}"
         return f"{settings.APP_URL}{return_to}"
-        
-    # 2. Fallback: Ensure it is a valid relative path (starts with '/' but not '//')
-    parsed = urlparse(return_to)
-    if parsed.netloc == "" and parsed.scheme == "" and return_to.startswith("/") and not return_to.startswith("//"):
-        return f"{settings.APP_URL}{return_to}"
-        
     # If it fails validation, default to a safe known path
     logger.warning(f"Blocked potential open redirect attempt to: {return_to}")
     return default_url
@@ -154,7 +146,7 @@ async def login(
         response = None # Initialize response with a default value
         if existing_user and existing_user.is_active:
             if is_step_up:
-                safe_url = get_safe_redirect_url(request, raw_return_to, default_url=f"{APP_URL}/settings")
+                safe_url = get_safe_redirect_url(request=request, return_to=raw_return_to, default_url=f"{APP_URL}/settings")
                 response = RedirectResponse(url=safe_url, status_code=303)
 
             from db.user_emails import UserEmails

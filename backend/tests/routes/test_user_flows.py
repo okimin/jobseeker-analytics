@@ -10,7 +10,7 @@ pages after OAuth authentication:
 - Inactive users → /error?type=account_inactive
 """
 
-
+from unittest.mock import patch
 
 class TestCoachLoginFlow:
     """Tests for coach user login behavior."""
@@ -126,12 +126,21 @@ class TestRoleBasedAccess:
         resp = client.get("/coach/clients")
         assert resp.status_code == 403
 
-    def test_coach_can_view_client_emails(
+    def test_coach_can_view_client_emails_with_recent_auth(
         self, logged_in_coach_client, coach_client_link, client_user
     ):
         """Coach should be able to view their client's emails via X-View-As header."""
-        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
-        assert resp.status_code == 200
+        with patch("utils.admin_utils.user_has_recent_authentication", return_value=True):
+            resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
+            assert resp.status_code == 200
+
+    def test_coach_cannot_view_client_emails_without_recent_auth(
+        self, logged_in_coach_client, coach_client_link, client_user
+    ):
+        """Coach should not be able to view their client's emails if step-up header missing."""
+        with patch("utils.admin_utils.user_has_recent_authentication", return_value=False):
+            resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
+            assert resp.status_code == 403
 
     def test_coach_cannot_view_non_client_emails(
         self, logged_in_coach_client, user_factory

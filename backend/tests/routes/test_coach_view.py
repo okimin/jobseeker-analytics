@@ -1,5 +1,6 @@
 from db.user_emails import UserEmails
 from datetime import datetime
+from unittest.mock import patch
 
 def test_coach_list_clients(logged_in_coach_client, coach_client_link):
     resp = logged_in_coach_client.get("/coach/clients")
@@ -22,12 +23,13 @@ def test_coach_view_client_emails(logged_in_coach_client, coach_client_link, db_
     )
     db_session.add(email)
     db_session.commit()
-
-    resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id})
-    assert resp.status_code == 200
-    data = resp.json()
-    # Should see client's email
-    assert any(item["id"] == "email1" for item in data)
+    
+    with patch("utils.admin_utils.user_has_recent_authentication", return_value=True):
+        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id, "X-Step-Up-Auth": "true"})
+        assert resp.status_code == 200
+        data = resp.json()
+        # Should see client's email
+        assert any(item["id"] == "email1" for item in data)
 
 
 def test_coach_cannot_delete_client_email(logged_in_coach_client, coach_client_link, db_session, client_user):

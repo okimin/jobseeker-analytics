@@ -100,6 +100,7 @@ if settings.is_publicly_deployed:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["X-Step-Up-Auth"],
     )
 else:
     app.add_middleware(
@@ -108,6 +109,7 @@ else:
         allow_credentials=True,
         allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # Allow all headers
+        expose_headers=["X-Step-Up-Auth"],
     )
 
 
