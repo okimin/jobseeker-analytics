@@ -130,7 +130,7 @@ class TestRoleBasedAccess:
         self, logged_in_coach_client, coach_client_link, client_user
     ):
         """Coach should be able to view their client's emails via X-View-As header."""
-        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id, "X-Step-Up-Auth": True})
+        resp = logged_in_coach_client.get("/get-emails", headers={"X-View-As": client_user.user_id, "X-Step-Up-Auth": "true"})
         assert resp.status_code == 200
 
     def test_coach_cannot_view_client_emails_without_step_up(
