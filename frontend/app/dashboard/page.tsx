@@ -65,8 +65,9 @@ export default function Dashboard() {
 	const [showStartDateModal, setShowStartDateModal] = useState(false);
 	const [updatingStartDate, setUpdatingStartDate] = useState(false);
 
-	// Step-Up Auth state for sensitive actions (e.g., CSV download)
+	// Step-Up Auth state for sensitive actions (e.g., CSV download, Coach View-As)
 	const [requiresStepUp, setRequiresStepUp] = useState(false);
+	const [stepUpTrigger, setStepUpTrigger] = useState<"csv" | "coach" | null>(null);
 
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -402,6 +403,14 @@ export default function Dashboard() {
 			});
 
 			if (!response.ok) {
+				// 1. Check if the backend is requesting a Step-Up Authentication (e.g. for a Coach)
+				if (response.status === 403 && response.headers.get("X-Step-Up-Auth") === "true") {
+					setStepUpTrigger("coach");
+					setRequiresStepUp(true);
+					setLoading(false);
+					return;
+				}
+
 				if (response.status === 403) {
 					const onboardingRequired = response.headers.get("X-Onboarding-Required");
 					if (onboardingRequired === "true") {
@@ -440,6 +449,7 @@ export default function Dashboard() {
 
 			const requiresStepUpHeader = response.headers.get("X-Step-Up-Auth");
 			if (requiresStepUpHeader === "true" && response.status === 403) {
+				setStepUpTrigger("csv");
 				setRequiresStepUp(true);
 				return;
 			}
@@ -487,6 +497,13 @@ export default function Dashboard() {
 			// Automatically resume the CSV download
 			window.history.replaceState({}, "", window.location.pathname);
 			downloadCsv();
+		} else if (action === "view_as") {
+			// Automatically resume viewing as a specific client
+			const clientId = searchParams.get("client_id");
+			if (clientId) {
+				setViewAs(clientId);
+				window.history.replaceState({}, "", window.location.pathname);
+			}
 		}
 	}, [searchParams, downloadCsv]);
 
@@ -706,11 +723,22 @@ export default function Dashboard() {
 			<Modal isOpen={requiresStepUp} size="md" onClose={() => setRequiresStepUp(false)}>
 				<ModalContent className="dark:bg-[#1a2e1a]">
 					<ModalBody>
-						<StepUpAuthenticationPrompt
-							actionText="download your data export"
-							returnUrl="/dashboard?action=csv_export"
-							onCancel={() => setRequiresStepUp(false)}
-						/>
+						{stepUpTrigger === "csv" ? (
+							<StepUpAuthenticationPrompt
+								actionText="download your data export"
+								returnUrl="/dashboard?action=csv_export"
+								onCancel={() => setRequiresStepUp(false)}
+							/>
+						) : (
+							<StepUpAuthenticationPrompt
+								actionText="view client data as a coach"
+								returnUrl={`/dashboard?action=view_as&client_id=${viewAs}`}
+								onCancel={() => {
+									setRequiresStepUp(false);
+									setViewAs(""); // Reset to coach's own view if cancelled
+								}}
+							/>
+						)}
 					</ModalBody>
 				</ModalContent>
 			</Modal>

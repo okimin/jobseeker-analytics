@@ -553,7 +553,7 @@ export default function JobApplicationsDashboard({
 				{/* Action Buttons */}
 				<Button
 					color="success"
-					isDisabled={!data || data.length === 0}
+					isDisabled={!data || readOnly || data.length === 0}
 					isLoading={downloading}
 					size="sm"
 					startContent={<DownloadIcon />}
