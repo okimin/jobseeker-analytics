@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
+import { Modal, ModalContent, ModalBody } from "@heroui/react";
 import React from "react";
 import posthog from "posthog-js";
 
@@ -11,6 +12,7 @@ import SettingsModal from "@/components/SettingsModal";
 import ProcessingBanner from "@/components/ProcessingBanner";
 import ChangeStartDateModal from "@/components/ChangeStartDateModal";
 import GoogleEmailSyncButton from "@/components/GoogleEmailSyncButton";
+import StepUpAuthenticationPrompt from "@/components/StepUpAuthenticationDialog";
 import { Navbar } from "@/components/navbar";
 import { checkAuth } from "@/utils/auth";
 
@@ -63,7 +65,12 @@ export default function Dashboard() {
 	const [showStartDateModal, setShowStartDateModal] = useState(false);
 	const [updatingStartDate, setUpdatingStartDate] = useState(false);
 
+	// Step-Up Auth state for sensitive actions (e.g., CSV download)
+	const [requiresStepUp, setRequiresStepUp] = useState(false);
+
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+	const searchParams = useSearchParams();
 
 	// Filtering Logic: Processed client-side on the retrieved data
 	const filteredData = useMemo(() => {
@@ -421,6 +428,68 @@ export default function Dashboard() {
 		}
 	};
 
+	// Wrap downloadCsv in useCallback to stabilize its reference
+	const downloadCsv = useCallback(async () => {
+		setDownloading(true);
+		posthog.capture("csv_export_clicked", { application_count: data.length });
+		try {
+			const response = await fetch(`${apiUrl}/process-csv`, {
+				method: "GET",
+				credentials: "include"
+			});
+
+			const requiresStepUpHeader = response.headers.get("X-Step-Up-Auth");
+			if (requiresStepUpHeader === "true" && response.status === 403) {
+				setRequiresStepUp(true);
+				return;
+			}
+
+			if (!response.ok) {
+				let description = "Something went wrong. Please try again.";
+				if (response.status === 429) {
+					description = "Download limit reached. Please wait before trying again.";
+				} else {
+					description = "Please try again or contact help@justajobapp.com if the issue persists.";
+				}
+				addToast({
+					title: "Failed to download CSV",
+					description,
+					color: "danger"
+				});
+				return;
+			}
+
+			posthog.capture("csv_export_completed", { application_count: data.length });
+			const blob = await response.blob();
+			const link = document.createElement("a");
+			const url = URL.createObjectURL(blob);
+			link.href = url;
+			link.download = `job_applications_${new Date().toISOString().split("T")[0]}.csv`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+		} catch {
+			addToast({
+				title: "Something went wrong",
+				description: "Please try again",
+				color: "danger"
+			});
+		} finally {
+			setDownloading(false);
+		}
+	}, [apiUrl, data.length]);
+
+	// --- Handle return actions from Step-Up Auth flows ---
+	useEffect(() => {
+		const action = searchParams.get("action");
+		if (action === "csv_export") {
+			// Automatically resume the CSV download
+			window.history.replaceState({}, "", window.location.pathname);
+			downloadCsv();
+		}
+	}, [searchParams, downloadCsv]);
+
 	useEffect(() => {
 		fetchData();
 	}, [apiUrl, router, viewAs]);
@@ -466,51 +535,6 @@ export default function Dashboard() {
 			setCurrentPage(currentPage - 1);
 		}
 	};
-
-	async function downloadCsv() {
-		setDownloading(true);
-		posthog.capture("csv_export_clicked", { application_count: data.length });
-		try {
-			const response = await fetch(`${apiUrl}/process-csv`, {
-				method: "GET",
-				credentials: "include"
-			});
-
-			if (!response.ok) {
-				let description = "Something went wrong. Please try again.";
-				if (response.status === 429) {
-					description = "Download limit reached. Please wait before trying again.";
-				} else {
-					description = "Please try again or contact help@justajobapp.com if the issue persists.";
-				}
-				addToast({
-					title: "Failed to download CSV",
-					description,
-					color: "danger"
-				});
-				return;
-			}
-
-			posthog.capture("csv_export_completed", { application_count: data.length });
-			const blob = await response.blob();
-			const link = document.createElement("a");
-			const url = URL.createObjectURL(blob);
-			link.href = url;
-			link.download = `job_applications_${new Date().toISOString().split("T")[0]}.csv`;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-		} catch {
-			addToast({
-				title: "Something went wrong",
-				description: "Please try again",
-				color: "danger"
-			});
-		} finally {
-			setDownloading(false);
-		}
-	}
 
 	const handleRemoveItem = async (id: string) => {
 		try {
@@ -677,6 +701,19 @@ export default function Dashboard() {
 					setCurrentPage(1);
 				}}
 			/>
+
+			{/* Sensitive Action Step-Up Modal */}
+			<Modal isOpen={requiresStepUp} size="md" onClose={() => setRequiresStepUp(false)}>
+				<ModalContent className="dark:bg-[#1a2e1a]">
+					<ModalBody>
+						<StepUpAuthenticationPrompt
+							actionText="download your data export"
+							returnUrl="/dashboard?action=csv_export"
+							onCancel={() => setRequiresStepUp(false)}
+						/>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 
 			<SettingsModal
 				isOpen={showSettingsModal}

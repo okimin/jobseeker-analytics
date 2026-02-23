@@ -247,5 +247,26 @@ async def stripe_webhook(
                     logger.info(
                         f"Subscription amount updated for user {user.user_id}: ${new_amount / 100:.2f}/mo"
                     )
+    # Handle customer.created
+    elif event["type"] == "customer.created":
+        customer = event["data"]["object"]
+        stripe_customer_id = customer.get("id")
+        user_id = customer.get("metadata", {}).get("user_id")
 
+        if user_id and stripe_customer_id:
+            with database.get_session() as db_session:
+                user = db_session.exec(
+                    select(Users).where(Users.user_id == user_id)
+                ).first()
+                
+                if user:
+                    if user.stripe_customer_id != stripe_customer_id:
+                        user.stripe_customer_id = stripe_customer_id
+                        db_session.add(user)
+                        db_session.commit()
+                        logger.info(f"Updated user {user_id} with new Stripe Customer ID: {stripe_customer_id}")
+                else:
+                    logger.error(f"User {user_id} not found for created customer {stripe_customer_id}")
+    else:
+        logger.error("Not responding to event type %s", event["type"])
     return {"status": "success"}
