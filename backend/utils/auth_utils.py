@@ -1,6 +1,5 @@
 import json
 import logging
-import uuid
 
 
 from fastapi.responses import RedirectResponse
@@ -80,7 +79,7 @@ class AuthenticatedUser:
                 self._retry = True
                 return self.get_user_id_and_email()
             else:
-                logger.error("Error verifying ID token with _retry: %s", e)
+                logger.error("Error verifying ID token with _retry")
                 raise ValueError("Authentication token is invalid or expired")
         except Exception as e:
             logger.error("Error verifying ID token: %s", e)
