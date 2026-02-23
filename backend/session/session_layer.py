@@ -2,7 +2,7 @@
 import json
 import logging
 import secrets
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from fastapi import Request, Response
 from utils.config_utils import get_settings
 import database
@@ -79,7 +79,12 @@ def validate_session(request: Request, db_session: database.DBSession) -> str:
         logger.info("validate_session found user_id: %s", user_id)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
-        user = db_session.exec(select(Users).where(Users.user_email == user_email)).first()
+        try:
+            user = db_session.exec(select(Users).where(Users.user_email == user_email)).first()
+        except Exception as e:
+            request.session.clear()
+            logger.error("Exception during user validation for user_id %s: %s", user_id, e)
+            return ""
         if not user or not user.is_active:
             # Clear session data (can't delete cookies here since we don't have response)
             request.session.clear()
@@ -95,7 +100,8 @@ def get_token_expiry(creds) -> str:
         token_expiry = creds.expiry.isoformat()
     except Exception as e:
         logger.error("Failed to parse token expiry: %s", e)
-        token_expiry = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+        # Deny access by assuming the token is already expired (Fail-Closed)
+        token_expiry = datetime.now(timezone.utc).isoformat()
     return token_expiry
 
 
