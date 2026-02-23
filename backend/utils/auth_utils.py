@@ -76,27 +76,15 @@ class AuthenticatedUser:
         
         except (KeyError, TypeError):
             self.creds = self.creds.refresh(Request())
-            if not self.creds.id_token:
-                proxy_user_id = str(uuid.uuid4())
-                logger.error(
-                    "Could not retrieve user ID. Using proxy ID: %s", proxy_user_id
-                )
-                return proxy_user_id, None  # Generate a random ID and return None for email
             if not hasattr(self, "_retry"):
                 self._retry = True
                 return self.get_user_id_and_email()
             else:
-                proxy_user_id = str(uuid.uuid4())
-                logger.error(
-                    "Could not retrieve user ID after retry. Using proxy ID: %s",
-                    proxy_user_id,
-                )
-                return proxy_user_id, None  # Generate a random ID and return None for email
+                logger.error("Error verifying ID token with _retry: %s", e)
+                raise ValueError("Authentication token is invalid or expired")
         except Exception as e:
             logger.error("Error verifying ID token: %s", e)
-            proxy_user_id = str(uuid.uuid4())
-            logger.error("Could not verify ID token. Using proxy ID: %s", proxy_user_id)
-            return proxy_user_id, None  # Generate a random ID and return None for email
+            raise ValueError("Authentication token is invalid or expired")
 
 
 def get_google_authorization_url(flow, has_valid_creds: bool, step_up: bool = False) -> tuple[str, str]:
