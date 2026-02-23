@@ -40,7 +40,7 @@ ALLOWED_STEP_UP_PATHS = {
     "/dashboard"
 }
 
-def get_safe_redirect_url(return_to: str, default_url: str) -> str:
+def get_safe_redirect_url(request: Request, return_to: str, default_url: str) -> str:
     """
     Prevents Open Redirect vulnerabilities by ensuring the return_to path
     is explicitly allowed or strictly a relative path.
@@ -154,7 +154,7 @@ async def login(
         response = None # Initialize response with a default value
         if existing_user and existing_user.is_active:
             if is_step_up:
-                safe_url = get_safe_redirect_url(raw_return_to, default_url=f"{APP_URL}/settings")
+                safe_url = get_safe_redirect_url(request, raw_return_to, default_url=f"{APP_URL}/settings")
                 response = RedirectResponse(url=safe_url, status_code=303)
 
             from db.user_emails import UserEmails
