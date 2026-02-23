@@ -5,7 +5,6 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from google_auth_oauthlib.flow import Flow
 import time
-from urllib.parse import urlparse
 
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
