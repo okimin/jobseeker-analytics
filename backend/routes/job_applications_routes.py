@@ -1,9 +1,11 @@
-import logging
-from typing import Optional
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlmodel import select, and_
-from pydantic import BaseModel
 from datetime import datetime
+import email.utils
+from fastapi import APIRouter, Depends, Request, HTTPException
+import logging
+from pydantic import BaseModel, Field, field_validator
+import re
+from sqlmodel import select, and_
+from typing import Optional
 import uuid
 
 from db.user_emails import UserEmails
@@ -17,22 +19,61 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+def reject_html_svg(value: Optional[str]) -> Optional[str]:
+    if value and re.search(r'<[^>]*>', value):
+        raise ValueError("HTML and SVG content is not permitted")
+    return value
+
 # Request/Response models
 class JobApplicationCreate(BaseModel):
-    company_name: str
-    application_status: str
+    company_name: str = Field(..., max_length=255)
+    application_status: str = Field(..., max_length=50)
     received_at: datetime
-    subject: str
-    job_title: str
-    email_from: str = ""
+    subject: str = Field(..., max_length=1000)
+    job_title: str = Field(..., max_length=255)
+    email_from: str = Field(default="", max_length=255)
+
+    @field_validator('company_name', 'application_status', 'subject', 'job_title')
+    @classmethod
+    def validate_no_markup(cls, v):
+        return reject_html_svg(v)
+    
+    @field_validator('email_from')
+    @classmethod
+    def parse_and_validate_email_from(cls, v: str) -> str:
+        # Parse out the angle brackets before your global XSS validator trips
+        _, parsed_email = email.utils.parseaddr(v)
+        
+        # If it parsed successfully, you can store just the email, 
+        # or format it safely without the brackets if your system demands it.
+        if parsed_email:
+            return parsed_email
+        return reject_html_svg(v)
 
 class JobApplicationUpdate(BaseModel):
-    company_name: Optional[str] = None
-    application_status: Optional[str] = None
-    received_at: Optional[datetime] = None
-    subject: Optional[str] = None
-    job_title: Optional[str] = None
-    email_from: Optional[str] = None
+    company_name: Optional[str] = Field(default=None, max_length=255)
+    application_status: Optional[str] = Field(default=None, max_length=50)
+    received_at: Optional[datetime] = Field(default=None)
+    subject: Optional[str] = Field(default=None, max_length=1000)
+    job_title: Optional[str] = Field(default=None, max_length=255)
+    email_from: Optional[str] = Field(default=None, max_length=255)
+
+    @field_validator('company_name', 'application_status', 'subject', 'job_title')
+    @classmethod
+    def validate_no_markup(cls, v):
+        return reject_html_svg(v)
+
+    @field_validator('email_from')
+    @classmethod
+    def parse_and_validate_email_from(cls, v: str) -> str:
+        # Parse out the angle brackets before your global XSS validator trips
+        _, parsed_email = email.utils.parseaddr(v)
+        
+        # If it parsed successfully, you can store just the email, 
+        # or format it safely without the brackets if your system demands it.
+        if parsed_email:
+            return parsed_email
+        return reject_html_svg(v)
 
 class JobApplicationResponse(BaseModel):
     id: str
@@ -89,9 +130,10 @@ async def create_job_application(
         )
         
     except Exception as e:
-        logger.error(f"Error creating job application for user_id {user_id}: {e}")
+        error_id = uuid.uuid4()
+        logger.exception(f"Error {error_id} creating job application for user_id {user_id}: {e}")
         db_session.rollback()
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An internal error occurred. Reference ID: {error_id}")
 
 @router.put("/job-applications/{application_id}", response_model=JobApplicationResponse)
 @limiter.limit("10/minute")
@@ -144,7 +186,8 @@ async def update_job_application(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating job application {application_id} for user_id {user_id}: {e}")
+        error_id = uuid.uuid4()
+        logger.exception(f"Error {error_id} updating job application for user_id {user_id}: {e}")
         db_session.rollback()
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An internal error occurred. Reference ID: {error_id}")
 
