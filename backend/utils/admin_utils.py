@@ -4,6 +4,7 @@ from sqlmodel import select, and_
 from database import DBSession
 from utils.onboarding_utils import require_onboarding_complete
 from db.users import CoachClientLink
+from session.session_layer import user_has_recent_authentication
 
 logger = logging.getLogger(__name__)
 
@@ -52,5 +53,11 @@ def get_context_user_id(
                 status_code=403, 
                 detail="Access denied: You are not an authorized coach."
             )
+        
+        # 2. Require recent step-up authentication for this administrative action
+        if not user_has_recent_authentication(request):
+            logger.info(f"Step-Up Auth required for coach {authenticated_user_id} attempting to view client data.")
+            raise HTTPException(status_code=403, detail="Step-Up Auth required", headers={"X-Step-Up-Auth": "true"})
+
             
     return target_client_id
