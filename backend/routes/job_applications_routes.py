@@ -1,9 +1,9 @@
 import logging
-from typing import Optional
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlmodel import select, and_
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+import re
 import uuid
 
 from db.user_emails import UserEmails
@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+def reject_html_svg(value: str) -> str:
+    if value and re.search(r'<[^>]*>', value):
+        raise ValueError("HTML and SVG content is not permitted")
+    return value
+
 # Request/Response models
 class JobApplicationCreate(BaseModel):
     company_name: str = Field(..., max_length=255)
@@ -26,6 +31,11 @@ class JobApplicationCreate(BaseModel):
     job_title: str = Field(..., max_length=255)
     email_from: str = Field(default="", max_length=255)
 
+    @field_validator('company_name', 'application_status', 'subject', 'job_title', 'email_from')
+    @classmethod
+    def validate_no_markup(cls, v):
+        return reject_html_svg(v)
+
 class JobApplicationUpdate(BaseModel):
     company_name: str = Field(..., max_length=255)
     application_status: str = Field(..., max_length=50)
@@ -33,6 +43,11 @@ class JobApplicationUpdate(BaseModel):
     subject: str = Field(..., max_length=1000)
     job_title: str = Field(..., max_length=255)
     email_from: str = Field(default="", max_length=255)
+
+    @field_validator('company_name', 'application_status', 'subject', 'job_title', 'email_from')
+    @classmethod
+    def validate_no_markup(cls, v):
+        return reject_html_svg(v)
 
 class JobApplicationResponse(BaseModel):
     id: str
