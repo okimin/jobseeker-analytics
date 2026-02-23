@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlmodel import select, and_
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 import uuid
 
@@ -19,20 +19,20 @@ router = APIRouter()
 
 # Request/Response models
 class JobApplicationCreate(BaseModel):
-    company_name: str
-    application_status: str
+    company_name: str = Field(..., max_length=255)
+    application_status: str = Field(..., max_length=50)
     received_at: datetime
-    subject: str
-    job_title: str
-    email_from: str = ""
+    subject: str = Field(..., max_length=1000)
+    job_title: str = Field(..., max_length=255)
+    email_from: str = Field(default="", max_length=255)
 
 class JobApplicationUpdate(BaseModel):
-    company_name: Optional[str] = None
-    application_status: Optional[str] = None
-    received_at: Optional[datetime] = None
-    subject: Optional[str] = None
-    job_title: Optional[str] = None
-    email_from: Optional[str] = None
+    company_name: str = Field(..., max_length=255)
+    application_status: str = Field(..., max_length=50)
+    received_at: datetime
+    subject: str = Field(..., max_length=1000)
+    job_title: str = Field(..., max_length=255)
+    email_from: str = Field(default="", max_length=255)
 
 class JobApplicationResponse(BaseModel):
     id: str
@@ -89,9 +89,10 @@ async def create_job_application(
         )
         
     except Exception as e:
-        logger.error(f"Error creating job application for user_id {user_id}: {e}")
+        error_id = uuid.uuid4()
+        logger.exception(f"Error {error_id} creating job application for user_id {user_id}: {e}")
         db_session.rollback()
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An internal error occurred. Reference ID: {error_id}")
 
 @router.put("/job-applications/{application_id}", response_model=JobApplicationResponse)
 @limiter.limit("10/minute")
@@ -144,7 +145,8 @@ async def update_job_application(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating job application {application_id} for user_id {user_id}: {e}")
+        error_id = uuid.uuid4()
+        logger.exception(f"Error {error_id} updating job application for user_id {user_id}: {e}")
         db_session.rollback()
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An internal error occurred. Reference ID: {error_id}")
 
