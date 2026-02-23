@@ -1,9 +1,10 @@
-import logging
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlmodel import select, and_
-from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+import email.utils
+from fastapi import APIRouter, Depends, Request, HTTPException
+import logging
+from pydantic import BaseModel, Field, field_validator
 import re
+from sqlmodel import select, and_
 import uuid
 
 from db.user_emails import UserEmails
@@ -31,9 +32,21 @@ class JobApplicationCreate(BaseModel):
     job_title: str = Field(..., max_length=255)
     email_from: str = Field(default="", max_length=255)
 
-    @field_validator('company_name', 'application_status', 'subject', 'job_title', 'email_from')
+    @field_validator('company_name', 'application_status', 'subject', 'job_title')
     @classmethod
     def validate_no_markup(cls, v):
+        return reject_html_svg(v)
+    
+    @field_validator('email_from')
+    @classmethod
+    def parse_and_validate_email_from(cls, v: str) -> str:
+        # Parse out the angle brackets before your global XSS validator trips
+        _, parsed_email = email.utils.parseaddr(v)
+        
+        # If it parsed successfully, you can store just the email, 
+        # or format it safely without the brackets if your system demands it.
+        if parsed_email:
+            return parsed_email
         return reject_html_svg(v)
 
 class JobApplicationUpdate(BaseModel):
@@ -44,9 +57,21 @@ class JobApplicationUpdate(BaseModel):
     job_title: str = Field(..., max_length=255)
     email_from: str = Field(default="", max_length=255)
 
-    @field_validator('company_name', 'application_status', 'subject', 'job_title', 'email_from')
+    @field_validator('company_name', 'application_status', 'subject', 'job_title')
     @classmethod
     def validate_no_markup(cls, v):
+        return reject_html_svg(v)
+
+    @field_validator('email_from')
+    @classmethod
+    def parse_and_validate_email_from(cls, v: str) -> str:
+        # Parse out the angle brackets before your global XSS validator trips
+        _, parsed_email = email.utils.parseaddr(v)
+        
+        # If it parsed successfully, you can store just the email, 
+        # or format it safely without the brackets if your system demands it.
+        if parsed_email:
+            return parsed_email
         return reject_html_svg(v)
 
 class JobApplicationResponse(BaseModel):
