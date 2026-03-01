@@ -42,7 +42,7 @@ const Index = () => {
 								interview—for a role paying $40,000 more than the offers I received.
 							</p>
 							<p className="mt-4 text-xl font-medium max-w-3xl mx-auto text-foreground">
-								I built JustAJobApp so this never happens to you.
+								I built JustAJobApp for other overwhelmed jobseekers.
 							</p>
 							<div className="mt-10 flex justify-center">
 								<a
