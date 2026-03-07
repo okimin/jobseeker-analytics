@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 	// - Whitelisted Termly domains: app.termly.io and *.api.termly.io
 	const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://*.posthog.com https://app.termly.io https://*.googleusercontent.com;
     worker-src 'self' blob:;
