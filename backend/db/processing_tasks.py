@@ -15,7 +15,7 @@ class TaskRuns(SQLModel, table=True):
     user_id: str = Field(foreign_key="users.user_id", index=True)
     created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
     updated: datetime = Field(
-        sa_column_kwargs={"onupdate": datetime.now(timezone.utc)},
+        sa_column_kwargs={"onupdate": sa.func.now()},
         default_factory=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
