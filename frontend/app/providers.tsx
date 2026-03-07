@@ -1,25 +1,40 @@
 "use client";
 
 import type { ThemeProviderProps } from "next-themes";
-
 import * as React from "react";
 import { HeroUIProvider } from "@heroui/system";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ToastProvider } from "@heroui/toast";
-import { usePostHog } from "posthog-js/react";
-import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
+// PostHog Imports
 import posthog from "posthog-js";
-import { PostHogProvider as PHProvider } from "posthog-js/react";
+import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
+
+// 1. Move the GPC logic here
+const hasGPCSignal = () => {
+	if (typeof navigator !== "undefined" && "globalPrivacyControl" in navigator) {
+		return (navigator as Navigator & { globalPrivacyControl: boolean }).globalPrivacyControl === true;
+	}
+	return false;
+};
+
+// 2. Initialize exactly once when the window loads
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+	posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+		api_host: "/ingest",
+		ui_host: "https://us.posthog.com",
+		defaults: "2026-01-30",
+		opt_out_capturing_by_default: hasGPCSignal(), 
+		debug: process.env.NODE_ENV === "development",
+		session_recording: { maskTextSelector: "*" },
+		opt_in_site_apps: true
+	});
+}
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
 	const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
-	// PostHog is initialized in instrumentation-client.ts with GPC/DNT signal handling
-	// This provider wraps children with the PostHog React context for hooks
-
-	// If no PostHog key is configured, just return children without PostHog
 	if (!posthogKey) {
 		return <>{children}</>;
 	}

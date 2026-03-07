@@ -7,17 +7,17 @@ export function proxy(request: NextRequest) {
 	// Check if we are in development mode
 	const isDev = process.env.NODE_ENV === "development";
 	// 2. Define your Strict CSP
-	// - Added 'strict-dynamic' to allow Termly to load its own sub-scripts
 	// - Whitelisted Termly domains: app.termly.io and *.api.termly.io
 	const cspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://accounts.google.com https://*.posthog.com;
-    style-src 'self' 'unsafe-inline';
+    style-src 'self' https://*.posthog.com 'unsafe-inline';
     img-src 'self' blob: data: https://*.posthog.com https://app.termly.io https://*.googleusercontent.com;
-    worker-src 'self' blob:;
+    worker-src 'self' blob: data:;
     connect-src 'self' https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.api.justajobapp.com https://api.justajobapp.com https://app.termly.io https://*.api.termly.io ${isDev ? "http://localhost:8000 ws: wss:" : ""};
     frame-src 'self' https://app.termly.io https://www.youtube.com blob:;
-    font-src 'self' data:;
+    font-src 'self' https://*.posthog.com data:;
+	media-src https://*.posthog.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
