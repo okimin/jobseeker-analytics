@@ -1,6 +1,7 @@
 "use client";
 
 import type { ThemeProviderProps } from "next-themes";
+
 import * as React from "react";
 import { HeroUIProvider } from "@heroui/system";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -25,7 +26,7 @@ if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 		api_host: "/ingest",
 		ui_host: "https://us.posthog.com",
 		defaults: "2026-01-30",
-		opt_out_capturing_by_default: hasGPCSignal(), 
+		opt_out_capturing_by_default: hasGPCSignal(),
 		debug: process.env.NODE_ENV === "development",
 		session_recording: { maskTextSelector: "*" },
 		opt_in_site_apps: true
