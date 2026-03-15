@@ -695,13 +695,19 @@ export default function Dashboard() {
 				</div>
 			)}
 
-		{hiddenEmailCount > 0 && hiddenCutoffDate && (
+			{hiddenEmailCount > 0 && hiddenCutoffDate && (
 				<div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center gap-3">
 					<div className="flex-1 text-sm text-amber-800 dark:text-amber-300">
-						<span className="font-medium">{hiddenEmailCount} email{hiddenEmailCount !== 1 ? "s" : ""}</span>
+						<span className="font-medium">
+							{hiddenEmailCount} email{hiddenEmailCount !== 1 ? "s" : ""}
+						</span>
 						{" from before "}
 						<span className="font-medium">
-							{new Date(hiddenCutoffDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+							{new Date(hiddenCutoffDate).toLocaleDateString("en-US", {
+								month: "short",
+								day: "numeric",
+								year: "numeric"
+							})}
 						</span>
 						{" are hidden — upgrade to view them here, or export to CSV."}
 					</div>
