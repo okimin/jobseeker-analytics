@@ -465,11 +465,15 @@ async def email_sync_auth(
         db_session.commit()
         logger.info("Email sync configured for user_id: %s", user_id)
 
-        # Get last fetched date for incremental sync
+        # During onboarding, redirect back to onboarding to continue step 3.
+        # After onboarding (reconnect), trigger a background sync and go to dashboard.
+        if user.onboarding_completed_at is None:
+            logger.info("Email sync configured during onboarding for user %s, returning to onboarding", user_id)
+            return Redirects.to_onboarding()
+
+        # Post-onboarding reconnect: trigger incremental sync and go to dashboard
         from db.utils.user_utils import get_last_email_date
         last_fetched_date = get_last_email_date(user_id, db_session)
-
-        # Trigger email fetch in background
         background_tasks.add_task(
             fetch_emails_to_db,
             sync_user_for_task,
@@ -478,9 +482,7 @@ async def email_sync_auth(
             user_id=user_id,
         )
         logger.info("fetch_emails_to_db task started for user_id: %s", user_id)
-
-        response = Redirects.to_dashboard()
-        return response
+        return Redirects.to_dashboard()
 
     except Exception as e:
         logger.error("Catchall email sync auth error: %s", e)

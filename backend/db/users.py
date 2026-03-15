@@ -19,7 +19,7 @@ class Users(SQLModel, table=True):
     is_active: bool = Field(default=False, nullable=False)
     stripe_customer_id: str | None = Field(default=None, nullable=True)
     # Add role field to distinguish generic users from coaches
-    role: str = Field(default="jobseeker") # 'jobseeker', 'coach'
+    role: str = Field(default="") # '' (unset) | 'jobseeker' | 'coach'
     # Onboarding fields
     onboarding_completed_at: datetime | None = Field(default=None, nullable=True)  # When start date was set
     # Email sync fields (separate from signup auth)
@@ -39,6 +39,9 @@ class Users(SQLModel, table=True):
     # Scan preferences
     fetch_order: str = Field(default="recent_first", nullable=False)
     scan_end_date: datetime | None = Field(default=None, nullable=True)
+    # Plan / promo
+    plan: str = Field(default="free", nullable=False)  # 'free' | 'promo' | 'paid'
+    promo_code_used: str | None = Field(default=None, nullable=True)
 
 class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"

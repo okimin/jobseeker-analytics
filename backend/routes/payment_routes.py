@@ -20,10 +20,41 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 # Request/Response models
+class ValidatePromoRequest(BaseModel):
+    code: str
+
+
 class CheckoutRequest(BaseModel):
     amount_cents: int
     trigger_type: Optional[str] = None
     is_recurring: bool = True  # Default to recurring for backwards compatibility
+
+
+@router.post("/payment/validate-promo")
+@limiter.limit("10/minute")
+async def validate_promo_code(
+    request: Request,
+    body: ValidatePromoRequest,
+    user_id: str = Depends(validate_session)
+):
+    """Validate a Stripe promotion code. Returns {valid: bool}."""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    get_stripe_key()
+
+    code = body.code.strip().upper()
+    if not code:
+        return {"valid": False}
+
+    try:
+        codes = stripe.PromotionCode.list(code=code, active=True, limit=1)
+        valid = len(codes.data) > 0
+        logger.info(f"Promo code validation for user {user_id}: code={code} valid={valid}")
+        return {"valid": valid}
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error validating promo code: {e}")
+        raise HTTPException(status_code=500, detail="Failed to validate promo code")
 
 
 @router.post("/payment/checkout")

@@ -23,6 +23,7 @@ class TaskRuns(SQLModel, table=True):
     total_emails: int = 0
     processed_emails: int = 0
     applications_found: int = 0
+    history_sync_completed: bool = Field(default=False, nullable=False)
 
     user: Users = Relationship()
 

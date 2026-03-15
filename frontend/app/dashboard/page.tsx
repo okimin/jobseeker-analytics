@@ -400,11 +400,11 @@ export default function Dashboard() {
 			if (onboardingResp.ok) {
 				const data = await onboardingResp.json();
 				if (!data.has_completed_onboarding) {
-					router.push("/onboarding");
+					router.replace("/onboarding");
 					return;
 				}
 				if (!data.has_email_sync_configured) {
-					router.push("/email-sync-setup");
+					router.replace("/email-sync-setup");
 					return;
 				}
 			}
@@ -433,7 +433,7 @@ export default function Dashboard() {
 				if (response.status === 403) {
 					const onboardingRequired = response.headers.get("X-Onboarding-Required");
 					if (onboardingRequired === "true") {
-						router.push("/onboarding");
+						router.replace("/onboarding");
 						return;
 					}
 				}

@@ -14,6 +14,7 @@ from sqlmodel import select
 from utils.auth_utils import AuthenticatedUser
 from utils.billing_utils import is_premium_eligible
 from utils.credential_service import load_credentials
+from utils.tier_limits import FREE_HISTORY_DAYS
 from routes.email_routes import fetch_emails_to_db
 
 limiter = Limiter(key_func=get_remote_address)
@@ -28,6 +29,7 @@ class StartDatePreset(str, Enum):
     ONE_WEEK = "1_week"
     ONE_MONTH = "1_month"
     THREE_MONTHS = "3_months"
+    SIX_MONTHS = "6_months"
     CUSTOM = "custom"
 
 
@@ -35,6 +37,7 @@ PRESET_DAYS = {
     StartDatePreset.ONE_WEEK: 7,
     StartDatePreset.ONE_MONTH: 30,
     StartDatePreset.THREE_MONTHS: 90,
+    StartDatePreset.SIX_MONTHS: 180,
 }
 
 
@@ -115,7 +118,15 @@ async def update_start_date(
     # Update user's start date and scan preferences
     user.start_date = start_date
     user.fetch_order = start_date_request.fetch_order
-    user.scan_end_date = start_date_request.end_date
+    is_promo_coach = user.role == "coach" and user.plan == "promo"
+    if is_promo_coach:
+        # Promo coach: use the full selected range
+        user.scan_end_date = start_date_request.end_date
+    elif user.role == "coach":
+        # Free coach: cap scan to start_date + 30 days
+        user.scan_end_date = start_date + timedelta(days=FREE_HISTORY_DAYS)
+    else:
+        user.scan_end_date = start_date_request.end_date
     db_session.add(user)
     db_session.commit()
 
@@ -134,24 +145,39 @@ async def update_start_date(
 
     rescan_started = False
     if not active_task:
-        # Start background processing with new date
+        # Determine the effective scan start date based on plan/role:
+        # - Coach with promo: use the selected start_date (full range backfill)
+        # - All others (job seekers and free coaches): scan last 30 days from today
+        #   (start_date is only a dashboard view filter, not a backfill scope)
+        if user.role == "coach":
+            # Coaches always scan from their selected start date.
+            # Promo unlocks full dashboard visibility; free coaches see only the
+            # first 30 days of their range in the dashboard but we still scan it all.
+            effective_scan_start = start_date
+        else:
+            # Job seekers: start_date is a dashboard view filter only;
+            # always scan the rolling last-30-days window.
+            effective_scan_start = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
+
         try:
+            # Prefer email_sync credentials for Gmail access; fall back to primary
+            scan_creds = load_credentials(db_session, user_id, credential_type="email_sync", auto_refresh=should_auto_refresh) or creds
             auth_user = AuthenticatedUser(
-                creds, 
-                _user_id=user.user_id, 
+                scan_creds,
+                _user_id=user.user_id,
                 _user_email=user.user_email
             )
 
-            # Use the new start date for fetching
             background_tasks.add_task(
                 fetch_emails_to_db,
                 auth_user,
                 request,
-                start_date,  # Use the new start date
-                user_id=user_id
+                None,  # Force full re-scan from start_date (already set in session/DB)
+                user_id=user_id,
+                quick_limit=5,  # Show first 5 fast; dashboard triggers full scan via should_rescan
             )
             rescan_started = True
-            logger.info(f"Rescan started for user {user_id} with new start date")
+            logger.info(f"Rescan started for user {user_id} (scan_start={effective_scan_start.isoformat()}, plan={user.plan})")
         except Exception as e:
             logger.error(f"Error starting rescan for user {user_id}: {e}")
 

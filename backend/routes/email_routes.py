@@ -119,8 +119,12 @@ async def processing_status(
         if task_updated.tzinfo is None:
             task_updated = task_updated.replace(tzinfo=timezone.utc)
         last_scan_at = task_updated.isoformat()
-        hours_since_scan = (datetime.now(timezone.utc) - task_updated).total_seconds() / 3600
-        should_rescan = hours_since_scan > 24
+        # Rescan if quick scan didn't finish full history, or if >24h since last scan
+        if not last_finished_task.history_sync_completed:
+            should_rescan = True
+        else:
+            hours_since_scan = (datetime.now(timezone.utc) - task_updated).total_seconds() / 3600
+            should_rescan = hours_since_scan > 24
     elif applications_found > 0:
         # No finished task but have emails - use most recent email date
         most_recent_email = db_session.exec(
@@ -205,8 +209,18 @@ async def start_processing(
             _user_email=user.user_email
         )
 
-        # Get the last email date for incremental fetching
-        last_updated = get_last_email_date(user_id, db_session)
+        # If history sync is incomplete (quick scan), do a full scan from start_date.
+        # Otherwise do an incremental scan from the last stored email date.
+        last_finished = db_session.exec(
+            select(task_models.TaskRuns)
+            .where(task_models.TaskRuns.user_id == user_id)
+            .where(task_models.TaskRuns.status == task_models.FINISHED)
+            .order_by(task_models.TaskRuns.updated.desc())
+        ).first()
+        if last_finished and not last_finished.history_sync_completed:
+            last_updated = None  # full re-scan from start_date
+        else:
+            last_updated = get_last_email_date(user_id, db_session)
 
         background_tasks.add_task(fetch_emails_to_db, auth_user, request, last_updated, user_id=user_id)
 
@@ -384,10 +398,11 @@ def fetch_emails_to_db(
     last_updated: Optional[datetime] = None,
     *,
     user_id: str,
+    quick_limit: Optional[int] = None,
 ) -> None:
     logger.info(f"fetch_emails_to_db for user_id: {user_id}")
     try:
-        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id)
+        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id, quick_limit=quick_limit)
     except Exception as e:
         logger.error(f"Error in fetch_emails_to_db for user_id {user_id}: {e}")
         # Mark the task as cancelled so it doesn't stay stuck in "processing"
@@ -413,6 +428,7 @@ def _fetch_emails_to_db_impl(
     last_updated: Optional[datetime] = None,
     *,
     user_id: str,
+    quick_limit: Optional[int] = None,
 ) -> None:
     with database.get_session() as db_session:
         gmail_instance = user.service
@@ -517,6 +533,13 @@ def _fetch_emails_to_db_impl(
             logger.info(f"user_id:{user_id} Limiting scan to {emails_remaining} emails (monthly cap)")
             messages = messages[:emails_remaining]
 
+        # Apply quick_limit for onboarding fast-path
+        is_quick_scan = False
+        if quick_limit is not None and len(messages) > quick_limit:
+            logger.info(f"user_id:{user_id} Quick scan: limiting to {quick_limit} of {len(messages)} emails")
+            messages = messages[:quick_limit]
+            is_quick_scan = True
+
         # Update session to remove "new user" status
         request.session["is_new_user"] = False
 
@@ -532,6 +555,7 @@ def _fetch_emails_to_db_impl(
                 process_task_run.status = task_models.FINISHED
                 process_task_run.total_emails = 0
                 process_task_run.processed_emails = 0
+                process_task_run.history_sync_completed = True  # nothing to backfill
                 db_session.add(process_task_run)
                 db_session.commit()
             return
@@ -656,6 +680,7 @@ def _fetch_emails_to_db_impl(
                 db_session.commit()
 
         process_task_run.status = task_models.FINISHED
+        process_task_run.history_sync_completed = not is_quick_scan
         db_session.commit()
 
-        logger.info(f"user_id:{user_id} Email fetching complete.")
+        logger.info(f"user_id:{user_id} Email fetching complete (history_sync_completed={not is_quick_scan}).")

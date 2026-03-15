@@ -22,6 +22,9 @@ def get_premium_reason(db_session, user: Users) -> str | None:
         "paid" if user contributes $5+/month
         None if user doesn't qualify for premium
     """
+    if user.plan == "promo":
+        return "promo"
+
     if user.role == "coach":
         return "coach"
 
