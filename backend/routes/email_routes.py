@@ -243,6 +243,7 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
             select(func.count(UserEmails.id)).where(
                 UserEmails.user_id == user_id,
                 UserEmails.received_at > to_dt,
+                ~UserEmails.id.like("manual_%"),
             )
         ).one()
         cutoff_iso = to_dt.isoformat()
@@ -253,6 +254,7 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
             select(func.count(UserEmails.id)).where(
                 UserEmails.user_id == user_id,
                 UserEmails.received_at < cutoff,
+                ~UserEmails.id.like("manual_%"),
             )
         ).one()
         cutoff_iso = cutoff.isoformat()
@@ -262,6 +264,7 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
             select(func.count(UserEmails.id)).where(
                 UserEmails.user_id == user_id,
                 UserEmails.received_at < cutoff,
+                ~UserEmails.id.like("manual_%"),
             )
         ).one()
         cutoff_iso = cutoff.isoformat()
@@ -282,6 +285,7 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         # Free-tier users see only a bounded window; emails are not deleted
         user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
         if not user or not is_premium_eligible(db_session, user):
+            from sqlmodel import or_
             if user and user.fetch_order == "oldest_first" and user.start_date:
                 from_dt = user.start_date.replace(tzinfo=timezone.utc)
                 to_dt = from_dt + timedelta(days=FREE_HISTORY_DAYS)
@@ -290,20 +294,29 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
                     scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
                     to_dt = min(to_dt, scan_end)
                 statement = statement.where(
-                    UserEmails.received_at >= from_dt,
-                    UserEmails.received_at <= to_dt,
+                    or_(
+                        UserEmails.id.like("manual_%"),
+                        (UserEmails.received_at >= from_dt) & (UserEmails.received_at <= to_dt),
+                    )
                 )
             elif user and user.fetch_order == "recent_first" and user.scan_end_date:
                 # Anchor recent-first window to end_date instead of NOW()
                 scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
                 cutoff = scan_end - timedelta(days=FREE_HISTORY_DAYS)
                 statement = statement.where(
-                    UserEmails.received_at >= cutoff,
-                    UserEmails.received_at <= scan_end,
+                    or_(
+                        UserEmails.id.like("manual_%"),
+                        (UserEmails.received_at >= cutoff) & (UserEmails.received_at <= scan_end),
+                    )
                 )
             else:
                 cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
-                statement = statement.where(UserEmails.received_at >= cutoff)
+                statement = statement.where(
+                    or_(
+                        UserEmails.id.like("manual_%"),
+                        UserEmails.received_at >= cutoff,
+                    )
+                )
 
         statement = statement.order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()
