@@ -54,6 +54,10 @@ export default function Dashboard() {
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
 
+	// Free-tier hidden history state (US-004)
+	const [hiddenEmailCount, setHiddenEmailCount] = useState(0);
+	const [hiddenCutoffDate, setHiddenCutoffDate] = useState<string | null>(null);
+
 	// Processing status state
 	const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
 	const [refreshing, setRefreshing] = useState(false);
@@ -430,6 +434,22 @@ export default function Dashboard() {
 			if (result.totalPages) setTotalPages(result.totalPages);
 
 			setData(Array.isArray(result) ? result : result.data || []);
+
+			// Fetch count of emails hidden behind the free-tier 30-day window (US-004)
+			try {
+				const hiddenResp = await fetch(`${apiUrl}/emails/hidden-count`, {
+					method: "GET",
+					credentials: "include",
+					headers
+				});
+				if (hiddenResp.ok) {
+					const hiddenData = await hiddenResp.json();
+					setHiddenEmailCount(hiddenData.hidden_count ?? 0);
+					setHiddenCutoffDate(hiddenData.cutoff_date ?? null);
+				}
+			} catch {
+				// non-critical; ignore
+			}
 		} catch {
 			setError("Failed to load applications");
 		} finally {
@@ -672,6 +692,25 @@ export default function Dashboard() {
 							</option>
 						))}
 					</select>
+				</div>
+			)}
+
+		{hiddenEmailCount > 0 && hiddenCutoffDate && (
+				<div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+					<div className="flex-1 text-sm text-amber-800 dark:text-amber-300">
+						<span className="font-medium">{hiddenEmailCount} email{hiddenEmailCount !== 1 ? "s" : ""}</span>
+						{" from before "}
+						<span className="font-medium">
+							{new Date(hiddenCutoffDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+						</span>
+						{" are hidden — upgrade to view them here, or export to CSV."}
+					</div>
+					<a
+						className="shrink-0 inline-flex items-center px-3 py-1.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors"
+						href="/pricing"
+					>
+						Upgrade to Pro
+					</a>
 				</div>
 			)}
 

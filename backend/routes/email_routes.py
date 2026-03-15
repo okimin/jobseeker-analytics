@@ -20,10 +20,11 @@ from utils.admin_utils import get_context_user_id
 import database
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from utils.job_utils import normalize_job_title
+from utils.billing_utils import is_premium_eligible
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -218,6 +219,33 @@ async def start_processing(
         raise HTTPException(status_code=500, detail="Failed to start processing")
 
 
+FREE_TIER_WINDOW_DAYS = 30
+
+
+@router.get("/emails/hidden-count")
+@limiter.limit("20/minute")
+def emails_hidden_count(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)):
+    """Return the count of emails hidden from free-tier users (older than 30 days).
+
+    Returns hidden_count=0 and cutoff_date=None for premium users.
+    """
+    from sqlmodel import func
+
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    if not user or is_premium_eligible(db_session, user):
+        return {"hidden_count": 0, "cutoff_date": None}
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_TIER_WINDOW_DAYS)
+    hidden_count = db_session.exec(
+        select(func.count(UserEmails.id)).where(
+            UserEmails.user_id == user_id,
+            UserEmails.received_at < cutoff,
+        )
+    ).one()
+
+    return {"hidden_count": hidden_count, "cutoff_date": cutoff.isoformat()}
+
+
 @router.get("/get-emails", response_model=List[UserEmails])
 @limiter.limit("5/minute")
 def query_emails(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)) -> None:
@@ -226,7 +254,15 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         # Query emails sorted by date (newest first)
         db_session.expire_all()  # Clear any cached data
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
-        statement = select(UserEmails).where(UserEmails.user_id == user_id).order_by(desc(UserEmails.received_at))
+        statement = select(UserEmails).where(UserEmails.user_id == user_id)
+
+        # Free-tier users see only the last 30 days; emails are not deleted
+        user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+        if not user or not is_premium_eligible(db_session, user):
+            cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_TIER_WINDOW_DAYS)
+            statement = statement.where(UserEmails.received_at >= cutoff)
+
+        statement = statement.order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()
 
         for email in user_emails:
