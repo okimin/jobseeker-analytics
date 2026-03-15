@@ -36,6 +36,9 @@ class Users(SQLModel, table=True):
     # Monthly email processing cap tracking
     emails_processed_this_month: int = Field(default=0, nullable=False)
     monthly_emails_reset_at: datetime | None = Field(default=None, nullable=True)
+    # Scan preferences
+    fetch_order: str = Field(default="recent_first", nullable=False)
+    scan_end_date: datetime | None = Field(default=None, nullable=True)
 
 class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"

@@ -41,6 +41,8 @@ PRESET_DAYS = {
 class UpdateStartDateRequest(BaseModel):
     preset: StartDatePreset
     custom_date: Optional[str] = None
+    fetch_order: str = "recent_first"   # "recent_first" | "oldest_first"
+    end_date: Optional[datetime] = None  # None = no upper bound
 
 
 @router.get("/settings/start-date")
@@ -110,8 +112,10 @@ async def update_start_date(
         days_ago = PRESET_DAYS.get(start_date_request.preset, 30)
         start_date = datetime.now(timezone.utc) - timedelta(days=days_ago)
 
-    # Update user's start date
+    # Update user's start date and scan preferences
     user.start_date = start_date
+    user.fetch_order = start_date_request.fetch_order
+    user.scan_end_date = start_date_request.end_date
     db_session.add(user)
     db_session.commit()
 

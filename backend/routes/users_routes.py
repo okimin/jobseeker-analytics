@@ -38,6 +38,8 @@ class PremiumStatusResponse(BaseModel):
     emails_processed_this_month: int = 0
     monthly_email_cap: int
     monthly_reset_date: Optional[str] = None  # ISO date of next reset (1st of next month)
+    fetch_order: str = "recent_first"
+    scan_end_date: Optional[str] = None  # ISO datetime string or None
 
 
 @router.get("/settings/premium-status")
@@ -106,6 +108,9 @@ async def get_premium_status(
     else:
         next_reset = date(today.year, today.month + 1, 1)
 
+    fetch_order = user.fetch_order or "recent_first"
+    scan_end_date_str = user.scan_end_date.isoformat() if user.scan_end_date else None
+
     return PremiumStatusResponse(
         is_premium=is_premium,
         premium_reason=premium_reason,
@@ -128,4 +133,6 @@ async def get_premium_status(
         emails_processed_this_month=emails_processed,
         monthly_email_cap=monthly_cap,
         monthly_reset_date=next_reset.isoformat(),
+        fetch_order=fetch_order,
+        scan_end_date=scan_end_date_str,
     )

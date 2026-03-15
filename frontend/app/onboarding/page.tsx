@@ -25,6 +25,8 @@ function OnboardingContent() {
 	const [showStartDatePicker, setShowStartDatePicker] = useState(false);
 	const [selectedPreset, setSelectedPreset] = useState<string | null>("1_month");
 	const [customDate, setCustomDate] = useState("");
+	const [fetchOrder, setFetchOrder] = useState<string>("recent_first");
+	const [endDate, setEndDate] = useState<string>("");
 	const [isSaving, setIsSaving] = useState(false);
 
 	useEffect(() => {
@@ -104,8 +106,8 @@ function OnboardingContent() {
 		try {
 			// Save start date
 			const startDateData = selectedPreset
-				? { preset: selectedPreset }
-				: { preset: "custom", custom_date: customDate };
+				? { preset: selectedPreset, fetch_order: fetchOrder, end_date: endDate || null }
+				: { preset: "custom", custom_date: customDate, fetch_order: fetchOrder, end_date: endDate || null };
 
 			const startDateResponse = await fetch(`${apiUrl}/settings/start-date`, {
 				method: "PUT",
@@ -156,6 +158,27 @@ function OnboardingContent() {
 
 	const isValid = selectedPreset || customDate;
 
+	// Compute the effective selected date for isOldDate check
+	const effectiveDate = (() => {
+		if (selectedPreset) {
+			const daysMap: Record<string, number> = { "1_week": 7, "1_month": 30, "3_months": 90 };
+			const days = daysMap[selectedPreset];
+			if (days) {
+				const d = new Date();
+				d.setDate(d.getDate() - days);
+				return d.toISOString().split("T")[0];
+			}
+		}
+		return customDate || "";
+	})();
+
+	const isOldDate = (() => {
+		if (!effectiveDate) return false;
+		const thirtyDaysAgo = new Date();
+		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+		return new Date(effectiveDate) < thirtyDaysAgo;
+	})();
+
 	if (isLoading) {
 		return (
 			<div className="flex flex-col min-h-screen">
@@ -202,7 +225,7 @@ function OnboardingContent() {
 						</div>
 
 						{/* Custom date picker */}
-						<div className="mb-6">
+						<div className="mb-4">
 							<label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
 								Or choose a specific date:
 							</label>
@@ -217,6 +240,58 @@ function OnboardingContent() {
 								}}
 							/>
 						</div>
+
+						{/* End date picker */}
+						<div className="mt-3 mb-4">
+							<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+								End date (optional)
+							</label>
+							<input
+								type="date"
+								className="w-full mt-1 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+								value={endDate}
+								min={effectiveDate || ""}
+								max={new Date().toISOString().split("T")[0]}
+								onChange={(e) => setEndDate(e.target.value)}
+							/>
+							<p className="text-xs text-gray-500 mt-1">Leave blank to scan through today</p>
+						</div>
+
+						{/* Fetch order toggle — only shown when start date is older than 30 days */}
+						{isOldDate && (
+							<div className="mt-3 mb-4">
+								<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+									Process order
+								</label>
+								<div className="flex gap-2 mt-1">
+									<button
+										className={`flex-1 py-2 px-3 rounded-lg border text-sm transition-colors ${
+											fetchOrder === "recent_first"
+												? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+												: "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+										}`}
+										onClick={() => setFetchOrder("recent_first")}
+									>
+										Recent first
+									</button>
+									<button
+										className={`flex-1 py-2 px-3 rounded-lg border text-sm transition-colors ${
+											fetchOrder === "oldest_first"
+												? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+												: "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+										}`}
+										onClick={() => setFetchOrder("oldest_first")}
+									>
+										Oldest first
+									</button>
+								</div>
+								<p className="text-xs text-gray-500 mt-1">
+									{fetchOrder === "oldest_first"
+										? "Processes emails starting from your start date forward."
+										: "Processes your most recent emails first."}
+								</p>
+							</div>
+						)}
 
 						<Button
 							className="w-full"

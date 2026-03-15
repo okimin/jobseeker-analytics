@@ -6,7 +6,7 @@ from sqlmodel import select, desc
 from db.user_emails import UserEmails
 from db import processing_tasks as task_models
 from db.users import Users
-from db.utils.user_email_utils import create_user_email
+from db.utils.user_email_utils import create_user_email, check_email_exists
 from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
 from utils.email_utils import get_email_ids, get_email, decode_subject_line
@@ -25,6 +25,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from utils.job_utils import normalize_job_title
 from utils.billing_utils import is_premium_eligible
+from utils.tier_limits import FREE_HISTORY_DAYS
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -219,9 +220,6 @@ async def start_processing(
         raise HTTPException(status_code=500, detail="Failed to start processing")
 
 
-FREE_TIER_WINDOW_DAYS = 30
-
-
 @router.get("/emails/hidden-count")
 @limiter.limit("20/minute")
 def emails_hidden_count(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)):
@@ -235,15 +233,40 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
     if not user or is_premium_eligible(db_session, user):
         return {"hidden_count": 0, "cutoff_date": None}
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_TIER_WINDOW_DAYS)
-    hidden_count = db_session.exec(
-        select(func.count(UserEmails.id)).where(
-            UserEmails.user_id == user_id,
-            UserEmails.received_at < cutoff,
-        )
-    ).one()
+    if user and user.fetch_order == "oldest_first" and user.start_date:
+        from_dt = user.start_date.replace(tzinfo=timezone.utc)
+        to_dt = from_dt + timedelta(days=FREE_HISTORY_DAYS)
+        if user.scan_end_date:
+            scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
+            to_dt = min(to_dt, scan_end)
+        hidden_count = db_session.exec(
+            select(func.count(UserEmails.id)).where(
+                UserEmails.user_id == user_id,
+                UserEmails.received_at > to_dt,
+            )
+        ).one()
+        cutoff_iso = to_dt.isoformat()
+    elif user and user.fetch_order == "recent_first" and user.scan_end_date:
+        scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
+        cutoff = scan_end - timedelta(days=FREE_HISTORY_DAYS)
+        hidden_count = db_session.exec(
+            select(func.count(UserEmails.id)).where(
+                UserEmails.user_id == user_id,
+                UserEmails.received_at < cutoff,
+            )
+        ).one()
+        cutoff_iso = cutoff.isoformat()
+    else:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
+        hidden_count = db_session.exec(
+            select(func.count(UserEmails.id)).where(
+                UserEmails.user_id == user_id,
+                UserEmails.received_at < cutoff,
+            )
+        ).one()
+        cutoff_iso = cutoff.isoformat()
 
-    return {"hidden_count": hidden_count, "cutoff_date": cutoff.isoformat()}
+    return {"hidden_count": hidden_count, "cutoff_date": cutoff_iso}
 
 
 @router.get("/get-emails", response_model=List[UserEmails])
@@ -256,11 +279,31 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         statement = select(UserEmails).where(UserEmails.user_id == user_id)
 
-        # Free-tier users see only the last 30 days; emails are not deleted
+        # Free-tier users see only a bounded window; emails are not deleted
         user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
         if not user or not is_premium_eligible(db_session, user):
-            cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_TIER_WINDOW_DAYS)
-            statement = statement.where(UserEmails.received_at >= cutoff)
+            if user and user.fetch_order == "oldest_first" and user.start_date:
+                from_dt = user.start_date.replace(tzinfo=timezone.utc)
+                to_dt = from_dt + timedelta(days=FREE_HISTORY_DAYS)
+                # Cap to scan_end_date if set
+                if user.scan_end_date:
+                    scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
+                    to_dt = min(to_dt, scan_end)
+                statement = statement.where(
+                    UserEmails.received_at >= from_dt,
+                    UserEmails.received_at <= to_dt,
+                )
+            elif user and user.fetch_order == "recent_first" and user.scan_end_date:
+                # Anchor recent-first window to end_date instead of NOW()
+                scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
+                cutoff = scan_end - timedelta(days=FREE_HISTORY_DAYS)
+                statement = statement.where(
+                    UserEmails.received_at >= cutoff,
+                    UserEmails.received_at <= scan_end,
+                )
+            else:
+                cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
+                statement = statement.where(UserEmails.received_at >= cutoff)
 
         statement = statement.order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()
@@ -440,13 +483,23 @@ def _fetch_emails_to_db_impl(
             # and tell Gmail to fetch only messages received after March 20, 2025 at 14:32 UTC.
             query = QUERY_APPLIED_EMAIL_FILTER
             query += f" after:{additional_time}"
+            if existing_user and existing_user.scan_end_date:
+                end_str = existing_user.scan_end_date.strftime("%Y/%m/%d")
+                query += f" before:{end_str}"
             logger.info(f"user_id:{user_id} Fetching emails after {additional_time}")
         else:
+            if existing_user and existing_user.scan_end_date:
+                end_str = existing_user.scan_end_date.strftime("%Y/%m/%d")
+                query += f" before:{end_str}"
             logger.info(f"user_id:{user_id} Fetching all emails with start date: {start_date}")
 
         messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
 
-        # Respect monthly cap — slice messages to remaining capacity
+        # Reverse for oldest-first processing
+        if existing_user and existing_user.fetch_order == "oldest_first":
+            messages = list(reversed(messages))
+
+        # Apply monthly cap slice AFTER ordering
         if emails_remaining is not None and len(messages) > emails_remaining:
             logger.info(f"user_id:{user_id} Limiting scan to {emails_remaining} emails (monthly cap)")
             messages = messages[:emails_remaining]
@@ -480,6 +533,9 @@ def _fetch_emails_to_db_impl(
             message_data = {}
             # (email_subject, email_from, email_domain, company_name, email_dt)
             msg_id = message["id"]
+            if check_email_exists(user_id, msg_id, db_session):
+                logger.debug(f"user_id:{user_id} skipping already-processed email {msg_id}")
+                continue
             logger.info(
                 f"user_id:{user_id} begin processing for email {idx + 1} of {len(messages)} with id {msg_id}"
             )
@@ -580,7 +636,9 @@ def _fetch_emails_to_db_impl(
                 select(Users).where(Users.user_id == user_id)
             ).first()
             if existing_user:
-                existing_user.emails_processed_this_month = (existing_user.emails_processed_this_month or 0) + (process_task_run.processed_emails or 0)
+                existing_user.emails_processed_this_month = (
+                    existing_user.emails_processed_this_month or 0
+                ) + len(email_records)
                 db_session.add(existing_user)
                 db_session.commit()
 

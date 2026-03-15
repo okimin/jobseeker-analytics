@@ -53,6 +53,8 @@ export default function Dashboard() {
 	const [contributionCents, setContributionCents] = useState(0);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
+	const [fetchOrder, setFetchOrder] = useState<string>("recent_first");
+	const [scanEndDate, setScanEndDate] = useState<string | null>(null);
 	const [monthlyEmailsUsed, setMonthlyEmailsUsed] = useState(0);
 	const [monthlyEmailCap, setMonthlyEmailCap] = useState<number | null>(null);
 	const [monthlyResetDate, setMonthlyResetDate] = useState<string | null>(null);
@@ -250,7 +252,12 @@ export default function Dashboard() {
 	}, [apiUrl]);
 
 	// Handle start date update
-	const handleStartDateSave = async (data: { preset: string; custom_date?: string }) => {
+	const handleStartDateSave = async (data: {
+		preset: string;
+		custom_date?: string;
+		fetch_order: string;
+		end_date: string | null;
+	}) => {
 		setUpdatingStartDate(true);
 		posthog.capture("start_date_changed", { preset: data.preset });
 
@@ -362,6 +369,8 @@ export default function Dashboard() {
 				setMonthlyEmailsUsed(data.emails_processed_this_month ?? 0);
 				setMonthlyEmailCap(data.monthly_email_cap ?? null);
 				setMonthlyResetDate(data.monthly_reset_date ?? null);
+				setFetchOrder(data.fetch_order ?? "recent_first");
+				setScanEndDate(data.scan_end_date ?? null);
 			}
 		} catch (error) {
 			console.error("Error fetching premium status:", error);
@@ -632,7 +641,27 @@ export default function Dashboard() {
 
 			<div className="flex items-center justify-between mb-4 px-6 pt-4">
 				<p className="text-sm text-gray-500 dark:text-gray-400">
-					Tracking since {formatStartDate(startDate)}
+					{(() => {
+						if (isPremium) return `Tracking since ${formatStartDate(startDate)}`;
+						if (fetchOrder === "oldest_first" && startDate && hiddenEmailCount > 0) {
+							const endDisplay = scanEndDate
+								? formatStartDate(scanEndDate)
+								: (() => {
+										const d = new Date(startDate);
+										d.setDate(d.getDate() + 30);
+										return d.toLocaleDateString("en-US", {
+											month: "short",
+											day: "numeric",
+											year: "numeric"
+										});
+									})();
+							return `Showing ${formatStartDate(startDate)} – ${endDisplay} • Upgrade to see more`;
+						}
+						if (hiddenEmailCount > 0) {
+							return `Showing last 30 days • Full history from ${formatStartDate(startDate)} unlocked on upgrade`;
+						}
+						return `Tracking since ${formatStartDate(startDate)}`;
+					})()}
 					<button
 						className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
 						disabled={processingStatus?.status === "processing"}
@@ -849,6 +878,7 @@ export default function Dashboard() {
 			<ChangeStartDateModal
 				currentDate={startDate}
 				isLoading={updatingStartDate}
+				isPremium={isPremium}
 				isOpen={showStartDateModal}
 				onClose={() => setShowStartDateModal(false)}
 				onSave={handleStartDateSave}
