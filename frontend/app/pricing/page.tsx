@@ -96,7 +96,35 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											CSV export of all your data
+										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">Manual sync anytime</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											Custom date range scanning
+										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											Last 30 days visible in dashboard
+										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											Up to 500 emails scanned per month
+										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
+										<span className="text-gray-400 dark:text-gray-500">Full dashboard history</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
@@ -139,7 +167,7 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Your data stays fresh</span>
+										<span className="text-gray-600 dark:text-gray-300">Full dashboard history</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
@@ -220,6 +248,32 @@ export default function PricingPage() {
 							Frequently Asked Questions
 						</h2>
 						<div className="space-y-6">
+							<div>
+								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
+									How much email history can I see in my dashboard?
+								</h3>
+								<p className="text-gray-600 dark:text-gray-300">
+									Free users see the last 30 days of job application emails in their dashboard. Your
+									full history is stored and unlocks immediately when you upgrade — no re-sync needed.
+									And regardless of your plan, you can always export everything we’ve ever processed
+									for you via CSV.
+								</p>
+							</div>
+							<div>
+								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
+									Is there a limit on how many emails get scanned?
+								</h3>
+								<p className="text-gray-600 dark:text-gray-300">
+									Free accounts scan up to 500 emails per month, which resets on the 1st. Premium
+									accounts have a higher monthly buffer to keep our costs predictable — if you’re
+									hitting limits, email{" "}
+									<a className="underline" href="mailto:help@justajobapp.com">
+										help@justajobapp.com
+									</a>{" "}
+									and we’ll figure it out together. (And if you’re getting 5,000 job emails a month,
+									we’d love to chat about your search strategy too.)
+								</p>
+							</div>
 							<div>
 								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
 									What does automatic sync do?

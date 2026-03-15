@@ -9,7 +9,8 @@ from slowapi.util import get_remote_address
 import database
 from utils.file_utils import get_user_filepath
 from session.session_layer import validate_session, user_has_recent_authentication
-from routes.email_routes import query_emails
+from sqlmodel import select, desc
+from db.user_emails import UserEmails
 from utils.config_utils import get_settings
 from utils.validator_utils import sanitize_csv_field
 
@@ -41,8 +42,12 @@ async def process_csv(
     filename = "emails.csv"
     filepath = os.path.join(directory, filename)
 
-    # Get job related email data from DB (respects free-tier 30-day window)
-    emails = query_emails(request, db_session=db_session, user_id=user_id)
+    # Fetch ALL processed emails — CSV is full data export regardless of tier
+    emails = db_session.exec(
+        select(UserEmails)
+        .where(UserEmails.user_id == user_id)
+        .order_by(desc(UserEmails.received_at))
+    ).all()
     if not emails:
         raise HTTPException(status_code=400, detail="No data found to write")
     # Ensure the directory exists
