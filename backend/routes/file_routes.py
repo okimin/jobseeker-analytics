@@ -1,4 +1,5 @@
 import csv
+import email.utils as email_utils
 import os
 import logging
 from fastapi import APIRouter, HTTPException, Request, Depends
@@ -40,41 +41,33 @@ async def process_csv(
     filename = "emails.csv"
     filepath = os.path.join(directory, filename)
 
-    # Get job related email data from DB
+    # Get job related email data from DB (respects free-tier 30-day window)
     emails = query_emails(request, db_session=db_session, user_id=user_id)
     if not emails:
         raise HTTPException(status_code=400, detail="No data found to write")
     # Ensure the directory exists
     os.makedirs(directory, exist_ok=True)
 
-    # Key: DB field name; Value: Human-readable field name
-    field_mapping = {
-        "company_name": "Company Name",
-        "application_status": "Application Status",
-        "received_at": "Received At",
-        "job_title": "Job Title",
-        "subject": "Subject",
-        "email_from": "Sender",
-    }
+    # CSV columns per spec: Date Received, Sender Name, Sender Email, Subject, Status Label
+    headers = ["Date Received", "Sender Name", "Sender Email", "Subject", "Status Label"]
 
-    if not settings.is_publicly_deployed:
-        field_mapping.update({"id": "Message ID"})
-
-    selected_fields = list(field_mapping.keys())
-    headers = list(field_mapping.values())
-
-    # Filter out unwanted fields
-    processed_emails = [
-        {key: value for key, value in email if key in selected_fields}
-        for email in emails
-    ]
+    def build_row(email_obj):
+        sender_name, sender_email = email_utils.parseaddr(email_obj.email_from or "")
+        received = email_obj.received_at.strftime("%Y-%m-%d") if email_obj.received_at else ""
+        return [
+            sanitize_csv_field(received),
+            sanitize_csv_field(sender_name),
+            sanitize_csv_field(sender_email or email_obj.email_from or ""),
+            sanitize_csv_field(email_obj.subject or ""),
+            sanitize_csv_field(email_obj.application_status or "")
+        ]
 
     # Write to CSV
     with open(filepath, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(headers)
-        for row in processed_emails:
-            writer.writerow([sanitize_csv_field(row.get(field, "")) for field in selected_fields])
+        for email_obj in emails:
+            writer.writerow(build_row(email_obj))
 
     logger.info("CSV file created at %s", filepath)
 
