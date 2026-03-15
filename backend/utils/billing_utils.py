@@ -73,6 +73,30 @@ def upgrade_user_to_premium(db_session, user_id: str) -> bool:
     return False
 
 
+def get_monthly_email_cap(db_session, user: Users) -> int:
+    """Return this user's monthly email processing cap. Free=500, Premium=5000."""
+    from utils.tier_limits import FREE_MONTHLY_EMAIL_CAP, PRO_MONTHLY_EMAIL_CAP
+    if is_premium_eligible(db_session, user):
+        return PRO_MONTHLY_EMAIL_CAP
+    return FREE_MONTHLY_EMAIL_CAP
+
+
+def reset_monthly_counter_if_needed(user: Users) -> Users:
+    """Reset emails_processed_this_month if we're in a new calendar month."""
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    if user.monthly_emails_reset_at:
+        reset_dt = user.monthly_emails_reset_at
+        if reset_dt.tzinfo is None:
+            reset_dt = reset_dt.replace(tzinfo=timezone.utc)
+        if (now.year, now.month) > (reset_dt.year, reset_dt.month):
+            user.emails_processed_this_month = 0
+            user.monthly_emails_reset_at = now
+    else:
+        user.monthly_emails_reset_at = now
+    return user
+
+
 def downgrade_user_from_premium(db_session, user_id: str) -> bool:
     """
     Check if user should be downgraded from premium tier.

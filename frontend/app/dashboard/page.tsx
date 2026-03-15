@@ -53,6 +53,9 @@ export default function Dashboard() {
 	const [contributionCents, setContributionCents] = useState(0);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
+	const [monthlyEmailsUsed, setMonthlyEmailsUsed] = useState(0);
+	const [monthlyEmailCap, setMonthlyEmailCap] = useState<number | null>(null);
+	const [monthlyResetDate, setMonthlyResetDate] = useState<string | null>(null);
 
 	// Free-tier hidden history state (US-004)
 	const [hiddenEmailCount, setHiddenEmailCount] = useState(0);
@@ -356,6 +359,9 @@ export default function Dashboard() {
 				const data = await response.json();
 				setIsPremium(data.is_premium);
 				setContributionCents(data.monthly_contribution_cents || 0);
+				setMonthlyEmailsUsed(data.emails_processed_this_month ?? 0);
+				setMonthlyEmailCap(data.monthly_email_cap ?? null);
+				setMonthlyResetDate(data.monthly_reset_date ?? null);
 			}
 		} catch (error) {
 			console.error("Error fetching premium status:", error);
@@ -692,6 +698,28 @@ export default function Dashboard() {
 							</option>
 						))}
 					</select>
+				</div>
+			)}
+
+			{monthlyEmailCap !== null && monthlyEmailsUsed >= monthlyEmailCap && monthlyResetDate && (
+				<div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+					<div className="flex-1 text-sm text-red-800 dark:text-red-300">
+						{"You've reached your monthly limit — resets on "}
+						<span className="font-medium">
+							{new Date(monthlyResetDate).toLocaleDateString("en-US", { month: "long", day: "numeric" })}
+						</span>
+						{isPremium ? (
+							"."
+						) : (
+							<>
+								{", or "}
+								<a className="underline font-medium" href="/pricing">
+									upgrade to Pro
+								</a>
+								{" for a higher limit."}
+							</>
+						)}
+					</div>
 				</div>
 			)}
 

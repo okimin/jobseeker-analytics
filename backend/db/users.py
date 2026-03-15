@@ -33,6 +33,9 @@ class Users(SQLModel, table=True):
     # Background sync fields
     sync_tier: str = Field(default="none", nullable=False)  # 'none' or 'premium'
     last_background_sync_at: datetime | None = Field(default=None, nullable=True)  # Last background sync timestamp
+    # Monthly email processing cap tracking
+    emails_processed_this_month: int = Field(default=0, nullable=False)
+    monthly_emails_reset_at: datetime | None = Field(default=None, nullable=True)
 
 class CoachClientLink(SQLModel, table=True):
     __tablename__ = "coach_client_link"

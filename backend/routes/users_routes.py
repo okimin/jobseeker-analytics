@@ -35,6 +35,9 @@ class PremiumStatusResponse(BaseModel):
     cancel_at_period_end: bool = False
     subscription_ends_at: Optional[int] = None  # Unix timestamp when cancelled
     subscription_renews_at: Optional[int] = None  # Unix timestamp for next renewal
+    emails_processed_this_month: int = 0
+    monthly_email_cap: int
+    monthly_reset_date: Optional[str] = None  # ISO date of next reset (1st of next month)
 
 
 @router.get("/settings/premium-status")
@@ -84,6 +87,25 @@ async def get_premium_status(
         except stripe.error.StripeError as e:
             logger.warning(f"Failed to fetch subscription status: {e}")
 
+    from utils.billing_utils import get_monthly_email_cap, reset_monthly_counter_if_needed
+    from datetime import date
+    import calendar
+
+    # Reset counter if we've rolled into a new calendar month, then persist
+    user = reset_monthly_counter_if_needed(user)
+    db_session.add(user)
+    db_session.commit()
+
+    monthly_cap = get_monthly_email_cap(db_session, user)
+    emails_processed = user.emails_processed_this_month or 0
+
+    # Next reset = 1st of next month
+    today = date.today()
+    if today.month == 12:
+        next_reset = date(today.year + 1, 1, 1)
+    else:
+        next_reset = date(today.year, today.month + 1, 1)
+
     return PremiumStatusResponse(
         is_premium=is_premium,
         premium_reason=premium_reason,
@@ -103,4 +125,7 @@ async def get_premium_status(
         cancel_at_period_end=cancel_at_period_end,
         subscription_ends_at=subscription_ends_at,
         subscription_renews_at=subscription_renews_at,
+        emails_processed_this_month=emails_processed,
+        monthly_email_cap=monthly_cap,
+        monthly_reset_date=next_reset.isoformat(),
     )

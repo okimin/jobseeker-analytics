@@ -410,6 +410,26 @@ def _fetch_emails_to_db_impl(
             logger.info(f"start_date {start_date} != user.start_date {existing_user.start_date.strftime('%Y/%m/%d')}")
             start_date_updated = True
 
+        # Monthly cap enforcement
+        from utils.billing_utils import get_monthly_email_cap, reset_monthly_counter_if_needed
+
+        if existing_user:
+            existing_user = reset_monthly_counter_if_needed(existing_user)
+            db_session.add(existing_user)
+            db_session.commit()
+
+            monthly_cap = get_monthly_email_cap(db_session, existing_user)
+            emails_remaining = monthly_cap - (existing_user.emails_processed_this_month or 0)
+
+            if emails_remaining <= 0:
+                logger.info(f"user_id:{user_id} Monthly email cap reached ({monthly_cap}), cancelling scan")
+                process_task_run.status = task_models.CANCELLED
+                db_session.commit()
+                return
+        else:
+            monthly_cap = None
+            emails_remaining = None
+
         query = start_date_query
         # check for users last updated email
         if last_updated and not start_date_updated:
@@ -425,6 +445,12 @@ def _fetch_emails_to_db_impl(
             logger.info(f"user_id:{user_id} Fetching all emails with start date: {start_date}")
 
         messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
+
+        # Respect monthly cap — slice messages to remaining capacity
+        if emails_remaining is not None and len(messages) > emails_remaining:
+            logger.info(f"user_id:{user_id} Limiting scan to {emails_remaining} emails (monthly cap)")
+            messages = messages[:emails_remaining]
+
         # Update session to remove "new user" status
         request.session["is_new_user"] = False
 
@@ -547,6 +573,16 @@ def _fetch_emails_to_db_impl(
             )
         else:
             logger.warning(f"No email records to add for user {user_id}")
+
+        # Increment monthly counter
+        if existing_user:
+            existing_user = db_session.exec(
+                select(Users).where(Users.user_id == user_id)
+            ).first()
+            if existing_user:
+                existing_user.emails_processed_this_month = (existing_user.emails_processed_this_month or 0) + (process_task_run.processed_emails or 0)
+                db_session.add(existing_user)
+                db_session.commit()
 
         process_task_run.status = task_models.FINISHED
         db_session.commit()
