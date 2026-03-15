@@ -878,8 +878,8 @@ export default function Dashboard() {
 			<ChangeStartDateModal
 				currentDate={startDate}
 				isLoading={updatingStartDate}
-				isPremium={isPremium}
 				isOpen={showStartDateModal}
+				isPremium={isPremium}
 				onClose={() => setShowStartDateModal(false)}
 				onSave={handleStartDateSave}
 			/>

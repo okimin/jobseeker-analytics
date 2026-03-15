@@ -115,11 +115,11 @@ export default function ChangeStartDateModal({
 							End date (optional)
 						</label>
 						<input
-							type="date"
 							className="w-full mt-1 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-							value={endDate}
-							min={effectiveDate || ""}
 							max={new Date().toISOString().split("T")[0]}
+							min={effectiveDate || ""}
+							type="date"
+							value={endDate}
 							onChange={(e) => setEndDate(e.target.value)}
 						/>
 						<p className="text-xs text-gray-500 mt-1">Leave blank to scan through today</p>
