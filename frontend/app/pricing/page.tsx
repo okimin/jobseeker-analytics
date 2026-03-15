@@ -88,11 +88,11 @@ export default function PricingPage() {
 								<ul className="space-y-3">
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Track job applications</span>
+										<span className="text-gray-600 dark:text-gray-300">Gmail integration</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Gmail integration</span>
+										<span className="text-gray-600 dark:text-gray-300">Last 30 days visible</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
@@ -102,34 +102,16 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Manual sync anytime</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">
-											Custom date range scanning
-										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">
-											Last 30 days visible in dashboard
-										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">
-											Up to 500 emails scanned per month
-										</span>
+										<span className="text-gray-600 dark:text-gray-300">Manual refresh</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
-										<span className="text-gray-400 dark:text-gray-500">Full dashboard history</span>
+										<span className="text-gray-400 dark:text-gray-500">Full history</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
 										<span className="text-gray-400 dark:text-gray-500">
-											Automatic background sync
+											Auto-refresh twice a day
 										</span>
 									</li>
 								</ul>
@@ -161,17 +143,13 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">Full history</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300 font-medium">
-											Automatic sync every 12 hours
+											Auto-refresh twice a day
 										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Full dashboard history</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Support open source</span>
 									</li>
 								</ul>
 								<div className="mt-6">
@@ -215,12 +193,6 @@ export default function PricingPage() {
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">Access to client data</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">
-											Automatic sync every 12 hours
-										</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
@@ -290,23 +262,6 @@ export default function PricingPage() {
 								<p className="text-gray-600 dark:text-gray-300">
 									Yes! You can cancel your monthly support at any time. You'll keep premium features
 									until the end of your billing period.
-								</p>
-							</div>
-							<div>
-								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
-									What if I contribute less than $5/month?
-								</h3>
-								<p className="text-gray-600 dark:text-gray-300">
-									<span>
-										<a
-											className="underline"
-											href="https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00"
-										>
-											Any contribution
-										</a>
-									</span>{" "}
-									helps keep the project running! You'll have access to all free features and can
-									manually sync your emails anytime. Premium auto-sync is available at $5/month.
 								</p>
 							</div>
 							<div>
