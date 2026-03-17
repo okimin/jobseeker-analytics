@@ -14,6 +14,15 @@ export default function PricingPage() {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
+	function XIcon({ className }: { className?: string }) {
+		return (
+			<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+			</svg>
+		);
+	}	
+	
+
 	useEffect(() => {
 		const fetchPremiumStatus = async () => {
 			try {
@@ -97,7 +106,7 @@ export default function PricingPage() {
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">
-											CSV export of all your data
+											CSV export — all your data
 										</span>
 									</li>
 									<li className="flex items-start gap-2">
@@ -143,13 +152,17 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Full history</span>
+										<span className="text-gray-600 dark:text-gray-300">Full dashboard history</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300 font-medium">
+										<span className="text-gray-600 dark:text-gray-300">
 											Auto-refresh twice a day
 										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">Past job searches</span>
 									</li>
 								</ul>
 								<div className="mt-6">
@@ -290,10 +303,3 @@ function CheckIcon({ className }: { className?: string }) {
 	);
 }
 
-function XIcon({ className }: { className?: string }) {
-	return (
-		<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-		</svg>
-	);
-}
