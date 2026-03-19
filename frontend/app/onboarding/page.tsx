@@ -18,6 +18,7 @@ type Screen =
 	| "step1"
 	| "step2"
 	| "step3"
+	| "step3.5"
 	| "step4-scanning"
 	| "step4a-i"
 	| "step4a-ii"
@@ -25,11 +26,19 @@ type Screen =
 	| "step4b-ii"
 	| "empty-state";
 
+interface PreviewEmail {
+	sender: string;
+	sender_domain: string;
+	subject: string;
+	date: string;
+}
+
 const PRESETS = [
 	{ value: "1_week", label: "Last week", days: 7 },
 	{ value: "1_month", label: "Last month", days: 30 },
-	{ value: "3_months", label: "3 months", days: 90 },
-	{ value: "6_months", label: "6 months", days: 180 }
+	{ value: "3_months", label: "3 months ago", days: 90 },
+	{ value: "6_months", label: "6 months ago", days: 180 },
+	{ value: "1_year", label: "1 year ago", days: 365 }
 ];
 
 function formatDate(d: Date) {
@@ -45,17 +54,20 @@ function daysAgoDate(days: number) {
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function ProgressBar({ step, total = 3 }: { step: number; total?: number }) {
+	// Show progress TO the current step, not through it
+	// Step 1: ~10% (just started), Step 2: ~43%, Step 3: ~77%
+	const progress = ((step - 1) / total) * 100 + 10;
 	return (
 		<div className="w-full mb-6">
-			<div className="flex justify-between text-xs text-gray-400 mb-1">
+			<div className="flex justify-between text-xs text-default-500 mb-2">
 				<span>
 					Step {step} of {total}
 				</span>
 			</div>
-			<div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
+			<div className="w-full h-2 bg-default-200 rounded-full overflow-hidden">
 				<div
-					className="h-1.5 bg-blue-500 rounded-full transition-all"
-					style={{ width: `${(step / total) * 100}%` }}
+					className="h-2 bg-primary rounded-full transition-all"
+					style={{ width: `${Math.min(progress, 100)}%` }}
 				/>
 			</div>
 		</div>
@@ -78,7 +90,12 @@ function OnboardingContent() {
 
 	// Step 3 state
 	const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-	const [customDate, setCustomDate] = useState("");
+	// Default to 30 days ago formatted as YYYY-MM-DD
+	const [customDate, setCustomDate] = useState(() => {
+		const date = new Date();
+		date.setDate(date.getDate() - 30);
+		return date.toISOString().split("T")[0];
+	});
 	const [coachEndDate, setCoachEndDate] = useState("");
 	const [promoCode, setPromoCode] = useState("");
 	const [promoError, setPromoError] = useState<string | null>(null);
@@ -86,6 +103,13 @@ function OnboardingContent() {
 	const [isSaving, setIsSaving] = useState(false);
 	const [savedStartDate, setSavedStartDate] = useState<Date | null>(null);
 	const [savedEndDate, setSavedEndDate] = useState<string>("");
+
+	// Step 3.5 state (preview)
+	const [previewEmails, setPreviewEmails] = useState<PreviewEmail[]>([]);
+	const [previewTotalCount, setPreviewTotalCount] = useState(0);
+	const [previewLimited, setPreviewLimited] = useState(false);
+	const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+	const [previewError, setPreviewError] = useState<string | null>(null);
 
 	// Step 4 state
 	const [applicationsFound, setApplicationsFound] = useState(0);
@@ -277,14 +301,63 @@ function OnboardingContent() {
 			}
 		}
 		setDateError(null);
-		setIsSaving(true);
+		setIsLoadingPreview(true);
+		setPreviewError(null);
 		setSavedStartDate(effectiveStartDate);
 		setSavedEndDate(coachEndDate);
 
 		try {
+			// Fetch email preview
+			const startStr = effectiveStartDate.toISOString().split("T")[0].replace(/-/g, "/");
+			const endStr = coachEndDate
+				? new Date(coachEndDate).toISOString().split("T")[0].replace(/-/g, "/")
+				: new Date().toISOString().split("T")[0].replace(/-/g, "/");
+
+			const previewRes = await fetch(`${apiUrl}/api/emails/preview?start_date=${startStr}&end_date=${endStr}`, {
+				credentials: "include"
+			});
+
+			if (!previewRes.ok) {
+				const errorData = await previewRes.json().catch(() => ({}));
+				if (errorData.detail === "token_expired") {
+					setPreviewError("Gmail access expired. Please reconnect.");
+				} else if (errorData.detail === "gmail_scope_missing") {
+					setPreviewError("Gmail access required. Please reconnect.");
+				} else {
+					setPreviewError("Failed to fetch email preview. Please try again.");
+				}
+				return;
+			}
+
+			const previewData = await previewRes.json();
+			setPreviewEmails(previewData.emails || []);
+			setPreviewTotalCount(previewData.total_count || 0);
+			setPreviewLimited(previewData.limited || false);
+
+			posthog.capture("onboarding_preview_loaded", {
+				role,
+				email_count: previewData.total_count,
+				limited: previewData.limited
+			});
+
+			setScreen("step3.5");
+		} catch (err) {
+			console.error("Preview fetch error:", err);
+			setPreviewError("Something went wrong. Please try again.");
+		} finally {
+			setIsLoadingPreview(false);
+		}
+	};
+
+	const handleConfirmScan = async () => {
+		if (!savedStartDate) return;
+
+		setIsSaving(true);
+
+		try {
 			// For coaches with a promo code: validate + apply promo BEFORE triggering backfill
-			let appliedPlan = "free";
-			if (role === "coach" && promoCode.trim()) {
+			let appliedPlan = plan;
+			if (role === "coach" && promoCode.trim() && plan !== "promo") {
 				const promoRes = await fetch(`${apiUrl}/api/onboarding/apply-promo`, {
 					method: "POST",
 					credentials: "include",
@@ -293,28 +366,22 @@ function OnboardingContent() {
 				});
 				if (promoRes.ok) {
 					const promoData = await promoRes.json();
-					if (!promoData.valid) {
-						setPromoError("That code isn't valid — check for typos");
-						// Don't block submission — proceed as free-tier coach
-					} else {
+					if (promoData.valid) {
 						appliedPlan = "promo";
 						setPlan("promo");
-						setPromoError(null);
 					}
 				}
 			}
 
-			// Trigger backfill via start-date (plan is now updated if promo was valid)
-			// Coaches use oldest_first so the dashboard shows from their chosen start date.
-			// Job seekers use recent_first (rolling last-30-day window).
+			// Trigger backfill via start-date
 			const fetchOrder = role === "coach" ? "oldest_first" : "recent_first";
 			const startDatePayload = selectedPreset
-				? { preset: selectedPreset, fetch_order: fetchOrder, end_date: coachEndDate || null }
+				? { preset: selectedPreset, fetch_order: fetchOrder, end_date: savedEndDate || null }
 				: {
 						preset: "custom",
-						custom_date: effectiveStartDate.toISOString().split("T")[0],
+						custom_date: savedStartDate.toISOString().split("T")[0],
 						fetch_order: fetchOrder,
-						end_date: coachEndDate || null
+						end_date: savedEndDate || null
 					};
 
 			const sdRes = await fetch(`${apiUrl}/settings/start-date`, {
@@ -330,9 +397,9 @@ function OnboardingContent() {
 
 			posthog.capture("onboarding_scan_started", { role, plan: appliedPlan });
 			setScreen("step4-scanning");
-			startPolling(effectiveStartDate, role!, appliedPlan);
+			startPolling(savedStartDate, role!, appliedPlan);
 		} catch (err) {
-			console.error("Step 3 submit error:", err);
+			console.error("Confirm scan error:", err);
 			setDateError("Something went wrong. Please try again.");
 		} finally {
 			setIsSaving(false);
@@ -377,7 +444,7 @@ function OnboardingContent() {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ amount_cents: 900, trigger_type: "onboarding", is_recurring: true })
+				body: JSON.stringify({ amount_cents: 500, trigger_type: "onboarding", is_recurring: true })
 			});
 			if (res.ok) {
 				const data = await res.json();
@@ -385,6 +452,30 @@ function OnboardingContent() {
 			}
 		} catch {
 			// ignore
+		}
+	};
+
+	// Switch role handler
+	const handleSwitchRole = async () => {
+		const newRole: Role = role === "jobseeker" ? "coach" : "jobseeker";
+		try {
+			await fetch(`${apiUrl}/api/onboarding/role`, {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ role: newRole })
+			});
+			setRole(newRole);
+			posthog.capture("onboarding_role_switched", { from: role, to: newRole });
+			// Reset date selections when switching roles
+			setSelectedPreset(null);
+			setCustomDate("");
+			setCoachEndDate("");
+			setPromoCode("");
+			setPromoError(null);
+			setDateError(null);
+		} catch {
+			// non-blocking
 		}
 	};
 
@@ -427,35 +518,34 @@ function OnboardingContent() {
 		return (
 			<>
 				<Navbar />
-				<main className="flex-grow flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-					<div className="w-full max-w-md">
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-							Why are you here?
+				<main className="flex-grow flex flex-col items-center justify-center px-4 py-8 sm:p-6">
+					<div className="w-full max-w-md sm:max-w-lg">
+						<h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 sm:mb-10 text-center">
+							How would you like to get started?
 						</h1>
-						<p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-8">
-							This helps us set up the right experience for you.
-						</p>
-						<div className="flex flex-col gap-4">
+						<div className="flex flex-col gap-4 sm:gap-5">
+							{/* Primary option - Job seeker */}
 							<button
-								className="w-full p-5 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-left transition-all"
+								className="group w-full p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-primary border-2 border-dashed border-default-300 dark:border-default-400 hover:border-primary dark:hover:border-primary text-left transition-all"
 								onClick={() => handleRoleSelect("jobseeker")}
 							>
-								<p className="font-semibold text-gray-900 dark:text-white mb-1">
+								<p className="font-semibold underline text-primary-foreground text-base sm:text-lg dark:text-default-600 mb-1 sm:mb-2">
 									I&apos;m actively job searching
 								</p>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Track applications from your own Gmail inbox
+								<p className="text-sm text-primary-foreground sm:text-base">
+									Track applications from your inbox automatically
 								</p>
 							</button>
+							{/* Secondary option - Coach */}
 							<button
-								className="w-full p-5 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-left transition-all"
+								className="group w-full p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-dashed border-default-300 dark:border-default-400 hover:border-primary dark:hover:border-primary text-left transition-all"
 								onClick={() => handleRoleSelect("coach")}
 							>
-								<p className="font-semibold text-gray-900 dark:text-white mb-1">
-									I&apos;m a career coach / evaluating
+								<p className="font-semibold text-base sm:text-lg text-default-600 group-hover:text-foreground mb-1 sm:mb-2 transition-colors">
+									I&apos;m a career coach
 								</p>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Demo the app with data from a past job search
+								<p className="text-sm sm:text-base text-default-400 group-hover:text-default-600 transition-colors">
+									See how accurately we detect job emails
 								</p>
 							</button>
 						</div>
@@ -475,7 +565,7 @@ function OnboardingContent() {
 					<Card>
 						<ProgressBar step={1} />
 						<h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-							{isCoach ? "Connect the Gmail from your past job search" : "Now let's connect your inbox"}
+							{isCoach ? "Connect the Gmail from your past job search" : "Connect your inbox"}
 						</h1>
 						<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
 							{isCoach
@@ -490,15 +580,17 @@ function OnboardingContent() {
 							</p>
 						)}
 
-						<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-sm text-blue-800 dark:text-blue-200">
-							{isCoach
-								? "This can be a different Google account than the one you signed in with. If your old job search emails are in a different inbox, you can connect that one instead."
-								: "Make sure to select the Gmail you use for job applications — this may be different from the account you signed in with."}
-						</div>
-
-						<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
-							<span>🔒</span>
-							<span>Read your emails</span>
+						<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4 text-sm text-blue-800 dark:text-blue-200">
+							<p>
+								{isCoach
+									? "This can be a different Google account than the one you signed in with. If your old job search emails are in a different inbox, you can connect that one instead."
+									: "Select the email you use for job applications — this may be different from the account you signed in with."}
+							</p>
+							<hr className="mt-4 mb-4 border-blue-200 dark:border-blue-700" />
+							<p className="flex items-center gap-2">
+								<span>🔒</span>
+								<span>Read-only access — we can never send, delete, or modify your emails.</span>
+							</p>
 						</div>
 
 						{gmailError && (
@@ -527,9 +619,11 @@ function OnboardingContent() {
 							</div>
 						)}
 
-						<p className="text-xs text-gray-400 text-center mt-3">
-							We can never send, delete, or modify your emails.
-						</p>
+						<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
+							<button className="text-sm text-blue-500 hover:underline" onClick={handleSwitchRole}>
+								Switch to {role === "jobseeker" ? "career coach" : "job seeker"}
+							</button>
+						</div>
 					</Card>
 				</main>
 			</>
@@ -546,14 +640,12 @@ function OnboardingContent() {
 					<Card>
 						<ProgressBar step={2} />
 						<h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-							{isCoach
-								? "Pick a date range from your past job search"
-								: "When did your job search start?"}
+							{isCoach ? "Pick a date range from your past job search" : "Tell us about your job search"}
 						</h1>
 						<p className="text-gray-500 dark:text-gray-400 text-sm mb-5">
 							{isCoach
 								? "We'll scan this specific window so you can demo the app with your real data."
-								: "We'll scan from this date forward. You can change this later in Settings."}
+								: "When did you start looking?"}
 						</p>
 
 						{/* Quick-select pills */}
@@ -575,7 +667,7 @@ function OnboardingContent() {
 						{/* Custom start date */}
 						<div className="mb-4">
 							<label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-								{isCoach ? "Or pick a specific start date" : "Or pick a specific date"}
+								{isCoach ? "Or pick a specific start date" : "Or pick a date:"}
 							</label>
 							<input
 								className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -631,7 +723,7 @@ function OnboardingContent() {
 
 						{/* Free user info for old start dates (job seeker) */}
 						{!isCoach && isOldDate && (
-							<div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 text-sm text-amber-800 dark:text-amber-200">
+							<div className="bg-amber-100 dark:bg-content2 dark:text-foreground border border-amber-300 dark:border-amber-700 rounded-lg p-3 mb-4 text-sm text-amber-900 dark:text-amber-100">
 								Your dashboard shows the most recent 30 days. Your full history is always available via
 								CSV export — the 30-day limit only applies to what&apos;s visible in the dashboard.
 							</div>
@@ -662,16 +754,138 @@ function OnboardingContent() {
 						)}
 
 						{dateError && <p className="text-sm text-red-500 mb-3">{dateError}</p>}
+						{previewError && <p className="text-sm text-red-500 mb-3">{previewError}</p>}
 
 						<Button
 							className="w-full"
 							color="primary"
-							isLoading={isSaving}
+							isLoading={isLoadingPreview}
 							size="lg"
 							onPress={handleStep3Submit}
 						>
-							Scan my inbox →
+							Preview emails →
 						</Button>
+
+						<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
+							<button className="text-sm text-blue-500 hover:underline" onClick={handleSwitchRole}>
+								Switch to {role === "jobseeker" ? "career coach" : "job seeker"}
+							</button>
+						</div>
+					</Card>
+				</main>
+			</>
+		);
+	}
+
+	// Screen 3.5 — Email Preview
+	if (screen === "step3.5") {
+		const thirtyDaysAgo = daysAgoDate(30);
+		const showFreeTierNotice = plan === "free" && savedStartDate && savedStartDate < thirtyDaysAgo;
+
+		return (
+			<>
+				<Navbar />
+				<main className="flex-grow flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+					<Card>
+						<ProgressBar step={2} total={3} />
+						<h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Preview your emails</h1>
+						<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
+							{previewTotalCount === 0
+								? "No matching emails found in this date range."
+								: `Found ${previewTotalCount} potential job-related email${previewTotalCount !== 1 ? "s" : ""}.`}
+							{previewLimited && ` Showing first 15.`}
+						</p>
+
+						{/* Connected account with escape hatch */}
+						<div className="flex justify-between items-center text-sm mb-3">
+							<span className="text-gray-500 dark:text-gray-400">
+								Connected as{" "}
+								<span className="font-medium text-gray-700 dark:text-gray-300">{syncEmail}</span>
+							</span>
+							<button className="text-blue-500 hover:underline" onClick={handleConnectGmail}>
+								Connect different account
+							</button>
+						</div>
+
+						{/* Free tier notice - text link instead of button */}
+						{showFreeTierNotice && (
+							<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-sm text-blue-800 dark:text-blue-200">
+								<p>
+									Your free plan processes the last 30 days through today ({formatDate(new Date())}).
+									Emails before <strong>{formatDate(daysAgoDate(30))}</strong> may appear in this
+									preview for your reference, but won&apos;t be processed in the app.{" "}
+									<button className="underline hover:no-underline" onClick={handleUpgrade}>
+										Upgrade for full history — $5/mo
+									</button>
+								</p>
+							</div>
+						)}
+
+						{/* Email list */}
+						{previewEmails.length > 0 ? (
+							<div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+								{previewEmails.map((email, idx) => (
+									<div
+										key={idx}
+										className={`px-3 py-2 text-sm ${idx !== previewEmails.length - 1 ? "border-b border-gray-100 dark:border-gray-700" : ""}`}
+									>
+										<div className="flex justify-between items-start gap-2">
+											<div className="min-w-0 flex-1">
+												<p className="font-medium text-gray-900 dark:text-white truncate">
+													{email.sender || email.sender_domain}
+												</p>
+												<p className="text-gray-600 dark:text-gray-400 truncate">
+													{email.subject}
+												</p>
+											</div>
+											<span className="text-xs text-gray-400 whitespace-nowrap">
+												{email.date
+													? new Date(email.date).toLocaleDateString("en-US", {
+															month: "short",
+															day: "numeric"
+														})
+													: ""}
+											</span>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
+								<p className="font-medium mb-2">No emails found. This could mean:</p>
+								<ul className="list-disc list-inside space-y-1">
+									<li>Wrong Gmail account connected</li>
+									<li>Date range doesn&apos;t include job-related emails</li>
+									<li>Emails were deleted from Gmail</li>
+								</ul>
+							</div>
+						)}
+
+						{/* Actions */}
+						<div className="space-y-2">
+							{previewEmails.length > 0 && (
+								<Button
+									className="w-full"
+									color="primary"
+									isLoading={isSaving}
+									size="lg"
+									onPress={handleConfirmScan}
+								>
+									{showFreeTierNotice ? "Continue with last 30 days →" : "Process these emails →"}
+								</Button>
+							)}
+							<button
+								className="text-blue-500 hover:underline text-sm"
+								onClick={() => setScreen("step3")}
+							>
+								← Change date range
+							</button>
+						</div>
+
+						{/* Footnote about caps */}
+						<p className="text-xs text-gray-400 mt-4 text-center">
+							Free accounts process up to 500 emails/month. Premium accounts process up to 5,000.
+						</p>
 					</Card>
 				</main>
 			</>
@@ -680,6 +894,17 @@ function OnboardingContent() {
 
 	// Screen 4 — Scanning
 	if (screen === "step4-scanning") {
+		// Calculate actual scan range for display
+		const effectiveScanStart = savedStartDate;
+		const effectiveScanEnd = savedEndDate ? new Date(savedEndDate) : new Date();
+		// Free users only get first 30 days from start
+		const thirtyDaysAfterStart = savedStartDate
+			? new Date(savedStartDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+			: null;
+		const isFreeWithLimitedRange =
+			plan === "free" && thirtyDaysAfterStart && effectiveScanEnd > thirtyDaysAfterStart;
+		const displayEndDate = isFreeWithLimitedRange ? thirtyDaysAfterStart : effectiveScanEnd;
+
 		return (
 			<>
 				<Navbar />
@@ -696,9 +921,9 @@ function OnboardingContent() {
 									? "Still scanning — larger inboxes can take a couple of minutes"
 									: "We're finding your job-related emails. This usually takes under 60 seconds."}
 							</p>
-							{savedStartDate && (
+							{effectiveScanStart && (
 								<p className="text-sm text-gray-400 mb-4">
-									Scanning from {formatDate(savedStartDate)} to today
+									Scanning from {formatDate(effectiveScanStart)} to {formatDate(displayEndDate!)}
 								</p>
 							)}
 							{applicationsFound > 0 && (
@@ -799,7 +1024,7 @@ function OnboardingContent() {
 								variant="flat"
 								onPress={handleUpgrade}
 							>
-								Upgrade to Premium — $9/mo
+								Upgrade to Premium — $5/mo
 							</Button>
 							<p className="text-xs text-gray-400">
 								You can{" "}
@@ -857,7 +1082,7 @@ function OnboardingContent() {
 		);
 	}
 
-	// Screen 4B-ii — Coach, no promo
+	// Screen 4B-ii — Coach invitation screen (free coaches without promo)
 	if (screen === "step4b-ii") {
 		return (
 			<>
@@ -866,9 +1091,9 @@ function OnboardingContent() {
 					<Card>
 						<ProgressBar step={3} />
 						<div className="text-center">
-							<div className="text-4xl mb-3">⚠️</div>
+							<div className="text-4xl mb-3">👋</div>
 							<h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-								You&apos;re all set — with a limitation
+								Thanks for evaluating JustAJobApp
 							</h1>
 							<p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
 								We found{" "}
@@ -876,31 +1101,39 @@ function OnboardingContent() {
 									{applicationsFound} job-related email
 									{applicationsFound !== 1 ? "s" : ""}
 								</span>{" "}
-								from the first 30 days of your selected range.
+								in your preview.
 							</p>
-							<div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-5 text-sm text-amber-800 dark:text-amber-200 text-left">
-								Without a promo code, you can see up to 30 days from your start date. To access your
-								full selected range, enter a coach promo code.
+							<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-5 text-sm text-blue-800 dark:text-blue-200 text-left">
+								<p className="font-medium mb-2">Ready to get coach access?</p>
+								<p className="mb-3">
+									Email{" "}
+									<a
+										className="font-medium underline"
+										href="mailto:help@justajobapp.com?subject=Coach access request"
+									>
+										help@justajobapp.com
+									</a>{" "}
+									to request access. We&apos;ll set up your account and reply within 24 hours.
+								</p>
+								<p className="text-blue-700 dark:text-blue-300">
+									Your account stays on the free plan until we activate coach access.
+								</p>
 							</div>
-							<Button className="w-full mb-3" color="primary" size="lg" onPress={handleGoToDashboard}>
-								Go to my dashboard →
-							</Button>
 							<Button
 								className="w-full mb-3"
-								color="default"
+								color="primary"
 								size="lg"
-								variant="flat"
 								onPress={() =>
-									window.open(
-										"mailto:help@justajobapp.com?subject=Coach promo code request",
-										"_blank"
-									)
+									window.open("mailto:help@justajobapp.com?subject=Coach access request", "_blank")
 								}
 							>
-								Get a promo code
+								Email help@justajobapp.com
 							</Button>
-							<p className="text-xs text-gray-400">
-								You can export all your data to CSV at any time, for free.
+							<p className="text-xs text-gray-400 mt-4">
+								Want to track your own job search instead?{" "}
+								<button className="underline text-blue-500" onClick={handleSwitchRole}>
+									Switch to job seeker
+								</button>
 							</p>
 						</div>
 					</Card>

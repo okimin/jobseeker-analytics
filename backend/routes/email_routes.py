@@ -20,7 +20,8 @@ from utils.admin_utils import get_context_user_id
 import database
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
+from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from utils.job_utils import normalize_job_title
@@ -138,13 +139,30 @@ async def processing_status(
             hours_since_scan = (datetime.now(timezone.utc) - most_recent_email).total_seconds() / 3600
             should_rescan = hours_since_scan > 24
 
+    # Get scan date range from the current/latest task
+    scan_start_date = None
+    scan_end_date = None
+    if process_task_run.scan_start_date:
+        scan_start = process_task_run.scan_start_date
+        if scan_start.tzinfo is None:
+            scan_start = scan_start.replace(tzinfo=timezone.utc)
+        scan_start_date = scan_start.isoformat()
+    if process_task_run.scan_end_date:
+        scan_end = process_task_run.scan_end_date
+        if scan_end.tzinfo is None:
+            scan_end = scan_end.replace(tzinfo=timezone.utc)
+        scan_end_date = scan_end.isoformat()
+
     return {
         "status": status,
         "total_emails": process_task_run.total_emails or 0,
         "processed_emails": process_task_run.processed_emails or 0,
         "applications_found": applications_found,
         "last_scan_at": last_scan_at,
-        "should_rescan": should_rescan
+        "should_rescan": should_rescan,
+        "scan_start_date": scan_start_date,
+        "scan_end_date": scan_end_date,
+        "stop_reason": process_task_run.stop_reason,
     }
 
 
@@ -234,11 +252,220 @@ async def start_processing(
         raise HTTPException(status_code=500, detail="Failed to start processing")
 
 
+@router.post("/processing/cancel")
+@limiter.limit("10/minute")
+async def cancel_processing(
+    request: Request,
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session),
+):
+    """Cancel an in-progress email scan.
+
+    Returns 404 if no scan is in progress.
+    Returns 200 if scan was cancelled successfully.
+    """
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    active_task = db_session.exec(
+        select(task_models.TaskRuns)
+        .where(task_models.TaskRuns.user_id == user_id)
+        .where(task_models.TaskRuns.status == task_models.STARTED)
+    ).first()
+
+    if not active_task:
+        raise HTTPException(
+            status_code=404,
+            detail="no_active_scan"
+        )
+
+    active_task.status = task_models.CANCELLED
+    active_task.stop_reason = task_models.STOP_REASON_USER_CANCELLED
+    db_session.commit()
+
+    logger.info(f"Scan cancelled by user {user_id}")
+    return {"message": "Scan cancelled"}
+
+
+class EmailPreviewItem(BaseModel):
+    sender: str
+    sender_domain: str
+    subject: str
+    date: str
+
+
+class EmailPreviewResponse(BaseModel):
+    emails: list[EmailPreviewItem]
+    total_count: int
+    limited: bool
+
+
+def get_email_metadata(message_id: str, gmail_instance):
+    """Fetch only email metadata (headers) without the body content."""
+    try:
+        message = (
+            gmail_instance.users()
+            .messages()
+            .get(userId="me", id=message_id, format="metadata", metadataHeaders=["From", "Subject", "Date"])
+            .execute()
+        )
+
+        headers = message.get("payload", {}).get("headers", [])
+        metadata = {"id": message_id}
+
+        for header in headers:
+            name = header.get("name", "").lower()
+            value = header.get("value", "")
+            if name == "from":
+                metadata["from"] = value
+            elif name == "subject":
+                metadata["subject"] = decode_subject_line(value)
+            elif name == "date":
+                metadata["date"] = value
+
+        return metadata
+    except Exception as e:
+        logger.error(f"Error fetching metadata for email {message_id}: {e}")
+        return None
+
+
+def extract_sender_domain(from_header: str) -> str:
+    """Extract the domain from an email From header."""
+    import re
+    # Match email in angle brackets or bare email
+    match = re.search(r'<([^>]+)>|([^\s<>]+@[^\s<>]+)', from_header)
+    if match:
+        email = match.group(1) or match.group(2)
+        if "@" in email:
+            return email.split("@")[1].lower()
+    return ""
+
+
+def extract_sender_name(from_header: str) -> str:
+    """Extract the sender name from an email From header."""
+    # If there's a name before the email in brackets
+    if "<" in from_header:
+        name = from_header.split("<")[0].strip()
+        # Remove quotes if present
+        name = name.strip('"').strip("'")
+        if name:
+            return name
+    # Fallback to the email address
+    return from_header
+
+
+@router.get("/api/emails/preview", response_model=EmailPreviewResponse)
+@limiter.limit("10/minute")
+async def preview_emails(
+    request: Request,
+    db_session: database.DBSession,
+    start_date: str,
+    end_date: str = None,
+    user_id: str = Depends(validate_session),
+):
+    """Preview matching emails before processing.
+
+    Returns email metadata (sender, subject, date) without processing.
+    Does NOT consume monthly cap. Does NOT run smart tags.
+
+    Free users see up to 25 emails. Paid users see all.
+    """
+    from utils.filter_utils import parse_base_filter_config
+    from pathlib import Path
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Load credentials
+    try:
+        creds = get_credentials_for_background_task(db_session, user_id)
+        if not creds:
+            raise HTTPException(status_code=401, detail="token_expired")
+
+        gmail_scope = "https://www.googleapis.com/auth/gmail.readonly"
+        if not creds.scopes or gmail_scope not in creds.scopes:
+            raise HTTPException(status_code=403, detail="gmail_scope_missing")
+
+        auth_user = AuthenticatedUser(
+            creds,
+            _user_id=user.user_id,
+            _user_email=user.user_email
+        )
+        gmail_instance = auth_user.service
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error loading credentials for preview: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load credentials")
+
+    # Build query with date range
+    filter_path = Path(__file__).parent.parent / "email_query_filters" / "applied_email_filter.yaml"
+    base_filter = parse_base_filter_config(filter_path)
+
+    query = f"after:{start_date} -from:me -in:sent AND ({base_filter})"
+    if end_date:
+        query = f"after:{start_date} before:{end_date} -from:me -in:sent AND ({base_filter})"
+
+    logger.info(f"Preview query for user {user_id}: {query}")
+
+    # Fetch email IDs
+    try:
+        messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
+    except Exception as e:
+        logger.error(f"Error fetching email IDs for preview: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch emails from Gmail")
+
+    total_count = len(messages)
+
+    # Always limit preview to 15 emails - enough to build trust without excessive scrolling
+    # Gmail returns newest first, so reverse to get oldest first
+    preview_limit = 15
+    limited = total_count > preview_limit
+    messages = list(reversed(messages))  # oldest first
+
+    if len(messages) > preview_limit:
+        messages = messages[:preview_limit]
+
+    # Fetch metadata for each email
+    preview_emails = []
+    for msg in messages:
+        metadata = get_email_metadata(msg["id"], gmail_instance)
+        if metadata:
+            from_header = metadata.get("from", "")
+            preview_emails.append(EmailPreviewItem(
+                sender=extract_sender_name(from_header),
+                sender_domain=extract_sender_domain(from_header),
+                subject=metadata.get("subject", "(No subject)"),
+                date=metadata.get("date", "")
+            ))
+
+    # Sort by date (oldest first to match processing order)
+    def parse_email_date(date_str: str) -> datetime:
+        from email.utils import parsedate_to_datetime
+        try:
+            return parsedate_to_datetime(date_str)
+        except Exception:
+            return datetime.min.replace(tzinfo=timezone.utc)
+
+    preview_emails.sort(key=lambda e: parse_email_date(e.date), reverse=False)
+
+    return EmailPreviewResponse(
+        emails=preview_emails,
+        total_count=total_count,
+        limited=limited
+    )
+
+
 @router.get("/emails/hidden-count")
 @limiter.limit("20/minute")
 def emails_hidden_count(request: Request, db_session: database.DBSession, user_id: str = Depends(get_context_user_id)):
-    """Return the count of emails hidden from free-tier users (older than 30 days).
+    """Return the count of emails hidden from free-tier users.
 
+    Free users see only the last 30 days through today.
     Returns hidden_count=0 and cutoff_date=None for premium users.
     """
     from sqlmodel import func
@@ -247,43 +474,19 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
     if not user or is_premium_eligible(db_session, user):
         return {"hidden_count": 0, "cutoff_date": None}
 
-    if user and user.fetch_order == "oldest_first" and user.start_date:
-        from_dt = user.start_date.replace(tzinfo=timezone.utc)
-        to_dt = from_dt + timedelta(days=FREE_HISTORY_DAYS)
-        if user.scan_end_date:
-            scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
-            to_dt = min(to_dt, scan_end)
-        hidden_count = db_session.exec(
-            select(func.count(UserEmails.id)).where(
-                UserEmails.user_id == user_id,
-                UserEmails.received_at > to_dt,
-                ~UserEmails.id.like("manual_%"),
-            )
-        ).one()
-        cutoff_iso = to_dt.isoformat()
-    elif user and user.fetch_order == "recent_first" and user.scan_end_date:
-        scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
-        cutoff = scan_end - timedelta(days=FREE_HISTORY_DAYS)
-        hidden_count = db_session.exec(
-            select(func.count(UserEmails.id)).where(
-                UserEmails.user_id == user_id,
-                UserEmails.received_at < cutoff,
-                ~UserEmails.id.like("manual_%"),
-            )
-        ).one()
-        cutoff_iso = cutoff.isoformat()
-    else:
-        cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
-        hidden_count = db_session.exec(
-            select(func.count(UserEmails.id)).where(
-                UserEmails.user_id == user_id,
-                UserEmails.received_at < cutoff,
-                ~UserEmails.id.like("manual_%"),
-            )
-        ).one()
-        cutoff_iso = cutoff.isoformat()
+    # Free users: visible window is (today - 30 days) to today
+    cutoff_dt = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
 
-    return {"hidden_count": hidden_count, "cutoff_date": cutoff_iso}
+    # Count emails BEFORE the cutoff (these are hidden from free users)
+    hidden_count = db_session.exec(
+        select(func.count(UserEmails.id)).where(
+            UserEmails.user_id == user_id,
+            UserEmails.received_at < cutoff_dt,
+            ~UserEmails.id.like("manual_%"),
+        )
+    ).one()
+
+    return {"hidden_count": hidden_count, "cutoff_date": cutoff_dt.isoformat()}
 
 
 @router.get("/get-emails", response_model=List[UserEmails])
@@ -296,41 +499,17 @@ def query_emails(request: Request, db_session: database.DBSession, user_id: str 
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
         statement = select(UserEmails).where(UserEmails.user_id == user_id)
 
-        # Free-tier users see only a bounded window; emails are not deleted
+        # Free-tier users see only the last 30 days through today
         user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
-        if not user or not is_premium_eligible(db_session, user):
+        if user and not is_premium_eligible(db_session, user):
             from sqlmodel import or_
-            if user and user.fetch_order == "oldest_first" and user.start_date:
-                from_dt = user.start_date.replace(tzinfo=timezone.utc)
-                to_dt = from_dt + timedelta(days=FREE_HISTORY_DAYS)
-                # Cap to scan_end_date if set
-                if user.scan_end_date:
-                    scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
-                    to_dt = min(to_dt, scan_end)
-                statement = statement.where(
-                    or_(
-                        UserEmails.id.like("manual_%"),
-                        (UserEmails.received_at >= from_dt) & (UserEmails.received_at <= to_dt),
-                    )
+            cutoff_dt = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
+            statement = statement.where(
+                or_(
+                    UserEmails.id.like("manual_%"),
+                    UserEmails.received_at >= cutoff_dt,
                 )
-            elif user and user.fetch_order == "recent_first" and user.scan_end_date:
-                # Anchor recent-first window to end_date instead of NOW()
-                scan_end = user.scan_end_date.replace(tzinfo=timezone.utc) if user.scan_end_date.tzinfo is None else user.scan_end_date
-                cutoff = scan_end - timedelta(days=FREE_HISTORY_DAYS)
-                statement = statement.where(
-                    or_(
-                        UserEmails.id.like("manual_%"),
-                        (UserEmails.received_at >= cutoff) & (UserEmails.received_at <= scan_end),
-                    )
-                )
-            else:
-                cutoff = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
-                statement = statement.where(
-                    or_(
-                        UserEmails.id.like("manual_%"),
-                        UserEmails.received_at >= cutoff,
-                    )
-                )
+            )
 
         statement = statement.order_by(desc(UserEmails.received_at))
         user_emails = db_session.exec(statement).all()
@@ -416,8 +595,9 @@ def fetch_emails_to_db(
                 ).first()
                 if process_task_run:
                     process_task_run.status = task_models.CANCELLED
+                    process_task_run.stop_reason = task_models.STOP_REASON_ERROR
                     db_session.commit()
-                    logger.info(f"Marked task as CANCELLED for user_id {user_id}")
+                    logger.info(f"Marked task as CANCELLED (error) for user_id {user_id}")
         except Exception as cleanup_error:
             logger.error(f"Error cleaning up task for user_id {user_id}: {cleanup_error}")
 
@@ -435,41 +615,26 @@ def _fetch_emails_to_db_impl(
 
         # we track starting and finishing fetching of emails for each user
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
-        process_task_run: task_models.TaskRuns = db_session.exec(
+
+        # Check for an active (STARTED) task to prevent concurrent scans
+        active_task: task_models.TaskRuns = db_session.exec(
             select(task_models.TaskRuns).where(
-                task_models.TaskRuns.user_id == user_id
-            ).order_by(task_models.TaskRuns.updated.desc())
+                task_models.TaskRuns.user_id == user_id,
+                task_models.TaskRuns.status == task_models.STARTED
+            )
         ).first()
-        if process_task_run is None:
-            # if there are no STARTED tasks, create a new task record
-            process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
-            db_session.add(process_task_run)
-            db_session.commit()
-        else:
-            # Check if the task was completed on a different day
-            from datetime import datetime, timezone
-            today = datetime.now(timezone.utc).date()
-            task_date = process_task_run.updated.date() if process_task_run.updated else None
-            
-            # If the task was completed on a different day, reset the processed emails count
-            if task_date and task_date < today:
-                logger.info(f"Task was completed on {task_date}, resetting processed emails count for today")
-                process_task_run.processed_emails = 0
-                process_task_run.total_emails = 0
-            elif process_task_run.processed_emails >= settings.batch_size_by_env:
-                # limit how frequently emails can be fetched by a specific user (only if same day)
-                logger.warning(
-                    "Already fetched the maximum number (%s) of emails for this user for today",
-                    settings.batch_size_by_env,
-                    extra={"user_id": user_id},
-                )
-                process_task_run.status = task_models.CANCELLED
-                db_session.commit()
-                return JSONResponse(content={"message": "Processing complete"}, status_code=429)
 
-        process_task_run.status = task_models.STARTED
+        if active_task:
+            logger.warning(
+                "User already has an active scan in progress",
+                extra={"user_id": user_id, "task_id": active_task.id},
+            )
+            return JSONResponse(content={"message": "Scan already in progress"}, status_code=409)
 
-        db_session.commit()  # sync with the database so calls in the future reflect the task is already started
+        # Always create a new TaskRun record for each scan (maintains scan history)
+        process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
+        db_session.add(process_task_run)
+        db_session.commit()
 
         start_date = request.session.get("start_date")
         logger.info(f"start_date: {start_date}")
@@ -496,11 +661,25 @@ def _fetch_emails_to_db_impl(
             if emails_remaining <= 0:
                 logger.info(f"user_id:{user_id} Monthly email cap reached ({monthly_cap}), cancelling scan")
                 process_task_run.status = task_models.CANCELLED
+                process_task_run.stop_reason = task_models.STOP_REASON_MONTHLY_CAP
                 db_session.commit()
                 return
         else:
             monthly_cap = None
             emails_remaining = None
+
+        # Store scan date range on the task run for historical tracking
+        if start_date:
+            try:
+                parsed = datetime.strptime(start_date, "%Y/%m/%d")
+                process_task_run.scan_start_date = parsed.replace(tzinfo=timezone.utc)
+            except ValueError:
+                logger.warning(f"Could not parse start_date: {start_date}")
+        if existing_user and existing_user.scan_end_date:
+            process_task_run.scan_end_date = existing_user.scan_end_date
+        else:
+            process_task_run.scan_end_date = datetime.now(timezone.utc)
+        db_session.commit()
 
         query = start_date_query
         # check for users last updated email
@@ -567,6 +746,18 @@ def _fetch_emails_to_db_impl(
         email_records = []  # list to collect email records
 
         for idx, message in enumerate(messages):
+            # Check for cancellation every 5 emails to balance responsiveness with DB load
+            if idx % 5 == 0:
+                db_session.expire(process_task_run)
+                current_task = db_session.exec(
+                    select(task_models.TaskRuns).where(
+                        task_models.TaskRuns.id == process_task_run.id
+                    )
+                ).first()
+                if current_task and current_task.status == task_models.CANCELLED:
+                    logger.info(f"user_id:{user_id} Scan cancelled by user at email {idx}")
+                    return
+
             message_data = {}
             # (email_subject, email_from, email_domain, company_name, email_dt)
             msg_id = message["id"]
@@ -641,6 +832,10 @@ def _fetch_emails_to_db_impl(
                     process_task_run.applications_found = len(email_records)
                     db_session.add(process_task_run)
                     db_session.commit()
+                    # Stop quick scan after 25 applications found (aha moment)
+                    if is_quick_scan and len(email_records) >= 25:
+                        logger.info(f"user_id:{user_id} Quick scan reached 25 applications, stopping for aha moment")
+                        break
                     # check rate limit against total daily count
                     if exceeds_rate_limit(process_task_run.processed_emails):
                         logger.warning(f"Rate limit exceeded for user {user_id} at {process_task_run.processed_emails} emails")
@@ -684,3 +879,9 @@ def _fetch_emails_to_db_impl(
         db_session.commit()
 
         logger.info(f"user_id:{user_id} Email fetching complete (history_sync_completed={not is_quick_scan}).")
+
+    # If this was a quick scan (onboarding), start a follow-up scan to get the rest
+    # This is outside the db_session context to ensure clean session management
+    if is_quick_scan:
+        logger.info(f"user_id:{user_id} Quick scan complete, starting follow-up scan for remaining emails")
+        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id, quick_limit=None)

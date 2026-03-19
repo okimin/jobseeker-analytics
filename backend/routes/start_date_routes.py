@@ -118,20 +118,26 @@ async def update_start_date(
     # Update user's start date and scan preferences
     user.start_date = start_date
     user.fetch_order = start_date_request.fetch_order
-    is_promo_coach = user.role == "coach" and user.plan == "promo"
-    if is_promo_coach:
-        # Promo coach: use the full selected range
+    is_premium = is_premium_eligible(db_session, user)
+
+    # Determine the effective scan range
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = now - timedelta(days=FREE_HISTORY_DAYS)
+
+    if is_premium:
+        # Premium users: use the full selected range
+        effective_start = start_date
         user.scan_end_date = start_date_request.end_date
-    elif user.role == "coach":
-        # Free coach: cap scan to start_date + 30 days
-        user.scan_end_date = start_date + timedelta(days=FREE_HISTORY_DAYS)
     else:
-        user.scan_end_date = start_date_request.end_date
+        # Free users: scan only the last 30 days through today
+        # If their selected start is within 30 days, use it; otherwise cap at 30 days ago
+        effective_start = max(start_date, thirty_days_ago)
+        user.scan_end_date = now  # Scan through today
     db_session.add(user)
     db_session.commit()
 
-    # Update session
-    request.session["start_date"] = start_date.strftime("%Y/%m/%d")
+    # Update session with effective scan start (used by fetch_emails_to_db)
+    request.session["start_date"] = effective_start.strftime("%Y/%m/%d")
     request.session["start_date_updated"] = True
 
     logger.info(f"user_id:{user_id} updated start date to {start_date.isoformat()}")
@@ -145,20 +151,6 @@ async def update_start_date(
 
     rescan_started = False
     if not active_task:
-        # Determine the effective scan start date based on plan/role:
-        # - Coach with promo: use the selected start_date (full range backfill)
-        # - All others (job seekers and free coaches): scan last 30 days from today
-        #   (start_date is only a dashboard view filter, not a backfill scope)
-        if user.role == "coach":
-            # Coaches always scan from their selected start date.
-            # Promo unlocks full dashboard visibility; free coaches see only the
-            # first 30 days of their range in the dashboard but we still scan it all.
-            effective_scan_start = start_date
-        else:
-            # Job seekers: start_date is a dashboard view filter only;
-            # always scan the rolling last-30-days window.
-            effective_scan_start = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
-
         try:
             # Prefer email_sync credentials for Gmail access; fall back to primary
             scan_creds = load_credentials(db_session, user_id, credential_type="email_sync", auto_refresh=should_auto_refresh) or creds
@@ -168,16 +160,19 @@ async def update_start_date(
                 _user_email=user.user_email
             )
 
+            # Only use quick_limit during onboarding (user hasn't completed onboarding yet)
+            # For existing users changing start date, do a full scan
+            is_onboarding = user.onboarding_completed_at is None
             background_tasks.add_task(
                 fetch_emails_to_db,
                 auth_user,
                 request,
                 None,  # Force full re-scan from start_date (already set in session/DB)
                 user_id=user_id,
-                quick_limit=5,  # Show first 5 fast; dashboard triggers full scan via should_rescan
+                quick_limit=25 if is_onboarding else None,
             )
             rescan_started = True
-            logger.info(f"Rescan started for user {user_id} (scan_start={effective_scan_start.isoformat()}, plan={user.plan})")
+            logger.info(f"Rescan started for user {user_id} (scan_start={effective_start.isoformat()}, scan_end={user.scan_end_date}, plan={user.plan})")
         except Exception as e:
             logger.error(f"Error starting rescan for user {user_id}: {e}")
 
