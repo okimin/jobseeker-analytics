@@ -691,7 +691,8 @@ def _fetch_emails_to_db_impl(
 
         query = start_date_query
         # check for users last updated email
-        if last_updated and not start_date_updated:
+        is_incremental_scan = last_updated and not start_date_updated
+        if is_incremental_scan:
             # this converts our date time to number of seconds
             additional_time = last_updated.strftime("%Y/%m/%d")
             # we append it to query so we get only emails recieved after however many seconds
@@ -702,12 +703,12 @@ def _fetch_emails_to_db_impl(
             if existing_user and existing_user.scan_end_date:
                 end_str = existing_user.scan_end_date.strftime("%Y/%m/%d")
                 query += f" before:{end_str}"
-            logger.info(f"user_id:{user_id} Fetching emails after {additional_time}")
+            logger.info(f"user_id:{user_id} Fetching emails after {additional_time} (incremental scan)")
         else:
             if existing_user and existing_user.scan_end_date:
                 end_str = existing_user.scan_end_date.strftime("%Y/%m/%d")
                 query += f" before:{end_str}"
-            logger.info(f"user_id:{user_id} Fetching all emails with start date: {start_date}")
+            logger.info(f"user_id:{user_id} Fetching all emails with start date: {start_date} (full scan)")
 
         messages = get_email_ids(query=query, gmail_instance=gmail_instance, user_id=user_id)
 
@@ -731,7 +732,7 @@ def _fetch_emails_to_db_impl(
         request.session["is_new_user"] = False
 
         if not messages:
-            logger.info(f"user_id:{user_id} No job application emails found.")
+            logger.info(f"user_id:{user_id} No job application emails found (is_incremental={is_incremental_scan}).")
             process_task_run: task_models.TaskRuns = db_session.exec(
                 select(task_models.TaskRuns).where(
                     task_models.TaskRuns.user_id == user_id,
@@ -742,7 +743,20 @@ def _fetch_emails_to_db_impl(
                 process_task_run.status = task_models.FINISHED
                 process_task_run.total_emails = 0
                 process_task_run.processed_emails = 0
-                process_task_run.history_sync_completed = True  # nothing to backfill
+                # For full scans with no messages, mark history complete
+                # For incremental scans, preserve the previous history_sync_completed value
+                if is_incremental_scan:
+                    last_finished = db_session.exec(
+                        select(task_models.TaskRuns)
+                        .where(task_models.TaskRuns.user_id == user_id)
+                        .where(task_models.TaskRuns.status == task_models.FINISHED)
+                        .order_by(task_models.TaskRuns.updated.desc())
+                    ).first()
+                    if last_finished:
+                        process_task_run.history_sync_completed = last_finished.history_sync_completed
+                    # else: stays False, will trigger full scan next time
+                else:
+                    process_task_run.history_sync_completed = True
                 db_session.add(process_task_run)
                 db_session.commit()
             return
@@ -883,10 +897,26 @@ def _fetch_emails_to_db_impl(
                 db_session.commit()
 
         process_task_run.status = task_models.FINISHED
-        process_task_run.history_sync_completed = not is_quick_scan
+        # For quick scans, always False (need full scan later)
+        # For full scans, set True
+        # For incremental scans, preserve previous history_sync_completed value
+        if is_quick_scan:
+            process_task_run.history_sync_completed = False
+        elif is_incremental_scan:
+            last_finished = db_session.exec(
+                select(task_models.TaskRuns)
+                .where(task_models.TaskRuns.user_id == user_id)
+                .where(task_models.TaskRuns.status == task_models.FINISHED)
+                .order_by(task_models.TaskRuns.updated.desc())
+            ).first()
+            if last_finished:
+                process_task_run.history_sync_completed = last_finished.history_sync_completed
+            # else: stays False, will trigger full scan next time
+        else:
+            process_task_run.history_sync_completed = True
         db_session.commit()
 
-        logger.info(f"user_id:{user_id} Email fetching complete (history_sync_completed={not is_quick_scan}).")
+        logger.info(f"user_id:{user_id} Email fetching complete (is_quick={is_quick_scan}, is_incremental={is_incremental_scan}, history_sync_completed={process_task_run.history_sync_completed}).")
 
     # If this was a quick scan (onboarding), start a follow-up scan to get the rest
     # This is outside the db_session context to ensure clean session management
