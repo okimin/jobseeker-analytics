@@ -246,6 +246,9 @@ def finished_task(task_factory):
 def task_with_300_processed_emails(task_factory):
     return task_factory(status=STARTED, processed_emails=300)
 
+@pytest.fixture
+def task_with_501_processed_emails(task_factory):
+    return task_factory(status=STARTED, processed_emails=501)
 
 @pytest.fixture
 def client_factory(db_session):
