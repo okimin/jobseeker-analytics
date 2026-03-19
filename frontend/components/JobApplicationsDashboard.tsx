@@ -616,47 +616,69 @@ export default function JobApplicationsDashboard({
 							)}
 						</div>
 					)}
-					<Table
-						aria-label="Applications Table"
-						classNames={{
-							th: "bg-content1 text-foreground dark:bg-content2 dark:text-foreground"
-						}}
-					>
-						<TableHeader>
-							<TableColumn className="text-center">Company</TableColumn>
-							<TableColumn className="text-center">Status</TableColumn>
-							<TableColumn className="text-center">Received</TableColumn>
-							<TableColumn className="text-center">Job Title</TableColumn>
-							<TableColumn className="text-center">Subject</TableColumn>
-							<TableColumn className="text-center">Sender</TableColumn>
-							<TableColumn className="text-center">Actions</TableColumn>
-						</TableHeader>
-						<TableBody>
-							{isScanning && paginatedData.length === 0 ? (
-								<TableRow key="scanning">
-									<TableCell className="text-center py-8" colSpan={7}>
-										<div className="flex flex-col items-center gap-2 text-default-500">
-											<svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-												<circle
-													className="opacity-25"
-													cx="12"
-													cy="12"
-													r="10"
-													stroke="currentColor"
-													strokeWidth="4"
-												/>
-												<path
-													className="opacity-75"
-													d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-													fill="currentColor"
-												/>
-											</svg>
-											<span>Scan in progress — results will appear here</span>
-										</div>
-									</TableCell>
-								</TableRow>
+					{/* Empty states - rendered outside table */}
+					{isScanning && paginatedData.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-12 text-default-500">
+							<svg className="w-6 h-6 animate-spin mb-3" fill="none" viewBox="0 0 24 24">
+								<circle
+									className="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									strokeWidth="4"
+								/>
+								<path
+									className="opacity-75"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									fill="currentColor"
+								/>
+							</svg>
+							<span>Scan in progress — results will appear here</span>
+						</div>
+					) : paginatedData.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-12 text-default-500">
+							{data.length === 0 ? (
+								<>
+									<svg className="w-12 h-12 text-default-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									</svg>
+									<p className="font-medium text-default-600 mb-1">No job application emails found</p>
+									<p className="text-sm text-center max-w-md">
+										We didn&apos;t find any job-related emails in your selected date range.
+										Try clicking Refresh to scan again, or add applications manually.
+									</p>
+								</>
 							) : (
-								paginatedData.map((item) => (
+								<>
+									<svg className="w-12 h-12 text-default-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+									</svg>
+									<p className="font-medium text-default-600 mb-1">All emails hidden by filters</p>
+									<p className="text-sm">
+										Adjust your Status, Company, or Hide filters to see your {data.length} email{data.length !== 1 ? "s" : ""}.
+									</p>
+								</>
+							)}
+						</div>
+					) : (
+						<Table
+							aria-label="Applications Table"
+							classNames={{
+								th: "bg-content1 text-foreground dark:bg-content2 dark:text-foreground"
+							}}
+						>
+							<TableHeader>
+								<TableColumn className="text-center">Company</TableColumn>
+								<TableColumn className="text-center">Status</TableColumn>
+								<TableColumn className="text-center">Received</TableColumn>
+								<TableColumn className="text-center">Job Title</TableColumn>
+								<TableColumn className="text-center">Subject</TableColumn>
+								<TableColumn className="text-center">Sender</TableColumn>
+								<TableColumn className="text-center">Actions</TableColumn>
+							</TableHeader>
+							<TableBody>
+								{paginatedData.map((item) => (
 									<TableRow
 										key={item.id || item.received_at}
 										className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
@@ -719,14 +741,14 @@ export default function JobApplicationsDashboard({
 											</div>
 										</TableCell>
 									</TableRow>
-								))
-							)}
-						</TableBody>
-					</Table>
+								))}
+							</TableBody>
+						</Table>
+					)}
 				</div>
 			)}
-			{/* Hide pagination when scanning with no data */}
-			{!(isScanning && data.length === 0) && (
+			{/* Hide pagination when no data to show */}
+			{data.length > 0 && (
 				<div className="flex justify-between items-center mt-4">
 					<Button disabled={currentPage <= 1} onPress={onPrevPage}>
 						Previous
