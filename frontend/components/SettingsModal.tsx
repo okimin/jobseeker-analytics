@@ -503,8 +503,8 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 											</p>
 										)}
 									</div>
-									{syncEmail && (
-										showDisconnectConfirm ? (
+									{syncEmail &&
+										(showDisconnectConfirm ? (
 											<div className="flex gap-2">
 												<Button
 													color="default"
@@ -531,8 +531,7 @@ export default function SettingsModal({ isOpen, onClose, onSubscriptionChange }:
 											>
 												Disconnect
 											</button>
-										)
-									)}
+										))}
 								</div>
 								{showDisconnectConfirm && (
 									<p className="text-sm text-warning-600 dark:text-amber-400 mt-2">

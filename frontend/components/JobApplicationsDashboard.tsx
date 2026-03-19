@@ -634,80 +634,93 @@ export default function JobApplicationsDashboard({
 						<TableBody>
 							{isScanning && paginatedData.length === 0 ? (
 								<TableRow key="scanning">
-									<TableCell colSpan={7} className="text-center py-8">
+									<TableCell className="text-center py-8" colSpan={7}>
 										<div className="flex flex-col items-center gap-2 text-default-500">
-											<svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
-												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+											<svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+												<circle
+													className="opacity-25"
+													cx="12"
+													cy="12"
+													r="10"
+													stroke="currentColor"
+													strokeWidth="4"
+												/>
+												<path
+													className="opacity-75"
+													d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+													fill="currentColor"
+												/>
 											</svg>
 											<span>Scan in progress — results will appear here</span>
 										</div>
 									</TableCell>
 								</TableRow>
-							) : paginatedData.map((item) => (
-								<TableRow
-									key={item.id || item.received_at}
-									className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
-								>
-									<TableCell className="max-w-[100px] text-center">
-										{item.company_name || "--"}
-									</TableCell>
-									<TableCell className="max-w-[120px] break-words whitespace-normal text-center">
-										<span
-											className={`inline-flex items-center justify-center px-1.5 py-1 rounded text-sm font-medium ${getStatusClass(item.application_status)}`}
-										>
-											{item.application_status || "--"}
-										</span>
-									</TableCell>
-									<TableCell className="text-center">
-										{new Date(item.received_at).toLocaleDateString() || "--"}
-									</TableCell>
-									<TableCell className="max-w-[136px] break-words whitespace-normal text-center">
-										{item.job_title || "--"}
-									</TableCell>
-									<TableCell className="max-w-[200px] break-words text-center">
-										{item.subject || "--"}
-									</TableCell>
-									<TableCell className="max-w-[220px] break-words whitespace-normal text-center">
-										{item.email_from || "--"}
-									</TableCell>
-									<TableCell className="text-center">
-										<div className="flex justify-center gap-2">
-											{!readOnly && (
-												<>
-													<Tooltip content="Edit">
-														<Button
-															isIconOnly
-															size="sm"
-															variant="light"
-															onPress={() => {
-																setSelectedApplication(item);
-																setModalMode("edit");
-																setShowApplicationModal(true);
-															}}
-														>
-															<EditIcon className="text-gray-800 dark:text-gray-300" />
-														</Button>
-													</Tooltip>
-													<Tooltip content="Remove">
-														<Button
-															isIconOnly
-															size="sm"
-															variant="light"
-															onPress={() => {
-																setItemToRemove(item.id || null);
-																setShowDelete(true);
-															}}
-														>
-															<TrashIcon className="text-gray-800 dark:text-gray-300" />
-														</Button>
-													</Tooltip>
-												</>
-											)}
-										</div>
-									</TableCell>
-								</TableRow>
-							))}
+							) : (
+								paginatedData.map((item) => (
+									<TableRow
+										key={item.id || item.received_at}
+										className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
+									>
+										<TableCell className="max-w-[100px] text-center">
+											{item.company_name || "--"}
+										</TableCell>
+										<TableCell className="max-w-[120px] break-words whitespace-normal text-center">
+											<span
+												className={`inline-flex items-center justify-center px-1.5 py-1 rounded text-sm font-medium ${getStatusClass(item.application_status)}`}
+											>
+												{item.application_status || "--"}
+											</span>
+										</TableCell>
+										<TableCell className="text-center">
+											{new Date(item.received_at).toLocaleDateString() || "--"}
+										</TableCell>
+										<TableCell className="max-w-[136px] break-words whitespace-normal text-center">
+											{item.job_title || "--"}
+										</TableCell>
+										<TableCell className="max-w-[200px] break-words text-center">
+											{item.subject || "--"}
+										</TableCell>
+										<TableCell className="max-w-[220px] break-words whitespace-normal text-center">
+											{item.email_from || "--"}
+										</TableCell>
+										<TableCell className="text-center">
+											<div className="flex justify-center gap-2">
+												{!readOnly && (
+													<>
+														<Tooltip content="Edit">
+															<Button
+																isIconOnly
+																size="sm"
+																variant="light"
+																onPress={() => {
+																	setSelectedApplication(item);
+																	setModalMode("edit");
+																	setShowApplicationModal(true);
+																}}
+															>
+																<EditIcon className="text-gray-800 dark:text-gray-300" />
+															</Button>
+														</Tooltip>
+														<Tooltip content="Remove">
+															<Button
+																isIconOnly
+																size="sm"
+																variant="light"
+																onPress={() => {
+																	setItemToRemove(item.id || null);
+																	setShowDelete(true);
+																}}
+															>
+																<TrashIcon className="text-gray-800 dark:text-gray-300" />
+															</Button>
+														</Tooltip>
+													</>
+												)}
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							)}
 						</TableBody>
 					</Table>
 				</div>

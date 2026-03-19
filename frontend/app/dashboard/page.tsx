@@ -106,22 +106,9 @@ export default function Dashboard() {
 				!hideApplicationConfirmations ||
 				!item.application_status.toLowerCase().includes("application confirmation");
 
-			return (
-				matchesSearch &&
-				matchesStatus &&
-				matchesCompany &&
-				isNotRejection &&
-				isNotApplicationConfirmation
-			);
+			return matchesSearch && matchesStatus && matchesCompany && isNotRejection && isNotApplicationConfirmation;
 		});
-	}, [
-		data,
-		searchTerm,
-		statusFilter,
-		companyFilter,
-		hideRejections,
-		hideApplicationConfirmations
-	]);
+	}, [data, searchTerm, statusFilter, companyFilter, hideRejections, hideApplicationConfirmations]);
 
 	// Fix for "1 of NaN": Dynamically compute total pages from filtered data
 	const computedTotalPages = useMemo(() => {
@@ -179,7 +166,7 @@ export default function Dashboard() {
 	}, [lastRefreshTime]);
 
 	// Handle upgrade checkout
-	const handleUpgrade = async (triggerType: string = "dashboard") => {
+	const handleUpgrade = async (triggerType = "dashboard") => {
 		setCheckoutLoading(true);
 		posthog.capture("upgrade_clicked", { trigger_type: triggerType });
 
@@ -435,7 +422,6 @@ export default function Dashboard() {
 		}
 		prevProcessingStatus.current = processingStatus?.status;
 	}, [processingStatus?.status]);
-
 
 	const fetchPremiumStatus = useCallback(async () => {
 		try {
@@ -725,9 +711,11 @@ export default function Dashboard() {
 				dismissedStopReason !== processingStatus.stop_reason && (
 					<div
 						className={`mx-6 mt-4 p-4 rounded-lg border flex items-start justify-between ${
-							processingStatus.stop_reason === "monthly_cap" || processingStatus.stop_reason === "user_cancelled"
+							processingStatus.stop_reason === "monthly_cap" ||
+							processingStatus.stop_reason === "user_cancelled"
 								? "bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-800"
-								: processingStatus.stop_reason === "error" || processingStatus.stop_reason === "gmail_expired"
+								: processingStatus.stop_reason === "error" ||
+									  processingStatus.stop_reason === "gmail_expired"
 									? "bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-800"
 									: "bg-amber-50 dark:bg-amber-900 border-amber-200 dark:border-amber-800"
 						}`}
@@ -749,7 +737,8 @@ export default function Dashboard() {
 								{processingStatus.stop_reason === "monthly_cap" &&
 									`Monthly limit reached. Resets ${monthlyResetDate ? new Date(monthlyResetDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "on the 1st"}.`}
 								{processingStatus.stop_reason === "gmail_expired" && "Gmail access expired."}
-								{processingStatus.stop_reason === "error" && "Something went wrong during your last scan."}
+								{processingStatus.stop_reason === "error" &&
+									"Something went wrong during your last scan."}
 							</p>
 							<div className="mt-2 flex gap-2">
 								{processingStatus.stop_reason === "user_cancelled" && (
@@ -791,7 +780,12 @@ export default function Dashboard() {
 							onClick={() => setDismissedStopReason(processingStatus.stop_reason)}
 						>
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+								<path
+									d="M6 18L18 6M6 6l12 12"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+								/>
 							</svg>
 						</button>
 					</div>
@@ -837,7 +831,6 @@ export default function Dashboard() {
 				<button
 					className="flex items-center gap-2 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
 					disabled={refreshing || processingStatus?.status === "processing" || cooldownSeconds > 0}
-					onClick={handleRefresh}
 					title={
 						processingStatus?.status === "processing"
 							? "Refresh available after scan completes"
@@ -845,6 +838,7 @@ export default function Dashboard() {
 								? `Last refreshed ${cooldownSeconds}s ago`
 								: undefined
 					}
+					onClick={handleRefresh}
 				>
 					<svg
 						className={`w-4 h-4 ${processingStatus?.status === "processing" || refreshing ? "animate-spin" : ""}`}
@@ -897,7 +891,10 @@ export default function Dashboard() {
 						) : (
 							<>
 								{", or "}
-								<button className="underline font-medium" onClick={() => handleUpgrade("cap_reached_banner")}>
+								<button
+									className="underline font-medium"
+									onClick={() => handleUpgrade("cap_reached_banner")}
+								>
 									upgrade to Pro
 								</button>
 								{" for a higher limit."}
@@ -928,36 +925,34 @@ export default function Dashboard() {
 			)}
 
 			{/* Cap-reached banner */}
-			{monthlyEmailCap &&
-				monthlyEmailsUsed >= monthlyEmailCap &&
-				processingStatus?.status !== "processing" && (
-					<div className="mx-6 mb-4 px-4 py-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-						<div className="flex-1">
-							<p className="text-sm font-medium text-red-800 dark:text-red-200">
-								You&apos;ve processed {monthlyEmailsUsed.toLocaleString()} of{" "}
-								{monthlyEmailCap.toLocaleString()} emails this month.
-							</p>
-							<p className="text-sm text-red-700 dark:text-red-300 mt-1">
-								Resets{" "}
-								{monthlyResetDate
-									? new Date(monthlyResetDate).toLocaleDateString("en-US", {
-											month: "short",
-											day: "numeric"
-										})
-									: "on the 1st"}
-								.
-							</p>
-						</div>
-						{!isPremium && (
-							<button
-								className="shrink-0 inline-flex items-center px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
-								onClick={() => handleUpgrade("cap_reached_banner")}
-							>
-								Upgrade for 5,000 emails/month
-							</button>
-						)}
+			{monthlyEmailCap && monthlyEmailsUsed >= monthlyEmailCap && processingStatus?.status !== "processing" && (
+				<div className="mx-6 mb-4 px-4 py-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+					<div className="flex-1">
+						<p className="text-sm font-medium text-red-800 dark:text-red-200">
+							You&apos;ve processed {monthlyEmailsUsed.toLocaleString()} of{" "}
+							{monthlyEmailCap.toLocaleString()} emails this month.
+						</p>
+						<p className="text-sm text-red-700 dark:text-red-300 mt-1">
+							Resets{" "}
+							{monthlyResetDate
+								? new Date(monthlyResetDate).toLocaleDateString("en-US", {
+										month: "short",
+										day: "numeric"
+									})
+								: "on the 1st"}
+							.
+						</p>
 					</div>
-				)}
+					{!isPremium && (
+						<button
+							className="shrink-0 inline-flex items-center px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+							onClick={() => handleUpgrade("cap_reached_banner")}
+						>
+							Upgrade for 5,000 emails/month
+						</button>
+					)}
+				</div>
+			)}
 
 			<JobApplicationsDashboard
 				companyFilter={companyFilter}
