@@ -150,7 +150,7 @@ def get_eligible_premium_users(db_session) -> List[Users]:
     """
     # Query users with premium tier
     eligible_users = db_session.exec(
-        select(Users).where(Users.sync_tier == "premium").where(Users.is_active)
+        select(Users).where(Users.sync_tier == "premium")
     ).all()
 
     # Filter to only those with valid credentials

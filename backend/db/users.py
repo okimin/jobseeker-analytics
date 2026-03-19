@@ -16,7 +16,6 @@ class Users(SQLModel, table=True):
     user_email: str = Field(nullable=False)
     start_date: datetime = Field(nullable=True) # Start date for job applications
     # Billing fields
-    is_active: bool = Field(default=False, nullable=False)
     stripe_customer_id: str | None = Field(default=None, nullable=True)
     # Add role field to distinguish generic users from coaches
     role: str = Field(default="") # '' (unset) | 'jobseeker' | 'coach'

@@ -146,7 +146,7 @@ async def login(
         request.session["is_new_user"] = False 
 
         response = None # Initialize response with a default value
-        if existing_user and existing_user.is_active:
+        if existing_user:
             if is_step_up:
                 safe_url = get_safe_redirect_url(request=request, return_to=raw_return_to, default_url=f"{APP_URL}/settings")
                 response = RedirectResponse(url=safe_url, status_code=303)
@@ -215,14 +215,20 @@ async def login(
                         user_id=user.user_id,
                     )
                     logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user.user_id, last_fetched_date)
-        elif existing_user and not existing_user.is_active:
-            # Existing but inactive user - redirect to signup to reactivate
-            logger.info("user_id: %s is inactive. Redirecting to signup flow.", user.user_id)
-            return Redirects.to_signup()
         else:
-            # New user trying to login - redirect to signup flow
-            logger.info("user_id: %s does not exist. Redirecting to signup flow.", user.user_id)
-            return Redirects.to_signup()
+            # New user - create account directly (we already have their Google creds)
+            from db.users import Users as UserModel
+            new_user = UserModel(
+                user_id=user.user_id,
+                user_email=user.user_email,
+                start_date=None
+            )
+            db_session.add(new_user)
+            db_session.commit()
+            save_credentials(db_session, user.user_id, creds, credential_type="primary")
+            logger.info("Created new user_id: %s through login flow", user.user_id)
+            request.session["is_new_user"] = True
+            response = Redirects.to_onboarding()
 
         response = set_conditional_cookie(
             key="Authorization", value=session_id, response=response
@@ -325,8 +331,8 @@ async def signup(request: Request, db_session: database.DBSession):
         
         existing_user, _ = user_exists(user, db_session)
 
-        if existing_user and existing_user.is_active:
-            # Existing active user - redirect based on their status
+        if existing_user:
+            # Existing user - redirect based on their status
             if existing_user.onboarding_completed_at is not None:
                 if existing_user.has_email_sync_configured:
                     response = Redirects.to_dashboard()
@@ -335,20 +341,12 @@ async def signup(request: Request, db_session: database.DBSession):
             else:
                 # Not onboarded yet - go to onboarding
                 response = Redirects.to_onboarding()
-        elif existing_user and not existing_user.is_active:
-            # Existing but inactive user - activate them and send to onboarding
-            existing_user.is_active = True
-            db_session.add(existing_user)
-            db_session.commit()
-            logger.info("Activated existing user_id: %s through signup flow", user.user_id)
-            response = Redirects.to_onboarding()
         else:
             # New user - create account and redirect to onboarding
             from db.users import Users
             new_user = Users(
                 user_id=user.user_id,
                 user_email=user.user_email,
-                is_active=True,
                 start_date=None  # Will be set later
             )
             db_session.add(new_user)
