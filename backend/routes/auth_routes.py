@@ -245,6 +245,67 @@ async def logout(request: Request, response: RedirectResponse):
     return RedirectResponse(f"{APP_URL}", status_code=303)
 
 
+@router.post("/api/auth/gmail/disconnect")
+@limiter.limit("5/minute")
+async def disconnect_gmail(
+    request: Request,
+    db_session: database.DBSession,
+    user_id: str = Depends(validate_session),
+):
+    """Disconnect Gmail integration and revoke OAuth tokens.
+
+    This removes the email_sync credentials and clears the Gmail sync configuration.
+    User emails in the database are NOT deleted - only the Gmail connection is severed.
+    """
+    from db.users import Users
+    from db.oauth_credentials import OAuthCredentials
+    from google.oauth2.credentials import Credentials
+    from google.auth.transport.requests import Request as GoogleRequest
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    user = db_session.exec(select(Users).where(Users.user_id == user_id)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Load and revoke email_sync credentials if they exist
+    email_sync_creds = db_session.exec(
+        select(OAuthCredentials)
+        .where(OAuthCredentials.user_id == user_id)
+        .where(OAuthCredentials.credential_type == "email_sync")
+    ).first()
+
+    if email_sync_creds:
+        try:
+            # Try to revoke the token with Google
+            creds = load_credentials(db_session, user_id, credential_type="email_sync", auto_refresh=False)
+            if creds and creds.token:
+                import httplib2
+                h = httplib2.Http()
+                h.request(
+                    f"https://oauth2.googleapis.com/revoke?token={creds.token}",
+                    method="POST",
+                    headers={"Content-Type": "application/x-www-form-urlencoded"}
+                )
+                logger.info(f"Revoked Gmail token for user {user_id}")
+        except Exception as e:
+            # Token revocation is best-effort; continue even if it fails
+            logger.warning(f"Failed to revoke Gmail token for user {user_id}: {e}")
+
+        # Delete the credentials from database
+        db_session.delete(email_sync_creds)
+
+    # Update user record
+    user.has_email_sync_configured = False
+    user.sync_email_address = None
+    db_session.add(user)
+    db_session.commit()
+
+    logger.info(f"Gmail disconnected for user {user_id}")
+    return {"message": "Gmail disconnected successfully"}
+
+
 @router.get("/me")
 async def getUser(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
     if not user_id:
