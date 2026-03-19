@@ -91,6 +91,8 @@
   field: from
   how: exclude
   terms:
+    - '@groups.io'
+    - '@mail.beehiiv.com'
     - info@
     - support@
     - '@indiehackers.com'
