@@ -260,15 +260,6 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 								<div className="py-1">
 									<a
 										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
-										href={siteConfig.links.donate}
-										rel="noopener noreferrer"
-										target="_blank"
-									>
-										Donate
-										<ExternalLinkIcon />
-									</a>
-									<a
-										className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
 										href="/contributors"
 									>
 										Develop
@@ -401,26 +392,6 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 								</button>
 								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
 									{isPremium ? "Settings" : "Upgrade to Premium"}
-								</div>
-							</div>
-						) : !isAuthenticated ? (
-							<div className="relative group ml-6">
-								<a
-									className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors block"
-									href={siteConfig.links.donate}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											clipRule="evenodd"
-											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-											fillRule="evenodd"
-										/>
-									</svg>
-								</a>
-								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-									Donate
 								</div>
 							</div>
 						) : null}
@@ -578,7 +549,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 						<div className="px-3 py-2 pt-4 text-xs font-semibold text-default-500 uppercase tracking-wider border-t border-divider">
 							Contribute
 						</div>
-						{isAuthenticated && onSettingsClick ? (
+						{isAuthenticated && onSettingsClick && (
 							<button
 								className="block w-full text-left px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 								onClick={() => {
@@ -588,24 +559,13 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							>
 								{isPremium ? "Manage Subscription" : "Upgrade to Premium"}
 							</button>
-						) : (
-							<a
-								className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
-								href={siteConfig.links.donate}
-								rel="noopener noreferrer"
-								target="_blank"
-								onClick={() => setIsOpen(false)}
-							>
-								Donate
-								<ExternalLinkIcon />
-							</a>
 						)}
 						<NextLink
 							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
 							href="/contributors"
 							onClick={() => setIsOpen(false)}
 						>
-							Participate
+							Develop
 						</NextLink>
 						<a
 							className="flex items-center gap-2 px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"

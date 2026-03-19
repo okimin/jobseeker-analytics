@@ -233,16 +233,6 @@ const Footer = () => {
 						</h4>
 						<ul className="space-y-3">
 							<li>
-								<a
-									className="text-sm text-default-500 hover:text-foreground transition-colors"
-									href={siteConfig.links.donate}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									Donate <ExternalLinkIcon />
-								</a>
-							</li>
-							<li>
 								<NextLink
 									className="text-sm text-default-500 hover:text-foreground transition-colors"
 									href="/contributors"
