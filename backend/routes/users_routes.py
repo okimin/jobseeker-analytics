@@ -90,8 +90,6 @@ async def get_premium_status(
             logger.warning(f"Failed to fetch subscription status: {e}")
 
     from utils.billing_utils import get_monthly_email_cap, reset_monthly_counter_if_needed
-    from datetime import date
-    import calendar
 
     # Reset counter if we've rolled into a new calendar month, then persist
     user = reset_monthly_counter_if_needed(user)

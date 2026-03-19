@@ -20,7 +20,7 @@ from utils.admin_utils import get_context_user_id
 import database
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
-from datetime import datetime, timezone, timedelta, date
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address

@@ -259,8 +259,6 @@ async def disconnect_gmail(
     """
     from db.users import Users
     from db.oauth_credentials import OAuthCredentials
-    from google.oauth2.credentials import Credentials
-    from google.auth.transport.requests import Request as GoogleRequest
 
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authenticated")
