@@ -1,18 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardBody, CardHeader, Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import SettingsModal from "@/components/SettingsModal";
+import Spinner from "@/components/spinner";
 
 const PREMIUM_AMOUNT_CENTS = 500; // $5/month
 
-export default function PricingPage() {
+function PricingContent() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const hasTriggeredUpgrade = useRef(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const action = searchParams.get("action");
 
 	function XIcon({ className }: { className?: string }) {
 		return (
@@ -20,8 +27,7 @@ export default function PricingPage() {
 				<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
 			</svg>
 		);
-	}	
-	
+	}
 
 	useEffect(() => {
 		const fetchPremiumStatus = async () => {
@@ -32,15 +38,18 @@ export default function PricingPage() {
 				if (response.ok) {
 					const data = await response.json();
 					setIsPremium(data.is_premium);
+					setIsLoggedIn(true);
+				} else {
+					setIsLoggedIn(false);
 				}
 			} catch (err) {
-				// Silently fail - user may not be logged in
+				setIsLoggedIn(false);
 			}
 		};
 		fetchPremiumStatus();
 	}, [apiUrl]);
 
-	const handleUpgrade = async () => {
+	const triggerCheckout = async () => {
 		setIsLoading(true);
 
 		try {
@@ -57,7 +66,7 @@ export default function PricingPage() {
 
 			if (response.ok) {
 				const data = await response.json();
-				window.open(data.checkout_url, "_blank", "noopener,noreferrer");
+				window.location.href = data.checkout_url || data.url;
 			} else {
 				console.error("Failed to create checkout session");
 			}
@@ -66,6 +75,26 @@ export default function PricingPage() {
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	// Auto-trigger checkout if redirected back after login with action=upgrade
+	useEffect(() => {
+		if (action === "upgrade" && isLoggedIn && !hasTriggeredUpgrade.current) {
+			hasTriggeredUpgrade.current = true;
+			// Small delay to ensure state is settled
+			setTimeout(() => {
+				triggerCheckout();
+			}, 100);
+		}
+	}, [action, isLoggedIn]);
+
+	const handleUpgrade = () => {
+		// If not logged in, redirect to login with return URL
+		if (!isLoggedIn) {
+			router.push("/login?redirect=/pricing&action=upgrade");
+			return;
+		}
+		triggerCheckout();
 	};
 
 	return (
@@ -101,7 +130,7 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Last 30 days visible</span>
+										<span className="text-gray-600 dark:text-gray-300">Last 30 days processed</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
@@ -152,17 +181,15 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Full dashboard history</span>
+										<span className="text-gray-600 dark:text-gray-300">
+											Full search history
+										</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">
 											Auto-refresh twice a day
 										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Past job searches</span>
 									</li>
 								</ul>
 								<div className="mt-6">
@@ -303,3 +330,19 @@ function CheckIcon({ className }: { className?: string }) {
 	);
 }
 
+export default function PricingPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex flex-col min-h-screen">
+					<Navbar />
+					<main className="flex-grow flex items-center justify-center">
+						<Spinner />
+					</main>
+				</div>
+			}
+		>
+			<PricingContent />
+		</Suspense>
+	);
+}
