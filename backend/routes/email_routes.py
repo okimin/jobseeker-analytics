@@ -637,15 +637,23 @@ def _fetch_emails_to_db_impl(
         db_session.commit()
 
         start_date = request.session.get("start_date")
-        logger.info(f"start_date: {start_date}")
-        start_date_query = get_start_date_email_filter(start_date)
-        start_date_updated = False
         existing_user = db_session.exec(
             select(Users).where(Users.user_id == user_id)
         ).first()
-        if existing_user and existing_user.start_date and start_date != existing_user.start_date.strftime('%Y/%m/%d'):
-            logger.info(f"start_date {start_date} != user.start_date {existing_user.start_date.strftime('%Y/%m/%d')}")
-            start_date_updated = True
+
+        # Fall back to user's configured start_date if session doesn't have one
+        start_date_updated = False
+        if existing_user and existing_user.start_date:
+            user_start_date = existing_user.start_date.strftime('%Y/%m/%d')
+            if not start_date:
+                start_date = user_start_date
+                logger.info(f"Using user's configured start_date: {start_date}")
+            elif start_date != user_start_date:
+                logger.info(f"start_date {start_date} != user.start_date {user_start_date}")
+                start_date_updated = True
+
+        logger.info(f"start_date: {start_date}")
+        start_date_query = get_start_date_email_filter(start_date)
 
         # Monthly cap enforcement
         from utils.billing_utils import get_monthly_email_cap, reset_monthly_counter_if_needed
