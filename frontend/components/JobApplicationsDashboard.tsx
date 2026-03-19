@@ -46,8 +46,6 @@ export interface JobApplicationsDashboardProps {
 	onStatusFilterChange?: (status: string) => void;
 	companyFilter?: string;
 	onCompanyFilterChange?: (company: string) => void;
-	normalizedJobTitleFilter?: string;
-	onNormalizedJobTitleFilterChange?: (title: string) => void;
 	hideRejections?: boolean;
 	onHideRejectionsChange?: (hide: boolean) => void;
 	hideApplicationConfirmations?: boolean;
@@ -58,6 +56,7 @@ export interface JobApplicationsDashboardProps {
 	totalPages: number;
 	onRefreshData?: () => void;
 	readOnly?: boolean;
+	isScanning?: boolean;
 }
 
 // Load sort key from localStorage or use default
@@ -130,8 +129,6 @@ export default function JobApplicationsDashboard({
 	onStatusFilterChange,
 	companyFilter = "",
 	onCompanyFilterChange,
-	normalizedJobTitleFilter = "",
-	onNormalizedJobTitleFilterChange,
 	hideRejections = true,
 	onHideRejectionsChange,
 	hideApplicationConfirmations = true,
@@ -141,7 +138,8 @@ export default function JobApplicationsDashboard({
 	currentPage,
 	totalPages,
 	onRefreshData,
-	readOnly = false
+	readOnly = false,
+	isScanning = false
 }: JobApplicationsDashboardProps) {
 	const [selectedKeys, setSelectedKeys] = useState(new Set([getInitialSortKey(initialSortKey)]));
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -201,13 +199,6 @@ export default function JobApplicationsDashboard({
 		return Array.from(companies).sort();
 	}, [data]);
 
-	const uniqueNormalizedJobTitles = React.useMemo(() => {
-		const titles = new Set(
-			data.map((item) => item.normalized_job_title).filter((title) => title && title.trim() !== "")
-		);
-		return Array.from(titles).sort();
-	}, [data]);
-
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
 
 	// Sort data based on selected key
@@ -227,13 +218,6 @@ export default function JobApplicationsDashboard({
 				break;
 			case "Job Title":
 				sorted.sort((a, b) => a.job_title.localeCompare(b.job_title));
-				break;
-			case "Normalized Job Title":
-				sorted.sort((a, b) => {
-					const titleA = a.normalized_job_title?.toLowerCase() || "";
-					const titleB = b.normalized_job_title?.toLowerCase() || "";
-					return titleA.localeCompare(titleB);
-				});
 				break;
 			case "Status":
 				sorted.sort((a, b) => a.application_status.localeCompare(b.application_status));
@@ -447,37 +431,6 @@ export default function JobApplicationsDashboard({
 					</DropdownMenu>
 				</Dropdown>
 
-				{/* Job Title Filter */}
-				<Dropdown>
-					<DropdownTrigger>
-						<Button
-							color={normalizedJobTitleFilter ? "primary" : "default"}
-							isDisabled={!data || data.length === 0}
-							size="sm"
-							variant={normalizedJobTitleFilter ? "solid" : "bordered"}
-						>
-							{normalizedJobTitleFilter || "Job Title"}
-						</Button>
-					</DropdownTrigger>
-					<DropdownMenu
-						aria-label="Job title filter"
-						selectedKeys={normalizedJobTitleFilter ? new Set([normalizedJobTitleFilter]) : new Set()}
-						selectionMode="single"
-						onSelectionChange={(keys) => {
-							const selectedTitle = Array.from(keys)[0] as string;
-							posthog.capture("filter_job_title_changed");
-							onNormalizedJobTitleFilterChange?.(selectedTitle || "");
-						}}
-					>
-						<>
-							<DropdownItem key="">All Job Titles</DropdownItem>
-							{uniqueNormalizedJobTitles.map((title: string | undefined) =>
-								title ? <DropdownItem key={title}>{title}</DropdownItem> : null
-							)}
-						</>
-					</DropdownMenu>
-				</Dropdown>
-
 				{/* Hide Options Dropdown */}
 				<Dropdown>
 					<DropdownTrigger>
@@ -542,7 +495,6 @@ export default function JobApplicationsDashboard({
 						<DropdownItem key="Date (Newest)">Date (Newest)</DropdownItem>
 						<DropdownItem key="Date (Oldest)">Date (Oldest)</DropdownItem>
 						<DropdownItem key="Company">Company (A-Z)</DropdownItem>
-						<DropdownItem key="Normalized Job Title">Job Title (A-Z)</DropdownItem>
 						<DropdownItem key="Status">Status</DropdownItem>
 					</DropdownMenu>
 				</Dropdown>
@@ -675,13 +627,24 @@ export default function JobApplicationsDashboard({
 							<TableColumn className="text-center">Status</TableColumn>
 							<TableColumn className="text-center">Received</TableColumn>
 							<TableColumn className="text-center">Job Title</TableColumn>
-							<TableColumn className="text-center">Normalized Job Title</TableColumn>
 							<TableColumn className="text-center">Subject</TableColumn>
 							<TableColumn className="text-center">Sender</TableColumn>
 							<TableColumn className="text-center">Actions</TableColumn>
 						</TableHeader>
 						<TableBody>
-							{paginatedData.map((item) => (
+							{isScanning && paginatedData.length === 0 ? (
+								<TableRow key="scanning">
+									<TableCell colSpan={7} className="text-center py-8">
+										<div className="flex flex-col items-center gap-2 text-default-500">
+											<svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+											</svg>
+											<span>Scan in progress — results will appear here</span>
+										</div>
+									</TableCell>
+								</TableRow>
+							) : paginatedData.map((item) => (
 								<TableRow
 									key={item.id || item.received_at}
 									className="hover:bg-default-100 dark:hover:bg-content2 transition-colors"
@@ -701,9 +664,6 @@ export default function JobApplicationsDashboard({
 									</TableCell>
 									<TableCell className="max-w-[136px] break-words whitespace-normal text-center">
 										{item.job_title || "--"}
-									</TableCell>
-									<TableCell className="max-w-[136px] break-words whitespace-normal text-center">
-										{item.normalized_job_title || "--"}
 									</TableCell>
 									<TableCell className="max-w-[200px] break-words text-center">
 										{item.subject || "--"}
@@ -752,15 +712,18 @@ export default function JobApplicationsDashboard({
 					</Table>
 				</div>
 			)}
-			<div className="flex justify-between items-center mt-4">
-				<Button disabled={currentPage <= 1} onPress={onPrevPage}>
-					Previous
-				</Button>
-				<span>{`${currentPage} of ${Math.max(1, totalPages)}`}</span>
-				<Button disabled={currentPage >= totalPages} onPress={onNextPage}>
-					Next
-				</Button>
-			</div>
+			{/* Hide pagination when scanning with no data */}
+			{!(isScanning && data.length === 0) && (
+				<div className="flex justify-between items-center mt-4">
+					<Button disabled={currentPage <= 1} onPress={onPrevPage}>
+						Previous
+					</Button>
+					<span>{`${currentPage} of ${Math.max(1, totalPages)}`}</span>
+					<Button disabled={currentPage >= totalPages} onPress={onNextPage}>
+						Next
+					</Button>
+				</div>
+			)}
 
 			{/* Add/Edit Application Modal */}
 			<JobApplicationModal
