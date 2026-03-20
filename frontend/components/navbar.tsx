@@ -83,8 +83,8 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 								className="h-8 w-8 object-contain"
 								src={
 									theme === "dark"
-										? "/justajobapp-square-dark-monogram-logo-favicon.png"
-										: "/justajobapp-circle-monogram-logo-social.png"
+										? "/logo-dark.png"
+										: "/logo-light.png"
 								}
 							/>
 							<span className="text-lg font-semibold text-foreground">{siteConfig.name}</span>
@@ -117,8 +117,8 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 									className="h-10 w-10 object-contain"
 									src={
 										theme === "dark"
-											? "/justajobapp-square-dark-monogram-logo-favicon.png"
-											: "/justajobapp-circle-monogram-logo-social.png"
+											? "/logo-dark.png"
+											: "/logo-light.png"
 									}
 								/>
 								<div className="flex flex-col">
