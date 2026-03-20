@@ -31,9 +31,15 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 	const [isOpen, setIsOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [mounted, setMounted] = useState(false);
 	const pathname = usePathname();
 	const { theme } = useTheme();
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+	// Avoid hydration mismatch with theme
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const navButtonClasses =
 		"px-2 lg-nav:px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1";
@@ -81,7 +87,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							<img
 								alt="JustAJobApp Logo"
 								className="h-8 w-8 object-contain"
-								src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
+								src={mounted && theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
 							/>
 							<span className="text-lg font-semibold text-foreground">{siteConfig.name}</span>
 						</NextLink>
@@ -111,7 +117,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 								<img
 									alt="JustAJobApp Logo"
 									className="h-10 w-10 object-contain"
-									src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
+									src={mounted && theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
 								/>
 								<div className="flex flex-col">
 									<span className="text-xl font-bold text-foreground">{siteConfig.name}</span>
