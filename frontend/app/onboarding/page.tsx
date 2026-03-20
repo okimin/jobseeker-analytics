@@ -894,15 +894,11 @@ function OnboardingContent() {
 	// Screen 4 — Scanning
 	if (screen === "step4-scanning") {
 		// Calculate actual scan range for display
-		const effectiveScanStart = savedStartDate;
+		const thirtyDaysAgo = daysAgoDate(30);
+		// Free users selecting > 30 days get capped to last 30 days
+		const isFreeWithLimitedRange = plan === "free" && savedStartDate && savedStartDate < thirtyDaysAgo;
+		const effectiveScanStart = isFreeWithLimitedRange ? thirtyDaysAgo : savedStartDate;
 		const effectiveScanEnd = savedEndDate ? new Date(savedEndDate) : new Date();
-		// Free users only get first 30 days from start
-		const thirtyDaysAfterStart = savedStartDate
-			? new Date(savedStartDate.getTime() + 30 * 24 * 60 * 60 * 1000)
-			: null;
-		const isFreeWithLimitedRange =
-			plan === "free" && thirtyDaysAfterStart && effectiveScanEnd > thirtyDaysAfterStart;
-		const displayEndDate = isFreeWithLimitedRange ? thirtyDaysAfterStart : effectiveScanEnd;
 
 		return (
 			<>
@@ -922,7 +918,7 @@ function OnboardingContent() {
 							</p>
 							{effectiveScanStart && (
 								<p className="text-sm text-gray-400 mb-4">
-									Scanning from {formatDate(effectiveScanStart)} to {formatDate(displayEndDate!)}
+									Scanning from {formatDate(effectiveScanStart)} to {formatDate(effectiveScanEnd)}
 								</p>
 							)}
 							{applicationsFound > 0 && (
