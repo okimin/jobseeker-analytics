@@ -442,15 +442,21 @@ async def preview_emails(
     if len(messages) > preview_limit:
         messages = messages[:preview_limit]
 
-    # Fetch metadata for each email
+    # Fetch metadata for each email (unique senders only)
     preview_emails = []
+    seen_senders = set()
     for msg in messages:
         metadata = get_email_metadata(msg["id"], gmail_instance)
         if metadata:
             from_header = metadata.get("from", "")
+            sender_domain = extract_sender_domain(from_header)
+            # Skip if we've already seen this sender
+            if sender_domain in seen_senders:
+                continue
+            seen_senders.add(sender_domain)
             preview_emails.append(EmailPreviewItem(
                 sender=extract_sender_name(from_header),
-                sender_domain=extract_sender_domain(from_header),
+                sender_domain=sender_domain,
                 subject=metadata.get("subject", "(No subject)"),
                 date=metadata.get("date", "")
             ))
@@ -499,6 +505,29 @@ def emails_hidden_count(request: Request, db_session: database.DBSession, user_i
     ).one()
 
     return {"hidden_count": hidden_count, "cutoff_date": cutoff_dt.isoformat()}
+
+
+@router.get("/get-emails/preview")
+@limiter.limit("10/minute")
+def get_emails_preview(request: Request, db_session: database.DBSession, user_id: str = Depends(validate_session)):
+    """Get a preview of emails (up to 4 unique companies) - works during onboarding before completion."""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    statement = select(UserEmails).where(UserEmails.user_id == user_id).order_by(desc(UserEmails.received_at))
+    emails = db_session.exec(statement).all()
+
+    # Return unique companies only (up to 4)
+    seen_companies = set()
+    unique_emails = []
+    for e in emails:
+        if e.company_name not in seen_companies:
+            seen_companies.add(e.company_name)
+            unique_emails.append({"company_name": e.company_name, "application_status": e.application_status})
+            if len(unique_emails) >= 4:
+                break
+
+    return {"emails": unique_emails}
 
 
 @router.get("/get-emails", response_model=List[UserEmails])

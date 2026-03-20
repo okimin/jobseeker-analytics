@@ -115,6 +115,7 @@ function OnboardingContent() {
 	const [applicationsFound, setApplicationsFound] = useState(0);
 	const [scanElapsed, setScanElapsed] = useState(0);
 	const [scanFailed, setScanFailed] = useState(false);
+	const [foundEmailsPreview, setFoundEmailsPreview] = useState<Array<{company_name: string; application_status: string}>>([]);
 	const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -157,6 +158,18 @@ function OnboardingContent() {
 
 					if (data.status === "complete") {
 						stopPolling();
+						// Fetch email preview before transitioning
+						if (found > 0) {
+							try {
+								const emailsRes = await fetch(`${apiUrl}/get-emails/preview`, { credentials: "include" });
+								if (emailsRes.ok) {
+									const emailsData = await emailsRes.json();
+									setFoundEmailsPreview(emailsData.emails || []);
+								}
+							} catch {
+								// Continue without preview if fetch fails
+							}
+						}
 						if (found === 0) {
 							setScreen("empty-state");
 						} else if (currentRole === "jobseeker") {
@@ -825,6 +838,21 @@ function OnboardingContent() {
 							</div>
 						)}
 
+						{/* Sticky CTA above email list for free tier users */}
+						{showFreeTierNotice && previewEmails.length > 0 && (
+							<div className="mb-3">
+								<Button
+									className="w-full"
+									color="primary"
+									isLoading={isSaving}
+									size="lg"
+									onPress={handleConfirmScan}
+								>
+									Continue with last 30 days →
+								</Button>
+							</div>
+						)}
+
 						{/* Email list */}
 						{previewEmails.length > 0 ? (
 							<div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
@@ -971,6 +999,23 @@ function OnboardingContent() {
 									{applicationsFound !== 1 ? "s" : ""}
 								</span>
 							</p>
+							{foundEmailsPreview.length > 0 && (
+								<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 text-left">
+									<ul className="space-y-2">
+										{foundEmailsPreview.map((email, idx) => (
+											<li key={idx} className="flex justify-between text-sm">
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+											</li>
+										))}
+									</ul>
+									{applicationsFound > foundEmailsPreview.length && (
+										<p className="text-xs text-gray-400 mt-2 text-center">
+											+{applicationsFound - foundEmailsPreview.length} more
+										</p>
+									)}
+								</div>
+							)}
 							<p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
 								Your entire search fits within your free window — nothing will be hidden.
 							</p>
@@ -1004,6 +1049,23 @@ function OnboardingContent() {
 									{applicationsFound !== 1 ? "s" : ""}
 								</span>
 							</p>
+							{foundEmailsPreview.length > 0 && (
+								<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 text-left">
+									<ul className="space-y-2">
+										{foundEmailsPreview.map((email, idx) => (
+											<li key={idx} className="flex justify-between text-sm">
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+											</li>
+										))}
+									</ul>
+									{applicationsFound > foundEmailsPreview.length && (
+										<p className="text-xs text-gray-400 mt-2 text-center">
+											+{applicationsFound - foundEmailsPreview.length} more
+										</p>
+									)}
+								</div>
+							)}
 							<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-5 text-sm text-blue-800 dark:text-blue-200 text-left">
 								Free accounts show the most recent 30 days in the dashboard. As your search continues,
 								your view stays current — older entries roll out as new ones come in. Your full history
@@ -1064,6 +1126,23 @@ function OnboardingContent() {
 									</>
 								)}
 							</p>
+							{foundEmailsPreview.length > 0 && (
+								<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 text-left">
+									<ul className="space-y-2">
+										{foundEmailsPreview.map((email, idx) => (
+											<li key={idx} className="flex justify-between text-sm">
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+											</li>
+										))}
+									</ul>
+									{applicationsFound > foundEmailsPreview.length && (
+										<p className="text-xs text-gray-400 mt-2 text-center">
+											+{applicationsFound - foundEmailsPreview.length} more
+										</p>
+									)}
+								</div>
+							)}
 							<p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
 								You have full access to your selected date range — nothing is hidden.
 							</p>
@@ -1098,6 +1177,23 @@ function OnboardingContent() {
 								</span>{" "}
 								in your preview.
 							</p>
+							{foundEmailsPreview.length > 0 && (
+								<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 text-left">
+									<ul className="space-y-2">
+										{foundEmailsPreview.map((email, idx) => (
+											<li key={idx} className="flex justify-between text-sm">
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+											</li>
+										))}
+									</ul>
+									{applicationsFound > foundEmailsPreview.length && (
+										<p className="text-xs text-gray-400 mt-2 text-center">
+											+{applicationsFound - foundEmailsPreview.length} more
+										</p>
+									)}
+								</div>
+							)}
 							<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-5 text-sm text-blue-800 dark:text-blue-200 text-left">
 								<p className="font-medium mb-2">Ready to get coach access?</p>
 								<p className="mb-3">
