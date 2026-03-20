@@ -129,7 +129,15 @@ async def update_start_date(
     if is_premium:
         # Premium users: use the full selected range
         effective_start = start_date
-        user.scan_end_date = start_date_request.end_date
+        # If extending backward, only scan from new start to earliest existing email
+        from db.utils.user_utils import get_earliest_email_date
+        earliest_email = get_earliest_email_date(user_id, db_session)
+        if earliest_email and start_date < earliest_email:
+            # User is extending backward - only scan the new range
+            user.scan_end_date = earliest_email
+            logger.info(f"user_id:{user_id} extending backward: scan_end_date set to earliest email {earliest_email.isoformat()}")
+        else:
+            user.scan_end_date = start_date_request.end_date
     else:
         # Free users: scan only the last 30 days through today
         # If their selected start is within 30 days, use it; otherwise cap at 30 days ago
