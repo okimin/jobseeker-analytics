@@ -132,6 +132,9 @@ async def update_start_date(
         # If extending backward, only scan from new start to earliest existing email
         from db.utils.user_utils import get_earliest_email_date
         earliest_email = get_earliest_email_date(user_id, db_session)
+        # Ensure timezone-aware comparison
+        if earliest_email and earliest_email.tzinfo is None:
+            earliest_email = earliest_email.replace(tzinfo=timezone.utc)
         if earliest_email and start_date < earliest_email:
             # User is extending backward - only scan the new range
             user.scan_end_date = earliest_email
