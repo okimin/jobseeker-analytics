@@ -81,11 +81,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							<img
 								alt="JustAJobApp Logo"
 								className="h-8 w-8 object-contain"
-								src={
-									theme === "dark"
-										? "/logo-dark.png"
-										: "/logo-light.png"
-								}
+								src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
 							/>
 							<span className="text-lg font-semibold text-foreground">{siteConfig.name}</span>
 						</NextLink>
@@ -115,11 +111,7 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 								<img
 									alt="JustAJobApp Logo"
 									className="h-10 w-10 object-contain"
-									src={
-										theme === "dark"
-											? "/logo-dark.png"
-											: "/logo-light.png"
-									}
+									src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
 								/>
 								<div className="flex flex-col">
 									<span className="text-xl font-bold text-foreground">{siteConfig.name}</span>
