@@ -97,8 +97,6 @@ function OnboardingContent() {
 		return date.toISOString().split("T")[0];
 	});
 	const [coachEndDate, setCoachEndDate] = useState("");
-	const [promoCode, setPromoCode] = useState("");
-	const [promoError, setPromoError] = useState<string | null>(null);
 	const [dateError, setDateError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
 	const [savedStartDate, setSavedStartDate] = useState<Date | null>(null);
@@ -372,24 +370,6 @@ function OnboardingContent() {
 		setIsSaving(true);
 
 		try {
-			// For coaches with a promo code: validate + apply promo BEFORE triggering backfill
-			let appliedPlan = plan;
-			if (role === "coach" && promoCode.trim() && plan !== "promo") {
-				const promoRes = await fetch(`${apiUrl}/api/onboarding/apply-promo`, {
-					method: "POST",
-					credentials: "include",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ code: promoCode.trim() })
-				});
-				if (promoRes.ok) {
-					const promoData = await promoRes.json();
-					if (promoData.valid) {
-						appliedPlan = "promo";
-						setPlan("promo");
-					}
-				}
-			}
-
 			// Trigger backfill via start-date
 			const fetchOrder = role === "coach" ? "oldest_first" : "recent_first";
 			// For free users selecting > 30 days, force to 1_month (30 days)
@@ -416,9 +396,9 @@ function OnboardingContent() {
 				throw new Error("Failed to save start date");
 			}
 
-			posthog.capture("onboarding_scan_started", { role, plan: appliedPlan });
+			posthog.capture("onboarding_scan_started", { role, plan });
 			setScreen("step4-scanning");
-			startPolling(savedStartDate, role!, appliedPlan);
+			startPolling(savedStartDate, role!, plan);
 		} catch (err) {
 			console.error("Confirm scan error:", err);
 			setDateError("Something went wrong. Please try again.");
@@ -492,8 +472,6 @@ function OnboardingContent() {
 			setSelectedPreset(null);
 			setCustomDate("");
 			setCoachEndDate("");
-			setPromoCode("");
-			setPromoError(null);
 			setDateError(null);
 		} catch {
 			// non-blocking
@@ -748,30 +726,6 @@ function OnboardingContent() {
 								Your dashboard shows the most recent 30 days. Your full history is always available via
 								CSV export — the 30-day limit only applies to what&apos;s visible in the dashboard.
 							</div>
-						)}
-
-						{/* Coach: promo code */}
-						{isCoach && (
-							<>
-								<hr className="border-gray-200 dark:border-gray-700 my-4" />
-								<div className="mb-4">
-									<label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-										Have a promo code? <span className="text-gray-400">(optional)</span>
-									</label>
-									<input
-										className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white uppercase"
-										maxLength={20}
-										placeholder="COACH2026"
-										type="text"
-										value={promoCode}
-										onChange={(e) => {
-											setPromoCode(e.target.value.toUpperCase());
-											setPromoError(null);
-										}}
-									/>
-									{promoError && <p className="text-xs text-red-500 mt-1">{promoError}</p>}
-								</div>
-							</>
 						)}
 
 						{dateError && <p className="text-sm text-red-500 mb-3">{dateError}</p>}
