@@ -13,7 +13,6 @@ from sqlmodel import Session, select
 from db.users import Users
 from db import processing_tasks as task_models
 from db.utils.user_email_utils import create_user_email
-from db.utils.user_utils import get_last_email_date
 from utils.auth_utils import AuthenticatedUser
 from utils.email_utils import get_email_ids, get_email, decode_subject_line
 from utils.llm_utils import process_email
@@ -22,7 +21,6 @@ from utils.config_utils import get_settings
 from utils.credential_service import get_credentials_for_background_task
 from start_date.storage import get_start_date_email_filter
 from constants import QUERY_APPLIED_EMAIL_FILTER
-import database
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
