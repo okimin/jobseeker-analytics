@@ -86,7 +86,7 @@ const Index = () => {
 								<h3 className="text-xl font-semibold mb-2 text-foreground">
 									Apply for jobs like normal
 								</h3>
-								<p className="text-foreground/80">No browser extensions, no clipping</p>
+								<p className="text-foreground/80">No browser extensions, no copy pasting</p>
 							</div>
 							<div className="text-center">
 								<div className="text-4xl font-bold text-primary mb-4">3</div>
@@ -290,10 +290,6 @@ const Index = () => {
 								Login
 							</a>
 						</div>
-
-						<p className="mt-6 text-sm text-foreground/60">
-							Limited availability: ~15 spots remaining during security audit
-						</p>
 					</div>
 				</div>
 			</section>
