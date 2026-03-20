@@ -568,11 +568,12 @@ export default function JobApplicationsDashboard({
 
 				{/* Action Buttons */}
 				<Button
-					color="success"
+					color="default"
 					isDisabled={!data || readOnly || data.length === 0}
 					isLoading={downloading}
 					size="sm"
 					startContent={<DownloadIcon />}
+					variant="bordered"
 					onPress={onDownloadCsv}
 				>
 					CSV
