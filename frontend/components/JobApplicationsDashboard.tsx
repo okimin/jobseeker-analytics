@@ -46,6 +46,8 @@ export interface JobApplicationsDashboardProps {
 	onStatusFilterChange?: (status: string) => void;
 	companyFilter?: string;
 	onCompanyFilterChange?: (company: string) => void;
+	jobTitleFilter?: string;
+	onJobTitleFilterChange?: (jobTitle: string) => void;
 	hideRejections?: boolean;
 	onHideRejectionsChange?: (hide: boolean) => void;
 	hideApplicationConfirmations?: boolean;
@@ -129,6 +131,8 @@ export default function JobApplicationsDashboard({
 	onStatusFilterChange,
 	companyFilter = "",
 	onCompanyFilterChange,
+	jobTitleFilter = "",
+	onJobTitleFilterChange,
 	hideRejections = true,
 	onHideRejectionsChange,
 	hideApplicationConfirmations = true,
@@ -145,6 +149,8 @@ export default function JobApplicationsDashboard({
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 	const [showDelete, setShowDelete] = useState(false);
 	const [itemToRemove, setItemToRemove] = useState<string | null>(null);
+	const [showCompanyFilter, setShowCompanyFilter] = useState(false);
+	const [showJobTitleFilter, setShowJobTitleFilter] = useState(false);
 
 	const pageSize = 10;
 
@@ -197,6 +203,11 @@ export default function JobApplicationsDashboard({
 	const uniqueCompanies = React.useMemo(() => {
 		const companies = new Set(data.map((item) => item.company_name).filter(Boolean));
 		return Array.from(companies).sort();
+	}, [data]);
+
+	const uniqueJobTitles = React.useMemo(() => {
+		const jobTitles = new Set(data.map((item) => item.job_title).filter(Boolean));
+		return Array.from(jobTitles).sort();
 	}, [data]);
 
 	const selectedValue = React.useMemo(() => Array.from(selectedKeys).join(", ").replace(/_/g, ""), [selectedKeys]);
@@ -358,6 +369,90 @@ export default function JobApplicationsDashboard({
 					)}
 				</ModalContent>
 			</Modal>
+			{/* Company Filter - Collapsible chips */}
+			{uniqueCompanies.length > 0 && (
+				<div className="mb-4">
+					<button
+						className="text-sm text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+						onClick={() => setShowCompanyFilter(!showCompanyFilter)}
+					>
+						<span>{showCompanyFilter ? "▼" : "▶"}</span>
+						Filter by Company ({uniqueCompanies.length}){companyFilter && `: ${companyFilter}`}
+					</button>
+					{showCompanyFilter && (
+						<div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+							<Button
+								color={!companyFilter ? "primary" : "default"}
+								size="sm"
+								variant={!companyFilter ? "solid" : "bordered"}
+								onPress={() => {
+									posthog.capture("filter_company_changed");
+									onCompanyFilterChange?.("");
+								}}
+							>
+								All Companies
+							</Button>
+							{uniqueCompanies.map((company: string) => (
+								<Button
+									key={company}
+									color={companyFilter === company ? "primary" : "default"}
+									size="sm"
+									variant={companyFilter === company ? "solid" : "bordered"}
+									onPress={() => {
+										posthog.capture("filter_company_changed");
+										onCompanyFilterChange?.(company);
+									}}
+								>
+									{company}
+								</Button>
+							))}
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Job Title Filter - Collapsible chips */}
+			{uniqueJobTitles.length > 0 && (
+				<div className="mb-4">
+					<button
+						className="text-sm text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+						onClick={() => setShowJobTitleFilter(!showJobTitleFilter)}
+					>
+						<span>{showJobTitleFilter ? "▼" : "▶"}</span>
+						Filter by Job Title ({uniqueJobTitles.length}){jobTitleFilter && `: ${jobTitleFilter}`}
+					</button>
+					{showJobTitleFilter && (
+						<div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+							<Button
+								color={!jobTitleFilter ? "primary" : "default"}
+								size="sm"
+								variant={!jobTitleFilter ? "solid" : "bordered"}
+								onPress={() => {
+									posthog.capture("filter_job_title_changed");
+									onJobTitleFilterChange?.("");
+								}}
+							>
+								All Job Titles
+							</Button>
+							{uniqueJobTitles.map((jobTitle: string) => (
+								<Button
+									key={jobTitle}
+									color={jobTitleFilter === jobTitle ? "primary" : "default"}
+									size="sm"
+									variant={jobTitleFilter === jobTitle ? "solid" : "bordered"}
+									onPress={() => {
+										posthog.capture("filter_job_title_changed");
+										onJobTitleFilterChange?.(jobTitle);
+									}}
+								>
+									{jobTitle}
+								</Button>
+							))}
+						</div>
+					)}
+				</div>
+			)}
+
 			{/* Filter Row */}
 			<div className="flex flex-wrap items-center gap-3 mb-4">
 				{/* Search Input */}
@@ -395,37 +490,6 @@ export default function JobApplicationsDashboard({
 							<DropdownItem key="">All Statuses</DropdownItem>
 							{uniqueStatuses.map((status: string) => (
 								<DropdownItem key={status}>{status}</DropdownItem>
-							))}
-						</>
-					</DropdownMenu>
-				</Dropdown>
-
-				{/* Company Filter */}
-				<Dropdown>
-					<DropdownTrigger>
-						<Button
-							color={companyFilter ? "primary" : "default"}
-							isDisabled={!data || data.length === 0}
-							size="sm"
-							variant={companyFilter ? "solid" : "bordered"}
-						>
-							{companyFilter || "Company"}
-						</Button>
-					</DropdownTrigger>
-					<DropdownMenu
-						aria-label="Company filter"
-						selectedKeys={companyFilter ? new Set([companyFilter]) : new Set()}
-						selectionMode="single"
-						onSelectionChange={(keys) => {
-							const selectedCompany = Array.from(keys)[0] as string;
-							posthog.capture("filter_company_changed");
-							onCompanyFilterChange?.(selectedCompany || "");
-						}}
-					>
-						<>
-							<DropdownItem key="">All Companies</DropdownItem>
-							{uniqueCompanies.map((company: string) => (
-								<DropdownItem key={company}>{company}</DropdownItem>
 							))}
 						</>
 					</DropdownMenu>
