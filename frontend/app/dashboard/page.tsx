@@ -270,6 +270,8 @@ export default function Dashboard() {
 					const statusData = await statusResponse.json();
 					setProcessingStatus(statusData);
 				}
+				// Refresh emails to show any found before cancellation
+				await fetchData();
 			} else if (response.status === 404) {
 				addToast({
 					title: "No scan in progress",
