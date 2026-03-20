@@ -375,8 +375,17 @@ def run_background_fetch_for_user(user_id: str) -> bool:
         True if successful, False otherwise
     """
     with database.get_session() as db_session:
-        # Get last email date for incremental fetch
-        last_updated = get_last_email_date(user_id, db_session)
+        # Get last_processed_date from task run for accurate incremental fetch
+        from db import task_models
+        from sqlmodel import select
+        last_finished = db_session.exec(
+            select(task_models.TaskRuns)
+            .where(task_models.TaskRuns.user_id == user_id)
+            .where(task_models.TaskRuns.status == task_models.FINISHED)
+            .where(task_models.TaskRuns.history_sync_completed == True)
+            .order_by(task_models.TaskRuns.updated.desc())
+        ).first()
+        last_updated = last_finished.last_processed_date if last_finished else get_last_email_date(user_id, db_session)
 
         fetcher = BackgroundEmailFetcher(db_session, user_id)
         return fetcher.fetch_emails(last_updated)

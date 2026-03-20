@@ -97,8 +97,15 @@ def run_premium_batch() -> None:
 
         for user in users:
             try:
-                # Get last email date for incremental fetch
-                last_updated = get_last_email_date(user.user_id, db_session)
+                # Get last_processed_date from task run for accurate incremental fetch
+                last_finished = db_session.exec(
+                    select(task_models.TaskRuns)
+                    .where(task_models.TaskRuns.user_id == user.user_id)
+                    .where(task_models.TaskRuns.status == task_models.FINISHED)
+                    .where(task_models.TaskRuns.history_sync_completed == True)
+                    .order_by(task_models.TaskRuns.updated.desc())
+                ).first()
+                last_updated = last_finished.last_processed_date if last_finished else get_last_email_date(user.user_id, db_session)
 
                 # Create fetcher and run
                 fetcher = BackgroundEmailFetcher(db_session, user.user_id)

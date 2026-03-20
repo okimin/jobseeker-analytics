@@ -529,8 +529,16 @@ async def email_sync_auth(
             return Redirects.to_onboarding()
 
         # Post-onboarding reconnect: trigger incremental sync and go to dashboard
-        from db.utils.user_utils import get_last_email_date
-        last_fetched_date = get_last_email_date(user_id, db_session)
+        # Use last_processed_date from task run (tracks all scanned emails, not just stored ones)
+        from db import task_models
+        last_finished = db_session.exec(
+            select(task_models.TaskRuns)
+            .where(task_models.TaskRuns.user_id == user_id)
+            .where(task_models.TaskRuns.status == task_models.FINISHED)
+            .where(task_models.TaskRuns.history_sync_completed == True)
+            .order_by(task_models.TaskRuns.updated.desc())
+        ).first()
+        last_fetched_date = last_finished.last_processed_date if last_finished else None
         background_tasks.add_task(
             fetch_emails_to_db,
             sync_user_for_task,
@@ -538,7 +546,7 @@ async def email_sync_auth(
             last_fetched_date,
             user_id=user_id,
         )
-        logger.info("fetch_emails_to_db task started for user_id: %s", user_id)
+        logger.info("fetch_emails_to_db task started for user_id: %s fetching as of %s", user_id, last_fetched_date)
         return Redirects.to_dashboard()
 
     except Exception as e:
