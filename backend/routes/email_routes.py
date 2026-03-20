@@ -700,8 +700,15 @@ def _fetch_emails_to_db_impl(
             monthly_cap = None
             emails_remaining = None
 
+        query = start_date_query
+        # check for users last updated email
+        is_incremental_scan = last_updated and not start_date_updated
+
         # Store scan date range on the task run for historical tracking
-        if start_date:
+        # For incremental scans, use last_updated as start; for full scans, use start_date
+        if is_incremental_scan:
+            process_task_run.scan_start_date = last_updated
+        elif start_date:
             try:
                 parsed = datetime.strptime(start_date, "%Y/%m/%d")
                 process_task_run.scan_start_date = parsed.replace(tzinfo=timezone.utc)
@@ -712,10 +719,6 @@ def _fetch_emails_to_db_impl(
         else:
             process_task_run.scan_end_date = datetime.now(timezone.utc)
         db_session.commit()
-
-        query = start_date_query
-        # check for users last updated email
-        is_incremental_scan = last_updated and not start_date_updated
         if is_incremental_scan:
             # this converts our date time to number of seconds
             additional_time = last_updated.strftime("%Y/%m/%d")
