@@ -115,7 +115,9 @@ function OnboardingContent() {
 	const [applicationsFound, setApplicationsFound] = useState(0);
 	const [scanElapsed, setScanElapsed] = useState(0);
 	const [scanFailed, setScanFailed] = useState(false);
-	const [foundEmailsPreview, setFoundEmailsPreview] = useState<Array<{company_name: string; application_status: string}>>([]);
+	const [foundEmailsPreview, setFoundEmailsPreview] = useState<
+		{ company_name: string; application_status: string }[]
+	>([]);
 	const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -161,7 +163,9 @@ function OnboardingContent() {
 						// Fetch email preview before transitioning
 						if (found > 0) {
 							try {
-								const emailsRes = await fetch(`${apiUrl}/get-emails/preview`, { credentials: "include" });
+								const emailsRes = await fetch(`${apiUrl}/get-emails/preview`, {
+									credentials: "include"
+								});
 								if (emailsRes.ok) {
 									const emailsData = await emailsRes.json();
 									setFoundEmailsPreview(emailsData.emails || []);
@@ -1004,8 +1008,12 @@ function OnboardingContent() {
 									<ul className="space-y-2">
 										{foundEmailsPreview.map((email, idx) => (
 											<li key={idx} className="flex justify-between text-sm">
-												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
-												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">
+													{email.company_name}
+												</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+													{email.application_status}
+												</span>
 											</li>
 										))}
 									</ul>
@@ -1054,8 +1062,12 @@ function OnboardingContent() {
 									<ul className="space-y-2">
 										{foundEmailsPreview.map((email, idx) => (
 											<li key={idx} className="flex justify-between text-sm">
-												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
-												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">
+													{email.company_name}
+												</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+													{email.application_status}
+												</span>
 											</li>
 										))}
 									</ul>
@@ -1131,8 +1143,12 @@ function OnboardingContent() {
 									<ul className="space-y-2">
 										{foundEmailsPreview.map((email, idx) => (
 											<li key={idx} className="flex justify-between text-sm">
-												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
-												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">
+													{email.company_name}
+												</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+													{email.application_status}
+												</span>
 											</li>
 										))}
 									</ul>
@@ -1182,8 +1198,12 @@ function OnboardingContent() {
 									<ul className="space-y-2">
 										{foundEmailsPreview.map((email, idx) => (
 											<li key={idx} className="flex justify-between text-sm">
-												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">{email.company_name}</span>
-												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{email.application_status}</span>
+												<span className="text-gray-700 dark:text-gray-300 truncate mr-2">
+													{email.company_name}
+												</span>
+												<span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+													{email.application_status}
+												</span>
 											</li>
 										))}
 									</ul>
