@@ -222,13 +222,13 @@ async def start_processing(
             )
 
         auth_user = AuthenticatedUser(
-            creds, 
-            _user_id=user.user_id, 
+            creds,
+            _user_id=user.user_id,
             _user_email=user.user_email
         )
 
         # If history sync is incomplete (quick scan), do a full scan from start_date.
-        # Otherwise do an incremental scan from the last stored email date.
+        # Otherwise do an incremental scan from the last processed email date.
         last_finished = db_session.exec(
             select(task_models.TaskRuns)
             .where(task_models.TaskRuns.user_id == user_id)
@@ -237,10 +237,22 @@ async def start_processing(
         ).first()
         if last_finished and not last_finished.history_sync_completed:
             last_updated = None  # full re-scan from start_date
+        elif last_finished and last_finished.last_processed_date:
+            # Use last_processed_date to avoid rescanning false positives
+            last_updated = last_finished.last_processed_date
         else:
+            # Fallback for old tasks without last_processed_date
             last_updated = get_last_email_date(user_id, db_session)
 
-        background_tasks.add_task(fetch_emails_to_db, auth_user, request, last_updated, user_id=user_id)
+        # Create TaskRun record BEFORE starting background task to avoid race condition
+        # where frontend fetches /processing/status before TaskRun exists
+        process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
+        db_session.add(process_task_run)
+        db_session.commit()
+        db_session.refresh(process_task_run)
+        task_run_id = process_task_run.id
+
+        background_tasks.add_task(fetch_emails_to_db, auth_user, request, last_updated, user_id=user_id, task_run_id=task_run_id)
 
         logger.info(f"Manual scan started for user {user_id}")
         return {"message": "Processing started"}
@@ -578,10 +590,11 @@ def fetch_emails_to_db(
     *,
     user_id: str,
     quick_limit: Optional[int] = None,
+    task_run_id: Optional[int] = None,
 ) -> None:
     logger.info(f"fetch_emails_to_db for user_id: {user_id}")
     try:
-        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id, quick_limit=quick_limit)
+        _fetch_emails_to_db_impl(user, request, last_updated, user_id=user_id, quick_limit=quick_limit, task_run_id=task_run_id)
     except Exception as e:
         logger.error(f"Error in fetch_emails_to_db for user_id {user_id}: {e}")
         # Mark the task as cancelled so it doesn't stay stuck in "processing"
@@ -609,6 +622,7 @@ def _fetch_emails_to_db_impl(
     *,
     user_id: str,
     quick_limit: Optional[int] = None,
+    task_run_id: Optional[int] = None,
 ) -> None:
     with database.get_session() as db_session:
         gmail_instance = user.service
@@ -616,25 +630,35 @@ def _fetch_emails_to_db_impl(
         # we track starting and finishing fetching of emails for each user
         db_session.commit()  # Commit pending changes to ensure the database is in latest state
 
-        # Check for an active (STARTED) task to prevent concurrent scans
-        active_task: task_models.TaskRuns = db_session.exec(
-            select(task_models.TaskRuns).where(
-                task_models.TaskRuns.user_id == user_id,
-                task_models.TaskRuns.status == task_models.STARTED
-            )
-        ).first()
+        # If task_run_id is provided, use the pre-created TaskRun (from manual refresh)
+        # Otherwise check for active task and create new one (OAuth callback flow)
+        if task_run_id:
+            process_task_run = db_session.exec(
+                select(task_models.TaskRuns).where(task_models.TaskRuns.id == task_run_id)
+            ).first()
+            if not process_task_run:
+                logger.error(f"TaskRun {task_run_id} not found for user_id {user_id}")
+                return
+        else:
+            # Check for an active (STARTED) task to prevent concurrent scans
+            active_task: task_models.TaskRuns = db_session.exec(
+                select(task_models.TaskRuns).where(
+                    task_models.TaskRuns.user_id == user_id,
+                    task_models.TaskRuns.status == task_models.STARTED
+                )
+            ).first()
 
-        if active_task:
-            logger.warning(
-                "User already has an active scan in progress",
-                extra={"user_id": user_id, "task_id": active_task.id},
-            )
-            return JSONResponse(content={"message": "Scan already in progress"}, status_code=409)
+            if active_task:
+                logger.warning(
+                    "User already has an active scan in progress",
+                    extra={"user_id": user_id, "task_id": active_task.id},
+                )
+                return JSONResponse(content={"message": "Scan already in progress"}, status_code=409)
 
-        # Always create a new TaskRun record for each scan (maintains scan history)
-        process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
-        db_session.add(process_task_run)
-        db_session.commit()
+            # Always create a new TaskRun record for each scan (maintains scan history)
+            process_task_run = task_models.TaskRuns(user_id=user_id, status=task_models.STARTED)
+            db_session.add(process_task_run)
+            db_session.commit()
 
         start_date = request.session.get("start_date")
         existing_user = db_session.exec(
@@ -746,10 +770,12 @@ def _fetch_emails_to_db_impl(
                 # For full scans with no messages, mark history complete
                 # For incremental scans, preserve the previous history_sync_completed value
                 if is_incremental_scan:
+                    # Exclude current task (status was just set to FINISHED but not committed)
                     last_finished = db_session.exec(
                         select(task_models.TaskRuns)
                         .where(task_models.TaskRuns.user_id == user_id)
                         .where(task_models.TaskRuns.status == task_models.FINISHED)
+                        .where(task_models.TaskRuns.id != process_task_run.id)
                         .order_by(task_models.TaskRuns.updated.desc())
                     ).first()
                     if last_finished:
@@ -766,6 +792,7 @@ def _fetch_emails_to_db_impl(
         db_session.commit()
 
         email_records = []  # list to collect email records
+        latest_processed_date: Optional[datetime] = None  # Track latest email date scanned
 
         for idx, message in enumerate(messages):
             # Check for cancellation every 5 emails to balance responsiveness with DB load
@@ -801,6 +828,16 @@ def _fetch_emails_to_db_impl(
             )
 
             if msg:
+                # Track latest email date scanned (for incremental scan accuracy)
+                email_date_str = msg.get("date")
+                if email_date_str:
+                    try:
+                        from email.utils import parsedate_to_datetime
+                        email_date = parsedate_to_datetime(email_date_str)
+                        if latest_processed_date is None or email_date > latest_processed_date:
+                            latest_processed_date = email_date
+                    except Exception:
+                        pass  # Skip if date parsing fails
                 logger.debug(f"user_id:{user_id} email content retrieved for message {idx + 1}, processing with LLM")
                 result = None
                 try:
@@ -903,10 +940,12 @@ def _fetch_emails_to_db_impl(
         if is_quick_scan:
             process_task_run.history_sync_completed = False
         elif is_incremental_scan:
+            # Exclude current task (status was just set to FINISHED but not committed)
             last_finished = db_session.exec(
                 select(task_models.TaskRuns)
                 .where(task_models.TaskRuns.user_id == user_id)
                 .where(task_models.TaskRuns.status == task_models.FINISHED)
+                .where(task_models.TaskRuns.id != process_task_run.id)
                 .order_by(task_models.TaskRuns.updated.desc())
             ).first()
             if last_finished:
@@ -914,9 +953,13 @@ def _fetch_emails_to_db_impl(
             # else: stays False, will trigger full scan next time
         else:
             process_task_run.history_sync_completed = True
+
+        # Save the latest email date scanned for accurate incremental scans
+        if latest_processed_date:
+            process_task_run.last_processed_date = latest_processed_date
         db_session.commit()
 
-        logger.info(f"user_id:{user_id} Email fetching complete (is_quick={is_quick_scan}, is_incremental={is_incremental_scan}, history_sync_completed={process_task_run.history_sync_completed}).")
+        logger.info(f"user_id:{user_id} Email fetching complete (is_quick={is_quick_scan}, is_incremental={is_incremental_scan}, history_sync_completed={process_task_run.history_sync_completed}, last_processed_date={process_task_run.last_processed_date}).")
 
     # If this was a quick scan (onboarding), start a follow-up scan to get the rest
     # This is outside the db_session context to ensure clean session management

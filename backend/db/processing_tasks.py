@@ -34,6 +34,7 @@ class TaskRuns(SQLModel, table=True):
     history_sync_completed: bool = Field(default=False, nullable=False)
     scan_start_date: datetime | None = Field(default=None, nullable=True)
     scan_end_date: datetime | None = Field(default=None, nullable=True)
+    last_processed_date: datetime | None = Field(default=None, nullable=True)  # Latest email date scanned (for incremental)
 
     user: Users = Relationship()
 
