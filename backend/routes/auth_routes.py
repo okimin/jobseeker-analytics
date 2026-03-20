@@ -535,7 +535,7 @@ async def email_sync_auth(
             select(task_models.TaskRuns)
             .where(task_models.TaskRuns.user_id == user_id)
             .where(task_models.TaskRuns.status == task_models.FINISHED)
-            .where(task_models.TaskRuns.history_sync_completed == True)
+            .where(task_models.TaskRuns.history_sync_completed.is_(True))
             .order_by(task_models.TaskRuns.updated.desc())
         ).first()
         last_fetched_date = last_finished.last_processed_date if last_finished else None

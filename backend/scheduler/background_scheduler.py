@@ -104,7 +104,7 @@ def run_premium_batch() -> None:
                     select(task_models.TaskRuns)
                     .where(task_models.TaskRuns.user_id == user.user_id)
                     .where(task_models.TaskRuns.status == task_models.FINISHED)
-                    .where(task_models.TaskRuns.history_sync_completed == True)
+                    .where(task_models.TaskRuns.history_sync_completed.is_(True))
                     .order_by(task_models.TaskRuns.updated.desc())
                 ).first()
                 last_updated = last_finished.last_processed_date if last_finished else get_last_email_date(user.user_id, db_session)
