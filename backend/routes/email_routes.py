@@ -703,8 +703,19 @@ def _fetch_emails_to_db_impl(
         if existing_user and existing_user.start_date:
             user_start_date = existing_user.start_date.strftime('%Y/%m/%d')
             if not start_date:
-                start_date = user_start_date
-                logger.info(f"Using user's configured start_date: {start_date}")
+                # Apply free tier limit: cap at 30 days ago for non-premium users
+                if not is_premium_eligible(db_session, existing_user):
+                    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=FREE_HISTORY_DAYS)
+                    user_start = existing_user.start_date
+                    # Ensure timezone-aware comparison
+                    if user_start.tzinfo is None:
+                        user_start = user_start.replace(tzinfo=timezone.utc)
+                    effective_start = max(user_start, thirty_days_ago)
+                    start_date = effective_start.strftime('%Y/%m/%d')
+                    logger.info(f"user_id:{user_id} Free tier: capping start_date to {start_date} (was {user_start_date})")
+                else:
+                    start_date = user_start_date
+                    logger.info(f"Using user's configured start_date: {start_date}")
             elif start_date != user_start_date:
                 logger.info(f"start_date {start_date} != user.start_date {user_start_date}")
                 start_date_updated = True
