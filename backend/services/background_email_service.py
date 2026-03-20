@@ -363,29 +363,3 @@ class BackgroundEmailFetcher:
                 )
         except Exception as e:
             logger.error("Failed to mark task cancelled: %s", e)
-
-
-def run_background_fetch_for_user(user_id: str) -> bool:
-    """
-    Convenience function to run background email fetch for a single user.
-
-    Creates its own database session and handles cleanup.
-
-    Returns:
-        True if successful, False otherwise
-    """
-    with database.get_session() as db_session:
-        # Get last_processed_date from task run for accurate incremental fetch
-        from db import task_models
-        from sqlmodel import select
-        last_finished = db_session.exec(
-            select(task_models.TaskRuns)
-            .where(task_models.TaskRuns.user_id == user_id)
-            .where(task_models.TaskRuns.status == task_models.FINISHED)
-            .where(task_models.TaskRuns.history_sync_completed == True)
-            .order_by(task_models.TaskRuns.updated.desc())
-        ).first()
-        last_updated = last_finished.last_processed_date if last_finished else get_last_email_date(user_id, db_session)
-
-        fetcher = BackgroundEmailFetcher(db_session, user_id)
-        return fetcher.fetch_emails(last_updated)
