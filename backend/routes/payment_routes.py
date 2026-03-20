@@ -18,12 +18,45 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
+# Fixed premium price - no user-supplied amounts allowed
+PREMIUM_AMOUNT_CENTS = 500  # $5/month
+
 
 # Request/Response models
+class ValidatePromoRequest(BaseModel):
+    code: str
+
+
 class CheckoutRequest(BaseModel):
-    amount_cents: int
     trigger_type: Optional[str] = None
     is_recurring: bool = True  # Default to recurring for backwards compatibility
+
+
+@router.post("/payment/validate-promo")
+@limiter.limit("10/minute")
+async def validate_promo_code(
+    request: Request,
+    body: ValidatePromoRequest,
+    user_id: str = Depends(validate_session)
+):
+    """Validate a Stripe promotion code. Returns {valid: bool}."""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    get_stripe_key()
+
+    code = body.code.strip().upper()
+    if not code:
+        return {"valid": False}
+
+    try:
+        codes = stripe.PromotionCode.list(code=code, active=True, limit=1)
+        valid = len(codes.data) > 0
+        logger.info(f"Promo code validation for user {user_id}: code={code} valid={valid}")
+        return {"valid": valid}
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error validating promo code: {e}")
+        raise HTTPException(status_code=500, detail="Failed to validate promo code")
 
 
 @router.post("/payment/checkout")
@@ -34,7 +67,7 @@ async def create_checkout(
     db_session: database.DBSession,
     user_id: str = Depends(validate_session)
 ):
-    """Create Stripe checkout session for chosen contribution amount."""
+    """Create Stripe checkout session for premium subscription ($5/month)."""
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -44,8 +77,8 @@ async def create_checkout(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if body.amount_cents < 100:
-        raise HTTPException(status_code=400, detail="Minimum contribution is $1")
+    # Use fixed premium amount - ignore any user-supplied amount
+    amount_cents = PREMIUM_AMOUNT_CENTS
 
     try:
         # Create or get Stripe customer
@@ -67,7 +100,7 @@ async def create_checkout(
                 line_items=[{
                     "price_data": {
                         "currency": "usd",
-                        "unit_amount": body.amount_cents,
+                        "unit_amount": amount_cents,
                         "recurring": {"interval": "month"},
                         "product_data": {"name": "JustAJobApp Monthly Contribution"}
                     },
@@ -77,14 +110,14 @@ async def create_checkout(
                 cancel_url=f"{settings.APP_URL}/dashboard",
                 metadata={
                     "user_id": user_id,
-                    "amount_cents": str(body.amount_cents),
+                    "amount_cents": str(amount_cents),
                     "trigger_type": body.trigger_type or "manual",
                     "is_recurring": "true"
                 },
                 subscription_data={
                     "metadata": {
                         "user_id": user_id,
-                        "amount_cents": str(body.amount_cents)
+                        "amount_cents": str(amount_cents)
                     }
                 }
             )
@@ -96,7 +129,7 @@ async def create_checkout(
                 line_items=[{
                     "price_data": {
                         "currency": "usd",
-                        "unit_amount": body.amount_cents,
+                        "unit_amount": amount_cents,
                         "product_data": {"name": "JustAJobApp One-Time Contribution"}
                     },
                     "quantity": 1
@@ -105,14 +138,14 @@ async def create_checkout(
                 cancel_url=f"{settings.APP_URL}/dashboard",
                 metadata={
                     "user_id": user_id,
-                    "amount_cents": str(body.amount_cents),
+                    "amount_cents": str(amount_cents),
                     "trigger_type": body.trigger_type or "manual",
                     "is_recurring": "false"
                 }
             )
 
         payment_type = "recurring" if body.is_recurring else "one-time"
-        logger.info(f"Created {payment_type} checkout session {checkout_session.id} for user {user_id}, amount: {body.amount_cents}")
+        logger.info(f"Created {payment_type} checkout session {checkout_session.id} for user {user_id}, amount: {amount_cents}")
         return {"checkout_url": checkout_session.url, "session_id": checkout_session.id}
 
     except stripe.error.StripeError as e:

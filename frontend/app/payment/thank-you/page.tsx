@@ -12,34 +12,47 @@ function ThankYouContent() {
 	const searchParams = useSearchParams();
 	const [isLoading, setIsLoading] = useState(true);
 	const [contributionAmount, setContributionAmount] = useState<number | null>(null);
+	const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
 	useEffect(() => {
-		const fetchPaymentStatus = async () => {
+		const fetchStatus = async () => {
 			const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 			try {
-				const response = await fetch(`${apiUrl}/payment/status`, {
-					method: "GET",
-					credentials: "include"
-				});
+				// Fetch premium status and onboarding status in parallel
+				const [premiumRes, onboardingRes] = await Promise.all([
+					fetch(`${apiUrl}/settings/premium-status`, {
+						method: "GET",
+						credentials: "include"
+					}),
+					fetch(`${apiUrl}/api/users/onboarding-status`, {
+						method: "GET",
+						credentials: "include"
+					})
+				]);
 
-				if (response.ok) {
-					const data = await response.json();
-					setContributionAmount(data.monthly_cents);
+				if (premiumRes.ok) {
+					const data = await premiumRes.json();
+					setContributionAmount(data.monthly_contribution_cents);
+				}
+
+				if (onboardingRes.ok) {
+					const data = await onboardingRes.json();
+					setHasCompletedOnboarding(data.has_completed_onboarding ?? false);
 				}
 			} catch (error) {
-				console.error("Error fetching payment status:", error);
+				console.error("Error fetching status:", error);
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
 		// Small delay to ensure Stripe webhook has processed
-		setTimeout(fetchPaymentStatus, 1000);
+		setTimeout(fetchStatus, 1000);
 	}, [searchParams]);
 
-	const handleGoToDashboard = () => {
-		router.push("/dashboard");
+	const handleContinue = () => {
+		router.push(hasCompletedOnboarding ? "/dashboard" : "/onboarding");
 	};
 
 	if (isLoading) {
@@ -72,8 +85,8 @@ function ThankYouContent() {
 								Settings.
 							</a>
 						</p>
-						<Button color="primary" size="lg" onPress={handleGoToDashboard}>
-							Back to Dashboard
+						<Button color="primary" size="lg" onPress={handleContinue}>
+							{hasCompletedOnboarding ? "Back to Dashboard" : "Continue Setup →"}
 						</Button>
 					</CardBody>
 				</Card>

@@ -66,6 +66,8 @@
   field: subject
   how: exclude
   terms:
+    - special thank
+    - blog
     - do you want to finish your application
     - watering    
     - you have new application updates this week
@@ -82,12 +84,20 @@
     - found jobs
     - mock interview
     - Mock Interview
+    - mock coding
 
 ## exclude all of the following from addresses
 - logic: all
   field: from
   how: exclude
   terms:
+    - '@groups.io'
+    - '@mail.beehiiv.com'
+    - info@
+    - support@
+    - hi@
+    - hello@
+    - '@indiehackers.com'
     - IRCC.DoNotReply-NePasRepondre.IRCC@prson-srpel.apps.cic.gc.ca
     - no-reply@comet.zillow.com
     - insights@careerseeker.accenture.com

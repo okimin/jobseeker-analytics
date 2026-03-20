@@ -97,6 +97,9 @@ async def stripe_webhook(
                     # Recurring: set monthly contribution and subscription
                     user.monthly_contribution_cents = amount_cents
                     user.stripe_subscription_id = subscription_id
+                    # Update plan field if user is paying $5+/month (unless promo)
+                    if amount_cents >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS and user.plan != "promo":
+                        user.plan = "paid"
                 # One-time payments don't set monthly_contribution_cents
 
                 if not user.contribution_started_at:
@@ -203,6 +206,9 @@ async def stripe_webhook(
             if user:
                 user.monthly_contribution_cents = 0
                 user.stripe_subscription_id = None
+                # Reset plan to free (unless promo)
+                if user.plan != "promo":
+                    user.plan = "free"
                 db_session.add(user)
                 db_session.commit()
 
@@ -229,6 +235,12 @@ async def stripe_webhook(
                 if user and new_amount > 0:
                     old_amount = user.monthly_contribution_cents or 0
                     user.monthly_contribution_cents = new_amount
+                    # Update plan field based on contribution (unless promo)
+                    if user.plan != "promo":
+                        if new_amount >= PREMIUM_CONTRIBUTION_THRESHOLD_CENTS:
+                            user.plan = "paid"
+                        else:
+                            user.plan = "free"
                     db_session.add(user)
                     db_session.commit()
 

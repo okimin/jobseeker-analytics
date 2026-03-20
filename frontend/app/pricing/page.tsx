@@ -1,18 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardBody, CardHeader, Button } from "@heroui/react";
 
 import { Navbar } from "@/components/navbar";
 import SettingsModal from "@/components/SettingsModal";
+import Spinner from "@/components/spinner";
 
 const PREMIUM_AMOUNT_CENTS = 500; // $5/month
 
-export default function PricingPage() {
+function PricingContent() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const hasTriggeredUpgrade = useRef(false);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const action = searchParams.get("action");
+
+	function XIcon({ className }: { className?: string }) {
+		return (
+			<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+			</svg>
+		);
+	}
 
 	useEffect(() => {
 		const fetchPremiumStatus = async () => {
@@ -23,15 +38,18 @@ export default function PricingPage() {
 				if (response.ok) {
 					const data = await response.json();
 					setIsPremium(data.is_premium);
+					setIsLoggedIn(true);
+				} else {
+					setIsLoggedIn(false);
 				}
 			} catch (err) {
-				// Silently fail - user may not be logged in
+				setIsLoggedIn(false);
 			}
 		};
 		fetchPremiumStatus();
 	}, [apiUrl]);
 
-	const handleUpgrade = async () => {
+	const triggerCheckout = async () => {
 		setIsLoading(true);
 
 		try {
@@ -48,7 +66,7 @@ export default function PricingPage() {
 
 			if (response.ok) {
 				const data = await response.json();
-				window.open(data.checkout_url, "_blank", "noopener,noreferrer");
+				window.location.href = data.checkout_url || data.url;
 			} else {
 				console.error("Failed to create checkout session");
 			}
@@ -57,6 +75,26 @@ export default function PricingPage() {
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	// Auto-trigger checkout if redirected back after login with action=upgrade
+	useEffect(() => {
+		if (action === "upgrade" && isLoggedIn && !hasTriggeredUpgrade.current) {
+			hasTriggeredUpgrade.current = true;
+			// Small delay to ensure state is settled
+			setTimeout(() => {
+				triggerCheckout();
+			}, 100);
+		}
+	}, [action, isLoggedIn]);
+
+	const handleUpgrade = () => {
+		// If not logged in, redirect to login with return URL
+		if (!isLoggedIn) {
+			router.push("/login?redirect=/pricing&action=upgrade");
+			return;
+		}
+		triggerCheckout();
 	};
 
 	return (
@@ -88,20 +126,30 @@ export default function PricingPage() {
 								<ul className="space-y-3">
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Track job applications</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">Gmail integration</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Manual sync anytime</span>
+										<span className="text-gray-600 dark:text-gray-300">Last 30 days processed</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											CSV export — all your data
+										</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">Manual refresh</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
+										<span className="text-gray-400 dark:text-gray-500">Full history</span>
 									</li>
 									<li className="flex items-start gap-2">
 										<XIcon className="w-5 h-5 text-default-400 mt-0.5 flex-shrink-0" />
 										<span className="text-gray-400 dark:text-gray-500">
-											Automatic background sync
+											Auto-refresh twice a day
 										</span>
 									</li>
 								</ul>
@@ -133,17 +181,13 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300 font-medium">
-											Automatic sync every 12 hours
+										<span className="text-gray-600 dark:text-gray-300">Full search history</span>
+									</li>
+									<li className="flex items-start gap-2">
+										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+										<span className="text-gray-600 dark:text-gray-300">
+											Auto-refresh twice a day
 										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Your data stays fresh</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">Support open source</span>
 									</li>
 								</ul>
 								<div className="mt-6">
@@ -190,12 +234,6 @@ export default function PricingPage() {
 									</li>
 									<li className="flex items-start gap-2">
 										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-										<span className="text-gray-600 dark:text-gray-300">
-											Automatic sync every 12 hours
-										</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<CheckIcon className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
 										<span className="text-gray-600 dark:text-gray-300">White glove support</span>
 									</li>
 								</ul>
@@ -222,6 +260,32 @@ export default function PricingPage() {
 						<div className="space-y-6">
 							<div>
 								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
+									How much email history can I see in my dashboard?
+								</h3>
+								<p className="text-gray-600 dark:text-gray-300">
+									Free users see the last 30 days of job application emails in their dashboard. Your
+									full history is stored and unlocks immediately when you upgrade — no re-sync needed.
+									And regardless of your plan, you can always export everything we’ve ever processed
+									for you via CSV.
+								</p>
+							</div>
+							<div>
+								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
+									Is there a limit on how many emails get scanned?
+								</h3>
+								<p className="text-gray-600 dark:text-gray-300">
+									Free accounts scan up to 500 emails per month, which resets on the 1st. Premium
+									accounts have a higher monthly buffer to keep our costs predictable — if you’re
+									hitting limits, email{" "}
+									<a className="underline" href="mailto:help@justajobapp.com">
+										help@justajobapp.com
+									</a>{" "}
+									and we’ll figure it out together. (And if you’re getting 5,000 job emails a month,
+									we’d love to chat about your search strategy too.)
+								</p>
+							</div>
+							<div>
+								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
 									What does automatic sync do?
 								</h3>
 								<p className="text-gray-600 dark:text-gray-300">
@@ -236,23 +300,6 @@ export default function PricingPage() {
 								<p className="text-gray-600 dark:text-gray-300">
 									Yes! You can cancel your monthly support at any time. You'll keep premium features
 									until the end of your billing period.
-								</p>
-							</div>
-							<div>
-								<h3 className="font-semibold text-gray-800 dark:text-white mb-2">
-									What if I contribute less than $5/month?
-								</h3>
-								<p className="text-gray-600 dark:text-gray-300">
-									<span>
-										<a
-											className="underline"
-											href="https://donate.stripe.com/fZu28r8Q98jSeGD8lFdIA00"
-										>
-											Any contribution
-										</a>
-									</span>{" "}
-									helps keep the project running! You'll have access to all free features and can
-									manually sync your emails anytime. Premium auto-sync is available at $5/month.
 								</p>
 							</div>
 							<div>
@@ -281,10 +328,19 @@ function CheckIcon({ className }: { className?: string }) {
 	);
 }
 
-function XIcon({ className }: { className?: string }) {
+export default function PricingPage() {
 	return (
-		<svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-		</svg>
+		<Suspense
+			fallback={
+				<div className="flex flex-col min-h-screen">
+					<Navbar />
+					<main className="flex-grow flex items-center justify-center">
+						<Spinner />
+					</main>
+				</div>
+			}
+		>
+			<PricingContent />
+		</Suspense>
 	);
 }
