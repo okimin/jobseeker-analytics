@@ -166,7 +166,7 @@ export default function Dashboard() {
 	}, [lastRefreshTime]);
 
 	// Handle upgrade checkout
-	const handleUpgrade = async (triggerType: string = "dashboard") => {
+	const handleUpgrade = async (triggerType = "dashboard") => {
 		setCheckoutLoading(true);
 		posthog.capture("upgrade_clicked", { trigger_type: triggerType });
 
@@ -833,7 +833,6 @@ export default function Dashboard() {
 				<button
 					className="flex items-center gap-2 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
 					disabled={refreshing || processingStatus?.status === "processing" || cooldownSeconds > 0}
-					onClick={handleRefresh}
 					title={
 						processingStatus?.status === "processing"
 							? "Refresh available after scan completes"
@@ -841,6 +840,7 @@ export default function Dashboard() {
 								? `Last refreshed ${cooldownSeconds}s ago`
 								: undefined
 					}
+					onClick={handleRefresh}
 				>
 					<svg
 						className={`w-4 h-4 ${processingStatus?.status === "processing" || refreshing ? "animate-spin" : ""}`}
