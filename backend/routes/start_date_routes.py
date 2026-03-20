@@ -30,6 +30,7 @@ class StartDatePreset(str, Enum):
     ONE_MONTH = "1_month"
     THREE_MONTHS = "3_months"
     SIX_MONTHS = "6_months"
+    ONE_YEAR = "1_year"
     CUSTOM = "custom"
 
 
@@ -38,6 +39,7 @@ PRESET_DAYS = {
     StartDatePreset.ONE_MONTH: 30,
     StartDatePreset.THREE_MONTHS: 90,
     StartDatePreset.SIX_MONTHS: 180,
+    StartDatePreset.ONE_YEAR: 365,
 }
 
 

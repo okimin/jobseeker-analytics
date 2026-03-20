@@ -375,8 +375,12 @@ function OnboardingContent() {
 
 			// Trigger backfill via start-date
 			const fetchOrder = role === "coach" ? "oldest_first" : "recent_first";
-			const startDatePayload = selectedPreset
-				? { preset: selectedPreset, fetch_order: fetchOrder, end_date: savedEndDate || null }
+			// For free users selecting > 30 days, force to 1_month (30 days)
+			const thirtyDaysAgo = daysAgoDate(30);
+			const shouldCapTo30Days = plan === "free" && savedStartDate < thirtyDaysAgo;
+			const effectivePreset = shouldCapTo30Days ? "1_month" : selectedPreset;
+			const startDatePayload = effectivePreset
+				? { preset: effectivePreset, fetch_order: fetchOrder, end_date: savedEndDate || null }
 				: {
 						preset: "custom",
 						custom_date: savedStartDate.toISOString().split("T")[0],
@@ -881,11 +885,6 @@ function OnboardingContent() {
 								← Change date range
 							</button>
 						</div>
-
-						{/* Footnote about caps */}
-						<p className="text-xs text-gray-400 mt-4 text-center">
-							Free accounts process up to 500 emails/month. Premium accounts process up to 5,000.
-						</p>
 					</Card>
 				</main>
 			</>
