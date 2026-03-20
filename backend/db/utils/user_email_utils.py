@@ -53,7 +53,8 @@ def create_user_email(user_id: str, message_data: dict, db_session) -> UserEmail
             logger.info(f"Email with ID {message_data['id']} already exists in the database.")
             return None
         
-        job_title = message_data["job_title"].title() if not (email.job_title is None and email.job_title == "" and email.job_title == "null" and email.job_title == "none") else "Unknown"
+        raw_job_title = message_data.get("job_title")
+        job_title = raw_job_title.title() if raw_job_title and raw_job_title.lower() not in ("", "null", "none") else "Unknown"
                 
         record = UserEmails(
             id=message_data["id"],
