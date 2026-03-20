@@ -7,6 +7,7 @@ from google_auth_oauthlib.flow import Flow
 import secrets
 import time
 
+from db import processing_tasks as task_models
 from db.utils.user_utils import user_exists
 from utils.auth_utils import AuthenticatedUser, get_google_authorization_url, get_refresh_token_status, get_creds, get_latest_refresh_token
 from session.session_layer import clear_session, create_random_session_string, get_token_expiry, validate_session
@@ -530,7 +531,6 @@ async def email_sync_auth(
 
         # Post-onboarding reconnect: trigger incremental sync and go to dashboard
         # Use last_processed_date from task run (tracks all scanned emails, not just stored ones)
-        from db import task_models
         last_finished = db_session.exec(
             select(task_models.TaskRuns)
             .where(task_models.TaskRuns.user_id == user_id)

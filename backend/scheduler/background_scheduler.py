@@ -11,6 +11,8 @@ from apscheduler.triggers.cron import CronTrigger
 from sqlmodel import select
 
 from db.users import Users
+from db import processing_tasks as task_models
+
 from db.oauth_credentials import OAuthCredentials
 from db.utils.user_utils import get_last_email_date
 from services.background_email_service import BackgroundEmailFetcher
