@@ -66,9 +66,6 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 
 	// Determine what the primary CTA button should show
 	const getPrimaryCTA = () => {
-		if (isAuthenticated && pathname === "/dashboard") {
-			return { label: "Logout", href: "/logout" };
-		}
 		if (isAuthenticated) {
 			return { label: "Dashboard", href: "/dashboard" };
 		}
@@ -339,8 +336,8 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							</>
 						)}
 
-						{/* Primary CTA button (Dashboard or Login) - only show when not authenticated or on dashboard */}
-						{(!isAuthenticated || pathname === "/dashboard") && (
+						{/* Primary CTA button (Dashboard or Login) - only show when not on dashboard */}
+						{!isAuthenticated && (
 							<NextLink
 								className="ml-2 lg-nav:ml-4 inline-flex items-center px-3 lg-nav:px-5 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
 								href={primaryCTA.href}
@@ -349,50 +346,72 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							</NextLink>
 						)}
 
-						{/* Settings/Upgrade button - shows gear for premium, heart for free */}
-						{isAuthenticated && onSettingsClick ? (
-							<div className="relative group ml-6">
+						{/* Settings icon on dashboard */}
+						{isAuthenticated && pathname === "/dashboard" && onSettingsClick && (
+							<div className="relative group ml-2">
 								<button
-									className="p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
+									className="relative p-2.5 border border-divider rounded-md text-default-500 hover:text-foreground hover:border-default-400 transition-colors"
 									onClick={() => {
-										posthog.capture(isPremium ? "settings_clicked" : "upgrade_clicked", {
-											source: "navbar"
-										});
+										posthog.capture("settings_clicked", { source: "navbar" });
 										onSettingsClick();
 									}}
 								>
-									{isPremium ? (
-										/* Gear icon for premium users */
-										<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-											<path
-												d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									) : (
-										/* Heart icon for free users */
-										<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-											<path
-												clipRule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												fillRule="evenodd"
-											/>
-										</svg>
+									<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+										/>
+										<path
+											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+										/>
+									</svg>
+									{/* Yellow dot for free users */}
+									{!isPremium && (
+										<span
+											style={{
+												position: "absolute",
+												top: "-4px",
+												right: "-4px",
+												width: "10px",
+												height: "10px",
+												backgroundColor: "#fbbf24",
+												borderRadius: "50%"
+											}}
+										/>
 									)}
 								</button>
 								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-									{isPremium ? "Settings" : "Upgrade to Premium"}
+									Settings
 								</div>
 							</div>
-						) : null}
+						)}
+
+						{/* Logout icon on dashboard */}
+						{isAuthenticated && pathname === "/dashboard" && (
+							<div className="relative group ml-2">
+								<NextLink
+									className="p-2 text-default-500 hover:text-foreground transition-colors block"
+									href="/logout"
+								>
+									<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+										/>
+									</svg>
+								</NextLink>
+								<div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+									Logout
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Mobile menu button */}

@@ -907,21 +907,26 @@ export default function Dashboard() {
 			)}
 
 			{hiddenEmailCount > 0 && hiddenCutoffDate && !isPremium && (
-				<div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 flex items-center justify-between gap-3">
-					<p className="text-sm text-blue-800 dark:text-blue-200">
-						{hiddenEmailCount} email{hiddenEmailCount !== 1 ? "s" : ""} from before{" "}
-						{new Date(hiddenCutoffDate).toLocaleDateString("en-US", {
-							month: "short",
-							day: "numeric",
-							year: "numeric"
-						})}{" "}
-						{hiddenEmailCount === 1 ? "is" : "are"} not visible on your free plan.
-					</p>
+				<div className="mx-6 mb-4 mt-4 px-4 py-3 rounded-lg bg-content1 border border-blue-200 dark:border-blue-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+					<div>
+						<p className="text-sm text-foreground">
+							{hiddenEmailCount} older email{hiddenEmailCount === 1 ? " isn't" : "s aren't"} shown on your
+							free plan.
+						</p>
+						<p className="text-sm text-foreground-500">
+							They&apos;re still yours —{" "}
+							<button className="text-blue-600 dark:text-blue-400 hover:underline" onClick={downloadCsv}>
+								export everything to CSV
+							</button>
+							.
+						</p>
+					</div>
 					<button
-						className="shrink-0 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+						className="shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+						style={{ backgroundColor: "#f59e0b", color: "#1f2937" }}
 						onClick={() => handleUpgrade("hidden_emails_banner")}
 					>
-						Upgrade to Premium — $5/mo
+						Upgrade — $5/mo
 					</button>
 				</div>
 			)}
