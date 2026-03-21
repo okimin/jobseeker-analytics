@@ -165,6 +165,12 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 									>
 										FAQ
 									</NextLink>
+									<NextLink
+										className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-content2 dark:hover:bg-content3"
+										href="/security"
+									>
+										Security
+									</NextLink>
 								</div>
 							</div>
 						</div>
@@ -497,6 +503,13 @@ export const Navbar = ({ defaultCollapsed = false, isPremium = false, onSettings
 							onClick={() => setIsOpen(false)}
 						>
 							FAQ
+						</NextLink>
+						<NextLink
+							className="block px-3 py-2 pl-6 rounded-md text-base font-medium text-foreground/80 hover:text-foreground hover:bg-content2"
+							href="/security"
+							onClick={() => setIsOpen(false)}
+						>
+							Security
 						</NextLink>
 
 						{/* Resources section */}

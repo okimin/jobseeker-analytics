@@ -46,6 +46,7 @@ export const siteConfig = {
 		login: "/login",
 		logout: "/logout",
 		privacyPolicy: "/privacy",
+		security: "/security",
 		termsAndConditions: "/terms",
 		cookiePolicy: "/cookies",
 		dataRequests: "/dsar",
